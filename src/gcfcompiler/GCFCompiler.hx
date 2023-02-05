@@ -48,7 +48,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			}
 			result;
 		} else {
-			final prefix = (useNamespaces ? typeData.pack.join("::") + "::" : "");
+			final prefix = (useNamespaces ? typeData.pack.join("::") + (typeData.pack.length > 0 ? "::" : "") : "");
 			compileTypeNameWithParams(prefix + typeData.getNameOrNativeName(), pos, params);
 		}
 	}
@@ -140,6 +140,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				} else {
 					switch(absRef.get().name) {
 						case "Null" if(params.length == 1): {
+							addInclude("optional", true, true);
 							"std::optional<" + compileTypeSafe(params[0], pos) + ">";
 						}
 						case _: {
@@ -195,7 +196,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			// Add include from extracted metadata entry parameters.
 			// Returns true if successful.
 			function addMetaEntryInc(params: Array<Dynamic>): Bool {
-				if(params != null && params.length > 0 && Std.isOfType(params[0], String)) {
+				if(params != null && params.length > 0 && Std.string(Type.typeof(params[0])) == "TClass(Class<String>)") {
 					addInclude(params[0], header, params[1] == true);
 					return true;
 				}
@@ -205,6 +206,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			// Add our "main" include if @:noInclude is absent.
 			// First look for and use @:include, otherwise, use default header include.
 			final cd = mt.getCommonData();
+			if(currentModule.getUniqueId() == mt.getUniqueId()) return;
 			if(!cd.hasMeta(":noInclude")) {
 				final includeOverride = cd.meta.extractParamsFromFirstMeta(":include");
 				if(!addMetaEntryInc(includeOverride)) {
@@ -270,7 +272,8 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		final cppVariables = [];
 		final cppFunctions = [];
 		final className = compileClassName(classType, classType.pos, null, false);
-		final classNameNS = compileClassName(classType, classType.pos, null, true);
+		var classNameNS = compileClassName(classType, classType.pos, null, true);
+		if(classNameNS.length > 0) classNameNS += "::";
 
 		var headerOnly = classType.hasMeta(":headerOnly");
 
@@ -322,7 +325,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			variables.push(decl);
 
 			if(addToCpp) {
-				cppVariables.push(type + " " + classNameNS + "::" + varName + assign);
+				cppVariables.push(type + " " + classNameNS + varName + assign);
 			}
 		}
 
@@ -366,7 +369,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				variables.push(decl);
 	
 				if(dynAddToCpp) {
-					cppVariables.push(type + " " + classNameNS + "::" + name + assign);
+					cppVariables.push(type + " " + classNameNS + name + assign);
 				}
 			} else {
 				final retDecl = (useReturnType ? (ret + " ") : "");
@@ -380,7 +383,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				
 				if(addToCpp) {
 					functions.push(funcDeclaration + ";");
-					cppFunctions.push(retDecl + classNameNS + "::" + name + argDecl + content);
+					cppFunctions.push(retDecl + classNameNS + name + argDecl + content);
 				} else {
 					functions.push(funcDeclaration + content);
 				}
@@ -459,7 +462,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// ----------------------------
 	// Compiles an typedef into C++.
 	public override function compileTypedef(defType: DefType): Null<String> {
-		resetAndInitIncludes();
+		resetAndInitIncludes(true);
 
 		switch(defType.type) {
 			case TAnonymous(anonRef): {
