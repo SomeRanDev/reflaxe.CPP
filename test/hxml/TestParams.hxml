@@ -1,0 +1,7 @@
+-cp src
+
+-D cpp-output=out
+
+--no-opt
+
+Test

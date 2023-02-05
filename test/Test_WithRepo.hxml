@@ -1,0 +1,9 @@
+-cp ../std
+-cp ../std/gcf/_std
+-cp ../src/
+
+-lib reflaxe
+
+../extraParams.hxml
+
+hxml/TestParams.hxml
