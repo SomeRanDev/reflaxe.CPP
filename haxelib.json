@@ -1,0 +1,23 @@
+{
+	"name": "gcfree-cpp",
+	"version": "0.1.0",
+	"description": "An alternative C++ target for Haxe that generates dependent-less, GC-less C++11 code.",
+	"url": "https://github.com/RobertBorghese/Haxe-to-GCFreeCPP",
+	"license": "MIT",
+	"tags": [
+		"cpp",
+		"macro",
+		"compiler",
+		"target",
+		"gc",
+		"native",
+		"metadata",
+		"externs"
+	],
+	"dependencies": {
+		"reflaxe": "2.1.0"
+	},
+	"classPath": "src/",
+	"releasenote": "Initial release.",
+	"contributors": ["RobertBorghese"]
+}

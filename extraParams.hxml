@@ -1,0 +1,3 @@
+-D gcf
+-D gcfcpp
+--macro gcfcompiler.GCFCompilerInit.Start()
