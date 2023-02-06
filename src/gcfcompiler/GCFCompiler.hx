@@ -14,6 +14,7 @@ import reflaxe.helpers.OperatorHelper;
 
 using reflaxe.helpers.BaseCompilerHelper;
 using reflaxe.helpers.ClassTypeHelper;
+using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
@@ -209,7 +210,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// Add include from extracted metadata entry parameters.
 	// Returns true if successful.
 	function addMetaEntryInc(params: Array<Dynamic>, header: Bool): Bool {
-		if(params != null && params.length > 0 && Std.string(Type.typeof(params[0])) == "TClass(Class<String>)") {
+		if(params != null && params.length > 0 && params[0].isString()) {
 			addInclude(params[0], header, params[1] == true);
 			return true;
 		}
