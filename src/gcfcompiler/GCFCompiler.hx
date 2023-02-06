@@ -193,35 +193,48 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		if(isNoIncludeType(mt)) return;
 
 		if(mt != null) {
-			// Add include from extracted metadata entry parameters.
-			// Returns true if successful.
-			function addMetaEntryInc(params: Array<Dynamic>): Bool {
-				if(params != null && params.length > 0 && Std.string(Type.typeof(params[0])) == "TClass(Class<String>)") {
-					addInclude(params[0], header, params[1] == true);
-					return true;
-				}
-				return false;
-			}
-
 			// Add our "main" include if @:noInclude is absent.
 			// First look for and use @:include, otherwise, use default header include.
 			final cd = mt.getCommonData();
 			if(currentModule.getUniqueId() == mt.getUniqueId()) return;
-			if(!cd.hasMeta(":noInclude")) {
-				final includeOverride = cd.meta.extractParamsFromFirstMeta(":include");
-				if(!addMetaEntryInc(includeOverride)) {
-					if(!cd.isExtern) {
-						addInclude(getFileNameFromModuleData(cd) + headerExt, header, false);
-					}
+			if(addIncludeFromMetaAccess(cd.meta, header)) {
+				if(!cd.isExtern) {
+					addInclude(getFileNameFromModuleData(cd) + headerExt, header, false);
 				}
 			}
+			
+		}
+	}
 
-			// Additional header files can be added using @:addInclude.
-			final additionalIncludes = cd.meta.extractParamsFromAllMeta(":addInclude");
-			for(inc in additionalIncludes) {
-				addMetaEntryInc(inc);
+	// Add include from extracted metadata entry parameters.
+	// Returns true if successful.
+	function addMetaEntryInc(params: Array<Dynamic>, header: Bool): Bool {
+		if(params != null && params.length > 0 && Std.string(Type.typeof(params[0])) == "TClass(Class<String>)") {
+			addInclude(params[0], header, params[1] == true);
+			return true;
+		}
+		return false;
+	}
+
+	// Adds includes introduced from MetaAccess.
+	// Returns "true" if a default include was not added.
+	function addIncludeFromMetaAccess(metaAccess: Null<MetaAccess>, header: Bool = false): Bool {
+		if(metaAccess == null) return true;
+
+		if(!metaAccess.maybeHas(":noInclude")) {
+			final includeOverride = metaAccess.extractParamsFromFirstMeta(":include");
+			if(!addMetaEntryInc(includeOverride, header)) {
+				return true;
 			}
 		}
+
+		// Additional header files can be added using @:addInclude.
+		final additionalIncludes = metaAccess.extractParamsFromAllMeta(":addInclude");
+		for(inc in additionalIncludes) {
+			addMetaEntryInc(inc, header);
+		}
+
+		return false;
 	}
 
 	// ----------------------------
@@ -252,7 +265,9 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		for(level => moduleTypes in typeUsage) {
 			if(level >= Constructed) {
 				for(mt in moduleTypes) {
-					addIncludeFromModuleType(mt, onlyHeader || level >= FunctionDeclaration);
+					if(!mt.isAbstract()) {
+						addIncludeFromModuleType(mt, onlyHeader || level >= FunctionDeclaration);
+					}
 				}
 			}
 		}
@@ -394,9 +409,12 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 
 		// Source file
 		if(!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0)) {
-			var result = "#include \"" + filename + headerExt + "\"\n\n";
+			final srcFilename = "src/" + filename + ".cpp";
+			setExtraFileIfEmpty(srcFilename, "#include \"" + filename + headerExt + "\"");
 
-			result += compileIncludes(cppIncludes);
+			appendToExtraFile(srcFilename, compileIncludes(cppIncludes), 1);
+			
+			var result = "";
 
 			if(cppVariables.length > 0) {
 				result += cppVariables.join("\n\n") + "\n\n";
@@ -406,14 +424,17 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				result += cppFunctions.join("\n\n") + "\n";
 			}
 
-			setExtraFile("src/" + filename + ".cpp", result);
+			appendToExtraFile(srcFilename, result + "\n", 2);
 		}
 
 		// Header file
 		{
-			var result = "#pragma once\n\n";
+			final headerFilename = "include/" + filename + headerExt;
+			setExtraFileIfEmpty(headerFilename, "#pragma once");
 
-			result += compileIncludes(headerIncludes);
+			appendToExtraFile(headerFilename, compileIncludes(headerIncludes), 1);
+
+			var result = "";
 
 			for(p in classType.pack) {
 				result += "namespace " + p + " {\n";
@@ -437,10 +458,10 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				result += "}\n";
 			}
 
-			setExtraFile("include/" + filename + headerExt, result);
+			appendToExtraFile(headerFilename, result + "\n", 2);
 		}
 
-		// We generated the files ourselves with "setExtraFile",
+		// We generated the files ourselves with "appendToExtraFile",
 		// so we return null so Reflaxe doesn't generate anything itself.
 		return null;
 	}
@@ -456,6 +477,9 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// ----------------------------
 	// Compiles an enum into C++.
 	public function compileEnumImpl(enumType: EnumType, constructs: Map<String, haxe.macro.EnumField>): Null<String> {
+		final filename = getFileNameFromModuleData(enumType);
+		setExtraFile("include/" + filename + headerExt, "#pragma once\n\n");
+
 		return null;
 	}
 
@@ -483,6 +507,10 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		return null;
 	}
 
+	public override function compileAbstract(ab: AbstractType): Null<String> {
+		return null;
+	}
+
 	// ----------------------------
 	// Unwraps parenthesis from a TypeExpr for scenarios where the expression
 	// is already going to be wrapped (i.e: if statement conditions).
@@ -499,7 +527,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// compile/format for the output.
 	function compileIncludes(includeArr: Array<String>): String {
 		return if(includeArr.length > 0) {
-			includeArr.map(i -> "#include " + i).join("\n") + "\n\n";
+			includeArr.map(i -> "#include " + i).join("\n");
 		} else {
 			"";
 		}
@@ -514,6 +542,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				result = constantToGDScript(constant);
 			}
 			case TLocal(v): {
+				addIncludeFromMetaAccess(v.meta);
 				result = compileVarName(v.name, expr);
 			}
 			case TIdent(s): {
@@ -679,6 +708,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				result = compileExpression(expr);
 			}
 			case TEnumParameter(expr, enumField, index): {
+				addIncludeFromMetaAccess(enumField.meta);
 				result = compileExpression(expr);
 				switch(enumField.type) {
 					case TFun(args, _): {
@@ -778,6 +808,8 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			case FDynamic(s): { name: s, meta: null };
 		}
 
+		addIncludeFromMetaAccess(nameMeta.meta);
+
 		return if(nameMeta.hasMeta(":native")) {
 			nameMeta.getNameOrNative();
 		} else {
@@ -805,6 +837,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	}
 
 	function moduleNameToGDScript(m: ModuleType, pos: Position): String {
+		addIncludeFromMetaAccess(m.getCommonData().meta);
 		switch(m) {
 			case TClassDecl(clsRef): compileClassName(clsRef.get(), pos);
 			case _:
