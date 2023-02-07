@@ -17,7 +17,7 @@ class GCFCompilerInit {
 			fileOutputExtension: ".hpp",
 			outputDirDefineName: "cpp-output",
 			fileOutputType: FilePerClass,
-			ignoreTypes: ["haxe.iterators.ArrayIterator"],
+			ignoreTypes: ["haxe.iterators.ArrayIterator", "haxe.iterators.ArrayKeyValueIterator"],
 			reservedVarNames: reservedNames(),
 			targetCodeInjectionName: "__cpp__",
 			smartDCE: true,
