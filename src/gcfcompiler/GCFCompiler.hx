@@ -37,8 +37,28 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	}
 
 	// ----------------------------
+	// Checks if this type is the same as the
+	// ModuleType that's currently being compiled.
+	function isSameAsCurrentModule(t: Type): Bool {
+		// If Null<T>, unwrap and check "T"
+		switch(t) {
+			case TAbstract(absRef, params): {
+				switch(absRef.get().name) {
+					case "Null" if(params.length == 1): {
+						return isSameAsCurrentModule(params[0]);
+					}
+					case _:
+				}
+			}
+			case _:
+		}
+
+		return getCurrentModule().equals(t.toModuleType());
+	}
+
+	// ----------------------------
 	// Functions for compiling type names.
-	function compileModuleTypeName(typeData: { > NameAndMeta, pack: Array<String> }, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true): String {
+	function compileModuleTypeName(typeData: { > NameAndMeta, pack: Array<String> }, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
 		return if(typeData.hasMeta(":native")) {
 			var result = typeData.getNameOrNative();
 			result = StringTools.replace(result, "{this}", typeData.name);
@@ -50,20 +70,31 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			result;
 		} else {
 			final prefix = (useNamespaces ? typeData.pack.join("::") + (typeData.pack.length > 0 ? "::" : "") : "");
-			compileTypeNameWithParams(prefix + typeData.getNameOrNativeName(), pos, params);
+			final innerClass = compileTypeNameWithParams(prefix + typeData.getNameOrNativeName(), pos, params);
+			if(asValue || typeData.hasMeta(":valueType")) {
+				innerClass;
+			} else {
+				if(typeData.hasMeta(":rawPtrType")) {
+					innerClass + "*";
+				} else if(typeData.hasMeta(":uniquePtrType")) {
+					"std::unique_ptr<" + innerClass + ">";
+				} else {
+					"std::shared_ptr<" + innerClass + ">";
+				}
+			}
 		}
 	}
 
-	function compileClassName(classType: ClassType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true): String {
-		return compileModuleTypeName(classType, pos, params, useNamespaces);
+	function compileClassName(classType: ClassType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+		return compileModuleTypeName(classType, pos, params, useNamespaces, asValue);
 	}
 
-	function compileEnumName(enumType: EnumType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true): String {
-		return compileModuleTypeName(enumType, pos, params, useNamespaces);
+	function compileEnumName(enumType: EnumType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+		return compileModuleTypeName(enumType, pos, params, useNamespaces, asValue);
 	}
 
-	function compileDefName(defType: DefType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true): String {
-		return compileModuleTypeName(defType, pos, params, useNamespaces);
+	function compileDefName(defType: DefType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+		return compileModuleTypeName(defType, pos, params, useNamespaces, asValue);
 	}
 
 	function compileTypeNameWithParams(name: String, pos: Position, params: Null<Array<Type>> = null): Null<String> {
@@ -73,7 +104,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		return name + "<" + params.map(p -> compileTypeSafe(p, pos)).join(", ") + ">";
 	}
 
-	function compileTypeSafe(t: Null<Type>, pos: Position): String {
+	function compileTypeSafe(t: Null<Type>, pos: Position, asValue: Bool = false): String {
 		if(t == null) {
 			Context.error("GCFCompiler.compileTypeSafe was passed 'null'. Unknown type detected??", pos);
 		}
@@ -87,7 +118,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// ----------------------------
 	// Compiles the provided type.
 	// Position must be provided for error reporting.
-	function compileType(t: Null<Type>, pos: Position): Null<String> {
+	function compileType(t: Null<Type>, pos: Position, asValue: Bool = false): Null<String> {
 		return switch(t) {
 			case null: {
 				null;
@@ -180,6 +211,12 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	function isNoIncludeType(mt: ModuleType): Bool {
 		return switch(mt) {
 			case TAbstract(_): true;
+			case TClassDecl(clsRef): {
+				switch(clsRef.get().kind) {
+					case KTypeParameter(_): true;
+					case _: false;
+				}
+			}
 			case _: false;
 		}
 	}
@@ -203,7 +240,10 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 					addInclude(getFileNameFromModuleData(cd) + headerExt, header, false);
 				}
 			}
-			
+
+			if(!cd.hasMeta(":valueType") && !cd.hasMeta(":rawPtrType")) {
+				addInclude("memory", header, true);
+			}
 		}
 	}
 
@@ -222,20 +262,22 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	function addIncludeFromMetaAccess(metaAccess: Null<MetaAccess>, header: Bool = false): Bool {
 		if(metaAccess == null) return true;
 
+		var defaultOverrided = false;
+
 		if(!metaAccess.maybeHas(":noInclude")) {
 			final includeOverride = metaAccess.extractParamsFromFirstMeta(":include");
 			if(!addMetaEntryInc(includeOverride, header)) {
-				return true;
+				defaultOverrided = true;
 			}
 		}
-
+		
 		// Additional header files can be added using @:addInclude.
 		final additionalIncludes = metaAccess.extractParamsFromAllMeta(":addInclude");
 		for(inc in additionalIncludes) {
 			addMetaEntryInc(inc, header);
 		}
 
-		return false;
+		return defaultOverrided;
 	}
 
 	// ----------------------------
@@ -287,14 +329,24 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		final functions = [];
 		final cppVariables = [];
 		final cppFunctions = [];
-		final className = compileClassName(classType, classType.pos, null, false);
-		var classNameNS = compileClassName(classType, classType.pos, null, true);
+		final className = compileClassName(classType, classType.pos, null, false, true);
+		var classNameNS = compileClassName(classType, classType.pos, null, true, true);
 		if(classNameNS.length > 0) classNameNS += "::";
 
 		var headerOnly = classType.hasMeta(":headerOnly");
 
 		// Init includes
 		resetAndInitIncludes(headerOnly);
+
+		// Ensure no self-reference
+		final isValueType = classType.hasMeta(":valueType");
+		if(isValueType) {
+			for(v in varFields) {
+				if(isSameAsCurrentModule(v.field.type)) {
+					Context.error("Types using @:valueType cannot reference themselves. Consider wrapping with SharedPtr<T>.", v.field.pos);
+				}
+			}
+		}
 
 		var header = "";
 
@@ -399,7 +451,8 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				
 				if(addToCpp) {
 					functions.push(funcDeclaration + ";");
-					cppFunctions.push(retDecl + classNameNS + name + argDecl + content);
+					final cppArgDecl = "(" + tfunc.args.map(a -> compileFunctionArgument(a, field.pos, true)).join(", ") + ")";
+					cppFunctions.push(retDecl + classNameNS + name + cppArgDecl + content);
 				} else {
 					functions.push(funcDeclaration + content);
 				}
@@ -477,9 +530,9 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		return result;
 	}
 
-	function compileFunctionArgument(arg: { v: TVar, value: Null<TypedExpr> }, pos: Position) {
+	function compileFunctionArgument(arg: { v: TVar, value: Null<TypedExpr> }, pos: Position, noDefaultValue: Bool = false) {
 		var result = compileTypeSafe(arg.v.t, pos) + " " + compileVarName(arg.v.name);
-		if(arg.value != null) {
+		if(!noDefaultValue && arg.value != null) {
 			result += " = " + compileExpression(arg.value);
 		}
 		return result;
@@ -493,8 +546,21 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		resetAndInitIncludes(true);
 
 		// --------------------
+		// Ensure no self-reference if value type.
+		final isValueType = enumType.hasMeta(":valueType");
+		if(isValueType) {
+			for(o in options) {
+				for(a in o.args) {
+					if(isSameAsCurrentModule(a.t)) {
+						Context.error("Types using @:valueType cannot reference themselves. Consider wrapping with SharedPtr<T>.", o.field.pos);
+					}
+				}
+			}
+		}
+
+		// --------------------
 		// Generate entire class declaration in "declaration"
-		final enumName = compileEnumName(enumType, enumType.pos, null, false);
+		final enumName = compileEnumName(enumType, enumType.pos, null, false, true);
 		var declaration = "class " + enumName + " {\npublic:\n";
 		declaration += "\tint index;\n\n";
 
@@ -514,7 +580,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			{
 				final funcArgs = [];
 				for(i in 0...args.length) {
-					funcArgs.push(args[i][0] + " _" + (args.length == 1 ? o.name : args[i][1]) + (o.args[i].opt ? " = std::nullopt" : ""));
+					funcArgs.push(args[i][0] + " _" + args[i][1] + (o.args[i].opt ? " = std::nullopt" : ""));
 				}
 				var construct = "";
 				construct += "static " + enumName + " " + o.name + "(" + funcArgs.join(", ") + ") {\n";
