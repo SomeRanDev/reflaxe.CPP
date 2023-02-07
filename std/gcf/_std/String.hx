@@ -3,6 +3,7 @@ package;
 @:coreApi
 @:native("std::string")
 @:include("string", true)
+@:valueType
 extern class String {
 	// ----------------------------
 	// Haxe String Functions
