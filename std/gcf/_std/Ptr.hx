@@ -2,5 +2,7 @@ package;
 
 @:native("{arg0}*")
 @:arrowAccess
-extern class Ptr<T> {
+abstract Ptr<T>(T) from T to T {
+	@:nativeFunctionCode("(*{this})")
+	@:to public extern function toValue(): T;
 }
