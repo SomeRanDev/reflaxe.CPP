@@ -715,7 +715,12 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		}
 
 		final filename = getFileNameFromModuleData(defType);
-		final content = "typedef " + compileType(defType.type, defType.pos) + " " + defType.getNameOrNative() + ";";
+
+		var content = "";
+		content += compileNamespaceStart(defType);
+		content += "typedef " + compileType(defType.type, defType.pos) + " " + defType.getNameOrNative() + ";";
+		content += compileNamespaceEnd(defType);
+
 		final headerFilename = "include/" + filename + headerExt;
 
 		// pragma once
