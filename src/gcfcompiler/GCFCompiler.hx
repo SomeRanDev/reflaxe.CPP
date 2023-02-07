@@ -297,6 +297,14 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		headerIncludes = [];
 		cppIncludes = [];
 
+		final meta = getCurrentModule().getCommonData().meta;
+		for(params in meta.extractParamsFromAllMeta(":headerInclude")) {
+			addMetaEntryInc(params, true);
+		}
+		for(params in meta.extractParamsFromAllMeta(":cppInclude")) {
+			addMetaEntryInc(params, false);
+		}
+
 		// "getTypeUsage" returns information on all
 		// the types used by this ClassType.
 		// Let's add them to our includes.
