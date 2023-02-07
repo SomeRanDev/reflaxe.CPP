@@ -29,11 +29,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// ----------------------------
 	// Required for adding semicolons at the end of each line.
 	override function formatExpressionLine(expr: String): String {
-		return if(!StringTools.endsWith(StringTools.trim(expr), "}")) {
-			expr + ";";
-		} else {
-			expr;
-		}
+		return expr + ";";
 	}
 
 	// ----------------------------
@@ -796,7 +792,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				result += "}";
 			}
 			case TArrayDecl(el): {
-				result = "[" + el.map(e -> compileExpression(e)).join(", ") + "]";
+				result = "{" + el.map(e -> compileExpression(e)).join(", ") + "}";
 			}
 			case TCall(e, el): {
 				final nfc = this.compileNativeFunctionCodeMeta(e, el);
