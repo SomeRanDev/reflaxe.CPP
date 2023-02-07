@@ -420,6 +420,8 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			final prefix = isStatic ? "static " : "";
 
 			if(isDynamic) {
+				addInclude("functional", true, true);
+
 				final dynAddToCpp = !headerOnly && isStatic;
 				final callable = compileClassVarExpr(field.expr());
 				final assign = " = " + callable;
