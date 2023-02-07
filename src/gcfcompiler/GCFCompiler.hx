@@ -1035,7 +1035,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			switch(fa) {
 				case FStatic(clsRef, cfRef): {
 					final cf = cfRef.get();
-					final className = compileClassName(clsRef.get(), e.pos);
+					final className = compileClassName(clsRef.get(), e.pos, null, true, true);
 					return className + "::" + name;
 				}
 				case FEnum(_, enumField): {
@@ -1053,11 +1053,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 
 	function moduleNameToGDScript(m: ModuleType, pos: Position): String {
 		addIncludeFromMetaAccess(m.getCommonData().meta);
-		switch(m) {
-			case TClassDecl(clsRef): compileClassName(clsRef.get(), pos);
-			case _:
-		}
-		return m.getNameOrNative();
+		return compileModuleTypeName(m.getCommonData(), pos, null, true, true);
 	}
 
 	// This is called for called expressions.
