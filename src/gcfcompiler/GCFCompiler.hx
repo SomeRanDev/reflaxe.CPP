@@ -104,7 +104,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		if(t == null) {
 			Context.error("GCFCompiler.compileTypeSafe was passed 'null'. Unknown type detected??", pos);
 		}
-		final result = compileType(t, pos);
+		final result = compileType(t, pos, asValue);
 		if(result == null) {
 			Context.error("Could not compile type: " + t, pos);
 		}
@@ -121,16 +121,16 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			}
 			case TMono(t3): {
 				if(t3.get() != null) {
-					compileTypeSafe(t3.get(), pos);
+					compileTypeSafe(t3.get(), pos, asValue);
 				} else {
 					null;
 				}
 			}
 			case TEnum(enumRef, params): {
-				compileEnumName(enumRef.get(), pos, params);
+				compileEnumName(enumRef.get(), pos, params, true, asValue);
 			}
 			case TInst(clsRef, params): {
-				compileClassName(clsRef.get(), pos, params);
+				compileClassName(clsRef.get(), pos, params, true, asValue);
 			}
 			case TFun(args, ret): {
 				"std::function<" + compileTypeSafe(ret, pos) + "(" + args.map(a -> compileTypeSafe(a.t, pos)).join(", ") + ")>";
@@ -142,11 +142,11 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				if(t3 == null) {
 					Context.error("Dynamic not supported", pos);
 				} else {
-					compileTypeSafe(t3, pos);
+					compileTypeSafe(t3, pos, asValue);
 				}
 			}
 			case TLazy(f): {
-				compileTypeSafe(f(), pos);
+				compileTypeSafe(f(), pos, asValue);
 			}
 			case TAbstract(absRef, params): {
 				final prim = if(params.length == 0) {
@@ -178,7 +178,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				}
 			}
 			case TType(defRef, params): {
-				compileDefName(defRef.get(), pos, params);
+				compileDefName(defRef.get(), pos, params, true, asValue);
 			}
 		}
 	}
@@ -697,6 +697,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// ----------------------------
 	// Compiles an typedef into C++.
 	public override function compileTypedef(defType: DefType): Null<String> {
+		// Init includes
 		resetAndInitIncludes(true);
 
 		switch(defType.type) {
@@ -715,7 +716,13 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		final content = "typedef " + compileType(defType.type, defType.pos) + " " + defType.getNameOrNative() + ";";
 		final headerFilename = "include/" + filename + headerExt;
 
+		// pragma once
 		setExtraFileIfEmpty(headerFilename, "#pragma once");
+
+		// Compile headers
+		appendToExtraFile(headerFilename, compileIncludes(headerIncludes), 1);
+
+		// Output typedef
 		appendToExtraFile(headerFilename, content, 2);
 
 		return null;
@@ -807,21 +814,8 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 					}
 				}
 			}
-			case TNew(classTypeRef, _, el): {
-				final nfc = this.compileNativeFunctionCodeMeta(expr, el);
-				result = if(nfc != null) {
-					nfc;
-				} else {
-					final meta = expr.getDeclarationMeta().meta;
-					final native = { name: "", meta: meta }.getNameOrNative();
-					final args = el.map(e -> compileExpression(e)).join(", ");
-					if(native.length > 0) {
-						native + "(" + args + ")";
-					} else {
-						final className = compileClassName(classTypeRef.get(), expr.pos);
-						className + "(" + args + ")";
-					}
-				}
+			case TNew(classTypeRef, params, el): {
+				result = compileNew(expr, classTypeRef, params, el);
 			}
 			case TUnop(op, postFix, e): {
 				result = unopToGDScript(op, e, postFix);
@@ -1091,6 +1085,51 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			result;
 		} else {
 			null;
+		}
+	}
+
+	function compileNew(expr: TypedExpr, clsRef: Ref<ClassType>, params: Array<Type>, el: Array<TypedExpr>): String {
+		final nfc = this.compileNativeFunctionCodeMeta(expr, el);
+		return if(nfc != null) {
+			nfc;
+		} else {
+			final meta = expr.getDeclarationMeta().meta;
+			final native = { name: "", meta: meta }.getNameOrNative();
+			final args = el.map(e -> compileExpression(e)).join(", ");
+			if(native.length > 0) {
+				native + "(" + args + ")";
+			} else {
+				final typeParams = params.map(p -> compileTypeSafe(p, expr.pos)).join(", ");
+				//final className = compileClassName(clsRef.get(), expr.pos);
+				compileClassConstruction(clsRef, params, expr.pos) + "(" + args + ")";
+			}
+		}
+	}
+
+	function compileClassConstruction(clsRef: Ref<ClassType>, params: Array<Type>, pos: Position): String {
+		final cls = clsRef.get();
+		var typeSource = if(cls.hasMeta(":overrideMemoryManagement")) {
+			if(params.length != 1) {
+				Context.error("@:overrideMemoryManagement wrapper does not have exactly one type parameter.", pos);
+			}
+			params[0];
+		} else {
+			null;
+		}
+
+		if(typeSource == null) {
+			typeSource = TInst(clsRef, params);
+		}
+
+		final typeOutput = compileTypeSafe(typeSource, pos, true);
+		return if(cls.hasMeta(":valueType")) {
+			typeOutput;
+		} else if(cls.hasMeta(":rawPtrType")) {
+			"new " + typeOutput;
+		} else if(cls.hasMeta(":uniquePtr")) {
+			"std::make_unique<" + typeOutput + ">";
+		} else {
+			"std::make_shared<" + typeOutput + ">";
 		}
 	}
 }
