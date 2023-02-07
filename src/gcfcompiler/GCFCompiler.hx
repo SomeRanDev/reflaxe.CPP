@@ -430,7 +430,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				if(!dynAddToCpp) {
 					decl += assign;
 				}
-				variables.push(decl);
+				variables.push(decl + ";");
 	
 				if(dynAddToCpp) {
 					cppVariables.push(type + " " + classNameNS + name + assign);
