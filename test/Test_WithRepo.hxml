@@ -1,9 +1,12 @@
--cp ../std
--cp ../std/gcf/_std
--cp ../src/
+# Call from top-level to compile properly.
+# haxe test/Test_WithRepo.hxml
+
+-cp std
+-cp std/gcf/_std
+-cp src
 
 -lib reflaxe
 
-../extraParams.hxml
+extraParams.hxml
 
-hxml/TestParams.hxml
+test/hxml/TestParams.hxml

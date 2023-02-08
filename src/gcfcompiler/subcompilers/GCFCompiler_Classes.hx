@@ -9,15 +9,12 @@ package gcfcompiler.subcompilers;
 
 #if (macro || gcf_runtime)
 
-// import haxe.macro.Context;
-// import haxe.macro.Expr;
 import haxe.macro.Type;
 
 import haxe.display.Display.MetadataTarget;
 
 import reflaxe.BaseCompiler;
 
-// using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.SyntaxHelper;
 
 using gcfcompiler.helpers.GCFError;
