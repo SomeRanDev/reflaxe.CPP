@@ -2,7 +2,7 @@ package;
 
 @:arrowAccess
 @:overrideMemoryManagement
-@:sharedPtrType
+@:uniquePtrType
 @:include("memory", true)
-extern abstract SharedPtr<T>(T) from T to T {
+extern abstract UniquePtr<T>(T) from T to T {
 }
