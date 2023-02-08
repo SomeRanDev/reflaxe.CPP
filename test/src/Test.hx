@@ -10,11 +10,25 @@ abstract Test(Int) from Int to Int {
 	}
 }
 
+enum Test2 {
+	One;
+	Two;
+	Three(a: Int);
+}
+
 function main() {
 	trace("Hello world!");
 
 	var a: Ptr<Int> = cast Stdlib.malloc(12);
 	Stdlib.free(cast a);
+
+	var c: Ptr<Int> = 123;
+
+	var d = Three(123);
+	switch(d) {
+		case Three(v): trace(Std.string(v));
+		case _:
+	}
 
 	final b = new Test(123);
 	trace(Std.string(b.toDouble()));

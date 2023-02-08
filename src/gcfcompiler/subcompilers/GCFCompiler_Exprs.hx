@@ -76,19 +76,15 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				result += "}";
 			}
 			case TArrayDecl(el): {
-				result = "{" + el.map(e -> compileExpression(e)).join(", ") + "}";
+				final arrayType = expr.t.unwrapArrayType();
+				result = "{" + el.map(e -> compileExpressionForType(e, arrayType)).join(", ") + "}";
 			}
 			case TCall(e, el): {
 				final nfc = Main.compileNativeFunctionCodeMeta(e, el);
 				result = if(nfc != null) {
 					nfc;
 				} else {
-					final enumCall = compileEnumFieldCall(e, el);
-					if(enumCall != null) {
-						enumCall;
-					} else {
-						compileExpression(e) + "(" + el.map(e -> compileExpression(e)).join(", ") + ")";
-					}
+					compileExpression(e) + "(" + el.map(e -> compileExpression(e)).join(", ") + ")";
 				}
 			}
 			case TNew(classTypeRef, params, el): {
@@ -105,7 +101,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 			case TVar(tvar, maybeExpr): {
 				result = TComp.compileType(tvar.t, expr.pos) + " " + Main.compileVarName(tvar.name, expr);
 				if(maybeExpr != null) {
-					result += " = " + compileExpression(maybeExpr);
+					result += " = " + compileExpressionForType(maybeExpr, tvar.t);
 				}
 			}
 			case TBlock(el): {
@@ -198,7 +194,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				switch(enumField.type) {
 					case TFun(args, _): {
 						if(index < args.length) {
-							result += (args.length == 1 ? ("." + enumField.name) : "") + "." + args[index].name;
+							result += (isArrowAccessType(expr.t) ? "->" : ".") + "data." + enumField.name + "." + args[index].name;
 						}
 					}
 					case _:
@@ -209,6 +205,14 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 			}
 		}
 		return result;
+	}
+
+	function compileExpressionForType(expr: TypedExpr, targetType: Null<Type>): Null<String> {
+		final cpp = compileExpression(expr);
+		if(targetType != null) {
+
+		}
+		return cpp;
 	}
 
 	// ----------------------------
@@ -252,7 +256,11 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 
 	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
 		var gdExpr1 = compileExpression(e1);
-		var gdExpr2 = compileExpression(e2);
+		var gdExpr2 = if(op.isAssign()) {
+			compileExpressionForType(e2, e1.t);
+		} else {
+			compileExpression(e2);
+		}
 		final operatorStr = OperatorHelper.binopToString(op);
 
 		// Wrap primitives with std::to_string(...) when added with String
@@ -322,8 +330,9 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 					final className = TComp.compileClassName(clsRef.get(), e.pos, null, true, true);
 					return className + "::" + name;
 				}
-				case FEnum(_, enumField): {
-					return "{ \"_index\": " + enumField.index + " }";
+				case FEnum(enumRef, enumField): {
+					final enumName = TComp.compileEnumName(enumRef.get(), e.pos, null, true, true);
+					return enumName + "::" + name;
 				}
 				case _:
 			}
