@@ -289,11 +289,11 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 	}
 
 	function isArrowAccessType(t: Type): Bool {
-		return switch(t) {
-			case TInst(clsRef, params) if(params.length == 1): {
-				clsRef.get().isArrowAccess();
-			}
-			case _: false;
+		final mt = t.toModuleType();
+		return if(mt != null) {
+			mt.getCommonData().isArrowAccess();
+		} else {
+			false;
 		}
 	}
 
