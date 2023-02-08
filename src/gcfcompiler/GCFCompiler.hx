@@ -27,7 +27,13 @@ import gcfcompiler.subcompilers.GCFCompiler_Includes;
 import gcfcompiler.subcompilers.GCFCompiler_Types;
 
 class GCFCompiler extends reflaxe.BaseCompiler {
+	// ----------------------------
+	// The extension for the generated header files.
 	static final HeaderExt: String = ".h";
+
+	// ----------------------------
+	// The extension for the generated source files.
+	static final SourceExt: String = ".cpp";
 
 	// ----------------------------
 	// Required for adding semicolons at the end of each line.
@@ -93,10 +99,9 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		return md.moduleId();
 	}
 
-	// ============================
-	// * Declaration Compiling
-	// ============================
-
+	// ----------------------------
+	// Compile the start of all namespaces
+	// for the provided module data.
 	function compileNamespaceStart(md: CommonModuleTypeData): String {
 		var result = "";
 		for(p in md.pack) {
@@ -106,6 +111,8 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		return result;
 	}
 
+	// ----------------------------
+	// Compile all namespace closing brackets.
 	function compileNamespaceEnd(md: CommonModuleTypeData): String {
 		var result = "";
 		if(md.pack.length > 0) result += "\n";
@@ -115,6 +122,9 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		return result;
 	}
 
+	// ----------------------------
+	// Compile standard function-argument syntax
+	// for C++ from a TVar and TypedExpr.
 	function compileFunctionArgument(arg: { v: TVar, value: Null<TypedExpr> }, pos: Position, noDefaultValue: Bool = false) {
 		var result = TComp.compileType(arg.v.t, pos) + " " + compileVarName(arg.v.name);
 		if(!noDefaultValue && arg.value != null) {

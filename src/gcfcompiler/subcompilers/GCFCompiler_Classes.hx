@@ -170,7 +170,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 
 		// Source file
 		if(!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0)) {
-			final srcFilename = "src/" + filename + ".cpp";
+			final srcFilename = "src/" + filename + GCFCompiler.SourceExt;
 			Main.setExtraFileIfEmpty(srcFilename, "#include \"" + filename + GCFCompiler.HeaderExt + "\"");
 
 			Main.appendToExtraFile(srcFilename, IComp.compileCppIncludes(), 1);
