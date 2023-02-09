@@ -118,8 +118,10 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 			}
 
 			final mmType = cd.getMemoryManagementType();
-			if(mmType == UniquePtr || mmType == SharedPtr) {
-				addInclude("memory", header, true);
+			if(mmType == UniquePtr) {
+				addInclude(GCFCompiler.SharedPtrInclude[0], header, GCFCompiler.SharedPtrInclude[1]);
+			} else if(mmType == SharedPtr) {
+				addInclude(GCFCompiler.UniquePtrInclude[0], header, GCFCompiler.UniquePtrInclude[1]);
 			}
 		}
 	}

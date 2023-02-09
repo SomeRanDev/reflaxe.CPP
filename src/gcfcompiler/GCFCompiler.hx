@@ -36,6 +36,18 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	static final SourceExt: String = ".cpp";
 
 	// ----------------------------
+	// The C++ classes used for nullability and memory management.
+	static final OptionalClassCpp: String = "std::optional";
+	static final SharedPtrClassCpp: String = "std::shared_ptr";
+	static final UniquePtrClassCpp: String = "std::unique_ptr";
+
+	// ----------------------------
+	// The include params used upon requiring the above C++ classes.
+	static final OptionalInclude: Dynamic = ["optional", true];
+	static final SharedPtrInclude: Dynamic = ["memory", true];
+	static final UniquePtrInclude: Dynamic = ["memory", true];
+
+	// ----------------------------
 	// Required for adding semicolons at the end of each line.
 	override function formatExpressionLine(expr: String): String {
 		return expr + ";";

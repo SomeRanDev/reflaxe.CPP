@@ -101,8 +101,8 @@ class GCFCompiler_Types extends GCFSubCompiler {
 
 					switch(abs.name) {
 						case "Null" if(params.length == 1): {
-							IComp.addInclude("optional", true, true);
-							"std::optional<" + compileType(params[0], pos) + ">";
+							IComp.addInclude(GCFCompiler.OptionalInclude[0], true, GCFCompiler.OptionalInclude[1]);
+							GCFCompiler.OptionalClassCpp + "<" + compileType(params[0], pos) + ">";
 						}
 						case _: {
 							final t = haxe.macro.TypeTools.applyTypeParameters(abs.type, abs.params, params);
@@ -171,8 +171,8 @@ class GCFCompiler_Types extends GCFSubCompiler {
 		return switch(mmType) {
 			case Value: inner;
 			case UnsafePtr: inner + "*";
-			case UniquePtr: "std::unique_ptr<" + inner + ">";
-			case SharedPtr: "std::shared_ptr<" + inner + ">";
+			case UniquePtr: GCFCompiler.UniquePtrClassCpp + "<" + inner + ">";
+			case SharedPtr: GCFCompiler.SharedPtrClassCpp + "<" + inner + ">";
 		}
 	}
 }
