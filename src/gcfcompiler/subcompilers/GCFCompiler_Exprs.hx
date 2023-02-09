@@ -171,10 +171,10 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				}
 			}
 			case TBreak: {
-				result = "break;";
+				result = "break";
 			}
 			case TContinue: {
-				result = "continue;";
+				result = "continue";
 			}
 			case TThrow(expr): {
 				result = "throw " + compileExpression(expr) + ";";
