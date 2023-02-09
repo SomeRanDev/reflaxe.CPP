@@ -2,6 +2,6 @@ package;
 
 @:arrowAccess
 @:overrideMemoryManagement
-@:ptrType
+@:unsafePtrType
 extern abstract Ptr<T>(T) from T to T {
 }

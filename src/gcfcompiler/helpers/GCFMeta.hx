@@ -34,7 +34,7 @@ class GCFMeta {
 	public static function getMemoryManagementType(meta: NameAndMeta): MemoryManagementType {
 		return if(meta.hasMeta(":valueType")) {
 			Value;
-		} else if(meta.hasMeta(":rawPtrType")) {
+		} else if(meta.hasMeta(":unsafePtrType")) {
 			UnsafePtr;
 		} else if(meta.hasMeta(":uniquePtrType")) {
 			UniquePtr;
