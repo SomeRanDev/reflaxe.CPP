@@ -115,7 +115,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				result += "\n}";
 			}
 			case TIf(econd, ifExpr, elseExpr): {
-				result = "if(" + compileExpression(upwrapParenthesis(econd)) + ") {\n";
+				result = "if(" + compileExpression(econd.upwrapParenthesis()) + ") {\n";
 				result += toIndentedScope(ifExpr);
 				if(elseExpr != null) {
 					result += "\n} else {\n";
@@ -126,7 +126,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				}
 			}
 			case TWhile(econd, blockExpr, normalWhile): {
-				final gdCond = compileExpression(upwrapParenthesis(econd));
+				final gdCond = compileExpression(econd.upwrapParenthesis());
 				if(normalWhile) {
 					result = "while(" + gdCond + ") {\n";
 					result += toIndentedScope(blockExpr);
@@ -138,7 +138,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				}
 			}
 			case TSwitch(e, cases, edef): {
-				result = "switch(" + compileExpression(upwrapParenthesis(e)) + ") {\n";
+				result = "switch(" + compileExpression(e.upwrapParenthesis()) + ") {\n";
 				for(c in cases) {
 					result += "\n";
 					result += "\tcase " + c.values.map(v -> compileExpression(v)).join(", ") + ": {\n";
@@ -213,18 +213,6 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 
 		}
 		return cpp;
-	}
-
-	// ----------------------------
-	// Unwraps parenthesis from a TypeExpr for scenarios where the expression
-	// is already going to be wrapped (i.e: if statement conditions).
-	function upwrapParenthesis(expr: TypedExpr): TypedExpr {
-		return switch(expr.expr) {
-			case TParenthesis(e): {
-				upwrapParenthesis(e);
-			}
-			case e: expr;
-		}
 	}
 
 	// ----------------------------
@@ -351,41 +339,6 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 		return TComp.compileModuleTypeName(m.getCommonData(), pos, null, true, true);
 	}
 
-	// This is called for called expressions.
-	// If the typed expression is an enum field, transpile as a
-	// Dictionary with the enum data.
-	function compileEnumFieldCall(e: TypedExpr, el: Array<TypedExpr>): Null<String> {
-		final ef = switch(e.expr) {
-			case TField(_, fa): {
-				switch(fa) {
-					case FEnum(_, ef): ef;
-					case _: null;
-				}
-			}
-			case _: null;
-		}
-
-		return if(ef != null) {
-			var result = "";
-			switch(ef.type) {
-				case TFun(args, _): {
-					result = "{ \"_index\": " + ef.index + ", ";
-					final fields = [];
-					for(i in 0...el.length) {
-						if(args[i] != null) {
-							fields.push("\"" + args[i].name + "\": " + compileExpression(el[i]));
-						}
-					}
-					result += fields.join(", ") + " }";
-				}
-				case _:
-			}
-			result;
-		} else {
-			null;
-		}
-	}
-
 	function compileNew(expr: TypedExpr, clsRef: Ref<ClassType>, params: Array<Type>, el: Array<TypedExpr>): String {
 		final nfc = Main.compileNativeFunctionCodeMeta(expr, el);
 		return if(nfc != null) {
@@ -398,7 +351,6 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				native + "(" + args + ")";
 			} else {
 				final typeParams = params.map(p -> TComp.compileType(p, expr.pos)).join(", ");
-				//final className = TComp.compileClassName(clsRef.get(), expr.pos);
 				compileClassConstruction(clsRef, params, expr.pos) + "(" + args + ")";
 			}
 		}
