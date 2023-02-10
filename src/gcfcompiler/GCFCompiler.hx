@@ -206,7 +206,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	}
 
 	public function compileExpressionImpl(expr: TypedExpr): Null<String> {
-		return XComp.compileExpression(expr);
+		return XComp.compileExpressionToCpp(expr);
 	}
 }
 

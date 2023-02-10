@@ -16,6 +16,7 @@ import haxe.macro.Type;
 
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.SyntaxHelper;
+using reflaxe.helpers.TypeHelper;
 
 using gcfcompiler.helpers.GCFError;
 using gcfcompiler.helpers.GCFMeta;
@@ -96,7 +97,7 @@ class GCFCompiler_Types extends GCFSubCompiler {
 					prim;
 				} else {
 					if(abs.isOverrideMemoryManagement() && params.length == 1) {
-						return applyMemoryManagementWrapper(compileType(params[0], pos), abs.getMemoryManagementType());
+						return applyMemoryManagementWrapper(compileType(params[0], pos, true), abs.getMemoryManagementType());
 					}
 
 					switch(abs.name) {
@@ -173,6 +174,32 @@ class GCFCompiler_Types extends GCFSubCompiler {
 			case UnsafePtr: inner + "*";
 			case UniquePtr: GCFCompiler.UniquePtrClassCpp + "<" + inner + ">";
 			case SharedPtr: GCFCompiler.SharedPtrClassCpp + "<" + inner + ">";
+		}
+	}
+
+	// ----------------------------
+	// Returns the memory manage type
+	// based on the meta of the Type.
+	function getMemoryManagementTypeFromType(t: Type): MemoryManagementType {
+		final mmt = switch(t) {
+			case TAbstract(absRef, params) if(params.length == 0): {
+				final abs = absRef.get();
+				switch(abs.name) {
+					case "Void": Value;
+					case "Int": Value;
+					case "Float": Value;
+					case "Single": Value;
+					case "Bool": Value;
+					case "Any": Value;
+					case _: null;
+				}
+			}
+			case _: null;
+		}
+		return if(mmt != null) {
+			mmt;
+		} else {
+			return { name: "", meta: t.getMeta() }.getMemoryManagementType();
 		}
 	}
 }
