@@ -92,10 +92,10 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 			if(!addToCpp) {
 				decl += assign;
 			}
-			variables.push(decl);
+			variables.push(decl + ";");
 
 			if(addToCpp) {
-				cppVariables.push(type + " " + classNameNS + varName + assign);
+				cppVariables.push(type + " " + classNameNS + varName + assign + ";");
 			}
 		}
 
