@@ -16,13 +16,19 @@ enum Test2 {
 	Three(a: Int);
 }
 
+class Bla {
+	public function new() {
+
+	}
+}
+
 function main() {
 	trace("Hello world!");
 
 	var a: Ptr<Int> = cast Stdlib.malloc(12);
 	Stdlib.free(cast a);
 
-	var c: Ptr<Int> = 123;
+	var c = (new Bla(): Ptr<Bla>);
 
 	var d = Three(123);
 	switch(d) {
