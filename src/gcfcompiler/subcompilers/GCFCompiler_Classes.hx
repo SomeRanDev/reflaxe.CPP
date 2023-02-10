@@ -35,10 +35,12 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 		var classNameNS = TComp.compileClassName(classType, classType.pos, null, true, true);
 		if(classNameNS.length > 0) classNameNS += "::";
 
+		final filename = Main.getFileNameFromModuleData(classType);
+
 		var headerOnly = classType.isHeaderOnly();
 
 		// Init includes
-		IComp.resetAndInitIncludes(headerOnly);
+		IComp.resetAndInitIncludes(headerOnly, [filename + GCFCompiler.HeaderExt]);
 
 		// Ensure no self-reference
 		final isValueType = classType.getMemoryManagementType() == Value;
@@ -162,8 +164,6 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 				}
 			}
 		}
-
-		final filename = Main.getFileNameFromModuleData(classType);
 
 		// Source file
 		if(!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0)) {

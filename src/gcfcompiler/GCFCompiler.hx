@@ -165,8 +165,11 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// ----------------------------
 	// Compiles an typedef into C++.
 	public override function compileTypedef(defType: DefType): Null<String> {
+		final filename = getFileNameFromModuleData(defType);
+		final headerFilename = filename + HeaderExt;
+
 		// Init includes
-		IComp.resetAndInitIncludes(true);
+		IComp.resetAndInitIncludes(true, [headerFilename]);
 
 		switch(defType.type) {
 			case TAnonymous(anonRef): {
@@ -180,23 +183,23 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			case _:
 		}
 
-		final filename = getFileNameFromModuleData(defType);
+		
 
 		var content = "";
 		content += compileNamespaceStart(defType);
 		content += "typedef " + TComp.compileType(defType.type, defType.pos) + " " + defType.getNameOrNative() + ";";
 		content += compileNamespaceEnd(defType);
 
-		final headerFilename = "include/" + filename + HeaderExt;
+		final headerFilePath = "include/" + headerFilename;
 
 		// pragma once
-		setExtraFileIfEmpty(headerFilename, "#pragma once");
+		setExtraFileIfEmpty(headerFilePath, "#pragma once");
 
 		// Compile headers
-		appendToExtraFile(headerFilename, IComp.compileHeaderIncludes(), 1);
+		appendToExtraFile(headerFilePath, IComp.compileHeaderIncludes(), 1);
 
 		// Output typedef
-		appendToExtraFile(headerFilename, content, 2);
+		appendToExtraFile(headerFilePath, content, 2);
 
 		return null;
 	}

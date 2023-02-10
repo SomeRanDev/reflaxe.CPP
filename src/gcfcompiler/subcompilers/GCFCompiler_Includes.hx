@@ -37,12 +37,17 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 	var cppIncludes: Array<String>;
 
 	// ----------------------------
+	// List of headers to ignore.
+	var ignoreIncludes: Array<String>;
+
+	// ----------------------------
 	// Clears include arrays and fills
 	// them with the current type usage data.
-	function resetAndInitIncludes(onlyHeader: Bool = false) {
+	function resetAndInitIncludes(onlyHeader: Bool = false, ignoreList: Null<Array<String>> = null) {
 		// Reset include lists
 		headerIncludes = [];
 		cppIncludes = [];
+		ignoreIncludes = ignoreList != null ? ignoreList : [];
 
 		// @:headerInclude and @:cppInclude
 		final meta = Main.getCurrentModule().getCommonData().meta;
@@ -58,7 +63,7 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 		// Let's add them to our includes.
 		final typeUsage = Main.getTypeUsage();
 		for(level => moduleTypes in typeUsage) {
-			if(level >= Constructed) {
+			if(level >= StaticAccess) {
 				for(mt in moduleTypes) {
 					if(!mt.isAbstract()) {
 						addIncludeFromModuleType(mt, onlyHeader || level >= FunctionDeclaration);
@@ -69,12 +74,23 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 	}
 
 	// ----------------------------
+	// Prevents the path provided here from
+	// being included until the next reset.
+	function addIgnore(includePath: String) {
+		ignoreIncludes.push(includePath);
+	}
+
+	// ----------------------------
 	// Add include while compiling code.
 	function addInclude(include: String, header: Bool, triangleBrackets: Bool = false) {
 		function add(arr: Array<String>, inc: String) {
 			if(!arr.contains(inc)) {
 				arr.push(inc);
 			}
+		}
+
+		if(ignoreIncludes.contains(include)) {
+			return;
 		}
 
 		final includeStr = if(!triangleBrackets) { "\"" + include + "\""; } else { "<" + include + ">"; }

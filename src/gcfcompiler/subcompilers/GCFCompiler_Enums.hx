@@ -27,9 +27,12 @@ using gcfcompiler.helpers.GCFMeta;
 @:access(gcfcompiler.subcompilers.GCFCompiler_Types)
 class GCFCompiler_Enums extends GCFSubCompiler {
 	public function compileEnum(enumType: EnumType, options: EnumOptions): Null<String> {
+		final filename = Main.getFileNameFromModuleData(enumType);
+		final headerFilename = filename + GCFCompiler.HeaderExt;
+
 		// --------------------
 		// Init includes (always headers = true)
-		IComp.resetAndInitIncludes(true);
+		IComp.resetAndInitIncludes(true, [headerFilename]);
 
 		// --------------------
 		// Ensure no self-reference if value type.
@@ -164,14 +167,13 @@ class GCFCompiler_Enums extends GCFSubCompiler {
 		declaration += "\n};";
 
 		// Start output
-		final filename = Main.getFileNameFromModuleData(enumType);
-		final headerFilename = "include/" + filename + GCFCompiler.HeaderExt;
+		final headerFilePath = "include/" + filename + headerFilename;
 
 		// pragma once
-		Main.setExtraFileIfEmpty(headerFilename, "#pragma once");
+		Main.setExtraFileIfEmpty(headerFilePath, "#pragma once");
 
 		// Compile headers
-		Main.appendToExtraFile(headerFilename, IComp.compileHeaderIncludes(), 1);
+		Main.appendToExtraFile(headerFilePath, IComp.compileHeaderIncludes(), 1);
 
 		// Output class
 		var content = "";
@@ -179,7 +181,7 @@ class GCFCompiler_Enums extends GCFSubCompiler {
 		content += declaration;
 		content += Main.compileNamespaceEnd(enumType);
 
-		Main.appendToExtraFile(headerFilename, content, 2);
+		Main.appendToExtraFile(headerFilePath, content, 2);
 
 		return null;
 	}
