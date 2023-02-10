@@ -194,12 +194,15 @@ class GCFCompiler_Types extends GCFSubCompiler {
 					case _: null;
 				}
 			}
+			case TAbstract(absRef, params) if(params.length == 1 && absRef.get().name == "Null"): {
+				getMemoryManagementTypeFromType(params[0]);
+			}
 			case _: null;
 		}
 		return if(mmt != null) {
 			mmt;
 		} else {
-			return { name: "", meta: t.getMeta() }.getMemoryManagementType();
+			{ name: "", meta: t.getMeta() }.getMemoryManagementType();
 		}
 	}
 }

@@ -18,12 +18,15 @@ class GCFType {
 
 	// ----------------------------
 	// If this type is a memory management overrider,
-	// this returns the internal type.
-	// Returns the provided type otherwise.
+	// this returns the internal type. Returns the provided type otherwise.
+	// Bypasses all Null<T> outside the overrider class.
 	public static function getInternalType(t: Type): Type {
 		switch(t) {
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
+				if(abs.name == "Null" && params.length == 1) {
+					return getInternalType(params[0]);
+				}
 				if(abs.isOverrideMemoryManagement() && params.length == 1) {
 					return params[0];
 				}
@@ -31,6 +34,18 @@ class GCFType {
 			case _:
 		}
 		return t;
+	}
+
+	// ----------------------------
+	// If "t" is Null<T> and "target" is T, returns true.
+	// Returns false otherwise.
+	public static function isNullOfType(t: Type, target: Type): Bool {
+		final internal = t.unwrapNullType();
+		return if(internal != null) {
+			internal.equals(target);
+		} else {
+			false;
+		}
 	}
 }
 

@@ -234,19 +234,36 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 		final cmmt = TComp.getMemoryManagementTypeFromType(expr.t);
 		final tmmt = TComp.getMemoryManagementTypeFromType(targetType);
 
+		final nullToValue = expr.t.isNullOfType(targetType);
+
 		var result = null;
-		if(cmmt != tmmt) {
+		if(cmmt != tmmt || nullToValue) {
 			switch(expr.expr) {
 				case TNew(classTypeRef, params, el): {
 					result = compileNew(expr, classTypeRef, params, el, tmmt);
 				}
 				case _: {
-					result = applyMMConversion(Main.compileExpression(expr), expr.pos, expr.t, cmmt, tmmt);
+					var cpp = Main.compileExpression(expr);
+					if(nullToValue) {
+						cpp = ensureSafeToAccess(cpp) + ".value()";
+					}
+					result = applyMMConversion(cpp, expr.pos, expr.t, cmmt, tmmt);
 				}
 			}
 		}
 
 		return result;
+	}
+
+	// ----------------------------
+	// Given some generated C++ output, this function wraps the output
+	// in parenthesis if the output is not an identifier or simple access chain.
+	function ensureSafeToAccess(cpp: String): String {
+		return if(!~/[a-z0-9_\.(?:::)(?:->)]+/.match(cpp)) {
+			"(" + cpp + ")";
+		} else {
+			cpp;
+		}
 	}
 
 	// ----------------------------
@@ -405,7 +422,12 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 
 			var useArrow = isThisExpr(e) || isArrowAccessType(e.t);
 
-			final gdExpr = Main.compileExpression(e);
+			final nullType = e.t.unwrapNullType();
+			final gdExpr = if(nullType != null) {
+				compileExpressionForType(e, nullType);
+			} else {
+				Main.compileExpression(e);
+			}
 			return gdExpr + (useArrow ? "->" : ".") + name;
 		}
 	}
