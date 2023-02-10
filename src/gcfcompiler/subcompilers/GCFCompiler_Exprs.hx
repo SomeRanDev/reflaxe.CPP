@@ -215,7 +215,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 	function compileExpressionForType(expr: TypedExpr, targetType: Null<Type>): Null<String> {
 		var cpp = null;
 		if(targetType != null) {
-			expr = expr.unwrapParenthesis();
+			expr = expr.unwrapUnsafeCasts();
 			if(expr.t.valueTypesEqual(targetType)) {
 				cpp = compileMMConversion(expr, targetType);
 			}
@@ -231,16 +231,6 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 	// from the provided expression, compile the expression and
 	// with additional conversions in the generated code.
 	function compileMMConversion(expr: TypedExpr, targetType: Null<Type>): Null<String> {
-		switch(expr.expr) {
-			case TCast(e, maybeModuleType): {
-				if(maybeModuleType == null) {
-					//cmmt = TComp.getMemoryManagementTypeFromType(e.t);
-					expr = e;
-				}
-			}
-			case _:
-		}
-
 		final cmmt = TComp.getMemoryManagementTypeFromType(expr.t);
 		final tmmt = TComp.getMemoryManagementTypeFromType(targetType);
 
