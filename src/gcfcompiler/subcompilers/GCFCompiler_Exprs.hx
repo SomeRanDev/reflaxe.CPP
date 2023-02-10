@@ -81,13 +81,8 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				final arrayType = expr.t.unwrapArrayType();
 				result = "{" + el.map(e -> compileExpressionForType(e, arrayType)).join(", ") + "}";
 			}
-			case TCall(e, el): {
-				final nfc = Main.compileNativeFunctionCodeMeta(e, el);
-				result = if(nfc != null) {
-					nfc;
-				} else {
-					Main.compileExpression(e) + "(" + el.map(e -> Main.compileExpression(e)).join(", ") + ")";
-				}
+			case TCall(callExpr, el): {
+				result = compileCall(callExpr, el);
 			}
 			case TNew(classTypeRef, params, el): {
 				result = compileNew(expr, classTypeRef, params, el);
@@ -435,6 +430,36 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 	function moduleNameToCpp(m: ModuleType, pos: Position): String {
 		IComp.addIncludeFromMetaAccess(m.getCommonData().meta);
 		return TComp.compileModuleTypeName(m.getCommonData(), pos, null, true, true);
+	}
+
+	function compileCall(callExpr: TypedExpr, el: Array<TypedExpr>) {
+		final nfc = Main.compileNativeFunctionCodeMeta(callExpr, el);
+		result = if(nfc != null) {
+			nfc;
+		} else {
+			// Get list of function argument types
+			var funcParams = switch(callExpr.t) {
+				case TFun(args, ret): {
+					args.map(a -> a.t);
+				}
+				case _: null;
+			}
+
+			// Compile the parameters
+			var cppParams = [];
+			for(i in 0...el.length) {
+				final paramExpr = el[i];
+				final cpp = if(i < funcParams.length && funcParams[i] != null) {
+					compileExpressionForType(paramExpr, funcParams[i].t);
+				} else {
+					Main.compileExpression(paramExpr);
+				}
+				cppParams.push(cpp);
+			}
+
+			// Compile final expression
+			Main.compileExpression(e) + "(" + cppParams.join(", ") + ")";
+		}
 	}
 
 	function compileNew(expr: TypedExpr, clsRef: Ref<ClassType>, params: Array<Type>, el: Array<TypedExpr>, overrideMMT: Null<MemoryManagementType> = null): String {
