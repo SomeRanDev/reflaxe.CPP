@@ -117,7 +117,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				result += "\n}";
 			}
 			case TIf(econd, ifExpr, elseExpr): {
-				result = "if(" + Main.compileExpression(econd.upwrapParenthesis()) + ") {\n";
+				result = "if(" + Main.compileExpression(econd.unwrapParenthesis()) + ") {\n";
 				result += toIndentedScope(ifExpr);
 				if(elseExpr != null) {
 					result += "\n} else {\n";
@@ -128,7 +128,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				}
 			}
 			case TWhile(econd, blockExpr, normalWhile): {
-				final gdCond = Main.compileExpression(econd.upwrapParenthesis());
+				final gdCond = Main.compileExpression(econd.unwrapParenthesis());
 				if(normalWhile) {
 					result = "while(" + gdCond + ") {\n";
 					result += toIndentedScope(blockExpr);
@@ -140,7 +140,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				}
 			}
 			case TSwitch(e, cases, edef): {
-				result = "switch(" + Main.compileExpression(e.upwrapParenthesis()) + ") {\n";
+				result = "switch(" + Main.compileExpression(e.unwrapParenthesis()) + ") {\n";
 				for(c in cases) {
 					result += "\n";
 					result += "\tcase " + c.values.map(v -> Main.compileExpression(v)).join(", ") + ": {\n";
