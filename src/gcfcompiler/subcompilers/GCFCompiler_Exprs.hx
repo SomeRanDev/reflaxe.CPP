@@ -434,7 +434,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 
 	function compileCall(callExpr: TypedExpr, el: Array<TypedExpr>) {
 		final nfc = Main.compileNativeFunctionCodeMeta(callExpr, el);
-		result = if(nfc != null) {
+		return if(nfc != null) {
 			nfc;
 		} else {
 			// Get list of function argument types
@@ -450,7 +450,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 			for(i in 0...el.length) {
 				final paramExpr = el[i];
 				final cpp = if(i < funcParams.length && funcParams[i] != null) {
-					compileExpressionForType(paramExpr, funcParams[i].t);
+					compileExpressionForType(paramExpr, funcParams[i]);
 				} else {
 					Main.compileExpression(paramExpr);
 				}
@@ -458,7 +458,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 			}
 
 			// Compile final expression
-			Main.compileExpression(e) + "(" + cppParams.join(", ") + ")";
+			Main.compileExpression(callExpr) + "(" + cppParams.join(", ") + ")";
 		}
 	}
 
