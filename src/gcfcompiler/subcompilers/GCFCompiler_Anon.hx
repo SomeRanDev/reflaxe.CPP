@@ -92,7 +92,7 @@ class GCFCompiler_Anon extends GCFSubCompiler {
 			});
 		}
 		final as = findAnonStruct(anonFields);
-		return as.name;
+		return "haxe::" + as.name;
 	}
 
 	public function compileNamedAnonTypeDefinition(defType: DefType, anonRef: Ref<AnonType>): String {
@@ -109,25 +109,40 @@ class GCFCompiler_Anon extends GCFSubCompiler {
 		final fields = [];
 		final constructorParams = [];
 		final constructorAssigns = [];
+		final otherConstructorAssigns = [];
+		final extractorFuncs = [];
 
 		for(f in anonFields) {
 			final v = TComp.compileType(f.type, f.pos) + " " + f.name;
 			fields.push(v);
 			constructorParams.push(v + (f.optional ? " = std::nullopt" : ""));
 			constructorAssigns.push(f.name + "(" + f.name + ")");
+			otherConstructorAssigns.push(f.name + "(" + (f.optional ? ("extract_" + f.name + "(o)") : ("o." + f.name)) + ")");
+			if(f.optional) {
+				extractorFuncs.push(f.name);
+			}
 		}
 
 		var decl = "";
 
-		decl += "struct " + name + " {\n";
+		decl += "struct " + name + " {";
 		
 		if(constructorParams.length > 0) {
-			final constructor = name + "(" + constructorParams.join(", ") + "):\n\t" + constructorAssigns.join(", ") + "\n{}";
-			decl += constructor.tab() + "\n\n";
+			final constructor = "\n" + name + "(" + constructorParams.join(", ") + "):\n\t" + constructorAssigns.join(", ") + "\n{}";
+			decl += constructor.tab() + "\n";
+		}
+
+		if(otherConstructorAssigns.length > 0) {
+			final constructor = "\ntemplate<typename T>\n" + name + "(const T& o):\n\t" + otherConstructorAssigns.join(", ") + "\n{}";
+			decl += constructor.tab() + "\n";
 		}
 
 		if(fields.length > 0) {
-			decl += fields.map(f -> f.tab() + ";").join("\n") + "\n";
+			decl += "\n" + fields.map(f -> f.tab() + ";").join("\n") + "\n";
+		}
+
+		if(extractorFuncs.length > 0) {
+			decl += "\n" + extractorFuncs.map(f -> ("GEN_EXTRACTOR_FUNC(" + f + ")").tab()).join("\n") + "\n";
 		}
 
 		decl += "};\n";
@@ -163,7 +178,7 @@ class GCFCompiler_Anon extends GCFSubCompiler {
 		final key = makeAnonStructKey(anonFields);
 		if(!anonStructs.exists(key)) {
 			anonStructs.set(key, {
-				name: "haxe::AnonStruct" + (anonId++),
+				name: "AnonStruct" + (anonId++),
 				constructorOrder: anonFields
 			});
 		}

@@ -90,10 +90,41 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// Called after all module types have
 	// been passed to this compiler class.
 	public override function onCompileEnd() {
+		generateAnonStructHeader();
+	}
+
+	function generateAnonStructHeader() {
 		IComp.resetAndInitIncludes(true);
+		IComp.addInclude("optional", true, true);
 		final anonContent = AComp.makeAllUnnamedDecls();
-		if(anonContent.length > 0) {
-			final content = "#pragma once\n\n" + IComp.compileHeaderIncludes() + "\n\n" + anonContent;
+		if(IComp.anonHeaderRequired || anonContent.length > 0) {
+			var content = "#pragma once\n\n";
+			content += IComp.compileHeaderIncludes() + "\n\n";
+
+			content += "
+template <typename T>
+struct optional_info { using inner = T; static constexpr bool isopt = false; };
+
+template <typename T>
+struct optional_info<std::optional<T>> { using inner = typename optional_info<T>::inner; static constexpr bool isopt = true; };
+
+#define GEN_EXTRACTOR_FUNC(fieldName)\\
+template<typename T, typename Other = decltype(T().fieldName), typename U = typename optional_info<Other>::inner>\\
+static auto extract_##fieldName(T other) {\\
+	if constexpr(!optional_info<decltype(fieldName)>::isopt && optional_info<Other>::isopt) {\\
+		return other.customParam.get();\\
+	} else if constexpr(std::is_same<U,optional_info<decltype(fieldName)>::inner>::value) {\\
+		return other.customParam;\\
+	} else {\\
+		return std::nullopt;\\
+	}\\
+}
+
+";
+
+			content += "namespace haxe {\n\n";
+			content += anonContent;
+			content += "}";
 			setExtraFile("include/" + AnonStructHeaderFile + HeaderExt, content);
 		}
 	}

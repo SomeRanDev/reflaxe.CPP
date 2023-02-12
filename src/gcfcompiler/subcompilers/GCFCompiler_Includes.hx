@@ -42,6 +42,11 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 	var ignoreIncludes: Array<String>;
 
 	// ----------------------------
+	// If the anonymous structure header was included
+	// somewhere in the output, this will be true.
+	public var anonHeaderRequired(default, null): Bool = false;
+
+	// ----------------------------
 	// Clears include arrays and fills
 	// them with the current type usage data.
 	function resetAndInitIncludes(onlyHeader: Bool = false, ignoreList: Null<Array<String>> = null) {
@@ -149,6 +154,7 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 	}
 
 	function addAnonTypeInclude(header: Bool) {
+		anonHeaderRequired = true;
 		IComp.addInclude(GCFCompiler.AnonStructHeaderFile + GCFCompiler.HeaderExt, header);
 	}
 

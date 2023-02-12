@@ -375,7 +375,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 	}
 
 	function isArrowAccessType(t: Type): Bool {
-		final mt = t.toModuleType();
+		final mt = t.unwrapNullTypeOrSelf().toModuleType();
 		return if(mt != null) {
 			final cd = mt.getCommonData();
 			final mmt = cd.getMemoryManagementType();
