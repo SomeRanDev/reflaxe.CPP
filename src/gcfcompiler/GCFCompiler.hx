@@ -51,6 +51,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// ----------------------------
 	// The name of the header file generated for the anonymous structs.
 	static final AnonStructHeaderFile: String = "_AnonStructs";
+	static final OptionalInfoHeaderFile: String = "_OptionalInfo";
 
 	// ----------------------------
 	// Required for adding semicolons at the end of each line.
@@ -95,37 +96,29 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 
 	function generateAnonStructHeader() {
 		IComp.resetAndInitIncludes(true);
-		IComp.addInclude("optional", true, true);
+		IComp.addInclude(OptionalInclude[0], true, OptionalInclude[1]);
 		final anonContent = AComp.makeAllUnnamedDecls();
 		if(IComp.anonHeaderRequired || anonContent.length > 0) {
-			var content = "#pragma once\n\n";
-			content += IComp.compileHeaderIncludes() + "\n\n";
+			final optionalInfoHeaderName = OptionalInfoHeaderFile + HeaderExt;
 
-			content += "
-template <typename T>
-struct optional_info { using inner = T; static constexpr bool isopt = false; };
+			// Generate haxe::optional_info header.
+			{
+				var content = "#pragma once\n\n";
+				content += "#include " + IComp.wrapInclude(OptionalInclude[0], OptionalInclude[1]) + "\n\n";
+				content += AComp.optionalInfoContent() + "\n\n";
+				setExtraFile("include/" + optionalInfoHeaderName, content);
+			}
 
-template <typename T>
-struct optional_info<std::optional<T>> { using inner = typename optional_info<T>::inner; static constexpr bool isopt = true; };
-
-#define GEN_EXTRACTOR_FUNC(fieldName)\\
-template<typename T, typename Other = decltype(T().fieldName), typename U = typename optional_info<Other>::inner>\\
-static auto extract_##fieldName(T other) {\\
-	if constexpr(!optional_info<decltype(fieldName)>::isopt && optional_info<Other>::isopt) {\\
-		return other.customParam.get();\\
-	} else if constexpr(std::is_same<U,optional_info<decltype(fieldName)>::inner>::value) {\\
-		return other.customParam;\\
-	} else {\\
-		return std::nullopt;\\
-	}\\
-}
-
-";
-
-			content += "namespace haxe {\n\n";
-			content += anonContent;
-			content += "}";
-			setExtraFile("include/" + AnonStructHeaderFile + HeaderExt, content);
+			// Generate anonymous structures header.
+			{
+				var content = "#pragma once\n\n";
+				content += "#include \"" + optionalInfoHeaderName + "\"\n\n";
+				content += IComp.compileHeaderIncludes() + "\n\n";
+				content += "namespace haxe {\n\n";
+				content += anonContent;
+				content += "}";
+				setExtraFile("include/" + AnonStructHeaderFile + HeaderExt, content);
+			}
 		}
 	}
 

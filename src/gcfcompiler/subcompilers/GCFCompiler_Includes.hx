@@ -110,8 +110,12 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 			return;
 		}
 
-		final includeStr = if(!triangleBrackets) { "\"" + include + "\""; } else { "<" + include + ">"; }
+		final includeStr = wrapInclude(include, triangleBrackets);
 		add(header ? headerIncludes : cppIncludes, includeStr);
+	}
+
+	function wrapInclude(include: String, triangleBrackets: Bool) {
+		return if(!triangleBrackets) { "\"" + include + "\""; } else { "<" + include + ">"; };
 	}
 
 	// ----------------------------
