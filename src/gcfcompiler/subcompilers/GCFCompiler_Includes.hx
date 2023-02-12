@@ -66,11 +66,19 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 		// the types used by this ClassType.
 		// Let's add them to our includes.
 		final typeUsage = Main.getTypeUsage();
-		for(level => moduleTypes in typeUsage) {
+		for(level => usedTypes in typeUsage) {
 			if(level >= StaticAccess) {
-				for(mt in moduleTypes) {
-					if(!mt.isAbstract()) {
-						addIncludeFromModuleType(mt, onlyHeader || level >= FunctionDeclaration);
+				final header = onlyHeader || level >= FunctionDeclaration;
+				for(ut in usedTypes) {
+					switch(ut) {
+						case EModuleType(mt): {
+							if(!mt.isAbstract()) {
+								addIncludeFromModuleType(mt, header);
+							}
+						}
+						case EType(t): {
+							addIncludeFromType(t, header);
+						}
 					}
 				}
 			}
@@ -121,13 +129,23 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 	// Add include based on the provided Type.
 	function addIncludeFromType(t: Type, header: Bool) {
 		switch(t.unwrapNullTypeOrSelf()) {
-			case TAnonymous(a): {
+			case TFun(_, _): {
+				addFunctionTypeInclude(header);
+			}
+			case TAnonymous(_): {
 				addAnonTypeInclude(header);
 			}
 			case _: {
-				addIncludeFromModuleType(t.toModuleType(), header);
+				final mt = t.toModuleType();
+				if(mt != null) {
+					addIncludeFromModuleType(mt, header);
+				}
 			}
 		}
+	}
+
+	function addFunctionTypeInclude(header: Bool) {
+		IComp.addInclude("functional", header, true);
 	}
 
 	function addAnonTypeInclude(header: Bool) {
