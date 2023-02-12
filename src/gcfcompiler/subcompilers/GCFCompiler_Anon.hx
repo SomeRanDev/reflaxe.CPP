@@ -233,13 +233,13 @@ struct optional_info<std::optional<T>> {
 // GEN_EXTRACTOR_FUNC
 // Generates a function named extract_[fieldName].
 //
-// Useful for extracting values for optional parameters since the input object
-// may or may not have the field.
-//
 // Given any object, it checks whether that object has a field of the same name
-// and type as the class this function is a member of using `haxe::optional_info`.
+// and type as the class this function is a member of (using `haxe::optional_info`).
 //
 // If it does, it returns the object's field's value; otherwise, it returns `std::nullopt`.
+//
+// Useful for extracting values for optional parameters for anonymous structure
+// classes since the input object may or may not have the field.
 
 #define GEN_EXTRACTOR_FUNC(fieldName)\\
 template<typename T, typename Other = decltype(T().fieldName), typename U = typename haxe::optional_info<Other>::inner>\\
