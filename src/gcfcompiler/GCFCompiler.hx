@@ -116,7 +116,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 				content += IComp.compileHeaderIncludes() + "\n\n";
 				content += "namespace haxe {\n\n";
 				content += anonContent;
-				content += "}";
+				content += "\n}";
 				setExtraFile("include/" + AnonStructHeaderFile + HeaderExt, content);
 			}
 		}
