@@ -236,6 +236,24 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 			"";
 		}
 	}
+
+	// Given the filename and priority, this function formats
+	// the extra file section containing include statements to
+	// ensure they are organized and contain no repeats.
+	function appendIncludesToExtraFileWithoutRepeats(filename: String, newIncludes: String, priority: Int) {
+		final isNotEmpty = (s) -> StringTools.trim(s).length > 0;
+		if(!isNotEmpty(newIncludes)) return;
+
+		final existing = Main.getExtraFileContent(filename, priority);
+		if(!isNotEmpty(existing)) {
+			Main.appendToExtraFile(filename, newIncludes, priority);
+		} else {
+			final existingIncludes = existing.split("\n").filter(isNotEmpty);
+			final includes = newIncludes.split("\n").filter(isNotEmpty).filter(i -> !existingIncludes.contains(i));
+			final combined = existingIncludes.concat(includes).sortedAlphabetically();
+			Main.replaceInExtraFile(filename, combined.join("\n"), priority);
+		}
+	}
 }
 
 #end

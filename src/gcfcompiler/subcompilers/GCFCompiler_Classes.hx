@@ -170,7 +170,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 			final srcFilename = "src/" + filename + GCFCompiler.SourceExt;
 			Main.setExtraFileIfEmpty(srcFilename, "#include \"" + filename + GCFCompiler.HeaderExt + "\"");
 
-			Main.appendToExtraFile(srcFilename, IComp.compileCppIncludes(), 1);
+			IComp.appendIncludesToExtraFileWithoutRepeats(srcFilename, IComp.compileCppIncludes(), 1);
 			
 			var result = "";
 
@@ -190,7 +190,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 			final headerFilename = "include/" + filename + GCFCompiler.HeaderExt;
 			Main.setExtraFileIfEmpty(headerFilename, "#pragma once");
 
-			Main.appendToExtraFile(headerFilename, IComp.compileHeaderIncludes(), 1);
+			IComp.appendIncludesToExtraFileWithoutRepeats(headerFilename, IComp.compileHeaderIncludes(), 1);
 
 			var result = "";
 			result += Main.compileNamespaceStart(classType);

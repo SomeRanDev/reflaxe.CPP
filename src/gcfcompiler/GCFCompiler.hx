@@ -251,7 +251,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		setExtraFileIfEmpty(headerFilePath, "#pragma once");
 
 		// Compile headers
-		appendToExtraFile(headerFilePath, IComp.compileHeaderIncludes(), 1);
+		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilePath, IComp.compileHeaderIncludes(), 1);
 
 		// Output typedef
 		appendToExtraFile(headerFilePath, content, 2);

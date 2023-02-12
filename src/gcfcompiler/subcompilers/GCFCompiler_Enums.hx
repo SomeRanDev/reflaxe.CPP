@@ -173,7 +173,7 @@ class GCFCompiler_Enums extends GCFSubCompiler {
 		Main.setExtraFileIfEmpty(headerFilePath, "#pragma once");
 
 		// Compile headers
-		Main.appendToExtraFile(headerFilePath, IComp.compileHeaderIncludes(), 1);
+		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilePath, IComp.compileHeaderIncludes(), 1);
 
 		// Output class
 		var content = "";
