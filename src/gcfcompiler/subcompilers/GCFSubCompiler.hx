@@ -15,6 +15,7 @@ class GCFSubCompiler {
 
 	var CComp: GCFCompiler_Classes;
 	var EComp: GCFCompiler_Enums;
+	var AComp: GCFCompiler_Anon;
 	var IComp: GCFCompiler_Includes;
 	var TComp: GCFCompiler_Types;
 	var XComp: GCFCompiler_Exprs;
@@ -25,11 +26,12 @@ class GCFSubCompiler {
 
 	public function setSubCompilers(
 		c: GCFCompiler_Classes, e: GCFCompiler_Enums,
-		i: GCFCompiler_Includes, t: GCFCompiler_Types,
-		x: GCFCompiler_Exprs
+		a: GCFCompiler_Anon, i: GCFCompiler_Includes,
+		t: GCFCompiler_Types, x: GCFCompiler_Exprs
 	) {
 		CComp = c;
 		EComp = e;
+		AComp = a;
 		IComp = i;
 		TComp = t;
 		XComp = x;

@@ -27,6 +27,7 @@ using reflaxe.helpers.TypeHelper;
 
 using gcfcompiler.helpers.GCFError;
 using gcfcompiler.helpers.GCFMeta;
+using gcfcompiler.helpers.GCFSort;
 
 @:allow(gcfcompiler.GCFCompiler)
 @:access(gcfcompiler.GCFCompiler)
@@ -49,8 +50,11 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 		cppIncludes = [];
 		ignoreIncludes = ignoreList != null ? ignoreList : [];
 
+		final current = Main.getCurrentModule();
+		if(current == null) return;
+
 		// @:headerInclude and @:cppInclude
-		final meta = Main.getCurrentModule().getCommonData().meta;
+		final meta = current.getCommonData().meta;
 		for(params in meta.extractParamsFromAllMeta(":headerInclude")) {
 			addMetaEntryInc(params, true);
 		}
@@ -116,7 +120,18 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 	// ----------------------------
 	// Add include based on the provided Type.
 	function addIncludeFromType(t: Type, header: Bool) {
-		addIncludeFromModuleType(t.toModuleType(), header);
+		switch(t.unwrapNullTypeOrSelf()) {
+			case TAnonymous(a): {
+				addAnonTypeInclude(header);
+			}
+			case _: {
+				addIncludeFromModuleType(t.toModuleType(), header);
+			}
+		}
+	}
+
+	function addAnonTypeInclude(header: Bool) {
+		IComp.addInclude(GCFCompiler.AnonStructHeaderFile + GCFCompiler.HeaderExt, header);
 	}
 
 	function addIncludeFromModuleType(mt: Null<ModuleType>, header: Bool) {
@@ -126,7 +141,8 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 			// Add our "main" include if @:noInclude is absent.
 			// First look for and use @:include, otherwise, use default header include.
 			final cd = mt.getCommonData();
-			if(Main.getCurrentModule().getUniqueId() == mt.getUniqueId()) return;
+			final main = Main.getCurrentModule();
+			if(main != null && main.getUniqueId() == mt.getUniqueId()) return;
 			if(addIncludeFromMetaAccess(cd.meta, header)) {
 				if(!cd.isExtern) {
 					addInclude(Main.getFileNameFromModuleData(cd) + GCFCompiler.HeaderExt, header, false);
@@ -187,15 +203,7 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 	// compile/format for the output.
 	function compileIncludes(includeArr: Array<String>): String {
 		return if(includeArr.length > 0) {
-			final arr = includeArr.copy();
-			arr.sort(function(a, b) {
-				a = a.toLowerCase();
-				b = b.toLowerCase();
-				return if(a < b) -1;
-				else if(a > b) 1;
-				else 0;
-			});
-			arr.map(i -> "#include " + i).join("\n");
+			includeArr.sortedAlphabetically().map(i -> "#include " + i).join("\n");
 		} else {
 			"";
 		}

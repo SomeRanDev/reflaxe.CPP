@@ -65,7 +65,7 @@ class GCFCompiler_Types extends GCFSubCompiler {
 				"std::function<" + compileType(ret, pos) + "(" + args.map(a -> compileType(a.t, pos)).join(", ") + ")>";
 			}
 			case TAnonymous(anonRef): {
-				"struct {\n" + anonRef.get().fields.map(f -> (compileType(f.type, pos) + " " + Main.compileVarName(f.name) + ";").tab()).join("\n") + "\n}";
+				AComp.compileAnonType(anonRef);
 			}
 			case TDynamic(t3): {
 				if(t3 == null) {

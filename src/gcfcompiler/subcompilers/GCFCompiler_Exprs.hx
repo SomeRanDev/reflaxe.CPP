@@ -70,12 +70,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				result = expr;
 			}
 			case TObjectDecl(fields): {
-				result = "{\n";
-				for(i in 0...fields.length) {
-					final field = fields[i];
-					result += "\t." + field.name + " = " + Main.compileExpression(field.expr) + (i < fields.length - 1 ? "," : "") + "\n"; 
-				}
-				result += "}";
+				result = AComp.compileObjectDecl(expr.t, fields);
 			}
 			case TArrayDecl(el): {
 				final arrayType = expr.t.unwrapArrayType();
@@ -85,7 +80,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				result = compileCall(callExpr, el);
 			}
 			case TNew(classTypeRef, params, el): {
-				result = compileNew(expr, classTypeRef, params, el);
+				result = compileNew(expr, TInst(classTypeRef, params), el);
 			}
 			case TUnop(op, postFix, e): {
 				result = unopToCpp(op, e, postFix);
@@ -216,7 +211,14 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 			}
 		}
 		if(cpp == null) {
-			cpp = Main.compileExpression(expr);
+			switch(expr.expr) {
+				case TObjectDecl(fields): {
+					cpp = AComp.compileObjectDecl(targetType, fields);
+				}
+				case _: {
+					cpp = Main.compileExpression(expr);
+				}
+			}
 		}
 		return cpp;
 	}
@@ -235,7 +237,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 		if(cmmt != tmmt || nullToValue) {
 			switch(expr.expr) {
 				case TNew(classTypeRef, params, el): {
-					result = compileNew(expr, classTypeRef, params, el, tmmt);
+					result = compileNew(expr, TInst(classTypeRef, params), el, tmmt);
 				}
 				case _: {
 					var cpp = Main.compileExpression(expr);
@@ -462,37 +464,53 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 		}
 	}
 
-	function compileNew(expr: TypedExpr, clsRef: Ref<ClassType>, params: Array<Type>, el: Array<TypedExpr>, overrideMMT: Null<MemoryManagementType> = null): String {
+	function compileNew(expr: TypedExpr, type: Type, el: Array<TypedExpr>, overrideMMT: Null<MemoryManagementType> = null): String {
 		final nfc = Main.compileNativeFunctionCodeMeta(expr, el);
 		return if(nfc != null) {
 			nfc;
 		} else {
-			final meta = expr.getDeclarationMeta().meta;
+			// Since we are constructing an object, it will never be null.
+			// Therefore, we must remove any Null<T> from the type.
+			type = type.unwrapNullTypeOrSelf();
+			final meta = switch(type) {
+				// Used for TObjectDecl of named anonymous struct.
+				// See "XComp.compileNew" in GCFCompiler_Anon.compileObjectDecl to understand.
+				case TType(typeDefRef, params): {
+					typeDefRef.get().meta;
+				}
+				case _: {
+					expr.getDeclarationMeta().meta;
+				}
+			}
 			final native = { name: "", meta: meta }.getNameOrNative();
 			final args = el.map(e -> Main.compileExpression(e)).join(", ");
 			if(native.length > 0) {
 				native + "(" + args + ")";
 			} else {
+				final params = {
+					final temp = type.getParams();
+					temp != null ? temp : [];
+				};
 				final typeParams = params.map(p -> TComp.compileType(p, expr.pos)).join(", ");
+				final cd = type.toModuleType().getCommonData();
 
 				// If the expression's type is different, this may be the result of an unsafe cast.
 				// If so, let's use the memory management type from the cast.
 				if(overrideMMT == null) {
 					final exprMMT = TComp.getMemoryManagementTypeFromType(expr.t);
-					if(exprMMT != clsRef.get().getMemoryManagementType()) {
+					if(exprMMT != cd.getMemoryManagementType()) {
 						overrideMMT = exprMMT;
 					}
 				}
-				
-				compileClassConstruction(clsRef, params, expr.pos, overrideMMT) + "(" + args + ")";
+
+				compileClassConstruction(type, cd, params != null ? params : [], expr.pos, overrideMMT) + "(" + args + ")";
 			}
 		}
 	}
 
-	function compileClassConstruction(clsRef: Ref<ClassType>, params: Array<Type>, pos: Position, overrideMMT: Null<MemoryManagementType> = null): String {
-		final cls = clsRef.get();
-		var mmt = cls.getMemoryManagementType();
-		var typeSource = if(cls.isOverrideMemoryManagement()) {
+	function compileClassConstruction(type: Type, cd: CommonModuleTypeData, params: Array<Type>, pos: Position, overrideMMT: Null<MemoryManagementType> = null): String {
+		var mmt = cd.getMemoryManagementType();
+		var typeSource = if(cd.isOverrideMemoryManagement()) {
 			if(params.length != 1) {
 				pos.makeError(OMMIncorrectParamCount);
 			}
@@ -505,7 +523,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 		}
 
 		if(typeSource == null) {
-			typeSource = TInst(clsRef, params);
+			typeSource = type;
 		}
 
 		final typeOutput = TComp.compileType(typeSource, pos, true);

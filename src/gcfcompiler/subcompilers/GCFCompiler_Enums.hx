@@ -167,7 +167,7 @@ class GCFCompiler_Enums extends GCFSubCompiler {
 		declaration += "\n};";
 
 		// Start output
-		final headerFilePath = "include/" + filename + headerFilename;
+		final headerFilePath = "include/" + headerFilename;
 
 		// pragma once
 		Main.setExtraFileIfEmpty(headerFilePath, "#pragma once");

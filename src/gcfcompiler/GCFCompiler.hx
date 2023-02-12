@@ -22,6 +22,7 @@ using reflaxe.helpers.TypeHelper;
 import gcfcompiler.subcompilers.GCFSubCompiler;
 import gcfcompiler.subcompilers.GCFCompiler_Classes;
 import gcfcompiler.subcompilers.GCFCompiler_Enums;
+import gcfcompiler.subcompilers.GCFCompiler_Anon;
 import gcfcompiler.subcompilers.GCFCompiler_Exprs;
 import gcfcompiler.subcompilers.GCFCompiler_Includes;
 import gcfcompiler.subcompilers.GCFCompiler_Types;
@@ -48,6 +49,10 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	static final UniquePtrInclude: Dynamic = ["memory", true];
 
 	// ----------------------------
+	// The name of the header file generated for the anonymous structs.
+	static final AnonStructHeaderFile: String = "_AnonStructs";
+
+	// ----------------------------
 	// Required for adding semicolons at the end of each line.
 	override function formatExpressionLine(expr: String): String {
 		return expr + ";";
@@ -58,6 +63,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// ============================
 	var CComp: GCFCompiler_Classes;
 	var EComp: GCFCompiler_Enums;
+	var AComp: GCFCompiler_Anon;
 	var IComp: GCFCompiler_Includes;
 	var TComp: GCFCompiler_Types;
 	var XComp: GCFCompiler_Exprs;
@@ -66,16 +72,30 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		super();
 		CComp = new GCFCompiler_Classes(this);
 		EComp = new GCFCompiler_Enums(this);
+		AComp = new GCFCompiler_Anon(this);
 		IComp = new GCFCompiler_Includes(this);
 		TComp = new GCFCompiler_Types(this);
 		XComp = new GCFCompiler_Exprs(this);
 
-		function setup(c: GCFSubCompiler) c.setSubCompilers(CComp, EComp, IComp, TComp, XComp);
+		function setup(c: GCFSubCompiler) c.setSubCompilers(CComp, EComp, AComp, IComp, TComp, XComp);
 		setup(CComp);
 		setup(EComp);
+		setup(AComp);
 		setup(IComp);
 		setup(TComp);
 		setup(XComp);
+	}
+
+	// ----------------------------
+	// Called after all module types have
+	// been passed to this compiler class.
+	public override function onCompileEnd() {
+		IComp.resetAndInitIncludes(true);
+		final anonContent = AComp.makeAllUnnamedDecls();
+		if(anonContent.length > 0) {
+			final content = "#pragma once\n\n" + IComp.compileHeaderIncludes() + "\n\n" + anonContent;
+			setExtraFile("include/" + AnonStructHeaderFile + HeaderExt, content);
+		}
 	}
 
 	// ----------------------------
@@ -165,12 +185,14 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// ----------------------------
 	// Compiles an typedef into C++.
 	public override function compileTypedef(defType: DefType): Null<String> {
+		// Get filename for this typedef
 		final filename = getFileNameFromModuleData(defType);
 		final headerFilename = filename + HeaderExt;
 
 		// Init includes
 		IComp.resetAndInitIncludes(true, [headerFilename]);
 
+		// Ignore "static" member structures
 		switch(defType.type) {
 			case TAnonymous(anonRef): {
 				switch(anonRef.get().status) {
@@ -183,11 +205,20 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 			case _:
 		}
 
-		
+		// Get typedef alias name
+		final typedefName = defType.getNameOrNative();
 
+		// Compile content
 		var content = "";
 		content += compileNamespaceStart(defType);
-		content += "typedef " + TComp.compileType(defType.type, defType.pos) + " " + defType.getNameOrNative() + ";";
+		switch(defType.type) {
+			case TAnonymous(anonRef): {
+				content += AComp.compileNamedAnonTypeDefinition(defType, anonRef);
+			}
+			case _: {
+				content += "typedef " + TComp.compileType(defType.type, defType.pos) + " " + typedefName + ";";
+			}
+		}
 		content += compileNamespaceEnd(defType);
 
 		final headerFilePath = "include/" + headerFilename;
