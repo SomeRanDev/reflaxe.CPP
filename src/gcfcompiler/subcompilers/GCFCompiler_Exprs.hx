@@ -9,6 +9,8 @@ package gcfcompiler.subcompilers;
 
 #if (macro || gcf_runtime)
 
+import haxe.ds.Either;
+
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
@@ -207,7 +209,16 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 		if(targetType != null) {
 			expr = expr.unwrapUnsafeCasts();
 			if(expr.t.valueTypesEqual(targetType)) {
-				cpp = compileMMConversion(expr, targetType);
+				cpp = compileMMConversion(expr, Left(targetType));
+			} else {
+				// If converting from a normal type to an anonymous struct, we must first convert the
+				// object to `Value` memory management since the generated anon struct constructors expect value types.
+				//
+				// Next, since unnamed anonymous structs are always `SharedPtr`s, we use applyMMConversion to 
+				// format the generated C++ code from `Value` to `SharedPtr`.
+				if(!expr.t.getInternalType().isAnonStruct() && targetType.getInternalType().isAnonStruct()) {
+					cpp = applyMMConversion(compileMMConversion(expr, Right(Value)), expr.pos, targetType, Value, SharedPtr);
+				}
 			}
 		}
 		if(cpp == null) {
@@ -224,14 +235,20 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 	}
 
 	// ----------------------------
-	// If the memory management type of the target type is different
-	// from the provided expression, compile the expression and
-	// with additional conversions in the generated code.
-	function compileMMConversion(expr: TypedExpr, targetType: Null<Type>): Null<String> {
+	// If the memory management type of the target type (or target memory management type)
+	// is different from the provided expression, compile the expression and with additional
+	// conversions in the generated code.
+	function compileMMConversion(expr: TypedExpr, targetType: Either<Null<Type>, MemoryManagementType>): Null<String> {
 		final cmmt = TComp.getMemoryManagementTypeFromType(expr.t);
-		final tmmt = TComp.getMemoryManagementTypeFromType(targetType);
+		final tmmt = switch(targetType) {
+			case Left(tt): TComp.getMemoryManagementTypeFromType(tt);
+			case Right(mmt): mmt;
+		}
 
-		final nullToValue = expr.t.isNullOfType(targetType);
+		final nullToValue = switch(targetType) {
+			case Left(tt): expr.t.isNullOfType(tt);
+			case Right(_): expr.t.isNull();
+		}
 
 		var result = null;
 		if(cmmt != tmmt || nullToValue) {

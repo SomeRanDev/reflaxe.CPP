@@ -65,7 +65,12 @@ class GCFCompiler_Types extends GCFSubCompiler {
 				"std::function<" + compileType(ret, pos) + "(" + args.map(a -> compileType(a.t, pos)).join(", ") + ")>";
 			}
 			case TAnonymous(anonRef): {
-				AComp.compileAnonType(anonRef);
+				final internal = AComp.compileAnonType(anonRef);
+				if(asValue) {
+					internal;
+				} else {
+					GCFCompiler.SharedPtrClassCpp + "<" + internal + ">";
+				}
 			}
 			case TDynamic(t3): {
 				if(t3 == null) {
