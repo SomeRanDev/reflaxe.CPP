@@ -231,7 +231,7 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 	// compile/format for the output.
 	function compileIncludes(includeArr: Array<String>): String {
 		return if(includeArr.length > 0) {
-			includeArr.sortedAlphabetically().map(i -> "#include " + i).join("\n");
+			includeArr.sorted(GCFSort.includeBracketOrder).map(i -> "#include " + i).join("\n");
 		} else {
 			"";
 		}
@@ -250,7 +250,7 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 		} else {
 			final existingIncludes = existing.split("\n").filter(isNotEmpty);
 			final includes = newIncludes.split("\n").filter(isNotEmpty).filter(i -> !existingIncludes.contains(i));
-			final combined = existingIncludes.concat(includes).sortedAlphabetically();
+			final combined = existingIncludes.concat(includes).sorted(GCFSort.includeBracketOrder);
 			Main.replaceInExtraFile(filename, combined.join("\n"), priority);
 		}
 	}

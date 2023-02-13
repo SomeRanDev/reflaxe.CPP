@@ -15,6 +15,12 @@ class GCFSort {
 		return sorted(arr, alphabetic);
 	}
 
+	public static function includeBracketOrder(a: String, b: String): Int {
+		return if(a.charAt(0) == "\"" && b.charAt(0) == "<") 1;
+		else if(a.charAt(0) == "<" && b.charAt(0) == "\"") -1;
+		else alphabetic(a, b);
+	}
+
 	public static function alphabetic(a: String, b: String): Int {
 		a = a.toLowerCase();
 		b = b.toLowerCase();
