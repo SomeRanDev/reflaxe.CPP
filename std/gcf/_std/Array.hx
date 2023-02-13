@@ -3,6 +3,7 @@ import haxe.iterators.ArrayKeyValueIterator;
 @:nativeName("std::vector")
 @:include("vector", true)
 @:valueType
+@:coreApi
 extern class Array<T> {
 	var length(default, null):Int;
 	function new():Void;

@@ -1,5 +1,6 @@
 package haxe;
 
+@:coreApi
 typedef PosInfos = {
 	var fileName: String;
 	var lineNumber: Int;
