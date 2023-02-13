@@ -74,7 +74,13 @@ class GCFCompiler_Types extends GCFSubCompiler {
 			}
 			case TDynamic(t3): {
 				if(t3 == null) {
-					pos.makeError(DynamicUnsupported);
+					if(dynamicToTemplateType) {
+						final result = "Dyn" + (dynamicTemplates.length + 1);
+						dynamicTemplates.push(result);
+						result;
+					} else {
+						pos.makeError(DynamicUnsupported);
+					}
 				} else {
 					compileType(t3, pos, asValue);
 				}
@@ -208,6 +214,36 @@ class GCFCompiler_Types extends GCFSubCompiler {
 			mmt;
 		} else {
 			{ name: "", meta: t.getMeta() }.getMemoryManagementType();
+		}
+	}
+
+	// ----------------------------
+	// Fields used for system for converting
+	// Dynamic types into generic types.
+	var dynamicToTemplateType: Bool = false;
+	var dynamicTemplates: Null<Array<String>> = null;
+
+	// ----------------------------
+	// Once called, Dynamic types will be compiled
+	// with new type names to be used in a template.
+	function enableDynamicToTemplate() {
+		if(!dynamicToTemplateType) {
+			dynamicToTemplateType = true;
+			dynamicTemplates = [];
+		}
+	}
+
+	// ----------------------------
+	// Disables this feature and returns a list
+	// of all the new "template type names" created.
+	function disableDynamicToTemplate(): Array<String> {
+		return if(dynamicToTemplateType) {
+			final result = dynamicTemplates;
+			dynamicToTemplateType = false;
+			dynamicTemplates = [];
+			result;
+		} else {
+			[];
 		}
 	}
 }

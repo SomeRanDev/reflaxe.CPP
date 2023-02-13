@@ -16,6 +16,7 @@ import haxe.display.Display.MetadataTarget;
 import reflaxe.BaseCompiler;
 
 using reflaxe.helpers.SyntaxHelper;
+using reflaxe.helpers.TypeHelper;
 
 using gcfcompiler.helpers.GCFError;
 using gcfcompiler.helpers.GCFMeta;
@@ -121,10 +122,10 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 				Main.compileVarName(field.name);
 			}
 
-			final addToCpp = !headerOnly;
+			var addToCpp = !headerOnly;
 
 			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
-			final ret = tfunc.t == null ? "void" : TComp.compileType(tfunc.t, field.pos);
+			final ret = tfunc.t == null ? "void" : (tfunc.t.isDynamic() ? "auto" : TComp.compileType(tfunc.t, field.pos));
 			final prefix = isStatic ? "static " : "";
 
 			if(isDynamic) {
@@ -147,7 +148,19 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 				}
 			} else {
 				final retDecl = (useReturnType ? (ret + " ") : "");
+
+				TComp.enableDynamicToTemplate();
+
 				final argDecl = "(" + tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos)).join(", ") + ")";
+
+				final templateTypes = TComp.disableDynamicToTemplate();
+				final templateDecl = if(templateTypes.length > 0) {
+					addToCpp = false;
+					"template<" + templateTypes.map(t -> "typename " + t).join(", ") + ">\n";
+				} else {
+					"";
+				}
+
 				final funcDeclaration = meta + prefix + retDecl + name + argDecl;
 				var content = if(tfunc.expr != null) {
 					" {\n" + Main.compileClassFuncExpr(tfunc.expr).tab() + "\n}";
@@ -160,7 +173,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 					final cppArgDecl = "(" + tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, true)).join(", ") + ")";
 					cppFunctions.push(retDecl + classNameNS + name + cppArgDecl + content);
 				} else {
-					functions.push(funcDeclaration + content);
+					functions.push(templateDecl + funcDeclaration + content);
 				}
 			}
 		}
