@@ -181,7 +181,7 @@ class GCFCompiler_Enums extends GCFSubCompiler {
 		content += declaration;
 		content += Main.compileNamespaceEnd(enumType);
 
-		Main.appendToExtraFile(headerFilePath, content, 2);
+		Main.appendToExtraFile(headerFilePath, content + "\n", 2);
 
 		return null;
 	}

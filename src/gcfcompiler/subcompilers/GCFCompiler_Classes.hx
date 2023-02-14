@@ -15,6 +15,7 @@ import haxe.display.Display.MetadataTarget;
 
 import reflaxe.BaseCompiler;
 
+using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
@@ -30,6 +31,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 		// Init variables
 		final variables = [];
 		final functions = [];
+		final topLevelFunctions = [];
 		final cppVariables = [];
 		final cppFunctions = [];
 		final className = TComp.compileClassName(classType, classType.pos, null, false, true);
@@ -147,6 +149,8 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 					cppVariables.push(type + " " + classNameNS + name + assign);
 				}
 			} else {
+				final topLevel = field.hasMeta(":topLevel");
+
 				final retDecl = (useReturnType ? (ret + " ") : "");
 
 				TComp.enableDynamicToTemplate();
@@ -161,7 +165,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 					"";
 				}
 
-				final funcDeclaration = meta + prefix + retDecl + name + argDecl;
+				final funcDeclaration = meta + (topLevel ? "" : prefix) + retDecl + name + argDecl;
 				var content = if(tfunc.expr != null) {
 					" {\n" + Main.compileClassFuncExpr(tfunc.expr).tab() + "\n}";
 				} else {
@@ -169,9 +173,9 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 				}
 				
 				if(addToCpp) {
-					functions.push(funcDeclaration + ";");
+					(topLevel ? topLevelFunctions : functions).push(funcDeclaration + ";");
 					final cppArgDecl = "(" + tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, true)).join(", ") + ")";
-					cppFunctions.push(retDecl + classNameNS + name + cppArgDecl + content);
+					cppFunctions.push(retDecl + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
 				} else {
 					functions.push(templateDecl + funcDeclaration + content);
 				}
@@ -188,11 +192,11 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 			var result = "";
 
 			if(cppVariables.length > 0) {
-				result += cppVariables.join("\n\n") + "\n\n";
+				result += cppVariables.join("\n\n") + "\n";
 			}
 
 			if(cppFunctions.length > 0) {
-				result += cppFunctions.join("\n\n") + "\n";
+				result += "\n" + cppFunctions.join("\n\n");
 			}
 
 			Main.appendToExtraFile(srcFilename, result + "\n", 2);
@@ -210,16 +214,20 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 			result += header;
 
 			if(variables.length > 0) {
-				result += variables.join("\n\n").tab() + "\n\n";
+				result += variables.join("\n\n").tab() + "\n";
 			}
 
 			if(functions.length > 0) {
-				result += functions.join("\n\n").tab() + "\n";
+				result += "\n" + functions.join("\n\n").tab() + "\n";
 			}
 
 			result += "};\n";
 
 			result += Main.compileNamespaceEnd(classType);
+
+			if(topLevelFunctions.length > 0) {
+				result += "\n\n" + topLevelFunctions.join("\n\n");
+			}
 
 			Main.appendToExtraFile(headerFilename, result + "\n", 2);
 		}

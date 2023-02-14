@@ -171,9 +171,8 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// Compile all namespace closing brackets.
 	function compileNamespaceEnd(md: CommonModuleTypeData): String {
 		var result = "";
-		if(md.pack.length > 0) result += "\n";
 		for(p in md.pack) {
-			result += "}\n";
+			result += "\n}";
 		}
 		return result;
 	}
@@ -254,7 +253,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilePath, IComp.compileHeaderIncludes(), 1);
 
 		// Output typedef
-		appendToExtraFile(headerFilePath, content, 2);
+		appendToExtraFile(headerFilePath, content + "\n", 2);
 
 		return null;
 	}
