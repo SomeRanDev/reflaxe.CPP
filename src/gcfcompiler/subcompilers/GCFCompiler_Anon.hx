@@ -31,6 +31,8 @@ class GCFCompiler_Anon extends GCFSubCompiler {
 	var anonStructs: Map<String, AnonStruct> = [];
 	var namedAnonStructs: Map<String, AnonStruct> = [];
 
+	static function unknownPos(): Position return Context.makePosition({ min: 0, max: 0, file: "<unknown>" });
+
 	public function compileObjectDecl(type: Type, fields: Array<{ name: String, expr: TypedExpr }>): String {
 		final anonFields: Array<AnonField> = [];
 		final anonMap: Map<String, TypedExpr> = [];
@@ -73,7 +75,7 @@ class GCFCompiler_Anon extends GCFSubCompiler {
 		return if(isNamed) {
 			XComp.compileNew({
 				expr: TIdent(""),
-				pos: Context.makePosition({ min: 0, max: 0, file: "<unknown>" }),
+				pos: unknownPos(),
 				t: type
 			}, type, el);
 		} else {
@@ -109,7 +111,8 @@ class GCFCompiler_Anon extends GCFSubCompiler {
 		final fields = [];
 		final constructorParams = [];
 		final constructorAssigns = [];
-		final otherConstructorAssigns = [];
+		final templateConstructorAssigns = [];
+		final templateFunctionAssigns = [];
 		final extractorFuncs = [];
 
 		for(f in anonFields) {
@@ -117,7 +120,16 @@ class GCFCompiler_Anon extends GCFSubCompiler {
 			fields.push(v);
 			constructorParams.push(v + (f.optional ? " = std::nullopt" : ""));
 			constructorAssigns.push(f.name + "(" + f.name + ")");
-			otherConstructorAssigns.push(f.name + "(" + (f.optional ? ("extract_" + f.name + "(o)") : ("o." + f.name)) + ")");
+			switch(f.type) {
+				case TFun(args, ret): {
+					final declArgs = args.map(a -> TComp.compileType(a.t, unknownPos()) + " " + a.name).join(", ");
+					final callArgs = args.map(a -> a.name).join(", ");
+					templateFunctionAssigns.push(f.name + " = [&o](" + declArgs + ") { return o." + f.name + "(" + callArgs + "); };");
+				}
+				case _: {
+					templateConstructorAssigns.push(f.name + "(" + (f.optional ? ("extract_" + f.name + "(o)") : ("o." + f.name)) + ")");
+				}
+			}
 			if(f.optional) {
 				extractorFuncs.push(f.name);
 			}
@@ -132,8 +144,10 @@ class GCFCompiler_Anon extends GCFSubCompiler {
 			decl += constructor.tab() + "\n";
 		}
 
-		if(otherConstructorAssigns.length > 0) {
-			final constructor = "\ntemplate<typename T>\n" + name + "(const T& o):\n\t" + otherConstructorAssigns.join(", ") + "\n{}";
+		if(templateConstructorAssigns.length > 0 || templateFunctionAssigns.length > 0) {
+			final templateFuncs = templateFunctionAssigns.length > 0 ? ("{\n" + templateFunctionAssigns.map(a -> a.tab()).join("\n") + "\n}") : "\n{}";
+			final templateAssigns = templateConstructorAssigns.length > 0 ? (":\n\t" + templateConstructorAssigns.join(", ")) : " ";
+			final constructor = "\ntemplate<typename T>\n" + name + "(T o)" + templateAssigns + templateFuncs;
 			decl += constructor.tab() + "\n";
 		}
 
