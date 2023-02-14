@@ -3,7 +3,7 @@ package haxe;
 @:pseudoCoreApi
 @:headerInclude("iostream", true)
 class Log {
-	public static function formatOutput(v: Dynamic, infos: PosInfos): String {
+	public static function formatOutput(v: String, infos: Null<PosInfos> = null): String {
 		if (infos == null)
 			return v;
 		var pstr = infos.fileName + ":" + infos.lineNumber;
