@@ -1,5 +1,5 @@
 package;
-
+/*
 abstract Test(Int) from Int to Int {
 	public function new(i: Int) {
 		this = i;
@@ -17,9 +17,13 @@ enum Test2 {
 }
 
 class Bla {
+	public var a = 123;
 	public function new() {
-
 	}
+}
+
+function test_anon(a: {name: String}) {
+	trace(a.name);
 }
 
 function main() {
@@ -28,7 +32,14 @@ function main() {
 	var a: Ptr<Int> = cast Stdlib.malloc(12);
 	Stdlib.free(cast a);
 
-	var c = (new Bla(): Ptr<Bla>);
+	var c: Null<Bla> = new Bla();
+	trace(Std.string(c.a));
+
+	function bla(input: { name: String, age: Int }) {
+		trace(input.name);
+	}
+	bla({name: "John", age: 123});
+	
 
 	var d = Three(123);
 	switch(d) {
@@ -38,4 +49,29 @@ function main() {
 
 	final b = new Test(123);
 	trace(Std.string(b.toDouble()));
+}
+*/
+
+
+class Person {
+	public function new() {
+		name = "John";
+	}
+
+	public function toString() {
+		return name;
+	}
+
+	public var name: String;
+}
+
+function bla(a: { function toString(): String; }) {
+	trace(a.toString());
+}
+
+@:topLevel
+function main(): Int {
+	trace("Hello");
+	bla(new Person());
+	return 0;
 }
