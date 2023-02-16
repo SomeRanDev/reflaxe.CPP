@@ -1,7 +1,0 @@
--cp test/src
-
--D cpp-output=test/out
-
---no-opt
-
-Test

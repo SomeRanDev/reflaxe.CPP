@@ -1,6 +1,0 @@
-# Call from top-level to compile properly.
-# haxe test/Test_WithHaxelib.hxml
-
--lib gcfree-cpp
-
-test/hxml/TestParams.hxml

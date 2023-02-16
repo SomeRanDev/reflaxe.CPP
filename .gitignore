@@ -1,5 +1,5 @@
-test/out
-test/obj
-test/bin
+test/sample_project/out
+test/sample_project/obj
+test/sample_project/bin
 Submit.bat
 gdscript.zip

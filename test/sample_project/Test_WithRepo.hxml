@@ -1,5 +1,5 @@
 # Call from top-level to compile properly.
-# haxe test/Test_WithRepo.hxml
+# haxe test/sample_project/Test_WithRepo.hxml
 
 -cp std
 -cp std/gcf/_std
@@ -9,4 +9,4 @@
 
 extraParams.hxml
 
-test/hxml/TestParams.hxml
+test/sample_project/hxml/TestParams.hxml
