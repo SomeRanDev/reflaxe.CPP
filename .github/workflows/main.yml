@@ -14,12 +14,14 @@ jobs:
         with:
           haxe-version: 4.2.5
 
-      - name: Install Haxe
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install & Check Haxe
         run: haxe -version
       
       - name: Install Reflaxe
         run: haxelib git reflaxe https://github.com/RobertBorghese/reflaxe.git
       
       - name: Run Tests
-        run: haxe "./test/unit_testing/TestAll.hxml"
-          
+        run: haxe "test/unit_testing/TestAll.hxml"
