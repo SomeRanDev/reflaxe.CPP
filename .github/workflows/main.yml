@@ -21,5 +21,5 @@ jobs:
         run: haxelib git reflaxe https://github.com/RobertBorghese/reflaxe.git
       
       - name: Run Tests
-        run: haxe "test/unit_testing/TestAll.hxml"
+        run: haxe "./test/unit_testing/TestAll.hxml"
           
