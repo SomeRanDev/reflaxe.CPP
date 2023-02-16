@@ -13,7 +13,13 @@ jobs:
       - uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.2.5
-      - run: |
-          haxe -version
-          haxelib git reflaxe https://github.com/RobertBorghese/reflaxe.git
-          haxe test/unit_testing/TestAll.hxml
+
+      - name: Install Haxe
+        run: haxe -version
+      
+      - name: Install Reflaxe
+        run: haxelib git reflaxe https://github.com/RobertBorghese/reflaxe.git
+      
+      - name: Run Tests
+        run: haxe test/unit_testing/TestAll.hxml
+          
