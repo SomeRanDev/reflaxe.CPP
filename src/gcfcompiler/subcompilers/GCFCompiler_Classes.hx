@@ -79,6 +79,8 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 
 		header += " {\npublic:\n";
 
+		var fieldsCompiled = 0;
+
 		// Instance vars
 		for(v in varFields) {
 			final field = v.field;
@@ -106,6 +108,8 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 			if(addToCpp) {
 				cppVariables.push(type + " " + classNameNS + varName + assign + ";");
 			}
+
+			fieldsCompiled++;
 		}
 
 		// Class functions
@@ -159,6 +163,8 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 				if(dynAddToCpp) {
 					cppVariables.push(type + " " + classNameNS + name + assign);
 				}
+
+				fieldsCompiled++;
 			} else {
 				final topLevel = field.hasMeta(":topLevel");
 
@@ -190,6 +196,10 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 				} else {
 					functions.push(templateDecl + funcDeclaration + content);
 				}
+
+				if(!topLevel) {
+					fieldsCompiled++;
+				}
 			}
 		}
 
@@ -207,7 +217,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 			}
 
 			if(cppFunctions.length > 0) {
-				result += "\n" + cppFunctions.join("\n\n");
+				result += (result.length > 0 ? "\n" : "") + cppFunctions.join("\n\n");
 			}
 
 			Main.appendToExtraFile(srcFilename, result + "\n", 2);
@@ -221,23 +231,26 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 			IComp.appendIncludesToExtraFileWithoutRepeats(headerFilename, IComp.compileHeaderIncludes(), 1);
 
 			var result = "";
-			result += Main.compileNamespaceStart(classType);
-			result += header;
 
-			if(variables.length > 0) {
-				result += variables.join("\n\n").tab() + "\n";
+			if(fieldsCompiled > 0) {
+				result += Main.compileNamespaceStart(classType);
+				result += header;
+
+				if(variables.length > 0) {
+					result += variables.join("\n\n").tab() + "\n";
+				}
+
+				if(functions.length > 0) {
+					result += "\n" + functions.join("\n\n").tab() + "\n";
+				}
+
+				result += "};\n";
+
+				result += Main.compileNamespaceEnd(classType);
 			}
-
-			if(functions.length > 0) {
-				result += "\n" + functions.join("\n\n").tab() + "\n";
-			}
-
-			result += "};\n";
-
-			result += Main.compileNamespaceEnd(classType);
 
 			if(topLevelFunctions.length > 0) {
-				result += "\n\n" + topLevelFunctions.join("\n\n");
+				result += (result.length > 0 ? "\n\n" : "") + topLevelFunctions.join("\n\n");
 			}
 
 			Main.appendToExtraFile(headerFilename, result + "\n", 2);
