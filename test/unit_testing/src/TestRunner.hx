@@ -4,6 +4,11 @@ final TEST_DIR = "test/unit_testing/tests";
 final OUT_DIR = "out";
 final INTENDED_DIR = "intended";
 
+function printlnErr(msg: String) {
+	Sys.stderr().writeString(msg + "\n", haxe.io.Encoding.UTF8);
+	Sys.stderr().flush();
+}
+
 function main() {
 	final tests = checkAndReadDir(TEST_DIR);
 	var failures = 0;
@@ -42,9 +47,9 @@ function processTest(t: String): Bool {
 }
 
 function printFailed(msg: Null<String> = null) {
-	Sys.println("Failed... 💔");
+	printlnErr("Failed... 💔");
 	if(msg != null) {
-		Sys.println(msg);
+		printlnErr(msg);
 	}
 }
 
