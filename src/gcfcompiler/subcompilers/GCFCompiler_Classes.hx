@@ -236,12 +236,13 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 				result += Main.compileNamespaceStart(classType);
 				result += header;
 
-				if(variables.length > 0) {
+				final varsExist = variables.length > 0;
+				if(varsExist) {
 					result += variables.join("\n\n").tab() + "\n";
 				}
 
 				if(functions.length > 0) {
-					result += "\n" + functions.join("\n\n").tab() + "\n";
+					result += (varsExist ? "\n" : "") + functions.join("\n\n").tab() + "\n";
 				}
 
 				result += "};\n";
