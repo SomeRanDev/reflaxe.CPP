@@ -95,16 +95,26 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	}
 
 	// ----------------------------
-	public function onTypeEncountered(t: Type, addToHeader: Bool) {
-		IComp.addIncludeFromType(t, addToHeader);
-	}
-
+	// Called whenever a significant ModuleType
+	// is encountered while compiling to 
+	// ensure it is #included and compiled.
 	public function onModuleTypeEncountered(mt: ModuleType, addToHeader: Bool) {
 		IComp.addIncludeFromModuleType(mt, addToHeader);
 		addModuleTypeForCompilation(mt);
 	}
 
 	// ----------------------------
+	// Called whenever a significant Type
+	// is encountered while compiling to
+	// ensure it is #included.
+	public function onTypeEncountered(t: Type, addToHeader: Bool) {
+		IComp.addIncludeFromType(t, addToHeader);
+	}
+
+	// ----------------------------
+	// Generate the header containing all the
+	// specially made classes for the anonymous
+	// structures used in Haxe.
 	function generateAnonStructHeader() {
 		IComp.resetAndInitIncludes(true);
 		IComp.addInclude(OptionalInclude[0], true, OptionalInclude[1]);
