@@ -70,6 +70,7 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 		// "getTypeUsage" returns information on all
 		// the types used by this ClassType.
 		// Let's add them to our includes.
+		/*
 		final typeUsage = Main.getTypeUsage();
 		for(level => usedTypes in typeUsage) {
 			if(level >= StaticAccess) {
@@ -88,6 +89,7 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 				}
 			}
 		}
+		*/
 	}
 
 	// ----------------------------

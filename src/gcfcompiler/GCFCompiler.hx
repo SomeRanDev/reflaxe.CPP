@@ -94,6 +94,16 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 		generateAnonStructHeader();
 	}
 
+	// ----------------------------
+	public function onTypeEncountered(t: Type, addToHeader: Bool) {
+		IComp.addIncludeFromType(t, addToHeader);
+	}
+
+	public function onModuleTypeEncountered(mt: ModuleType, addToHeader: Bool) {
+		IComp.addIncludeFromModuleType(mt, addToHeader);
+	}
+
+	// ----------------------------
 	function generateAnonStructHeader() {
 		IComp.resetAndInitIncludes(true);
 		IComp.addInclude(OptionalInclude[0], true, OptionalInclude[1]);

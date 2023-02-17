@@ -71,7 +71,9 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 		header += "class " + className;
 
 		if(classType.superClass != null) {
-			Main.superTypeName = TComp.compileClassName(classType.superClass.t.get(), classType.pos, classType.superClass.params);
+			final superType = classType.superClass.t;
+			Main.onModuleTypeEncountered(TClassDecl(superType), true);
+			Main.superTypeName = TComp.compileClassName(superType.get(), classType.pos, classType.superClass.params);
 			header += ": public " + Main.superTypeName;
 		}
 
@@ -89,6 +91,8 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 			}
 			
 			final addToCpp = !headerOnly && isStatic;
+
+			Main.onTypeEncountered(field.type, true);
 
 			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
 			final assign = (cppVal.length == 0 ? "" : (" = " + cppVal));
@@ -125,6 +129,13 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 			}
 
 			var addToCpp = !headerOnly;
+
+			if(tfunc.t != null) {
+				Main.onTypeEncountered(tfunc.t, true);
+			}
+			for(a in tfunc.args) {
+				Main.onTypeEncountered(a.v.t, true);
+			}
 
 			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
 			final ret = tfunc.t == null ? "void" : (tfunc.t.isDynamic() ? "auto" : TComp.compileType(tfunc.t, field.pos));

@@ -65,6 +65,10 @@ class GCFCompiler_Enums extends GCFSubCompiler {
 			final hasArgs = o.args.length > 0;
 			final args = o.args.map(opt -> [TComp.compileType(opt.t, o.field.pos), opt.name]);
 
+			for(a in o.args) {
+				Main.onTypeEncountered(a.t, true);
+			}
+
 			// Generate static function "constructors"
 			{
 				final funcArgs = [];

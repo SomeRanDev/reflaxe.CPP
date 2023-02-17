@@ -36,6 +36,12 @@ using gcfcompiler.helpers.GCFType;
 @:access(gcfcompiler.subcompilers.GCFCompiler_Types)
 class GCFCompiler_Exprs extends GCFSubCompiler {
 	// ----------------------------
+	// A public variable modified based on whether the
+	// current expression is being compiled for a header file.
+	public var compilingInHeader: Bool = false;
+	function onModuleTypeEncountered(mt: ModuleType) Main.onModuleTypeEncountered(mt, compilingInHeader);
+
+	// ----------------------------
 	// Compiles an expression into C++.
 	public function compileExpressionToCpp(expr: TypedExpr): Null<String> {
 		var result = "";
@@ -82,6 +88,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				result = compileCall(callExpr, el);
 			}
 			case TNew(classTypeRef, params, el): {
+				onModuleTypeEncountered(TClassDecl(classTypeRef));
 				result = compileNew(expr, TInst(classTypeRef, params), el);
 			}
 			case TUnop(op, postFix, e): {
@@ -171,7 +178,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				result = "continue";
 			}
 			case TThrow(expr): {
-				result = "throw " + Main.compileExpression(expr) + ";";
+				result = "throw " + Main.compileExpression(expr);
 			}
 			case TCast(e, maybeModuleType): {
 				result = Main.compileExpression(e);
@@ -336,17 +343,20 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 	}
 
 	function constantToCpp(constant: TConstant): String {
-		switch(constant) {
-			case TInt(i): return Std.string(i);
-			case TFloat(s): return s;
-			case TString(s): return "\"" + StringTools.replace(StringTools.replace(s, "\\", "\\\\"), "\"", "\\\"") + "\"";
-			case TBool(b): return b ? "true" : "false";
-			case TNull: return "std::nullopt";
-			case TThis: return "this";
-			case TSuper: return Main.superTypeName;
-			case _: {}
+		return switch(constant) {
+			case TInt(i): Std.string(i);
+			case TFloat(s): s;
+			case TString(s): stringToCpp(s);
+			case TBool(b): b ? "true" : "false";
+			case TNull: "std::nullopt";
+			case TThis: "this";
+			case TSuper: Main.superTypeName;
+			case _: "";
 		}
-		return "";
+	}
+
+	function stringToCpp(s: String): String {
+		return "\"" + StringTools.replace(StringTools.replace(s, "\\", "\\\\"), "\"", "\\\"") + "\"";
 	}
 
 	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
@@ -427,11 +437,15 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 			// and if so use singleton.
 			switch(fa) {
 				case FStatic(clsRef, cfRef): {
+					onModuleTypeEncountered(TClassDecl(clsRef));
+
 					final cf = cfRef.get();
 					final className = TComp.compileClassName(clsRef.get(), e.pos, null, true, true);
 					return className + "::" + name;
 				}
 				case FEnum(enumRef, enumField): {
+					onModuleTypeEncountered(TEnumDecl(enumRef));
+
 					final enumName = TComp.compileEnumName(enumRef.get(), e.pos, null, true, true);
 					return enumName + "::" + name;
 				}
