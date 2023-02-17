@@ -581,6 +581,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				}
 			}
 			if(allConst) {
+				IComp.addInclude("iostream", compilingInHeader, true);
 				addLastString();
 				"std::cout << " + validParams.join("<< \", \" << ") + " << std::endl";
 			} else {

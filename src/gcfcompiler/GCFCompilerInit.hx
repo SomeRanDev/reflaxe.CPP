@@ -20,7 +20,7 @@ class GCFCompilerInit {
 			ignoreTypes: ["haxe.iterators.ArrayIterator", "haxe.iterators.ArrayKeyValueIterator"],
 			reservedVarNames: reservedNames(),
 			targetCodeInjectionName: "__cpp__",
-			smartDCE: true,
+			dynamicDCE: true,
 			trackUsedTypes: true,
 			allowMetaMetadata: true,
 			autoNativeMetaFormat: "[[{}]]",

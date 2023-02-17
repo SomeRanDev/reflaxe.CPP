@@ -101,6 +101,7 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 
 	public function onModuleTypeEncountered(mt: ModuleType, addToHeader: Bool) {
 		IComp.addIncludeFromModuleType(mt, addToHeader);
+		addModuleTypeForCompilation(mt);
 	}
 
 	// ----------------------------
