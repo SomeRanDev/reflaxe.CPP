@@ -1,9 +1,7 @@
 #include "Main.h"
 
-#include <memory>
-#include "haxe_Log.h"
-
+#include <iostream>
 
 void _Main::Main_Fields_::main() {
-	haxe::Log::trace("Hello world!", std::make_shared<haxe::PosInfos>("_Main.Main_Fields_", "test/unit_testing/tests/HelloWorld/Main.hx", 4, "main"));
+	std::cout << "test/unit_testing/tests/HelloWorld/Main.hx:4: Hello world!" << std::endl;
 }
