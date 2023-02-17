@@ -87,6 +87,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 			final isStatic = v.isStatic;
 			final varName = Main.compileVarName(field.name, null, field);
 			final cppVal = if(field.expr() != null) {
+				XComp.compilingInHeader = headerOnly;
 				Main.compileClassVarExpr(field.expr());
 			} else {
 				"";
@@ -149,6 +150,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 				IComp.addInclude("functional", true, true);
 
 				final dynAddToCpp = !headerOnly && isStatic;
+				XComp.compilingInHeader = !dynAddToCpp;
 				final callable = Main.compileClassVarExpr(field.expr());
 				final assign = " = " + callable;
 				final type = "std::function<" + ret + "(" + tfunc.args.map(a -> {
@@ -184,6 +186,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 
 				final funcDeclaration = meta + (topLevel ? "" : prefix) + retDecl + name + argDecl;
 				var content = if(tfunc.expr != null) {
+					XComp.compilingInHeader = !addToCpp;
 					" {\n" + Main.compileClassFuncExpr(tfunc.expr).tab() + "\n}";
 				} else {
 					"";
@@ -202,6 +205,8 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 				}
 			}
 		}
+
+		XComp.compilingInHeader = false;
 
 		// Source file
 		if(!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0)) {

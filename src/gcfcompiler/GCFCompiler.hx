@@ -201,10 +201,12 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// ----------------------------
 	// Compile standard function-argument syntax
 	// for C++ from a TVar and TypedExpr.
-	function compileFunctionArgument(arg: { v: TVar, value: Null<TypedExpr> }, pos: Position, noDefaultValue: Bool = false) {
+	function compileFunctionArgument(arg: { v: TVar, value: Null<TypedExpr> }, pos: Position, noDefaultValue: Bool = false, compilingInCpp: Bool = false) {
 		var result = TComp.compileType(arg.v.t, pos) + " " + compileVarName(arg.v.name);
 		if(!noDefaultValue && arg.value != null) {
+			XComp.compilingInHeader = !compilingInCpp;
 			result += " = " + compileExpression(arg.value);
+			XComp.compilingInHeader = false;
 		}
 		return result;
 	}

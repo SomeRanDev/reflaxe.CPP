@@ -95,7 +95,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				result = unopToCpp(op, e, postFix);
 			}
 			case TFunction(tfunc): {
-				result = "[=](" + tfunc.args.map(a -> Main.compileFunctionArgument(a, expr.pos)).join(", ") + ") {\n";
+				result = "[=](" + tfunc.args.map(a -> Main.compileFunctionArgument(a, expr.pos, false, true)).join(", ") + ") {\n";
 				result += toIndentedScope(tfunc.expr);
 				result += "\n}";
 			}
