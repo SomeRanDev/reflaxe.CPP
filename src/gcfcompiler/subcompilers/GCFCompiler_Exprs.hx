@@ -306,8 +306,8 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				switch(target) {
 					case Value: "(*" + cpp + ")";
 					case UnsafePtr: cpp;
-					case SharedPtr: Context.error("Cannot convert unsafe pointer (Ptr<T>) to shared pointer (SharedPtr<T>).", epos);
-					case UniquePtr: Context.error("Cannot convert unsafe pointer (Ptr<T>) to unique pointer (UniquePtr<T>).", epos);
+					case SharedPtr: epos.makeError(UnsafeToShared);
+					case UniquePtr: epos.makeError(UnsafeToUnique);
 				}
 			}
 			case SharedPtr: {
@@ -315,15 +315,15 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 					case Value: "(*" + cpp + ")";
 					case UnsafePtr: cpp + ".get()";
 					case SharedPtr: cpp;
-					case UniquePtr: Context.error("Cannot convert unique pointer (UniquePtr<T>) to shared pointer (SharedPtr<T>).", epos);
+					case UniquePtr: epos.makeError(SharedToUnique);
 				}
 			}
 			case UniquePtr: {
 				switch(target) {
 					case Value: "(*" + cpp + ")";
 					case UnsafePtr: cpp + ".get()";
-					case SharedPtr: Context.error("Cannot convert shared pointer (SharedPtr<T>) to unique pointer (UniquePtr<T>).", epos);
-					case UniquePtr: Context.error("Cannot move or copy a unique pointer (UniquePtr<T>).", epos);
+					case SharedPtr: epos.makeError(UniqueToShared);
+					case UniquePtr: epos.makeError(UniqueToUnique);
 				}
 			}
 		}
