@@ -23,9 +23,7 @@ class GCFCompilerInit {
 			dynamicDCE: true,
 			trackUsedTypes: true,
 			allowMetaMetadata: true,
-			autoNativeMetaFormat: "[[{}]]",
-			metadataTemplates: [
-			]
+			autoNativeMetaFormat: "[[{}]]"
 		});
 	}
 

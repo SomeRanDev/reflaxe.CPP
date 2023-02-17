@@ -116,15 +116,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 				result += "\n}";
 			}
 			case TIf(econd, ifExpr, elseExpr): {
-				result = "if(" + Main.compileExpression(econd.unwrapParenthesis()) + ") {\n";
-				result += toIndentedScope(ifExpr);
-				if(elseExpr != null) {
-					result += "\n} else {\n";
-					result += toIndentedScope(elseExpr);
-					result += "\n}";
-				} else {
-					result += "\n}";
-				}
+				result = compileIf(econd, ifExpr, elseExpr);
 			}
 			case TWhile(econd, blockExpr, normalWhile): {
 				final gdCond = Main.compileExpression(econd.unwrapParenthesis());
@@ -186,8 +178,11 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 					result = "((" + moduleNameToCpp(maybeModuleType, expr.pos) + ")(" + result + "))";
 				}
 			}
-			case TMeta(metadataEntry, expr): {
-				result = Main.compileExpression(expr);
+			case TMeta(metadataEntry, nextExpr): {
+				final unwrappedInfo = unwrapMetaExpr(expr);
+				trace(unwrappedInfo);
+				final cpp = compileExprWithMultipleMeta(unwrappedInfo.meta, expr, unwrappedInfo.internalExpr);
+				result = cpp != null ? cpp : Main.compileExpression(unwrappedInfo.internalExpr);
 			}
 			case TEnumParameter(expr, enumField, index): {
 				IComp.addIncludeFromMetaAccess(enumField.meta);
@@ -502,6 +497,175 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 		}
 	}
 
+	function compileNew(expr: TypedExpr, type: Type, el: Array<TypedExpr>, overrideMMT: Null<MemoryManagementType> = null): String {
+		final nfc = Main.compileNativeFunctionCodeMeta(expr, el);
+		return if(nfc != null) {
+			nfc;
+		} else {
+			// Since we are constructing an object, it will never be null.
+			// Therefore, we must remove any Null<T> from the type.
+			type = type.unwrapNullTypeOrSelf();
+			final meta = switch(type) {
+				// Used for TObjectDecl of named anonymous struct.
+				// See "XComp.compileNew" in GCFCompiler_Anon.compileObjectDecl to understand.
+				case TType(typeDefRef, params): {
+					typeDefRef.get().meta;
+				}
+				case _: {
+					expr.getDeclarationMeta().meta;
+				}
+			}
+			final native = { name: "", meta: meta }.getNameOrNative();
+			final args = el.map(e -> Main.compileExpression(e)).join(", ");
+			if(native.length > 0) {
+				native + "(" + args + ")";
+			} else {
+				final params = {
+					final temp = type.getParams();
+					temp != null ? temp : [];
+				};
+				final typeParams = params.map(p -> TComp.compileType(p, expr.pos)).join(", ");
+				final cd = type.toModuleType().getCommonData();
+
+				// If the expression's type is different, this may be the result of an unsafe cast.
+				// If so, let's use the memory management type from the cast.
+				if(overrideMMT == null) {
+					final exprMMT = TComp.getMemoryManagementTypeFromType(expr.t);
+					if(exprMMT != cd.getMemoryManagementType()) {
+						overrideMMT = exprMMT;
+					}
+				}
+
+				compileClassConstruction(type, cd, params != null ? params : [], expr.pos, overrideMMT) + "(" + args + ")";
+			}
+		}
+	}
+
+	function compileClassConstruction(type: Type, cd: CommonModuleTypeData, params: Array<Type>, pos: Position, overrideMMT: Null<MemoryManagementType> = null): String {
+		var mmt = cd.getMemoryManagementType();
+		var typeSource = if(cd.isOverrideMemoryManagement()) {
+			if(params.length != 1) {
+				pos.makeError(OMMIncorrectParamCount);
+			}
+			params[0];
+		} else {
+			if(overrideMMT != null) {
+				mmt = overrideMMT;
+			}
+			null;
+		}
+
+		if(typeSource == null) {
+			typeSource = type;
+		}
+
+		final typeOutput = TComp.compileType(typeSource, pos, true);
+		return switch(mmt) {
+			case Value: typeOutput;
+			case UnsafePtr: "new " + typeOutput;
+			case UniquePtr: "std::make_unique<" + typeOutput + ">";
+			case SharedPtr: "std::make_shared<" + typeOutput + ">";
+		}
+	}
+
+	// Compiles if statement (TIf).
+	function compileIf(econd: TypedExpr, ifExpr: TypedExpr, elseExpr: TypedExpr, constexpr: Bool = false): String {
+		var result = "if" + (constexpr ? " constexpr" : "") + "(" + Main.compileExpression(econd.unwrapParenthesis()) + ") {\n";
+		result += toIndentedScope(ifExpr);
+		if(elseExpr != null) {
+			switch(elseExpr.expr) {
+				case TIf(econd2, eif2, eelse2): {
+					result += "\n} else " + compileIf(econd2, eif2, eelse2, constexpr);
+				}
+				case _: {
+					result += "\n} else {\n";
+					result += toIndentedScope(elseExpr);
+					result += "\n}";
+				}
+			}
+		} else {
+			result += "\n}";
+		}
+		return result;
+	}
+
+	// Recursively unwrap an expression contained within one or more TMeta.
+	function unwrapMetaExpr(expr: TypedExpr): Null<{ meta: Array<MetadataEntry>, internalExpr: TypedExpr }> {
+		return switch(expr.expr) {
+			case TMeta(m, e): {
+				final metadata = unwrapMetaExpr(e);
+				if(metadata == null) {
+					return { meta: [m], internalExpr: e };
+				} else {
+					metadata.meta.push(m);
+					return metadata;
+				}
+			}
+			case _: null;
+		}
+	}
+
+	// Compiles an expression wrapped by one or more metadata entries.
+	function compileExprWithMultipleMeta(metadata: Array<MetadataEntry>, metaExpr: TypedExpr, internalExpr: TypedExpr): Null<String> {
+		if(metadata.length == 0) return null;
+
+		// Try and compile the expression.
+		// The first "modifying" meta is used.
+		var result = null;
+		for(m in metadata) {
+			final cpp = compileExprWithMeta(m, internalExpr);
+			if(cpp != null) {
+				result = cpp;
+				break;
+			}
+		}
+
+		// If no meta that modify how the original expression are found,
+		// just compile the expression like normal.
+		if(result == null) {
+			result = Main.compileExpression(internalExpr);
+		}
+
+		// Now we check the metadata again for any "wrapper" metadata.
+		for(m in metadata) {
+			final cpp = wrapExprWithMeta(m, result);
+			if(cpp != null) {
+				result = cpp;
+			}
+		}
+
+		return result;
+	}
+
+	// Checks for metadata that modifies the original expression.
+	// If found, returns the compiled expression based on the metadata.
+	function compileExprWithMeta(metaEntry: MetadataEntry, internalExpr: TypedExpr): Null<String> {
+		final name = metaEntry.name;
+		return switch(name) {
+			case ":constexpr": {
+				switch(internalExpr.expr) {
+					case TIf(econd, eif, eelse): compileIf(econd, eif, eelse, true);
+					case _: metaEntry.pos.makeError(ConstExprMetaInvalidUse);
+				}
+			}
+			case _: null;
+		}
+	}
+
+	// Some metadata may not modify the original expression.
+	// Rather, they may need to "wrap" or make some modification post compilation.
+	// Such metadata should be implemented here.
+	function wrapExprWithMeta(metaEntry: MetadataEntry, cpp: String): Null<String> {
+		final name = metaEntry.name;
+		return switch(name) {
+			case _: null;
+		}
+	}
+
+	// Checks a TCall expression to see if it is a `trace` call that
+	// can be converted to an inline C++ print.
+	//
+	// (GEEEZZZ this function is too long; that's why its at the bottom.)
 	function checkForInlinableTrace(callExpr: TypedExpr, el: Array<TypedExpr>): Null<String> {
 		final isTrace = switch(callExpr.expr) {
 			case TField(e1, fa): {
@@ -589,77 +753,6 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 			}
 		} else {
 			null;
-		}
-	}
-
-	function compileNew(expr: TypedExpr, type: Type, el: Array<TypedExpr>, overrideMMT: Null<MemoryManagementType> = null): String {
-		final nfc = Main.compileNativeFunctionCodeMeta(expr, el);
-		return if(nfc != null) {
-			nfc;
-		} else {
-			// Since we are constructing an object, it will never be null.
-			// Therefore, we must remove any Null<T> from the type.
-			type = type.unwrapNullTypeOrSelf();
-			final meta = switch(type) {
-				// Used for TObjectDecl of named anonymous struct.
-				// See "XComp.compileNew" in GCFCompiler_Anon.compileObjectDecl to understand.
-				case TType(typeDefRef, params): {
-					typeDefRef.get().meta;
-				}
-				case _: {
-					expr.getDeclarationMeta().meta;
-				}
-			}
-			final native = { name: "", meta: meta }.getNameOrNative();
-			final args = el.map(e -> Main.compileExpression(e)).join(", ");
-			if(native.length > 0) {
-				native + "(" + args + ")";
-			} else {
-				final params = {
-					final temp = type.getParams();
-					temp != null ? temp : [];
-				};
-				final typeParams = params.map(p -> TComp.compileType(p, expr.pos)).join(", ");
-				final cd = type.toModuleType().getCommonData();
-
-				// If the expression's type is different, this may be the result of an unsafe cast.
-				// If so, let's use the memory management type from the cast.
-				if(overrideMMT == null) {
-					final exprMMT = TComp.getMemoryManagementTypeFromType(expr.t);
-					if(exprMMT != cd.getMemoryManagementType()) {
-						overrideMMT = exprMMT;
-					}
-				}
-
-				compileClassConstruction(type, cd, params != null ? params : [], expr.pos, overrideMMT) + "(" + args + ")";
-			}
-		}
-	}
-
-	function compileClassConstruction(type: Type, cd: CommonModuleTypeData, params: Array<Type>, pos: Position, overrideMMT: Null<MemoryManagementType> = null): String {
-		var mmt = cd.getMemoryManagementType();
-		var typeSource = if(cd.isOverrideMemoryManagement()) {
-			if(params.length != 1) {
-				pos.makeError(OMMIncorrectParamCount);
-			}
-			params[0];
-		} else {
-			if(overrideMMT != null) {
-				mmt = overrideMMT;
-			}
-			null;
-		}
-
-		if(typeSource == null) {
-			typeSource = type;
-		}
-
-		final typeOutput = TComp.compileType(typeSource, pos, true);
-		return switch(mmt) {
-			case Value: typeOutput;
-			case UnsafePtr: "new " + typeOutput;
-			case UniquePtr: "std::make_unique<" + typeOutput + ">";
-			case SharedPtr: "std::make_shared<" + typeOutput + ">";
 		}
 	}
 }
