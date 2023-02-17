@@ -470,6 +470,9 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 	}
 
 	function compileCall(callExpr: TypedExpr, el: Array<TypedExpr>) {
+		final inlineTrace = checkForInlinableTrace(callExpr, el);
+		if(inlineTrace != null) return inlineTrace;
+
 		final nfc = Main.compileNativeFunctionCodeMeta(callExpr, el);
 		return if(nfc != null) {
 			nfc;
@@ -496,6 +499,95 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 
 			// Compile final expression
 			Main.compileExpression(callExpr) + "(" + cppParams.join(", ") + ")";
+		}
+	}
+
+	function checkForInlinableTrace(callExpr: TypedExpr, el: Array<TypedExpr>): Null<String> {
+		final isTrace = switch(callExpr.expr) {
+			case TField(e1, fa): {
+				switch(fa) {
+					case FStatic(clsRef, cfRef): {
+						final cls = clsRef.get();
+						final cf = cfRef.get();
+						cf.name == "trace" && cls.name == "Log" && cls.module == "haxe.Log";
+					}
+					case _: false;
+				}
+			}
+			case _: false;
+		}
+		return if(isTrace && el.length == 2) {
+			final inputParams = [el[0]];
+			var fileName = "";
+			var lineNumber = "";
+			switch(el[1].expr) {
+				case TObjectDecl(fields): {
+					for(f in fields) {
+						if(f.name == "customParams") {
+							switch(f.expr.expr) {
+								case TArrayDecl(el): {
+									for(e in el) {
+										inputParams.push(e);
+									}
+								}
+								case _: {}
+							}
+						} else if(f.name == "fileName") {
+							fileName = switch(f.expr.expr) {
+								case TConst(TString(s)): s;
+								case _: "<unknown>";
+							}
+						} else if(f.name == "lineNumber") {
+							lineNumber = switch(f.expr.expr) {
+								case TConst(TInt(i)): Std.string(i);
+								case _: "0";
+							}
+						}
+					}
+				}
+				case _: {}
+			}
+
+			var allConst = true;
+			var lastString: Null<String> = fileName + ":" + lineNumber + ": ";
+			var prefixAdded = false;
+			final validParams = [];
+			function addLastString() {
+				prefixAdded = true;
+				if(lastString != null) {
+					validParams.push(stringToCpp(lastString));
+					lastString = null;
+				}
+			}
+			for(e in inputParams) {
+				switch(e.expr) {
+					case TConst(TInt(_) | TFloat(_)): {
+						addLastString();
+						validParams.push(Main.compileExpression(e));
+					}
+					case TConst(TString(s)): {
+						if(lastString == null) {
+							lastString = s;
+						} else {
+							if(!prefixAdded) lastString += s;
+							else lastString += ", " + s;
+							prefixAdded = true;
+						}
+					}
+					case _: {
+						allConst = false;
+						break;
+					}
+				}
+			}
+			if(allConst) {
+				addLastString();
+				"std::cout << " + validParams.join("<< \", \" << ") + " << std::endl";
+			} else {
+				null;
+			}
+		} else {
+			null;
 		}
 	}
 
