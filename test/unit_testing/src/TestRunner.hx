@@ -22,6 +22,10 @@ function main() {
 	final success = testCount - failures;
 	Sys.println("");
 	Sys.println(success + " / " + testCount + " tests passed.");
+
+	if(failures > 0) {
+		Sys.exit(1);
+	}
 }
 
 function checkAndReadDir(path: String): Array<String> {
