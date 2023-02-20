@@ -8,7 +8,7 @@
 
 *An alternative C++ target for Haxe that generates dependent-less, GC-less C++17 code. Made with [Reflaxe](https://github.com/RobertBorghese/reflaxe).*
 
-The goal of this project is simple: create a compilation target for Haxe that generates minimal, human-readable C++ that can be compiled without linking additional libraries and does rely on any garbage collection system.
+The goal of this project is simple: create a compilation target for Haxe that generates minimal, human-readable C++ that can be compiled without linking additional libraries and does not rely on any garbage collection system.
 
 **Haxe Code**
 ```haxe
