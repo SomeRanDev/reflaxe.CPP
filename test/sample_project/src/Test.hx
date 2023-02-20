@@ -52,7 +52,7 @@ function main() {
 }
 */
 
-
+/*
 class Person {
 	public function new() {
 		name = "John";
@@ -67,11 +67,21 @@ class Person {
 
 function bla(a: { function toString(): String; }) {
 	trace(a.toString());
-}
+}*/
 
 @:topLevel
 function main(): Int {
-	trace("Hello");
-	bla(new Person());
+	trace("Hello", "world!", "Again");
+
+	var bla = 123;
+	if(bla == 123) {
+		trace("It's 123!!");
+	} else if(bla == 23) {
+		trace("23");
+	} else {
+		trace("1");
+	}
+
+	//bla(new Person());
 	return 0;
 }

@@ -1,4 +1,4 @@
-# Haxe to GC-Free C++ Sample Project
+# Haxe to Free C++ Sample Project
 
 Just a simple sample to help you get started.
 

@@ -1,6 +1,6 @@
-package gcfcompiler.helpers;
+package freecompiler.helpers;
 
-class GCFSort {
+class FreeSort {
 	public static function sorted<T>(arr: Array<T>, func: (T, T) -> Int) {
 		final result = arr.copy();
 		result.sort(func);

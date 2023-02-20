@@ -1,4 +1,4 @@
-# Haxe to GC-Free C++ Tests
+# Haxe to Free C++ Tests
 
 This is where the tests happen!
 

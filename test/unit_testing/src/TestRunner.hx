@@ -62,7 +62,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 		final absPath = haxe.io.Path.join([testDir, hxml]);
 		final args = [
 			"-cp std",
-			"-cp std/gcf/_std",
+			"-cp std/fcpp/_std",
 			"-cp src",
 			"-lib reflaxe",
 			"extraParams.hxml",

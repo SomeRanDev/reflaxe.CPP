@@ -1,5 +1,5 @@
 # The following are added automatically:
-# -lib gcfree-cpp
+# -lib free-cpp
 # -D cpp-output=out
 
 Main

@@ -1,13 +1,13 @@
 // =======================================================
-// * GCFCompiler_Exprs
+// * FreeCompiler_Exprs
 //
 // This sub-compiler is used to handle compiling of all
 // expressions.
 // =======================================================
 
-package gcfcompiler.subcompilers;
+package freecompiler.subcompilers;
 
-#if (macro || gcf_runtime)
+#if (macro || fcpp_runtime)
 
 import haxe.ds.Either;
 
@@ -26,15 +26,15 @@ using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypedExprHelper;
 using reflaxe.helpers.TypeHelper;
 
-using gcfcompiler.helpers.GCFError;
-using gcfcompiler.helpers.GCFMeta;
-using gcfcompiler.helpers.GCFType;
+using freecompiler.helpers.FreeError;
+using freecompiler.helpers.FreeMeta;
+using freecompiler.helpers.FreeType;
 
-@:allow(gcfcompiler.GCFCompiler)
-@:access(gcfcompiler.GCFCompiler)
-@:access(gcfcompiler.subcompilers.GCFCompiler_Includes)
-@:access(gcfcompiler.subcompilers.GCFCompiler_Types)
-class GCFCompiler_Exprs extends GCFSubCompiler {
+@:allow(freecompiler.FreeCompiler)
+@:access(freecompiler.FreeCompiler)
+@:access(freecompiler.subcompilers.FreeCompiler_Includes)
+@:access(freecompiler.subcompilers.FreeCompiler_Types)
+class FreeCompiler_Exprs extends FreeSubCompiler {
 	// ----------------------------
 	// A public variable modified based on whether the
 	// current expression is being compiled for a header file.
@@ -507,7 +507,7 @@ class GCFCompiler_Exprs extends GCFSubCompiler {
 			type = type.unwrapNullTypeOrSelf();
 			final meta = switch(type) {
 				// Used for TObjectDecl of named anonymous struct.
-				// See "XComp.compileNew" in GCFCompiler_Anon.compileObjectDecl to understand.
+				// See "XComp.compileNew" in FreeCompiler_Anon.compileObjectDecl to understand.
 				case TType(typeDefRef, params): {
 					typeDefRef.get().meta;
 				}

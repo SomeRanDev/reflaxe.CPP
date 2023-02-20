@@ -1,5 +1,5 @@
 // =======================================================
-// * GCFCompiler_Includes
+// * FreeCompiler_Includes
 //
 // This sub-compiler is used to handle compiling of all
 // #include statements.
@@ -13,9 +13,9 @@
 //   compiled list of #include statements.
 // =======================================================
 
-package gcfcompiler.subcompilers;
+package freecompiler.subcompilers;
 
-#if (macro || gcf_runtime)
+#if (macro || fcpp_runtime)
 
 import haxe.macro.Type;
 
@@ -25,13 +25,13 @@ using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.TypeHelper;
 
-using gcfcompiler.helpers.GCFError;
-using gcfcompiler.helpers.GCFMeta;
-using gcfcompiler.helpers.GCFSort;
+using freecompiler.helpers.FreeError;
+using freecompiler.helpers.FreeMeta;
+using freecompiler.helpers.FreeSort;
 
-@:allow(gcfcompiler.GCFCompiler)
-@:access(gcfcompiler.GCFCompiler)
-class GCFCompiler_Includes extends GCFSubCompiler {
+@:allow(freecompiler.FreeCompiler)
+@:access(freecompiler.FreeCompiler)
+class FreeCompiler_Includes extends FreeSubCompiler {
 	// ----------------------------
 	// Store list of includes.
 	var headerIncludes: Array<String>;
@@ -161,7 +161,7 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 
 	function addAnonTypeInclude(header: Bool) {
 		anonHeaderRequired = true;
-		IComp.addInclude(GCFCompiler.AnonStructHeaderFile + GCFCompiler.HeaderExt, header);
+		IComp.addInclude(FreeCompiler.AnonStructHeaderFile + FreeCompiler.HeaderExt, header);
 	}
 
 	function addIncludeFromModuleType(mt: Null<ModuleType>, header: Bool) {
@@ -175,15 +175,15 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 			if(main != null && main.getUniqueId() == mt.getUniqueId()) return;
 			if(addIncludeFromMetaAccess(cd.meta, header)) {
 				if(!cd.isExtern) {
-					addInclude(Main.getFileNameFromModuleData(cd) + GCFCompiler.HeaderExt, header, false);
+					addInclude(Main.getFileNameFromModuleData(cd) + FreeCompiler.HeaderExt, header, false);
 				}
 			}
 
 			final mmType = cd.getMemoryManagementType();
 			if(mmType == UniquePtr) {
-				addInclude(GCFCompiler.SharedPtrInclude[0], header, GCFCompiler.SharedPtrInclude[1]);
+				addInclude(FreeCompiler.SharedPtrInclude[0], header, FreeCompiler.SharedPtrInclude[1]);
 			} else if(mmType == SharedPtr) {
-				addInclude(GCFCompiler.UniquePtrInclude[0], header, GCFCompiler.UniquePtrInclude[1]);
+				addInclude(FreeCompiler.UniquePtrInclude[0], header, FreeCompiler.UniquePtrInclude[1]);
 			}
 		}
 	}
@@ -233,7 +233,7 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 	// compile/format for the output.
 	function compileIncludes(includeArr: Array<String>): String {
 		return if(includeArr.length > 0) {
-			includeArr.sorted(GCFSort.includeBracketOrder).map(i -> "#include " + i).join("\n");
+			includeArr.sorted(FreeSort.includeBracketOrder).map(i -> "#include " + i).join("\n");
 		} else {
 			"";
 		}
@@ -252,7 +252,7 @@ class GCFCompiler_Includes extends GCFSubCompiler {
 		} else {
 			final existingIncludes = existing.split("\n").filter(isNotEmpty);
 			final includes = newIncludes.split("\n").filter(isNotEmpty).filter(i -> !existingIncludes.contains(i));
-			final combined = existingIncludes.concat(includes).sorted(GCFSort.includeBracketOrder);
+			final combined = existingIncludes.concat(includes).sorted(FreeSort.includeBracketOrder);
 			Main.replaceInExtraFile(filename, combined.join("\n"), priority);
 		}
 	}

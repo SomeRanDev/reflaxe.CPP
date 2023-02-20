@@ -1,13 +1,13 @@
 // =======================================================
-// * GCFCompiler_Classes
+// * FreeCompiler_Classes
 //
 // This sub-compiler is used to handle compiling of all
 // class delcarations
 // =======================================================
 
-package gcfcompiler.subcompilers;
+package freecompiler.subcompilers;
 
-#if (macro || gcf_runtime)
+#if (macro || fcpp_runtime)
 
 import haxe.macro.Type;
 
@@ -19,14 +19,14 @@ using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
-using gcfcompiler.helpers.GCFError;
-using gcfcompiler.helpers.GCFMeta;
+using freecompiler.helpers.FreeError;
+using freecompiler.helpers.FreeMeta;
 
-@:allow(gcfcompiler.GCFCompiler)
-@:access(gcfcompiler.GCFCompiler)
-@:access(gcfcompiler.subcompilers.GCFCompiler_Includes)
-@:access(gcfcompiler.subcompilers.GCFCompiler_Types)
-class GCFCompiler_Classes extends GCFSubCompiler {
+@:allow(freecompiler.FreeCompiler)
+@:access(freecompiler.FreeCompiler)
+@:access(freecompiler.subcompilers.FreeCompiler_Includes)
+@:access(freecompiler.subcompilers.FreeCompiler_Types)
+class FreeCompiler_Classes extends FreeSubCompiler {
 	public function compileClass(classType: ClassType, varFields: ClassFieldVars, funcFields: ClassFieldFuncs): Null<String> {
 		// Init variables
 		final variables = [];
@@ -43,7 +43,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 		var headerOnly = classType.isHeaderOnly();
 
 		// Init includes
-		IComp.resetAndInitIncludes(headerOnly, [filename + GCFCompiler.HeaderExt]);
+		IComp.resetAndInitIncludes(headerOnly, [filename + FreeCompiler.HeaderExt]);
 
 		// Ensure no self-reference
 		final isValueType = classType.getMemoryManagementType() == Value;
@@ -210,8 +210,8 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 
 		// Source file
 		if(!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0)) {
-			final srcFilename = "src/" + filename + GCFCompiler.SourceExt;
-			Main.setExtraFileIfEmpty(srcFilename, "#include \"" + filename + GCFCompiler.HeaderExt + "\"");
+			final srcFilename = "src/" + filename + FreeCompiler.SourceExt;
+			Main.setExtraFileIfEmpty(srcFilename, "#include \"" + filename + FreeCompiler.HeaderExt + "\"");
 
 			IComp.appendIncludesToExtraFileWithoutRepeats(srcFilename, IComp.compileCppIncludes(), 1);
 			
@@ -230,7 +230,7 @@ class GCFCompiler_Classes extends GCFSubCompiler {
 
 		// Header file
 		{
-			final headerFilename = "include/" + filename + GCFCompiler.HeaderExt;
+			final headerFilename = "include/" + filename + FreeCompiler.HeaderExt;
 			Main.setExtraFileIfEmpty(headerFilename, "#pragma once");
 
 			IComp.appendIncludesToExtraFileWithoutRepeats(headerFilename, IComp.compileHeaderIncludes(), 1);

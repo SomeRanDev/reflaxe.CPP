@@ -1,14 +1,14 @@
-package gcfcompiler.helpers;
+package freecompiler.helpers;
 
-#if (macro || gcf_runtime)
+#if (macro || fcpp_runtime)
 
 import haxe.macro.Type;
 
 using reflaxe.helpers.TypeHelper;
 
-using gcfcompiler.helpers.GCFMeta;
+using freecompiler.helpers.FreeMeta;
 
-class GCFType {
+class FreeType {
 	// ----------------------------
 	// Returns true if the two types are the same even if
 	// they have different memory management overrides.

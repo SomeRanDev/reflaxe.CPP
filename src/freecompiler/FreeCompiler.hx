@@ -1,13 +1,13 @@
 // =======================================================
-// * GCFCompiler
+// * FreeCompiler
 //
 // The main compiler. Most of its behavior is split
 // between "sub-compilers" in the `subcompilers` package.
 // =======================================================
 
-package gcfcompiler;
+package freecompiler;
 
-#if (macro || gcf_runtime)
+#if (macro || fcpp_runtime)
 
 import haxe.macro.Expr;
 import haxe.macro.Type;
@@ -19,15 +19,15 @@ using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.TypeHelper;
 
-import gcfcompiler.subcompilers.GCFSubCompiler;
-import gcfcompiler.subcompilers.GCFCompiler_Classes;
-import gcfcompiler.subcompilers.GCFCompiler_Enums;
-import gcfcompiler.subcompilers.GCFCompiler_Anon;
-import gcfcompiler.subcompilers.GCFCompiler_Exprs;
-import gcfcompiler.subcompilers.GCFCompiler_Includes;
-import gcfcompiler.subcompilers.GCFCompiler_Types;
+import freecompiler.subcompilers.FreeSubCompiler;
+import freecompiler.subcompilers.FreeCompiler_Classes;
+import freecompiler.subcompilers.FreeCompiler_Enums;
+import freecompiler.subcompilers.FreeCompiler_Anon;
+import freecompiler.subcompilers.FreeCompiler_Exprs;
+import freecompiler.subcompilers.FreeCompiler_Includes;
+import freecompiler.subcompilers.FreeCompiler_Types;
 
-class GCFCompiler extends reflaxe.BaseCompiler {
+class FreeCompiler extends reflaxe.BaseCompiler {
 	// ----------------------------
 	// The extension for the generated header files.
 	static final HeaderExt: String = ".h";
@@ -62,23 +62,23 @@ class GCFCompiler extends reflaxe.BaseCompiler {
 	// ============================
 	// * Sub-Compilers
 	// ============================
-	var CComp: GCFCompiler_Classes;
-	var EComp: GCFCompiler_Enums;
-	var AComp: GCFCompiler_Anon;
-	var IComp: GCFCompiler_Includes;
-	var TComp: GCFCompiler_Types;
-	var XComp: GCFCompiler_Exprs;
+	var CComp: FreeCompiler_Classes;
+	var EComp: FreeCompiler_Enums;
+	var AComp: FreeCompiler_Anon;
+	var IComp: FreeCompiler_Includes;
+	var TComp: FreeCompiler_Types;
+	var XComp: FreeCompiler_Exprs;
 
 	public function new() {
 		super();
-		CComp = new GCFCompiler_Classes(this);
-		EComp = new GCFCompiler_Enums(this);
-		AComp = new GCFCompiler_Anon(this);
-		IComp = new GCFCompiler_Includes(this);
-		TComp = new GCFCompiler_Types(this);
-		XComp = new GCFCompiler_Exprs(this);
+		CComp = new FreeCompiler_Classes(this);
+		EComp = new FreeCompiler_Enums(this);
+		AComp = new FreeCompiler_Anon(this);
+		IComp = new FreeCompiler_Includes(this);
+		TComp = new FreeCompiler_Types(this);
+		XComp = new FreeCompiler_Exprs(this);
 
-		function setup(c: GCFSubCompiler) c.setSubCompilers(CComp, EComp, AComp, IComp, TComp, XComp);
+		function setup(c: FreeSubCompiler) c.setSubCompilers(CComp, EComp, AComp, IComp, TComp, XComp);
 		setup(CComp);
 		setup(EComp);
 		setup(AComp);

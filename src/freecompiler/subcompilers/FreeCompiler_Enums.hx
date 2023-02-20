@@ -1,13 +1,13 @@
 // =======================================================
-// * GCFCompiler_Enums
+// * FreeCompiler_Enums
 //
 // This sub-compiler is used to handle compiling of all
 // enum delcarations
 // =======================================================
 
-package gcfcompiler.subcompilers;
+package freecompiler.subcompilers;
 
-#if (macro || gcf_runtime)
+#if (macro || fcpp_runtime)
 
 // import haxe.macro.Context;
 // import haxe.macro.Expr;
@@ -18,17 +18,17 @@ import reflaxe.BaseCompiler;
 // using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.SyntaxHelper;
 
-using gcfcompiler.helpers.GCFError;
-using gcfcompiler.helpers.GCFMeta;
+using freecompiler.helpers.FreeError;
+using freecompiler.helpers.FreeMeta;
 
-@:allow(gcfcompiler.GCFCompiler)
-@:access(gcfcompiler.GCFCompiler)
-@:access(gcfcompiler.subcompilers.GCFCompiler_Includes)
-@:access(gcfcompiler.subcompilers.GCFCompiler_Types)
-class GCFCompiler_Enums extends GCFSubCompiler {
+@:allow(freecompiler.FreeCompiler)
+@:access(freecompiler.FreeCompiler)
+@:access(freecompiler.subcompilers.FreeCompiler_Includes)
+@:access(freecompiler.subcompilers.FreeCompiler_Types)
+class FreeCompiler_Enums extends FreeSubCompiler {
 	public function compileEnum(enumType: EnumType, options: EnumOptions): Null<String> {
 		final filename = Main.getFileNameFromModuleData(enumType);
-		final headerFilename = filename + GCFCompiler.HeaderExt;
+		final headerFilename = filename + FreeCompiler.HeaderExt;
 
 		// --------------------
 		// Init includes (always headers = true)

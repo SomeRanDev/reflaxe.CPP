@@ -1,6 +1,6 @@
-package gcfcompiler.helpers;
+package freecompiler.helpers;
 
-#if (macro || gcf_runtime)
+#if (macro || fcpp_runtime)
 
 using reflaxe.helpers.NameMetaHelper;
 
@@ -11,7 +11,7 @@ enum MemoryManagementType {
 	UniquePtr;
 }
 
-class GCFMeta {
+class FreeMeta {
 	public static function hasNativeMeta(meta: NameAndMeta): Bool {
 		return meta.hasMeta(":native");
 	}

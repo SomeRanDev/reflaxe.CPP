@@ -1,6 +1,6 @@
-package gcfcompiler.helpers;
+package freecompiler.helpers;
 
-#if (macro || gcf_runtime)
+#if (macro || fcpp_runtime)
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -23,12 +23,12 @@ enum ErrorType {
 	UniqueToUnique;
 }
 
-class GCFError {
+class FreeError {
 	public static function makeError(pos: Position, err: ErrorType): Dynamic {
 		final msg = switch(err) {
 			// General
 			case CannotCompileNullType: {
-				"GCFCompiler.compileTypeSafe was passed 'null'. Unknown type detected?";
+				"FreeCompiler.compileTypeSafe was passed 'null'. Unknown type detected?";
 			}
 			case DynamicUnsupported: {
 				"Dynamic not supported";

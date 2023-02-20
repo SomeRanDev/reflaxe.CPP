@@ -1,13 +1,13 @@
 // =======================================================
-// * GCFCompiler_Anon
+// * FreeCompiler_Anon
 //
 // This sub-compiler is used to handle compiling of all
 // anonymous structure expressions and classes.
 // =======================================================
 
-package gcfcompiler.subcompilers;
+package freecompiler.subcompilers;
 
-#if (macro || gcf_runtime)
+#if (macro || fcpp_runtime)
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -16,17 +16,17 @@ import haxe.macro.Type;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
-using gcfcompiler.helpers.GCFSort;
+using freecompiler.helpers.FreeSort;
 
 typedef AnonField = { name: String, type: Type, optional: Bool, ?pos: Position };
 typedef AnonStruct = { name: String, constructorOrder: Array<AnonField> };
 
-@:allow(gcfcompiler.GCFCompiler)
-@:access(gcfcompiler.GCFCompiler)
-@:access(gcfcompiler.subcompilers.GCFCompiler_Includes)
-@:access(gcfcompiler.subcompilers.GCFCompiler_Exprs)
-@:access(gcfcompiler.subcompilers.GCFCompiler_Types)
-class GCFCompiler_Anon extends GCFSubCompiler {
+@:allow(freecompiler.FreeCompiler)
+@:access(freecompiler.FreeCompiler)
+@:access(freecompiler.subcompilers.FreeCompiler_Includes)
+@:access(freecompiler.subcompilers.FreeCompiler_Exprs)
+@:access(freecompiler.subcompilers.FreeCompiler_Types)
+class FreeCompiler_Anon extends FreeSubCompiler {
 	var anonId: Int = 0;
 	var anonStructs: Map<String, AnonStruct> = [];
 	var namedAnonStructs: Map<String, AnonStruct> = [];
@@ -207,7 +207,7 @@ class GCFCompiler_Anon extends GCFSubCompiler {
 	function orderFields(a: AnonField, b: AnonField): Int {
 		if(a.optional && !b.optional) return 1;
 		if(!a.optional && b.optional) return -1;
-		return GCFSort.alphabetic(a.name, b.name);
+		return FreeSort.alphabetic(a.name, b.name);
 	}
 
 	function makeFieldKey(a: AnonField): String {

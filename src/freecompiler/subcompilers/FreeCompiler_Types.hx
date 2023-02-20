@@ -1,14 +1,14 @@
 // =======================================================
-// * GCFCompiler_Types
+// * FreeCompiler_Types
 //
 // This sub-compiler is used to handle compiling of all
 // type related objects such as haxe.macro.Type and
 // haxe.macro.ClassType/EnumType/DefType/etc.
 // =======================================================
 
-package gcfcompiler.subcompilers;
+package freecompiler.subcompilers;
 
-#if (macro || gcf_runtime)
+#if (macro || fcpp_runtime)
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -18,13 +18,13 @@ using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
-using gcfcompiler.helpers.GCFError;
-using gcfcompiler.helpers.GCFMeta;
+using freecompiler.helpers.FreeError;
+using freecompiler.helpers.FreeMeta;
 
-@:allow(gcfcompiler.GCFCompiler)
-@:access(gcfcompiler.GCFCompiler)
-@:access(gcfcompiler.subcompilers.GCFCompiler_Includes)
-class GCFCompiler_Types extends GCFSubCompiler {
+@:allow(freecompiler.FreeCompiler)
+@:access(freecompiler.FreeCompiler)
+@:access(freecompiler.subcompilers.FreeCompiler_Includes)
+class FreeCompiler_Types extends FreeSubCompiler {
 	// ----------------------------
 	// Compiles the provided type.
 	// Position must be provided for error reporting.
@@ -69,7 +69,7 @@ class GCFCompiler_Types extends GCFSubCompiler {
 				if(asValue) {
 					internal;
 				} else {
-					GCFCompiler.SharedPtrClassCpp + "<" + internal + ">";
+					FreeCompiler.SharedPtrClassCpp + "<" + internal + ">";
 				}
 			}
 			case TDynamic(t3): {
@@ -113,8 +113,8 @@ class GCFCompiler_Types extends GCFSubCompiler {
 
 					switch(abs.name) {
 						case "Null" if(params.length == 1): {
-							IComp.addInclude(GCFCompiler.OptionalInclude[0], true, GCFCompiler.OptionalInclude[1]);
-							GCFCompiler.OptionalClassCpp + "<" + compileType(params[0], pos) + ">";
+							IComp.addInclude(FreeCompiler.OptionalInclude[0], true, FreeCompiler.OptionalInclude[1]);
+							FreeCompiler.OptionalClassCpp + "<" + compileType(params[0], pos) + ">";
 						}
 						case _: {
 							final t = haxe.macro.TypeTools.applyTypeParameters(abs.type, abs.params, params);
@@ -183,8 +183,8 @@ class GCFCompiler_Types extends GCFSubCompiler {
 		return switch(mmType) {
 			case Value: inner;
 			case UnsafePtr: inner + "*";
-			case UniquePtr: GCFCompiler.UniquePtrClassCpp + "<" + inner + ">";
-			case SharedPtr: GCFCompiler.SharedPtrClassCpp + "<" + inner + ">";
+			case UniquePtr: FreeCompiler.UniquePtrClassCpp + "<" + inner + ">";
+			case SharedPtr: FreeCompiler.SharedPtrClassCpp + "<" + inner + ">";
 		}
 	}
 
