@@ -37,6 +37,7 @@ void _Main::Main_Fields_::main() {
 | [Installation](https://github.com/RobertBorghese/Haxe-to-FreeCPP#installation) | How to install and use this project. |
 | [Explanation](https://github.com/RobertBorghese/Haxe-to-FreeCPP#explanation) | A long winded explanation of this project's goals. |
 | [Examples](https://github.com/RobertBorghese/Haxe-to-FreeCPP#examples) | Where to find examples. |
+| [Compilation Hooks (Plugins)](https://github.com/RobertBorghese/Haxe-to-FreeCPP#compilation-hooks-plugins) | How to write plugins for the compiler. |
 | [Destructors](https://github.com/RobertBorghese/Haxe-to-FreeCPP#destructors) | How to use destructors. |
 | [Top Level Meta](https://github.com/RobertBorghese/Haxe-to-FreeCPP#top-level-meta) | Add top-level functions in C++. |
 | [Memory Management](https://github.com/RobertBorghese/Haxe-to-FreeCPP#memory-management) | How the memory management system works. |
@@ -82,6 +83,41 @@ On the other hand, **Haxe to "Free C++"** gives memory types first-class treatme
 # Examples
 
 Visit the `test/unit_testing/tests` directory for a bunch of samples and tests.
+
+&nbsp;
+
+# Compilation Hooks (Plugins)
+
+This compiler also contains hooks to use to customize the C++ conversion! In an initialization macro, pass `FreeCompiler.onCompileBegin` a function to access the compiler instance once compiling begins. Then add a callback using `addHook` to any of the hooks contained within `FreeCompiler`.
+
+Here is an example where all Int literals that are exactly `123` are compiled as `(100 + 20 + 3)`. Note the first parameter is the output that would be generated normally; return it to prevent any changes to the compiler's normal behavior.
+
+```haxe
+// In some initialization macro...
+FreeCompiler.onCompileBegin(function(compiler) {
+  compiler.compileExpressionHook.addHook(function(cpp: Null<String>, compiler: FreeCompiler, typedExpr: TypedExpr) {
+    switch(typedExpr.expr) {
+      case TConst(TInt(i)): {
+        if(i == 123) {
+          return "(100 + 20 + 3)";
+        }
+      }
+      case _:
+    }
+
+    return cpp;
+  });
+});
+```
+
+Here is a list of all the available `FreeCompiler` hooks. They should be pretty self-explanatory.
+```haxe
+compileExpressionHook.addHook(cb: (Null<String>, FreeCompiler, TypedExpr) -> Null<String>);
+compileClassHook.addHook(cb: (Null<String>, FreeCompiler, ClassType, ClassFieldVars, ClassFieldFuncs) -> Null<String>);
+compileEnumHook.addHook(cb: (Null<String>, FreeCompiler, EnumType, EnumOptions) -> Null<String>);
+compileTypedefHook.addHook(cb: (Null<String>, FreeCompiler, DefType) -> Null<String>);
+compileAbstractHook.addHook(cb: (Null<String>, FreeCompiler, AbstractType) -> Null<String>);
+```
 
 &nbsp;
 

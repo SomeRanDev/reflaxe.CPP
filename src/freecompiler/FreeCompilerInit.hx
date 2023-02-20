@@ -2,11 +2,6 @@ package freecompiler;
 
 #if (macro || gdscript_runtime)
 
-import haxe.macro.Expr;
-import haxe.macro.Type;
-
-import haxe.display.Display.MetadataTarget;
-
 import reflaxe.ReflectCompiler;
 
 using reflaxe.helpers.ExprHelper;

@@ -13,6 +13,8 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 
 import reflaxe.BaseCompiler;
+import reflaxe.PluginCompiler;
+import reflaxe.ReflectCompiler;
 
 using reflaxe.helpers.ClassTypeHelper;
 using reflaxe.helpers.ModuleTypeHelper;
@@ -27,7 +29,7 @@ import freecompiler.subcompilers.FreeCompiler_Exprs;
 import freecompiler.subcompilers.FreeCompiler_Includes;
 import freecompiler.subcompilers.FreeCompiler_Types;
 
-class FreeCompiler extends reflaxe.BaseCompiler {
+class FreeCompiler extends reflaxe.PluginCompiler<FreeCompiler> {
 	// ----------------------------
 	// The extension for the generated header files.
 	static final HeaderExt: String = ".h";
@@ -57,6 +59,13 @@ class FreeCompiler extends reflaxe.BaseCompiler {
 	// Required for adding semicolons at the end of each line.
 	override function formatExpressionLine(expr: String): String {
 		return expr + ";";
+	}
+
+	// ============================
+	// * Plugins
+	// ============================
+	public static function onCompileBegin(callback: (FreeCompiler) -> Void) {
+		ReflectCompiler.onCompileBegin(callback);
 	}
 
 	// ============================
