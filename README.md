@@ -88,9 +88,9 @@ Visit the `test/unit_testing/tests` directory for a bunch of samples and tests.
 
 # Compilation Hooks (Plugins)
 
-This compiler also contains hooks to use to customize the C++ conversion! In an initialization macro, pass `FreeCompiler.onCompileBegin` a function to access the compiler instance once compiling begins. Then add a callback using `addHook` to any of the hooks contained within `FreeCompiler`.
+This compiler also contains hooks to customize the C++ compilation. In an initialization macro, pass `FreeCompiler.onCompileBegin` a function to access an instance of the `FreeCompiler` once compiling begins. Then `addHook` can be used on any of the hooks contained within it.
 
-Here is an example where all Int literals that are exactly `123` are compiled as `(100 + 20 + 3)`. Note the first parameter ("cpp" in this case) is the output that would be generated normally; return it to prevent any changes to the compiler's normal behavior.
+Here is an example where all `Int` literals that are exactly `123` are compiled as `(100 + 20 + 3)`. Note the first parameter ("defaultOutput" in this case) is the output that would be generated normally; return it to prevent any changes to the compiler's normal behavior.
 ```haxe
 // In some initialization macro...
 FreeCompiler.onCompileBegin(function(compiler) {
@@ -98,10 +98,10 @@ FreeCompiler.onCompileBegin(function(compiler) {
 });
 
 // Called whenever an expression is compiled.
-function myHookFunc(cpp: Null<String>, compiler: FreeCompiler, typedExpr: TypedExpr): Null<String> {
+function myHookFunc(defaultOutput: Null<String>, compiler: FreeCompiler, typedExpr: TypedExpr): Null<String> {
   return switch(typedExpr.expr) {
     case TConst(TInt(123)): "(100 + 20 + 3)";
-    case _: cpp;
+    case _: defaultOutput;
   }
 }
 ```
