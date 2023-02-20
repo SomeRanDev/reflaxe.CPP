@@ -37,6 +37,8 @@ void _Main::Main_Fields_::main() {
 | [Installation](https://github.com/RobertBorghese/Haxe-to-FreeCPP#installation) | How to install and use this project. |
 | [Explanation](https://github.com/RobertBorghese/Haxe-to-FreeCPP#explanation) | A long winded explanation of this project's goals. |
 | [Examples](https://github.com/RobertBorghese/Haxe-to-FreeCPP#examples) | Where to find examples. |
+| [Destructors](https://github.com/RobertBorghese/Haxe-to-FreeCPP#destructors) | How to use destructors. |
+| [Top Level Meta](https://github.com/RobertBorghese/Haxe-to-FreeCPP#top-level-meta) | Add top-level functions in C++. |
 | [Memory Management](https://github.com/RobertBorghese/Haxe-to-FreeCPP#memory-management) | How the memory management system works. |
 
 &nbsp;
