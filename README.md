@@ -64,9 +64,9 @@ Just to be clear, this project is not intended to be a drop-in replacement for t
 
 ## Why does this exist?
 
-Haxe's normal C++ target uses a garbage collection system and requires compiling with the [hxcpp](https://github.com/HaxeFoundation/hxcpp) library. While this works great for projects expecting consistent behavior across multiple compilation targets, difficulties can arise trying to bind or work with existing a C++ framwork that provides its own compilation and/or management systems. Not to mention... Haxe generated C++ is bloated, confusing, and heavily reliant on hxcpp-exclusive structures.
+Haxe's normal C++ target uses a garbage collection system and requires compiling with the [hxcpp](https://github.com/HaxeFoundation/hxcpp) library. While this works great for projects expecting consistent behavior across multiple compilation targets, difficulties can arise trying to bind or work with existing C++ framworks containing custom compilation and/or memory management systems. Not to mention... Haxe generated C++ is bloated, confusing, and heavily reliant on hxcpp-exclusive structures.
 
-Now, normally this isn't a problem as Haxe automatically compiles the C++, and most Haxe users let the libraries do all the work. However, sometimes things just aren't that easy. If you're looking to target C++ exclusively with your Haxe project and want a bit more ease in using/creating C++ code, this might be the project for you.
+Now, normally this isn't a problem as Haxe automatically compiles the C++, and most Haxe users can work with frameworks and libraries that have already done the heavy lifting. However, not every project has such a luxury. If you're looking to target C++ exclusively with your Haxe project and want a bit more ease in using/creating C++ code, this might be the project for you.
 
 **Haxe to "Free C++"** attempts to resolve the aformentioned issues by converting Haxe to C++ in the simpliest way possible. *Instead of garbage collection,* modern smart pointers are used. *Instead of nullability,* the `optional<T>` type is used. C++ templates are used to translate anonymous structures and dynamic types. In general, modern C++ types are used to translate Haxe code to how it would be written if it were written in C++ to begin with.
 
@@ -207,7 +207,7 @@ var obj: ValueClass = ReturnsPointer();
 
 ## Pointer
 
-This refers the raw "pointers" used in C++ (`MyType*`). Pointers are unsafe, but are an important part of C++ code. Use `Ptr<T>` to make any type a pointer. Please note classes cannot be constructed while using the "pointer" memory management, and instead must come from external functions or reference values.
+This refers to C++'s raw "pointers" (for example: `MyType*`). While pointers may be unsafe, they are an important part of C++ code. The `Ptr<T>` type can be used to work with pointer types. Please note classes cannot be constructed while using the "pointer" memory management. Instead, they must reference values or come from external C++ functions.
 ```haxe
 // ValueClass obj = ValueClass();
 // ValueClass* ptr = &obj;
@@ -219,7 +219,7 @@ ptr.doFunc();
 
 ## Unique Pointer
 
-A unique pointer is another standard library smart pointer. It works like a smart pointer, but it cannot be copied or moved. In return, it gives better performance. Simply wrap a type with `UniquePtr<T>` to make it a unique pointer, or have a class default to using unique pointers with `@:uniquePtrType`.
+A unique pointer is another standard library smart pointer. It works like a shared pointer, but it cannot be copied or moved. In return, it gives better performance. Simply wrap a type with `UniquePtr<T>` to make it a unique pointer, or have a class default it using `@:uniquePtrType`.
 ```haxe
 // std::unique_ptr<UniqueClass> obj = std::make_unique<UniqueClass>();
 var obj = new UniqueClass();
