@@ -98,7 +98,10 @@ FreeCompiler.onCompileBegin(function(compiler) {
 });
 
 // Called whenever an expression is compiled.
-function myHookFunc(defaultOutput: Null<String>, compiler: FreeCompiler, typedExpr: TypedExpr): Null<String> {
+function myHookFunc(defaultOutput: Null<String>,
+                    compiler: FreeCompiler,
+		    typedExpr: TypedExpr): Null<String>
+{
   return switch(typedExpr.expr) {
     case TConst(TInt(123)): "(100 + 20 + 3)";
     case _: defaultOutput;
@@ -114,11 +117,20 @@ var a = 123;
 
 Here is a list of all the available `FreeCompiler` hooks.
 ```haxe
-compileExpressionHook.addHook(cb: (Null<String>, FreeCompiler, TypedExpr) -> Null<String>);
-compileClassHook.addHook(cb: (Null<String>, FreeCompiler, ClassType, ClassFieldVars, ClassFieldFuncs) -> Null<String>);
-compileEnumHook.addHook(cb: (Null<String>, FreeCompiler, EnumType, EnumOptions) -> Null<String>);
-compileTypedefHook.addHook(cb: (Null<String>, FreeCompiler, DefType) -> Null<String>);
-compileAbstractHook.addHook(cb: (Null<String>, FreeCompiler, AbstractType) -> Null<String>);
+var compileExpressionHook;
+function addHook(cb: (Null<String>, FreeCompiler, TypedExpr) -> Null<String>);
+
+var compileClassHook;
+function addHook(cb: (Null<String>, FreeCompiler, ClassType, ClassFieldVars, ClassFieldFuncs) -> Null<String>);
+
+var compileEnumHook;
+function addHook(cb: (Null<String>, FreeCompiler, EnumType, EnumOptions) -> Null<String>);
+
+var compileTypedefHook;
+function addHook(cb: (Null<String>, FreeCompiler, DefType) -> Null<String>);
+
+var compileAbstractHook;
+function addHook(cb: (Null<String>, FreeCompiler, AbstractType) -> Null<String>);
 ```
 
 &nbsp;
