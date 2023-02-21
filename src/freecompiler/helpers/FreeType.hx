@@ -47,6 +47,19 @@ class FreeType {
 			false;
 		}
 	}
+
+	// ----------------------------
+	// Checks if this is a variable whose type could
+	// not be resolved. Probably because it was never
+	// assigned.
+	public static function isUnresolvedMonomorph(t: Type): Bool {
+		return switch(t) {
+			case TMono(tRef): {
+				return tRef.get() == null;
+			}
+			case _: false;
+		}
+	}
 }
 
 #end

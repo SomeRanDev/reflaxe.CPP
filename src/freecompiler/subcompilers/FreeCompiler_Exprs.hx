@@ -100,7 +100,15 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result += "\n}";
 			}
 			case TVar(tvar, maybeExpr): {
-				result = TComp.compileType(tvar.t, expr.pos) + " " + Main.compileVarName(tvar.name, expr);
+				final typeCpp = if(tvar.t.isDynamic() && maybeExpr != null) {
+					TComp.compileType(maybeExpr.t, expr.pos);
+				} else if(tvar.t.isUnresolvedMonomorph()) {
+					IComp.addInclude("any", compilingInHeader, true);
+					"std::any";
+				} else {
+					TComp.compileType(tvar.t, expr.pos);
+				}
+				result = typeCpp + " " + Main.compileVarName(tvar.name, expr);
 				if(maybeExpr != null) {
 					result += " = " + compileExpressionForType(maybeExpr, tvar.t);
 				}
