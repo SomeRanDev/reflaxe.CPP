@@ -169,6 +169,9 @@ class FreeCompiler_Classes extends FreeSubCompiler {
 				fieldsCompiled++;
 			} else {
 				final topLevel = field.hasMeta(":topLevel");
+				if(topLevel && !isStatic) {
+					field.pos.makeError(TopLevelInstanceFunction);
+				}
 
 				final retDecl = (useReturnType ? (ret + " ") : "");
 

@@ -14,6 +14,7 @@ enum ErrorType {
 
 	// Meta
 	ConstExprMetaInvalidUse;
+	TopLevelInstanceFunction;
 
 	// Memory Management Conversion
 	UnsafeToShared;
@@ -43,6 +44,9 @@ class FreeError {
 			// Meta
 			case ConstExprMetaInvalidUse: {
 				"Invalid use of @:constexpr. Must be used with if statement.";
+			}
+			case TopLevelInstanceFunction: {
+				"Invalid use of @:topLevel. Can only be used on static fields.";
 			}
 
 			// Memory Management Conversion

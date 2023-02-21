@@ -443,8 +443,12 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 					onModuleTypeEncountered(TClassDecl(clsRef));
 
 					final cf = cfRef.get();
-					final className = TComp.compileClassName(clsRef.get(), e.pos, null, true, true);
-					return className + "::" + name;
+					return if(cf.hasMeta(":topLevel")) {
+						name;
+					} else {
+						final className = TComp.compileClassName(clsRef.get(), e.pos, null, true, true);
+						className + "::" + name;
+					}
 				}
 				case FEnum(enumRef, enumField): {
 					onModuleTypeEncountered(TEnumDecl(enumRef));
