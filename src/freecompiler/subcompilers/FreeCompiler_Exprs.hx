@@ -78,10 +78,10 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result = expr;
 			}
 			case TObjectDecl(fields): {
-				result = AComp.compileObjectDecl(expr.t, fields);
+				result = AComp.compileObjectDecl(Main.getExprType(expr), fields);
 			}
 			case TArrayDecl(el): {
-				final arrayType = expr.t.unwrapArrayType();
+				final arrayType = Main.getExprType(expr).unwrapArrayType();
 				result = "{" + el.map(e -> compileExpressionForType(e, arrayType)).join(", ") + "}";
 			}
 			case TCall(callExpr, el): {
@@ -100,17 +100,20 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result += "\n}";
 			}
 			case TVar(tvar, maybeExpr): {
-				final typeCpp = if(tvar.t.isDynamic() && maybeExpr != null) {
-					TComp.compileType(maybeExpr.t, expr.pos);
-				} else if(tvar.t.isUnresolvedMonomorph()) {
+				final t = Main.getTVarType(tvar);
+				final typeCpp = if(t.isDynamic() && maybeExpr != null) {
+					final et = Main.getExprType(maybeExpr);
+					Main.setTVarType(tvar, et);
+					TComp.compileType(et, expr.pos);
+				} else if(t.isUnresolvedMonomorph()) {
 					IComp.addInclude("any", compilingInHeader, true);
 					"std::any";
 				} else {
-					TComp.compileType(tvar.t, expr.pos);
+					TComp.compileType(t, expr.pos);
 				}
 				result = typeCpp + " " + Main.compileVarName(tvar.name, expr);
 				if(maybeExpr != null) {
-					result += " = " + compileExpressionForType(maybeExpr, tvar.t);
+					result += " = " + compileExpressionForType(maybeExpr, t);
 				}
 			}
 			case TBlock(el): {
@@ -157,7 +160,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			case TTry(e, catches): {
 				result = "try {\n" + Main.compileExpression(e).tab();
 				for(c in catches) {
-					result += "\n} catch(" + TComp.compileType(c.v.t, expr.pos) + " " + c.v.name + ") {\n";
+					result += "\n} catch(" + TComp.compileType(Main.getTVarType(c.v), expr.pos) + " " + c.v.name + ") {\n";
 					if(c.expr != null) {
 						result += Main.compileExpression(c.expr).tab();
 					}
@@ -188,7 +191,6 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			}
 			case TMeta(metadataEntry, nextExpr): {
 				final unwrappedInfo = unwrapMetaExpr(expr);
-				trace(unwrappedInfo);
 				final cpp = compileExprWithMultipleMeta(unwrappedInfo.meta, expr, unwrappedInfo.internalExpr);
 				result = cpp != null ? cpp : Main.compileExpression(unwrappedInfo.internalExpr);
 			}
@@ -198,7 +200,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				switch(enumField.type) {
 					case TFun(args, _): {
 						if(index < args.length) {
-							result += (isArrowAccessType(expr.t) ? "->" : ".") + "data." + enumField.name + "." + args[index].name;
+							result += (isArrowAccessType(Main.getExprType(expr)) ? "->" : ".") + "data." + enumField.name + "." + args[index].name;
 						}
 					}
 					case _:
@@ -226,7 +228,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				//
 				// Next, since unnamed anonymous structs are always `SharedPtr`s, we use applyMMConversion to 
 				// format the generated C++ code from `Value` to `SharedPtr`.
-				if(!expr.t.getInternalType().isAnonStruct() && targetType.getInternalType().isAnonStruct()) {
+				if(!Main.getExprType(expr).getInternalType().isAnonStruct() && targetType.getInternalType().isAnonStruct()) {
 					cpp = applyMMConversion(compileMMConversion(expr, Right(Value)), expr.pos, targetType, Value, SharedPtr);
 				}
 			}
@@ -249,15 +251,15 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	// is different from the provided expression, compile the expression and with additional
 	// conversions in the generated code.
 	function compileMMConversion(expr: TypedExpr, targetType: Either<Null<Type>, MemoryManagementType>): Null<String> {
-		final cmmt = TComp.getMemoryManagementTypeFromType(expr.t);
+		final cmmt = TComp.getMemoryManagementTypeFromType(Main.getExprType(expr));
 		final tmmt = switch(targetType) {
 			case Left(tt): TComp.getMemoryManagementTypeFromType(tt);
 			case Right(mmt): mmt;
 		}
 
 		final nullToValue = switch(targetType) {
-			case Left(tt): expr.t.isNullOfType(tt);
-			case Right(_): expr.t.isNull();
+			case Left(tt): Main.getExprType(expr).isNullOfType(tt);
+			case Right(_): Main.getExprType(expr).isNull();
 		}
 
 		var result = null;
@@ -271,7 +273,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 					if(nullToValue) {
 						cpp = ensureSafeToAccess(cpp) + ".value()";
 					}
-					result = applyMMConversion(cpp, expr.pos, expr.t, cmmt, tmmt);
+					result = applyMMConversion(cpp, expr.pos, Main.getExprType(expr), cmmt, tmmt);
 				}
 			}
 		}
@@ -365,7 +367,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
 		var gdExpr1 = Main.compileExpression(e1);
 		var gdExpr2 = if(op.isAssign()) {
-			compileExpressionForType(e2, e1.t);
+			compileExpressionForType(e2, Main.getExprType(e1));
 		} else {
 			Main.compileExpression(e2);
 		}
@@ -381,7 +383,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	}
 
 	inline function checkForPrimitiveStringAddition(strExpr: TypedExpr, primExpr: TypedExpr) {
-		return strExpr.t.isString() && primExpr.t.isPrimitive();
+		return Main.getExprType(strExpr).isString() && Main.getExprType(primExpr).isPrimitive();
 	}
 
 	function unopToCpp(op: Unop, e: TypedExpr, isPostfix: Bool): String {
@@ -459,9 +461,9 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				case _:
 			}
 
-			var useArrow = isThisExpr(e) || isArrowAccessType(e.t);
+			var useArrow = isThisExpr(e) || isArrowAccessType(Main.getExprType(e));
 
-			final nullType = e.t.unwrapNullType();
+			final nullType = Main.getExprType(e).unwrapNullType();
 			final gdExpr = if(nullType != null) {
 				compileExpressionForType(e, nullType);
 			} else {
@@ -485,7 +487,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			nfc;
 		} else {
 			// Get list of function argument types
-			var funcParams = switch(callExpr.t) {
+			var funcParams = switch(Main.getExprType(callExpr)) {
 				case TFun(args, ret): {
 					args.map(a -> a.t);
 				}
@@ -542,7 +544,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				// If the expression's type is different, this may be the result of an unsafe cast.
 				// If so, let's use the memory management type from the cast.
 				if(overrideMMT == null) {
-					final exprMMT = TComp.getMemoryManagementTypeFromType(expr.t);
+					final exprMMT = TComp.getMemoryManagementTypeFromType(Main.getExprType(expr));
 					if(exprMMT != cd.getMemoryManagementType()) {
 						overrideMMT = exprMMT;
 					}

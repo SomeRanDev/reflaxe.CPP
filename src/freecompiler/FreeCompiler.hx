@@ -121,6 +121,34 @@ class FreeCompiler extends reflaxe.PluginCompiler<FreeCompiler> {
 	}
 
 	// ----------------------------
+	// The ability to "override" a TVar's
+	// type is necessary for some behavior.
+	//
+	// This collection of functions helps
+	// achieve that by intercepting all
+	// requests to TypedExpr and TVar types and
+	// possibly replacing them.
+	var tvarTypeOverrides: Map<Int, Type> = [];
+
+	public function getTVarType(tvar: TVar): Type {
+		if(tvarTypeOverrides.exists(tvar.id)) {
+			return tvarTypeOverrides.get(tvar.id);
+		}
+		return tvar.t;
+	}
+
+	public function setTVarType(tvar: TVar, t: Type) {
+		tvarTypeOverrides.set(tvar.id, t);
+	}
+
+	public function getExprType(e: TypedExpr): Type {
+		return switch(e.expr) {
+			case TLocal(tvar): getTVarType(tvar);
+			case _: e.t;
+		}
+	}
+
+	// ----------------------------
 	// Generate the header containing all the
 	// specially made classes for the anonymous
 	// structures used in Haxe.

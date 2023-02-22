@@ -37,10 +37,11 @@ class FreeCompiler_Anon extends FreeSubCompiler {
 		final anonFields: Array<AnonField> = [];
 		final anonMap: Map<String, TypedExpr> = [];
 		for(f in fields) {
+			final ft = Main.getExprType(f.expr);
 			final field = {
 				name: f.name,
-				type: f.expr.t,
-				optional: f.expr.t.isNull()
+				type: ft,
+				optional: ft.isNull()
 			};
 			anonFields.push(field);
 			anonMap.set(f.name, f.expr);

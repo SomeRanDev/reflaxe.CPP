@@ -154,7 +154,7 @@ class FreeCompiler_Classes extends FreeSubCompiler {
 				final callable = Main.compileClassVarExpr(field.expr());
 				final assign = " = " + callable;
 				final type = "std::function<" + ret + "(" + tfunc.args.map(a -> {
-					return TComp.compileType(a.v.t, field.pos);
+					return TComp.compileType(Main.getTVarType(a.v), field.pos);
 				}).join(", ") + ")>";
 				var decl = meta + prefix + type + " " + name;
 				if(!dynAddToCpp) {
