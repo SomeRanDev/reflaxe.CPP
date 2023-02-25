@@ -32,7 +32,7 @@ class FreeError {
 				"FreeCompiler.compileTypeSafe was passed 'null'. Unknown type detected?";
 			}
 			case DynamicUnsupported: {
-				"Dynamic not supported";
+				"Dynamic not supported. Consider using Any or generics instead?";
 			}
 			case OMMIncorrectParamCount: {
 				"@:overrideMemoryManagement wrapper does not have exactly one type parameter.";

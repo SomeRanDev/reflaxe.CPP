@@ -101,11 +101,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			}
 			case TVar(tvar, maybeExpr): {
 				final t = Main.getTVarType(tvar);
-				final typeCpp = if(t.isDynamic() && maybeExpr != null) {
-					final et = Main.getExprType(maybeExpr);
-					Main.setTVarType(tvar, et);
-					TComp.compileType(et, expr.pos);
-				} else if(t.isUnresolvedMonomorph()) {
+				final typeCpp = if(t.isUnresolvedMonomorph()) {
 					IComp.addInclude("any", compilingInHeader, true);
 					"std::any";
 				} else {
