@@ -73,7 +73,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 		final process = new sys.io.Process("haxe " + args.join(" "));
 		final ec = process.exitCode();
 		if(ec != 0) {
-			printFailed(hxml + "\nExit Code: " + ec + "\n" + process.stderr.readAll().toString());
+			onProcessFail(process, hxml, ec);
 			return false;
 		} else {
 			final output = process.stdout.readAll().toString();
@@ -88,6 +88,28 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 	} else {
 		false;
 	}
+}
+
+function onProcessFail(process: sys.io.Process, hxml: String, ec: Int) {
+	final info = [];
+	info.push(".hxml File:\n" + hxml);
+	info.push("Exit Code:\n" + ec);
+
+	final output = process.stdout.readAll().toString();
+	if(output.length > 0) {
+		info.push("Output:\n" + output);
+	}
+
+	final err = process.stderr.readAll().toString();
+	if(err.length > 0) {
+		info.push("Error Output:\n" + err);
+	}
+
+	var result = "\nFAILURE INFO\n------------------------------------\n";
+	result += info.join("\n\n");
+	result += "\n------------------------------------\n";
+
+	printFailed(result);
 }
 
 function compareOutputFolders(testDir: String): Bool {
@@ -105,7 +127,10 @@ function compareOutputFolders(testDir: String): Bool {
 		}
 	}
 	return if(errors.length > 0) {
-		printFailed(errors.join("\n"));
+		var result = "\nOUTPUT DOES NOT MATCH\n------------------------------------\n";
+		result += errors.join("\n");
+		result += "\n------------------------------------\n";
+		printFailed(result);
 		false;
 	} else {
 		true;
