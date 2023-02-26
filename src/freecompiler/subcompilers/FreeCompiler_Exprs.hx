@@ -480,7 +480,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 
 	function moduleNameToCpp(m: ModuleType, pos: Position): String {
 		IComp.addIncludeFromMetaAccess(m.getCommonData().meta);
-		return TComp.compileModuleTypeName(m.getCommonData(), pos, null, true, true);
+		return TComp.compileType(TypeHelper.fromModuleType(m), pos, true);
 	}
 
 	function compileCall(callExpr: TypedExpr, el: Array<TypedExpr>) {
