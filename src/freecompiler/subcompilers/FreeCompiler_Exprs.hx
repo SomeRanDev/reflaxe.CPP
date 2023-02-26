@@ -95,7 +95,8 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result = unopToCpp(op, e, postFix);
 			}
 			case TFunction(tfunc): {
-				result = "[=](" + tfunc.args.map(a -> Main.compileFunctionArgument(a, expr.pos, false, true)).join(", ") + ") {\n";
+				IComp.addInclude("functional", compilingInHeader, true);
+				result = "[=](" + tfunc.args.map(a -> Main.compileFunctionArgument(a, expr.pos, false, true)).join(", ") + ") mutable {\n";
 				result += toIndentedScope(tfunc.expr);
 				result += "\n}";
 			}
