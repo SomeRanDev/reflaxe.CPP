@@ -12,6 +12,6 @@ class Log {
 
 	public static dynamic function trace(v: String, infos: Null<PosInfos> = null): Void {
 		var str = formatOutput(v, infos);
-		untyped __cpp__("std::cout << {} << std::endl", str);
+		untyped __fcpp__("std::cout << {} << std::endl", str);
 	}
 }
