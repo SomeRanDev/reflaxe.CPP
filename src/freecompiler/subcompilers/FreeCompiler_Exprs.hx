@@ -183,7 +183,15 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			case TCast(e, maybeModuleType): {
 				result = Main.compileExpression(e);
 				if(maybeModuleType != null) {
-					result = "((" + moduleNameToCpp(maybeModuleType, expr.pos) + ")(" + result + "))";
+					final mCpp = moduleNameToCpp(maybeModuleType, expr.pos);
+					switch(e.t) {
+						case TAbstract(aRef, []) if(aRef.get().name == "Any" && aRef.get().module == "Any"): {
+							result = "std::any_cast<" + mCpp + ">(" + result + ")";
+						}
+						case _: {
+							result = "((" + mCpp + ")(" + result + "))";
+						}
+					}
 				}
 			}
 			case TMeta(metadataEntry, nextExpr): {
