@@ -118,6 +118,20 @@ class FreeCompiler extends reflaxe.PluginCompiler<FreeCompiler> {
 	// ensure it is #included.
 	public function onTypeEncountered(t: Type, addToHeader: Bool) {
 		IComp.addIncludeFromType(t, addToHeader);
+
+		final mt = t.toModuleType();
+		if(mt != null) {
+			addModuleTypeForCompilation(mt);
+		}
+
+		switch(t) {
+			case TInst(_, params) | TEnum(_, params) | TType(_, params) | TAbstract(_, params): {
+				for(p in params) {
+					onTypeEncountered(p, addToHeader);
+				}
+			}
+			case _: {}
+		}
 	}
 
 	// ----------------------------
@@ -296,6 +310,7 @@ class FreeCompiler extends reflaxe.PluginCompiler<FreeCompiler> {
 		content += compileNamespaceStart(defType);
 		switch(defType.type) {
 			case TAnonymous(anonRef): {
+				IComp.addAnonTypeInclude(true);
 				content += AComp.compileNamedAnonTypeDefinition(defType, anonRef);
 			}
 			case _: {
