@@ -489,6 +489,12 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 
 		final nfc = Main.compileNativeFunctionCodeMeta(callExpr, el);
 		return if(nfc != null) {
+			// Ensure we use potential #include
+			final declaration = callExpr.getDeclarationMeta();
+			if(declaration != null) {
+				IComp.addIncludeFromMetaAccess(declaration.meta);
+			}
+
 			nfc;
 		} else {
 			// Get list of function argument types
