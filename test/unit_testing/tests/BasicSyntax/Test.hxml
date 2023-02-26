@@ -1,0 +1,5 @@
+# The following are added automatically:
+# -lib free-cpp
+# -D cpp-output=out
+
+Main
