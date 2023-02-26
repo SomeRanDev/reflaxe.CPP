@@ -16,6 +16,7 @@ import haxe.display.Display.MetadataTarget;
 import reflaxe.BaseCompiler;
 
 using reflaxe.helpers.NameMetaHelper;
+using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
@@ -179,7 +180,7 @@ class FreeCompiler_Classes extends FreeSubCompiler {
 
 				final argDecl = "(" + tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos)).join(", ") + ")";
 
-				final templateTypes = TComp.disableDynamicToTemplate();
+				final templateTypes = field.params.map(f -> f.name).concat(TComp.disableDynamicToTemplate());
 				final templateDecl = if(templateTypes.length > 0) {
 					addToCpp = false;
 					"template<" + templateTypes.map(t -> "typename " + t).join(", ") + ">\n";
@@ -238,6 +239,13 @@ class FreeCompiler_Classes extends FreeSubCompiler {
 
 			IComp.appendIncludesToExtraFileWithoutRepeats(headerFilename, IComp.compileHeaderIncludes(), 1);
 
+			if(classType.hasMeta(":headerCode")) {
+				final code = classType.meta.extractStringFromFirstMeta(":headerCode");
+				if(code != null) {
+					Main.appendToExtraFile(headerFilename, code + "\n", 2);
+				}
+			}
+
 			var result = "";
 
 			if(fieldsCompiled > 0) {
@@ -262,7 +270,7 @@ class FreeCompiler_Classes extends FreeSubCompiler {
 				result += (result.length > 0 ? "\n\n" : "") + topLevelFunctions.join("\n\n");
 			}
 
-			Main.appendToExtraFile(headerFilename, result + "\n", 2);
+			Main.appendToExtraFile(headerFilename, result + "\n", 3);
 		}
 
 		// We generated the files ourselves with "appendToExtraFile",
