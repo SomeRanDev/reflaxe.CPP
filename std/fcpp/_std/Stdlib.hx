@@ -11,4 +11,8 @@ extern class Stdlib {
 
 	@:native("sizeof")
 	public static extern function sizeof(a: Dynamic): Int;
+
+	@:native("std::to_string")
+	@:include("string", true)
+	public static extern function intToString(i: Int): String;
 }
