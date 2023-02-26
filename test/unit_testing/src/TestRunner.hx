@@ -61,6 +61,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 	for(hxml in hxmlFiles) {
 		final absPath = haxe.io.Path.join([testDir, hxml]);
 		final args = [
+			"--no-opt",
 			"-cp std",
 			"-cp std/fcpp/_std",
 			"-cp src",
@@ -71,14 +72,15 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"\"" + absPath + "\""
 		];
 		final process = new sys.io.Process("haxe " + args.join(" "));
+		final stdoutContent = process.stdout.readAll().toString();
+		final stderrContent = process.stderr.readAll().toString();
 		final ec = process.exitCode();
 		if(ec != 0) {
-			onProcessFail(process, hxml, ec);
+			onProcessFail(process, hxml, ec, stdoutContent, stderrContent);
 			return false;
 		} else {
-			final output = process.stdout.readAll().toString();
-			if(output.length > 0) {
-				Sys.println(output);
+			if(stdoutContent.length > 0) {
+				Sys.println(stdoutContent);
 			}
 		}
 	}
@@ -90,19 +92,17 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 	}
 }
 
-function onProcessFail(process: sys.io.Process, hxml: String, ec: Int) {
+function onProcessFail(process: sys.io.Process, hxml: String, ec: Int, stdoutContent: String, stderrContent: String) {
 	final info = [];
 	info.push(".hxml File:\n" + hxml);
 	info.push("Exit Code:\n" + ec);
 
-	final output = process.stdout.readAll().toString();
-	if(output.length > 0) {
-		info.push("Output:\n" + output);
+	if(stdoutContent.length > 0) {
+		info.push("Output:\n" + stdoutContent);
 	}
 
-	final err = process.stderr.readAll().toString();
-	if(err.length > 0) {
-		info.push("Error Output:\n" + err);
+	if(stderrContent.length > 0) {
+		info.push("Error Output:\n" + stderrContent);
 	}
 
 	var result = "\nFAILURE INFO\n------------------------------------\n";
@@ -116,7 +116,8 @@ function compareOutputFolders(testDir: String): Bool {
 	final intendedFolder = haxe.io.Path.join([testDir, INTENDED_DIR]);
 	final outFolder = haxe.io.Path.join([testDir, OUT_DIR]);
 	if(!sys.FileSystem.exists(intendedFolder)) {
-		return true;
+		printFailed("Intended folder does not exist?");
+		return false;
 	}
 	final files = getAllFiles(intendedFolder);
 	final errors = [];
