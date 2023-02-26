@@ -97,7 +97,10 @@ class FreeCompiler_Types extends FreeSubCompiler {
 						case "Float": "double";
 						case "Single": "float";
 						case "Bool": "bool";
-						case "Any": "void*";
+						case "Any": {
+							IComp.addInclude("any", true, true);
+							"std::any";
+						}
 						case _: null;
 					}
 				} else {
