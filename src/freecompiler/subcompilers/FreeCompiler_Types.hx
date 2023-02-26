@@ -164,6 +164,12 @@ class FreeCompiler_Types extends FreeSubCompiler {
 	// ----------------------------
 	// Compile ClassType.
 	function compileClassName(classType: ClassType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+		switch(classType.kind) {
+			case KTypeParameter(_): {
+				return classType.name;
+			}
+			case _: {}
+		}
 		return compileModuleTypeName(classType, pos, params, useNamespaces, asValue);
 	}
 
