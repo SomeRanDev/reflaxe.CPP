@@ -9,20 +9,20 @@ extern class Math {
 	public extern static var NaN(get, never): Float;
 
 	@:include("math.h", true)
-	static extern inline function get_PI(): Float
-		return untyped M_PI;
+	@:nativeFunctionCode("3.14159265358979323846")
+	static extern function get_PI(): Float;
 
 	@:include("limits", true)
-	static extern inline function get_POSITIVE_INFINITY(): Float
-		return untyped __fcpp__("std::numeric_limits<double>::infinity()");
+	@:nativeFunctionCode("std::numeric_limits<double>::infinity()")
+	static extern function get_POSITIVE_INFINITY(): Float;
 
 	@:include("limits", true)
-	static extern inline function get_NEGATIVE_INFINITY(): Float
-		return untyped __fcpp__("-std::numeric_limits<double>::infinity()");
+	@:nativeFunctionCode("-std::numeric_limits<double>::infinity()")
+	static extern function get_NEGATIVE_INFINITY(): Float;
 
 	@:include("cmath", true)
-	static extern inline function get_NaN(): Float
-		return untyped __fcpp__("nan(\"\")");
+	@:nativeFunctionCode("nan(\"\")")
+	static extern function get_NaN(): Float;
 
 	@:include("cstdlib", true)
 	@:native("abs")
@@ -103,7 +103,11 @@ extern class Math {
 
 	@:include("cmath", true)
 	@:native("std::isfinite")
-	public extern static function isFinite(f: Float): Bool;
+	public extern overload static function isFinite(f: Float): Bool;
+
+	@:include("cmath", true)
+	@:nativeFunctionCode("std::isfinite((double){arg0})")
+	public extern overload static function isFinite(f: Int): Bool;
 
 	@:include("cmath", true)
 	@:native("isnan")
