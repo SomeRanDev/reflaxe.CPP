@@ -114,7 +114,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				}
 			}
 			case TBlock(el): {
-				result = "{";
+				result = "{\n";
 				result += el.map(e -> Main.compileExpression(e).tab() + ";").join("\n");
 				result += "\n}";
 			}
