@@ -1,5 +1,7 @@
 package;
 
+import haxe.PosInfos;
+
 class Main {
 	var testField = 123;
 
@@ -7,15 +9,17 @@ class Main {
 		assert(testField == 123);
 	}
 
-	static function assert(b: Bool) {
+	static var returnCode = 0;
+	static function assert(b: Bool, infos: Null<PosInfos> = null) {
 		if(!b) {
-			throw "Assert failed";
+			haxe.Log.trace("Assert failed", infos);
+			returnCode = 1;
 		}
 	}
 
 	@:topLevel
 	@:dce(Off)
-	public static function main() {
+	public static function main(): Int {
 		assert(true);
 		assert(!false);
 		assert(1 + 1 == 2);
@@ -121,5 +125,7 @@ class Main {
 
 		anotherNum2 = anotherNum += 10;
 		assert(anotherNum == anotherNum2);
+
+		return 0;
 	}
 }
