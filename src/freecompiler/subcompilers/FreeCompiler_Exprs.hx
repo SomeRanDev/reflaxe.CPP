@@ -96,7 +96,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			}
 			case TFunction(tfunc): {
 				IComp.addInclude("functional", compilingInHeader, true);
-				result = "[=](" + tfunc.args.map(a -> Main.compileFunctionArgument(a, expr.pos, false, true)).join(", ") + ") mutable {\n";
+				result = "[&](" + tfunc.args.map(a -> Main.compileFunctionArgument(a, expr.pos, false, true)).join(", ") + ") mutable {\n";
 				result += toIndentedScope(tfunc.expr);
 				result += "\n}";
 			}
