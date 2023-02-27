@@ -259,7 +259,7 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 	}
 
 	// Run output
-	final executeProcess = new sys.io.Process("\"./test_out.exe\"");
+	final executeProcess = new sys.io.Process("\"./test_out\"");
 	final exeOut = executeProcess.stdout.readAll().toString();
 	final exeErr = executeProcess.stderr.readAll().toString();
 	final exeEc = executeProcess.exitCode();
