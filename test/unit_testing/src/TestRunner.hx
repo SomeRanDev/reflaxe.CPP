@@ -3,6 +3,7 @@ package;
 final TEST_DIR = "test/unit_testing/tests";
 final OUT_DIR = "out";
 final INTENDED_DIR = "intended";
+final BUILD_DIR = "build";
 
 function printlnErr(msg: String) {
 	Sys.stderr().writeString(msg + "\n", haxe.io.Encoding.UTF8);
@@ -42,6 +43,38 @@ The C++ compiling/run tests do not occur.");
 	final success = testCount - failures;
 	Sys.println("");
 	Sys.println(success + " / " + testCount + " tests passed.");
+
+	if(failures > 0) {
+		Sys.exit(1);
+	}
+
+	// ------------------------------------
+	// C++ compiling
+	// ------------------------------------
+	if(args.contains("nocompile")) {
+		return;
+	}
+
+	failures = 0;
+	final systemName = Sys.systemName();
+	final originalCwd = Sys.getCwd();
+
+	Sys.println("\n===========\nTesting C++ Compilation\n===========\n");
+
+	if(systemName != "Windows" && systemName != "Linux") {
+		Sys.println("C++ compilation test not supported for `" + systemName + "`");
+		return;
+	}
+
+	for(t in tests) {
+		if(!processCppCompile(t, systemName, originalCwd)) {
+			failures++;
+		}
+	}
+
+	final success = testCount - failures;
+	Sys.println("");
+	Sys.println(success + " / " + testCount + " successfully compiled in C++.");
 
 	if(failures > 0) {
 		Sys.exit(1);
@@ -189,5 +222,59 @@ function compareFiles(fileA: String, fileB: String): Null<String> {
 	}
 
 	return null;
+}
+
+function processCppCompile(t: String, systemName: String, originalCwd: String): Bool {
+	var result = true;
+
+	Sys.println("-- " + t + " --");
+
+	final testDir = haxe.io.Path.join([TEST_DIR, t, BUILD_DIR]);
+
+	if(!sys.FileSystem.exists(testDir)) {
+		sys.FileSystem.createDirectory(testDir);
+	}
+
+	Sys.setCwd(testDir);
+
+	final compileCommand = if(systemName == "Windows") {
+		"cl ../" + OUT_DIR + "/src/*.cpp /I ../" + OUT_DIR + "/include /std:c++17 /Fe:test_out.exe";
+	} else if(systemName == "Linux") {
+		"g++ -std=c++17 ../" + OUT_DIR + "/src/*.cpp -I ../" + OUT_DIR + "/include -o test_out";
+	} else {
+		throw "Unsupported system";
+	}
+	final compileProcess = new sys.io.Process(compileCommand);
+	final stdoutContent = compileProcess.stdout.readAll().toString();
+	final stderrContent = compileProcess.stderr.readAll().toString();
+	final ec = compileProcess.exitCode();
+
+	if(ec != 0) {
+		Sys.println("C++ compilation failed...");
+		Sys.println(stdoutContent);
+		Sys.println(stderrContent);
+		result = false;
+	} else {
+		Sys.println("C++ compilation success! 🧠");
+	}
+
+	// Run output
+	final executeProcess = new sys.io.Process("\"./test_out.exe\"");
+	final exeOut = executeProcess.stdout.readAll().toString();
+	final exeErr = executeProcess.stderr.readAll().toString();
+	final exeEc = executeProcess.exitCode();
+	if(exeEc != 0) {
+		Sys.println("C++ executable returned exit code: " + exeEc);
+		Sys.println(exeOut);
+		Sys.println(exeErr);
+		result = false;
+	} else {
+		Sys.println("C++ executable ran successfully! 🏃");
+	}
+
+	// Reset to original current working directory
+	Sys.setCwd(originalCwd);
+
+	return result;
 }
 
