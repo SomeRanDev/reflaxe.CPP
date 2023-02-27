@@ -10,6 +10,26 @@ function printlnErr(msg: String) {
 }
 
 function main() {
+	// ------------------------------------
+	// Parse options
+	// ------------------------------------
+	final args = Sys.args();
+	if(args.contains("help")) {
+		Sys.println("Run this .hxml file from the root of the repo.
+Append the following options to the command:
+
+* help
+Shows this output.
+
+* nocompile
+The C++ compiling/run tests do not occur.");
+
+		return;
+	}
+
+	// ------------------------------------
+	// Haxe compiling
+	// ------------------------------------
 	final tests = checkAndReadDir(TEST_DIR);
 	var failures = 0;
 	for(t in tests) {
