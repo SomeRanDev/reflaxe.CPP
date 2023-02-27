@@ -34,7 +34,7 @@ public:
 	static double parseFloat(std::string x) {
 		try { return std::stof(x); } catch(...) {};
 		
-		return nan("");
+		return std::numeric_limits<double>::quiet_NaN();
 	}
 };
 

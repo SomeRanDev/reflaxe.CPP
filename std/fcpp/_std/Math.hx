@@ -20,8 +20,8 @@ extern class Math {
 	@:nativeFunctionCode("-std::numeric_limits<double>::infinity()")
 	static extern function get_NEGATIVE_INFINITY(): Float;
 
-	@:include("cmath", true)
-	@:nativeFunctionCode("nan(\"\")")
+	@:include("limits", true)
+	@:nativeFunctionCode("std::numeric_limits<double>::quiet_NaN()")
 	static extern function get_NaN(): Float;
 
 	@:include("cstdlib", true)
@@ -110,6 +110,6 @@ extern class Math {
 	public extern overload static function isFinite(f: Int): Bool;
 
 	@:include("cmath", true)
-	@:native("isnan")
+	@:native("std::isnan")
 	public extern static function isNaN(f: Float): Bool;
 }

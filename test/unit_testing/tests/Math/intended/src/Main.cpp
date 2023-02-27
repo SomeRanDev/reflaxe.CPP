@@ -37,14 +37,14 @@ int main() {
 	Main::assert(floor(exp(1.0)) == 2, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 33, "main"));
 	Main::assert(floor(99.9) == 99, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 35, "main"));
 	Main::assert(std::isfinite((double)12), std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 37, "main"));
-	Main::assert(isnan(nan("")), std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 38, "main"));
+	Main::assert(std::isnan(std::numeric_limits<double>::quiet_NaN()), std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 38, "main"));
 	Main::assert(!std::isfinite(std::numeric_limits<double>::infinity()), std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 39, "main"));
 	Main::assert(!std::isfinite(-std::numeric_limits<double>::infinity()), std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 40, "main"));
 	Main::assertFloat(sin(3.14159265358979323846), 0.0, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 42, "main"));
 	Main::assertFloat(cos(0), 1, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 43, "main"));
 	Main::assertFloat(tan(4), 1.157821, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 44, "main"));
 	Main::assertFloat(asin(1), 1.570796, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 45, "main"));
-	Main::assert(isnan(acos(100)), std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 46, "main"));
+	Main::assert(std::isnan(acos(100)), std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 46, "main"));
 	Main::assertFloat(atan(12), 1.4876, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 47, "main"));
 	Main::assertFloat(atan2(-3, 3), -0.78539, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 48, "main"));
 	Main::assertFloat(log(10), 2.30258, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Math/Main.hx", 50, "main"));
