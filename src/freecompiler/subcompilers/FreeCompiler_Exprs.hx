@@ -709,6 +709,8 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			final inputParams = [el[0]];
 			var fileName = "";
 			var lineNumber = "";
+			var intro = null;
+			var posInfosCpp = null;
 			switch(el[1].expr) {
 				case TObjectDecl(fields): {
 					for(f in fields) {
@@ -734,11 +736,34 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 						}
 					}
 				}
-				case _: {}
+				case _: {
+					final e1Type = Main.getExprType(el[1]);
+					final e1InternalType = e1Type.unwrapNullTypeOrSelf();
+					final isPosInfos = switch(e1InternalType) {
+						case TType(typeRef, []): {
+							final ttype = typeRef.get();
+							ttype.name == "PosInfos" && ttype.module == "haxe.PosInfos";
+						}
+						case _: false;
+					}
+					if(!isPosInfos) {
+						return null;
+					}
+					final isNull = e1Type.isNull();
+					final piCpp = Main.compileExpression(el[1]);
+					final accessCpp = 'temp${isArrowAccessType(e1Type) ? "->" : "."}';
+					intro = "auto temp = " + (isNull ? {
+						final line = haxe.macro.PositionTools.toLocation(callExpr.pos).range.start.line;
+						final file = Context.getPosInfos(callExpr.pos).file;
+						final clsConstruct = compileClassConstruction(e1InternalType, e1Type.toModuleType().getCommonData(), [], callExpr.pos);
+						(piCpp + ".value_or(" + clsConstruct + "(\"\", " + stringToCpp(file) + "," + line + ", \"\"))");
+					} : piCpp) + ";";
+					posInfosCpp = '${accessCpp}fileName << ":" << ${accessCpp}lineNumber << ": "';
+				}
 			}
 
 			var allConst = true;
-			var lastString: Null<String> = fileName + ":" + lineNumber + ": ";
+			var lastString: Null<String> = posInfosCpp != null ? null : (fileName + ":" + lineNumber + ": ");
 			var prefixAdded = false;
 			final validParams = [];
 			function addLastString() {
@@ -772,7 +797,16 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			if(allConst) {
 				IComp.addInclude("iostream", compilingInHeader, true);
 				addLastString();
-				"std::cout << " + validParams.join("<< \", \" << ") + " << std::endl";
+				final result = if(posInfosCpp != null) {
+					"std::cout << " + posInfosCpp + " << " + validParams.join("<< \", \" << ") + " << std::endl";
+				} else {
+					"std::cout << " + validParams.join("<< \", \" << ") + " << std::endl";
+				}
+				if(intro != null) {
+					"{\n\t" + intro + "\n\t" + result + ";\n}";
+				} else {
+					result;
+				}
 			} else {
 				null;
 			}
