@@ -1,21 +1,27 @@
 package;
 
+import haxe.PosInfos;
+
 class Main {
-	static function assert(b: Bool) {
+	static var returnCode = 0;
+
+	static function assert(b: Bool, infos: Null<PosInfos> = null) {
 		if(!b) {
-			throw "Assert failed";
+			haxe.Log.trace("Assert failed", infos);
+			returnCode = 1;
 		}
 	}
 
-	static function assertFloat(a: Float, b: Float) {
-		if(Math.abs(a - b) < 0.001) {
-			throw "Assert failed";
+	static function assertFloat(a: Float, b: Float, infos: Null<PosInfos> = null) {
+		if(Math.abs(a - b) >= 0.001) {
+			haxe.Log.trace("Assert failed", infos);
+			returnCode = 1;
 		}
 	}
 
 	@:topLevel
 	@:dce(Off)
-	public static function main() {
+	public static function main(): Int {
 		assert(Math.ceil(2 * Math.pow(Math.PI, 2)) == 20);
 
 		assert(Math.abs(-3) == 3);
@@ -45,5 +51,7 @@ class Main {
 
 		assert(Math.sqrt(25) == 5);
 		assert(Math.sqrt(100) == 10);
+
+		return returnCode;
 	}
 }
