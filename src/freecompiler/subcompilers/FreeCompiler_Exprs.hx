@@ -50,7 +50,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result = constantToCpp(constant);
 			}
 			case TLocal(v): {
-				IComp.addIncludeFromMetaAccess(v.meta);
+				IComp.addIncludeFromMetaAccess(v.meta, compilingInHeader);
 				result = Main.compileVarName(v.name, expr);
 			}
 			case TIdent(s): {
@@ -200,7 +200,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result = cpp != null ? cpp : Main.compileExpression(unwrappedInfo.internalExpr);
 			}
 			case TEnumParameter(expr, enumField, index): {
-				IComp.addIncludeFromMetaAccess(enumField.meta);
+				IComp.addIncludeFromMetaAccess(enumField.meta, compilingInHeader);
 				result = Main.compileExpression(expr);
 				switch(enumField.type) {
 					case TFun(args, _): {
@@ -436,7 +436,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			case FDynamic(s): { name: s, meta: null };
 		}
 
-		IComp.addIncludeFromMetaAccess(nameMeta.meta);
+		IComp.addIncludeFromMetaAccess(nameMeta.meta, compilingInHeader);
 
 		return if(nameMeta.hasNativeMeta()) {
 			nameMeta.getNameOrNative();
@@ -479,7 +479,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	}
 
 	function moduleNameToCpp(m: ModuleType, pos: Position): String {
-		IComp.addIncludeFromMetaAccess(m.getCommonData().meta);
+		IComp.addIncludeFromMetaAccess(m.getCommonData().meta, compilingInHeader);
 		return TComp.compileType(TypeHelper.fromModuleType(m), pos, true);
 	}
 
@@ -492,7 +492,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			// Ensure we use potential #include
 			final declaration = callExpr.getDeclarationMeta();
 			if(declaration != null) {
-				IComp.addIncludeFromMetaAccess(declaration.meta);
+				IComp.addIncludeFromMetaAccess(declaration.meta, compilingInHeader);
 			}
 
 			nfc;
