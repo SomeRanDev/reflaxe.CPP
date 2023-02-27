@@ -2,8 +2,8 @@
 
 <img src="https://i.imgur.com/72J4afo.png" alt="I made a *checks notes* haxe 2 free cpp logo thingy look at it LOOK AT IT" width="900"/>
 
-[![Test Workflow](https://github.com/RobertBorghese/Haxe-to-FreeCPP/actions/workflows/main.yml/badge.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Test Workflow](https://github.com/RobertBorghese/Haxe-to-FreeCPP/actions/workflows/main.yml/badge.svg)](https://github.com/RobertBorghese/Haxe-to-FreeCPP/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <a href="https://discord.com/channels/162395145352904705/1052688097592225904"><img src="https://discordapp.com/api/guilds/162395145352904705/widget.png?style=shield" alt="Reflaxe Thread"/></a>
 
 *An alternative C++ target for Haxe that generates dependent-less, GC-less C++17 code. Made with [Reflaxe](https://github.com/RobertBorghese/reflaxe).*
