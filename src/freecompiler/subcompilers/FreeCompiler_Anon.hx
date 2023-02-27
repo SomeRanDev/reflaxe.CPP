@@ -117,13 +117,17 @@ class FreeCompiler_Anon extends FreeSubCompiler {
 		final extractorFuncs = [];
 
 		for(f in anonFields) {
+			Main.onTypeEncountered(f.type, true);
 			final v = TComp.compileType(f.type, f.pos) + " " + f.name;
 			fields.push(v);
 			constructorParams.push(v + (f.optional ? " = std::nullopt" : ""));
 			constructorAssigns.push(f.name + "(" + f.name + ")");
 			switch(f.type) {
 				case TFun(args, ret): {
-					final declArgs = args.map(a -> TComp.compileType(a.t, unknownPos()) + " " + a.name).join(", ");
+					final declArgs = args.map(a -> {
+						Main.onTypeEncountered(a.t, true);
+						return TComp.compileType(a.t, unknownPos()) + " " + a.name;
+					}).join(", ");
 					final callArgs = args.map(a -> a.name).join(", ");
 					templateFunctionAssigns.push(f.name + " = [&o](" + declArgs + ") { return o." + f.name + "(" + callArgs + "); };");
 				}
