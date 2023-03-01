@@ -5,11 +5,14 @@ import haxe.iterators.ArrayKeyValueIterator;
 @:valueType
 @:coreApi
 extern class Array<T> {
+	@:nativeName("size()")
 	var length(default, null):Int;
 	function new():Void;
 	function concat(a:Array<T>):Array<T>;
 	function join(sep:String):String;
 	function pop():Null<T>;
+
+	@:nativeName("push_back")
 	function push(x:T):Int;
 	function reverse():Void;
 	function shift():Null<T>;
