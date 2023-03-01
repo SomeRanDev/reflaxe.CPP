@@ -86,15 +86,17 @@ class FreeCompiler_Classes extends FreeSubCompiler {
 		for(v in varFields) {
 			final field = v.field;
 			final isStatic = v.isStatic;
+			final addToCpp = !headerOnly && isStatic;
 			final varName = Main.compileVarName(field.name, null, field);
 			final cppVal = if(field.expr() != null) {
 				XComp.compilingInHeader = headerOnly;
-				Main.compileClassVarExpr(field.expr());
+				XComp.compilingForTopLevel = addToCpp;
+				final result = Main.compileClassVarExpr(field.expr());
+				XComp.compilingForTopLevel = false;
+				result;
 			} else {
 				"";
 			}
-			
-			final addToCpp = !headerOnly && isStatic;
 
 			Main.onTypeEncountered(field.type, true);
 
@@ -152,7 +154,9 @@ class FreeCompiler_Classes extends FreeSubCompiler {
 
 				final dynAddToCpp = !headerOnly && isStatic;
 				XComp.compilingInHeader = !dynAddToCpp;
+				XComp.compilingForTopLevel = true;
 				final callable = Main.compileClassVarExpr(field.expr());
+				XComp.compilingForTopLevel = false;
 				final assign = " = " + callable;
 				final type = "std::function<" + ret + "(" + tfunc.args.map(a -> {
 					return TComp.compileType(Main.getTVarType(a.v), field.pos);

@@ -39,6 +39,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	// A public variable modified based on whether the
 	// current expression is being compiled for a header file.
 	public var compilingInHeader: Bool = false;
+	public var compilingForTopLevel: Bool = false;
 	function onModuleTypeEncountered(mt: ModuleType) Main.onModuleTypeEncountered(mt, compilingInHeader);
 
 	// ----------------------------
@@ -96,7 +97,8 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			}
 			case TFunction(tfunc): {
 				IComp.addInclude("functional", compilingInHeader, true);
-				result = "[&](" + tfunc.args.map(a -> Main.compileFunctionArgument(a, expr.pos, false, true)).join(", ") + ") mutable {\n";
+				final captureType = compilingForTopLevel ? "=" : "&";
+				result = "[" + captureType + "](" + tfunc.args.map(a -> Main.compileFunctionArgument(a, expr.pos, false, true)).join(", ") + ") mutable {\n";
 				result += toIndentedScope(tfunc.expr);
 				result += "\n}";
 			}
