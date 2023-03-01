@@ -2,7 +2,7 @@
 
 #include <functional>
 
-std::function<void(std::string, std::optional<std::shared_ptr<haxe::PosInfos>>)> haxe::Log::trace = [=](std::string v, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt) mutable {
+std::function<void(std::string, std::optional<std::shared_ptr<haxe::PosInfos>>)> haxe::Log::trace = [](std::string v, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt) mutable {
 	std::string str = haxe::Log::formatOutput(v, infos);
 	std::cout << str << std::endl;
 };
