@@ -144,12 +144,14 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 					result += "\n";
 					result += "\tcase " + c.values.map(v -> Main.compileExpression(v)).join(", ") + ": {\n";
 					result += toIndentedScope(c.expr).tab();
+					result += "\n\t\tbreak;";
 					result += "\n\t}";
 				}
 				if(edef != null) {
 					result += "\n";
 					result += "\t_:\n";
 					result += toIndentedScope(edef).tab();
+					result += "\n\t\tbreak;";
 					result += "\n\t}";
 				}
 				result += "\n}";
