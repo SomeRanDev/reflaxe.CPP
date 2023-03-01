@@ -19,6 +19,7 @@ import reflaxe.ReflectCompiler;
 using reflaxe.helpers.ClassTypeHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
+using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.TypeHelper;
 
 import freecompiler.subcompilers.FreeSubCompiler;
@@ -224,7 +225,11 @@ class FreeCompiler extends reflaxe.PluginCompiler<FreeCompiler> {
 	}
 
 	function getFileNameFromModuleData(md: CommonModuleTypeData): String {
-		return md.moduleId();
+		return if(md.hasMeta(":filename")) {
+			md.meta.extractStringFromFirstMeta(":filename");
+		} else {
+			md.moduleId();
+		}
 	}
 
 	// ----------------------------
