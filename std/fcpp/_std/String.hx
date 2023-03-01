@@ -1,10 +1,45 @@
 package;
 
+@:cppInclude("algorithm", true)
+@:cppInclude("cctype", true)
+@:pseudoCoreApi
+@:filename("HxString")
+class HxString {
+	public static function toLowerCase(s: String): String {
+		untyped __fcpp__("std::string temp = {}", s);
+		untyped __fcpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::tolower(c);\n})");
+		return untyped temp;
+	}
+
+	public static function toUpperCase(s: String): String {
+		untyped __fcpp__("std::string temp = {}", s);
+		untyped __fcpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::toupper(c);\n})");
+		return untyped temp;
+	}
+
+	public static function split(s: String, delimiter: String): Array<String> {
+		var result = [];
+		var pos = 0;
+		while (true) {
+			var newPos = s.indexOf(delimiter, pos);
+			if(newPos == -1) {
+				result.push(s.substring(pos));
+				break;
+			} else {
+				result.push(s.substring(pos, newPos));
+			}
+			pos = newPos + 1;
+		}
+		return result;
+	}
+}
+
 @:coreApi
 @:native("std::string")
 @:include("string", true)
 @:valueType
 @:coreApi
+@:filename("HxString")
 extern class String {
 	// ----------------------------
 	// Haxe String Functions
@@ -20,8 +55,13 @@ extern class String {
 	@:nativeName("length()")
 	public var length(default, null): Int;
 
-	@:runtime public inline function toUpperCase(): String throw "String.toUpperCase not implemented";
-	@:runtime public inline function toLowerCase(): String throw "String.toLowerCase not implemented";
+	@:runtime public inline function toUpperCase(): String {
+		return HxString.toUpperCase(this);
+	}
+
+	@:runtime public inline function toLowerCase(): String {
+		return HxString.toLowerCase(this);
+	}
 
 	@:nativeName("find")
 	public function indexOf(str: String, startIndex: Int = 0): Int;
@@ -48,7 +88,9 @@ extern class String {
 
 	// ----------
 	// @:runtime inline
-	@:runtime public inline function split(delimiter: String): Array<String> throw "String.split not implemented";
+	@:runtime public inline function split(delimiter: String): Array<String> {
+		return HxString.split(this, delimiter);
+	}
 
 	@:runtime public inline function substring(startIndex: Int, endIndex: Int = -1): String {
 		return if(endIndex < 0) {
