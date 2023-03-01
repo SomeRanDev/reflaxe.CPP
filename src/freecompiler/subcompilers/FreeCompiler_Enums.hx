@@ -9,20 +9,20 @@ package freecompiler.subcompilers;
 
 #if (macro || fcpp_runtime)
 
-// import haxe.macro.Context;
-// import haxe.macro.Expr;
 import haxe.macro.Type;
 
 import reflaxe.BaseCompiler;
 
-// using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.SyntaxHelper;
+using reflaxe.helpers.TypeHelper;
 
 using freecompiler.helpers.FreeError;
 using freecompiler.helpers.FreeMeta;
+using freecompiler.helpers.FreeSort;
 
 @:allow(freecompiler.FreeCompiler)
 @:access(freecompiler.FreeCompiler)
+@:access(freecompiler.subcompilers.FreeCompiler_Exprs)
 @:access(freecompiler.subcompilers.FreeCompiler_Includes)
 @:access(freecompiler.subcompilers.FreeCompiler_Types)
 class FreeCompiler_Enums extends FreeSubCompiler {
@@ -53,15 +53,29 @@ class FreeCompiler_Enums extends FreeSubCompiler {
 		var declaration = "class " + enumName + " {\npublic:\n";
 		declaration += "\tint index;\n\n";
 
-		var constructors = [];
-		var destructInfo = [];
-		var unionStructs = [];
-		var unionContent = [];
-
 		// --------------------
 		// Iterate through options
-		var index = 0;
-		for(o in options) {
+
+		// Accumulate different declarations while iterating.
+		var constructors = [];
+		var enumArgGetters = [];
+		var unionStructs = [];
+		var structs = [];
+
+		// Counts arguments added to the variant.
+		var variantIndex = 0;
+
+		// Sort the enum fields in index order to ensure
+		// sequential indexes are consistent + cleaner output.
+		final sortedOptions = options.sorted((a, b) -> {
+			return if(a.field.index < a.field.index) -1;
+			else if(a.field.index > b.field.index) 1;
+			else 0;
+		});
+
+		// Iterate
+		for(o in sortedOptions) {
+			var index = o.field.index;
 			final hasArgs = o.args.length > 0;
 			final args = o.args.map(opt -> [TComp.compileType(opt.t, o.field.pos), opt.name]);
 
@@ -69,37 +83,59 @@ class FreeCompiler_Enums extends FreeSubCompiler {
 				Main.onTypeEncountered(a.t, true);
 			}
 
+			final structName = "d" + o.name + "Impl";
+			if(hasArgs) {
+				structs.push(structName);
+			}
+
 			// Generate static function "constructors"
 			{
+				var enumType = o.field.type.getTFunReturn();
+				if(enumType == null) {
+					enumType = o.field.type;
+				}
+
 				final funcArgs = [];
 				for(i in 0...args.length) {
 					funcArgs.push(args[i][0] + " _" + args[i][1] + (o.args[i].opt ? " = std::nullopt" : ""));
 				}
 				var construct = "";
-				construct += "static " + enumName + " " + o.name + "(" + funcArgs.join(", ") + ") {\n";
+				construct += "static " + TComp.compileType(enumType, o.field.pos) + " " + o.name + "(" + funcArgs.join(", ") + ") {\n";
 				construct += "\t" + enumName + " result;\n";
 				construct += "\tresult.index = " + index + ";\n";
 				if(hasArgs) {
-					construct += "\tresult.data." + o.name + " = { " + args.map((tn) -> "_" + tn[1]).join(", ") + " };\n";
+					construct += "\tresult.data = " + structName + "{ " + args.map((tn) -> "_" + tn[1]).join(", ") + " };\n";
 				}
-				construct += "\treturn result;\n";
+
+				final tmmt = TComp.getMemoryManagementTypeFromType(enumType);
+				final retCpp = XComp.applyMMConversion("result", o.field.pos, enumType, Value, tmmt);
+
+				construct += "\treturn " + retCpp + ";\n";
 				construct += "}";
 				constructors.push(construct);
+			}
+
+			// Generate argument "getter"
+			if(hasArgs) {
+				var enumArgGet = "";
+				enumArgGet += structName + " get" + o.name + "() {\n";
+				enumArgGet += "\treturn std::get<" + variantIndex + ">(data);\n";
+				enumArgGet += "}";
+				enumArgGetters.push(enumArgGet);
 			}
 
 			// Generate private structs
 			if(hasArgs) {
 				var content = "";
-				final structName = "d" + o.name + "Impl";
 				content += "struct " + structName + " {\n";
 				content += args.map((tn) -> "\t" + tn.join(" ") + ";").join("\n");
 				content += "\n};";
 				unionStructs.push(content.tab());
-				destructInfo.push({ index: index, name: o.name, sname: structName });
-				unionContent.push("\t" + structName + " " + o.name + ";");
 			}
 
-			index++;
+			if(hasArgs) {
+				variantIndex++;
+			}
 		}
 
 		// --------------------
@@ -108,66 +144,23 @@ class FreeCompiler_Enums extends FreeSubCompiler {
 		// Only create union if we need to
 		final requiresUnion = unionStructs.length > 0;
 		if(requiresUnion) {
+			IComp.addInclude("variant", true, true);
 			declaration += unionStructs.join("\n\n") + "\n\n";
-
-			final unionIntro = "union dData {\n\tdData() {}\n\t~dData() {}\n";
-			final unionEnd = "\n};";
-			declaration += (unionIntro + unionContent.join("\n") + unionEnd).tab() + "\n\n";
-
-			declaration += "\tdData data;\n\n";
+			declaration += "\tstd::variant<" + structs.join(", ") + "> data;\n\n";
 		}
 		
 		// Create default constructor
 		declaration += (enumName + "() {\n\tindex = -1;\n}").tab() + "\n\n";
 
-		// If we're using a union, we need a copy constructor and destructor
-		if(requiresUnion) {
-			// --------------------
-			// Copy Constructor
-			var copyCon = enumName + "(const " + enumName + "& other) {\n\tindex = other.index;\n";
-
-			// Copy Constructor Body
-			{
-				var constructSwitch = "#define ConstructCase(index, cls) case index: { data.cls = other.data.cls; break; }\n";
-				for(d in destructInfo) {
-					constructSwitch += "ConstructCase(" + d.index + ", " + d.name + ")\n";
-				}
-				constructSwitch += "#undef ConstructCase";
-
-				copyCon += "\tswitch(index) {\n";
-				copyCon += constructSwitch.tab().tab();
-				copyCon += "\n\t}\n";
-			}
-
-			copyCon += "}";
-
-			// --------------------
-			// Destructor
-			var destruct = "~" + enumName + "() {\n";
-
-			// Destructor body
-			{
-				var destructSwitch = "#define DestructCase(index, field, cls) case index: { data.field.~cls(); break; }\n";
-				for(d in destructInfo) {
-					destructSwitch += "DestructCase(" + d.index + ", " + d.name + ", " + d.sname + ")\n";
-				}
-				destructSwitch += "#undef DestructCase";
-
-				destruct += "\tswitch(index) {\n";
-				destruct += destructSwitch.tab().tab();
-				destruct += "\n\t}\n";
-			}
-
-			destruct += "}";
-
-			// --------------------
-			// Add to declaration
-			declaration += copyCon.tab() + "\n\n";
-			declaration += destruct.tab() + "\n\n";
-		}
-
 		// Static function "constructors"
 		declaration += constructors.join("\n\n").tab();
+
+		// Option argument getters
+		if(enumArgGetters.length > 0) {
+			declaration += "\n\n" + enumArgGetters.join("\n\n").tab();
+		}
+
+		// Finish C++ class
 		declaration += "\n};";
 
 		// Start output

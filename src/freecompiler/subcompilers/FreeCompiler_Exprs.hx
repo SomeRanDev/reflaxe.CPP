@@ -207,14 +207,16 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				switch(enumField.type) {
 					case TFun(args, _): {
 						if(index < args.length) {
-							result += (isArrowAccessType(Main.getExprType(expr)) ? "->" : ".") + "data." + enumField.name + "." + args[index].name;
+							final access = (isArrowAccessType(Main.getExprType(expr)) ? "->" : ".");
+							result = result + access + "get" + enumField.name + "()." + args[index].name;
 						}
 					}
 					case _:
 				}
 			}
 			case TEnumIndex(expr): {
-				result = Main.compileExpression(expr) + ".index";
+				final access = isArrowAccessType(Main.getExprType(expr)) ? "->" : ".";
+				result = Main.compileExpression(expr) + access + "index";
 			}
 		}
 		return result;
@@ -463,7 +465,17 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 					onModuleTypeEncountered(TEnumDecl(enumRef));
 
 					final enumName = TComp.compileEnumName(enumRef.get(), e.pos, null, true, true);
-					return enumName + "::" + name;
+					final potentialArgs = enumField.type.getTFunArgs();
+
+					// If there are no arguments, Haxe treats the enum case as
+					// a static variable, rather than a function. However, all enum
+					// cases in C++ are functions.
+					//
+					// Therefore, if there are no arguments, lets go ahead and
+					// add a call operator to the end so the C++ function version
+					// is properly called.
+					final end = potentialArgs != null && potentialArgs.length > 0 ? "" : "()";
+					return enumName + "::" + name + end;
 				}
 				case _:
 			}
