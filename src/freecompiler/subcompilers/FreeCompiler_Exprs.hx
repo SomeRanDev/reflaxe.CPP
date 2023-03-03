@@ -87,6 +87,18 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
 				result = "{" + el.map(e -> compileExpressionForType(e, arrayType)).join(", ") + "}";
 			}
+			case TCall({ expr: TIdent("__finclude__") }, el): {
+				switch(el) {
+					case [{ expr: TConst(TString(s)) }]: {
+						IComp.addInclude(s, compilingInHeader, false);
+					}
+					case [{ expr: TConst(TString(s)) }, { expr: TConst(TBool(b)) }]: {
+						IComp.addInclude(s, compilingInHeader, b);
+					}
+					case _: {}
+				}
+				result = null;
+			}
 			case TCall(callExpr, el): {
 				result = compileCall(callExpr, el);
 			}
