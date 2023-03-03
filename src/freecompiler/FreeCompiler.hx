@@ -261,7 +261,7 @@ class FreeCompiler extends reflaxe.PluginCompiler<FreeCompiler> {
 		var result = TComp.compileType(arg.v.t, pos) + " " + compileVarName(arg.v.name);
 		if(!noDefaultValue && arg.value != null) {
 			XComp.compilingInHeader = !compilingInCpp;
-			result += " = " + compileExpression(arg.value);
+			result += " = " + compileExpressionOrError(arg.value);
 			XComp.compilingInHeader = false;
 		}
 		return result;

@@ -81,7 +81,7 @@ class FreeCompiler_Anon extends FreeSubCompiler {
 			}, type, el);
 		} else {
 			IComp.addAnonTypeInclude(false);
-			"std::make_shared<haxe::" + as.name + ">(" + el.map(Main.compileExpression).join(", ") + ")";
+			"std::make_shared<haxe::" + as.name + ">(" + el.map(Main.compileExpressionOrError).join(", ") + ")";
 		}
 	}
 

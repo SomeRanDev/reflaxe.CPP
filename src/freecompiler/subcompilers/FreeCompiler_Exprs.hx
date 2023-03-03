@@ -45,7 +45,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	// ----------------------------
 	// Compiles an expression into C++.
 	public function compileExpressionToCpp(expr: TypedExpr): Null<String> {
-		var result = "";
+		var result: Null<String> = null;
 		switch(expr.expr) {
 			case TConst(constant): {
 				result = constantToCpp(constant);
@@ -58,7 +58,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result = Main.compileVarName(s, expr);
 			}
 			case TArray(e1, e2): {
-				result = Main.compileExpression(e1) + "[" + Main.compileExpression(e2) + "]";
+				result = Main.compileExpressionOrError(e1) + "[" + Main.compileExpressionOrError(e2) + "]";
 			}
 			case TBinop(op, e1, e2): {
 				result = binopToCpp(op, e1, e2);
@@ -71,12 +71,14 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			}
 			case TParenthesis(e): {
 				final compiled = Main.compileExpression(e);
-				final expr = if(!EverythingIsExprSanitizer.isBlocklikeExpr(e)) {
-					"(" + compiled + ")";
-				} else {
-					compiled;
+				if(compiled != null) {
+					final expr = if(!EverythingIsExprSanitizer.isBlocklikeExpr(e)) {
+						"(" + compiled + ")";
+					} else {
+						compiled;
+					}
+					result = expr;
 				}
-				result = expr;
 			}
 			case TObjectDecl(fields): {
 				result = AComp.compileObjectDecl(Main.getExprType(expr), fields);
@@ -117,11 +119,14 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			}
 			case TBlock(el): {
 				result = "{\n";
-				result += el.map(e -> Main.compileExpression(e).tab() + ";").join("\n");
+				result += el.map(e -> {
+					final e = Main.compileExpression(e);
+					return e == null ? null : (e.tab() + ";");
+				}).filter(s -> s != null).join("\n");
 				result += "\n}";
 			}
 			case TFor(tvar, iterExpr, blockExpr): {
-				result = "for(auto& " + tvar.name + " : " + Main.compileExpression(iterExpr) + ") {\n";
+				result = "for(auto& " + tvar.name + " : " + Main.compileExpressionOrError(iterExpr) + ") {\n";
 				result += toIndentedScope(blockExpr);
 				result += "\n}";
 			}
@@ -129,7 +134,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result = compileIf(econd, ifExpr, elseExpr);
 			}
 			case TWhile(econd, blockExpr, normalWhile): {
-				final gdCond = Main.compileExpression(econd.unwrapParenthesis());
+				final gdCond = Main.compileExpressionOrError(econd.unwrapParenthesis());
 				if(normalWhile) {
 					result = "while(" + gdCond + ") {\n";
 					result += toIndentedScope(blockExpr);
@@ -141,10 +146,10 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				}
 			}
 			case TSwitch(e, cases, edef): {
-				result = "switch(" + Main.compileExpression(e.unwrapParenthesis()) + ") {\n";
+				result = "switch(" + Main.compileExpressionOrError(e.unwrapParenthesis()) + ") {\n";
 				for(c in cases) {
 					result += "\n";
-					result += "\tcase " + c.values.map(v -> Main.compileExpression(v)).join(", ") + ": {\n";
+					result += "\tcase " + c.values.map(v -> Main.compileExpressionOrError(v)).join(", ") + ": {\n";
 					result += toIndentedScope(c.expr).tab();
 					result += "\n\t\tbreak;";
 					result += "\n\t}";
@@ -159,18 +164,23 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result += "\n}";
 			}
 			case TTry(e, catches): {
-				result = "try {\n" + Main.compileExpression(e).tab();
-				for(c in catches) {
-					result += "\n} catch(" + TComp.compileType(Main.getTVarType(c.v), expr.pos) + " " + c.v.name + ") {\n";
-					if(c.expr != null) {
-						result += Main.compileExpression(c.expr).tab();
+				final tryContent = Main.compileExpression(e);
+				if(tryContent != null) {
+					result = "try {\n" + tryContent.tab();
+					for(c in catches) {
+						result += "\n} catch(" + TComp.compileType(Main.getTVarType(c.v), expr.pos) + " " + c.v.name + ") {\n";
+						if(c.expr != null) {
+							final cpp = Main.compileExpression(c.expr);
+							if(cpp != null) result += cpp.tab();
+						}
 					}
+					result += "\n}";
 				}
-				result += "\n}";
 			}
 			case TReturn(maybeExpr): {
-				if(maybeExpr != null) {
-					result = "return " + Main.compileExpression(maybeExpr);
+				final cpp = maybeExpr != null ? Main.compileExpression(maybeExpr) : null;
+				if(cpp != null) {
+					result = "return " + cpp;
 				} else {
 					result = "return";
 				}
@@ -182,18 +192,21 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result = "continue";
 			}
 			case TThrow(expr): {
-				result = "throw " + Main.compileExpression(expr);
+				result = "throw " + Main.compileExpressionOrError(expr);
 			}
 			case TCast(e, maybeModuleType): {
-				result = Main.compileExpression(e);
-				if(maybeModuleType != null) {
-					final mCpp = moduleNameToCpp(maybeModuleType, expr.pos);
-					switch(e.t) {
-						case TAbstract(aRef, []) if(aRef.get().name == "Any" && aRef.get().module == "Any"): {
-							result = "std::any_cast<" + mCpp + ">(" + result + ")";
-						}
-						case _: {
-							result = "((" + mCpp + ")(" + result + "))";
+				final cpp = Main.compileExpression(e);
+				if(cpp != null) {
+					result = cpp;
+					if(maybeModuleType != null) {
+						final mCpp = moduleNameToCpp(maybeModuleType, expr.pos);
+						switch(e.t) {
+							case TAbstract(aRef, []) if(aRef.get().name == "Any" && aRef.get().module == "Any"): {
+								result = "std::any_cast<" + mCpp + ">(" + result + ")";
+							}
+							case _: {
+								result = "((" + mCpp + ")(" + result + "))";
+							}
 						}
 					}
 				}
@@ -205,7 +218,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			}
 			case TEnumParameter(expr, enumField, index): {
 				IComp.addIncludeFromMetaAccess(enumField.meta, compilingInHeader);
-				result = Main.compileExpression(expr);
+				result = Main.compileExpressionOrError(expr);
 				switch(enumField.type) {
 					case TFun(args, _): {
 						if(index < args.length) {
@@ -218,7 +231,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			}
 			case TEnumIndex(expr): {
 				final access = isArrowAccessType(Main.getExprType(expr)) ? "->" : ".";
-				result = Main.compileExpression(expr) + access + "index";
+				result = Main.compileExpressionOrError(expr) + access + "index";
 			}
 		}
 		return result;
@@ -227,7 +240,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	// ----------------------------
 	// Compile expression, but take into account the target type
 	// and apply additional conversions in the compiled code.
-	function compileExpressionForType(expr: TypedExpr, targetType: Null<Type>): Null<String> {
+	function compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool = false): Null<String> {
 		var cpp = null;
 		if(targetType != null) {
 			expr = expr.unwrapUnsafeCasts();
@@ -250,7 +263,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 					cpp = AComp.compileObjectDecl(targetType, fields);
 				}
 				case _: {
-					cpp = Main.compileExpression(expr);
+					cpp = allowNullReturn ? Main.compileExpression(expr) : Main.compileExpressionOrError(expr);
 				}
 			}
 		}
@@ -281,10 +294,12 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				}
 				case _: {
 					var cpp = Main.compileExpression(expr);
-					if(nullToValue) {
-						cpp = ensureSafeToAccess(cpp) + ".value()";
+					if(cpp != null) {
+						if(nullToValue) {
+							cpp = ensureSafeToAccess(cpp) + ".value()";
+						}
+						result = applyMMConversion(cpp, expr.pos, Main.getExprType(expr), cmmt, tmmt);
 					}
-					result = applyMMConversion(cpp, expr.pos, Main.getExprType(expr), cmmt, tmmt);
 				}
 			}
 		}
@@ -350,10 +365,14 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	function toIndentedScope(e: TypedExpr): String {
 		return switch(e.expr) {
 			case TBlock(el): {
-				el.map(e -> Main.compileExpression(e).tab() + ";").join("\n");
+				el.map(e -> {
+					final cpp = Main.compileExpression(e);
+					return cpp == null ? null : (cpp.tab() + ";");
+				}).filter(s -> s != null).join("\n");
 			}
 			case _: {
-				Main.compileExpression(e).tab() + ";";
+				final cpp = Main.compileExpression(e);
+				cpp == null ? null : cpp.tab() + ";";
 			}
 		}
 	}
@@ -376,11 +395,11 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	}
 
 	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
-		var gdExpr1 = Main.compileExpression(e1);
+		var gdExpr1 = Main.compileExpressionOrError(e1);
 		var gdExpr2 = if(op.isAssign()) {
 			compileExpressionForType(e2, Main.getExprType(e1));
 		} else {
-			Main.compileExpression(e2);
+			Main.compileExpressionOrError(e2);
 		}
 		final operatorStr = OperatorHelper.binopToString(op);
 
@@ -398,7 +417,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	}
 
 	function unopToCpp(op: Unop, e: TypedExpr, isPostfix: Bool): String {
-		final gdExpr = Main.compileExpression(e);
+		final gdExpr = Main.compileExpressionOrError(e);
 		final operatorStr = OperatorHelper.unopToString(op);
 		return isPostfix ? (gdExpr + operatorStr) : (operatorStr + gdExpr);
 	}
@@ -488,7 +507,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			final gdExpr = if(nullType != null) {
 				compileExpressionForType(e, nullType);
 			} else {
-				Main.compileExpression(e);
+				Main.compileExpressionOrError(e);
 			}
 			return gdExpr + (useArrow ? "->" : ".") + name;
 		}
@@ -528,13 +547,13 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				final cpp = if(i < funcParams.length && funcParams[i] != null) {
 					compileExpressionForType(paramExpr, funcParams[i]);
 				} else {
-					Main.compileExpression(paramExpr);
+					Main.compileExpressionOrError(paramExpr);
 				}
 				cppParams.push(cpp);
 			}
 
 			// Compile final expression
-			Main.compileExpression(callExpr) + "(" + cppParams.join(", ") + ")";
+			Main.compileExpressionOrError(callExpr) + "(" + cppParams.join(", ") + ")";
 		}
 	}
 
@@ -557,7 +576,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				}
 			}
 			final native = { name: "", meta: meta }.getNameOrNative();
-			final args = el.map(e -> Main.compileExpression(e)).join(", ");
+			final args = el.map(e -> Main.compileExpressionOrError(e)).join(", ");
 			if(native.length > 0) {
 				native + "(" + args + ")";
 			} else {
@@ -611,7 +630,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 
 	// Compiles if statement (TIf).
 	function compileIf(econd: TypedExpr, ifExpr: TypedExpr, elseExpr: TypedExpr, constexpr: Bool = false): String {
-		var result = "if" + (constexpr ? " constexpr" : "") + "(" + Main.compileExpression(econd.unwrapParenthesis()) + ") {\n";
+		var result = "if" + (constexpr ? " constexpr" : "") + "(" + Main.compileExpressionOrError(econd.unwrapParenthesis()) + ") {\n";
 		result += toIndentedScope(ifExpr);
 		if(elseExpr != null) {
 			switch(elseExpr.expr) {
@@ -766,7 +785,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 						return null;
 					}
 					final isNull = e1Type.isNull();
-					final piCpp = Main.compileExpression(el[1]);
+					final piCpp = Main.compileExpressionOrError(el[1]);
 					final accessCpp = 'temp${isArrowAccessType(e1Type) ? "->" : "."}';
 					intro = "auto temp = " + (isNull ? {
 						final line = haxe.macro.PositionTools.toLocation(callExpr.pos).range.start.line;
@@ -793,7 +812,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				switch(e.expr) {
 					case TConst(TInt(_) | TFloat(_)): {
 						addLastString();
-						validParams.push(Main.compileExpression(e));
+						validParams.push(Main.compileExpressionOrError(e));
 					}
 					case TConst(TString(s)): {
 						if(lastString == null) {
