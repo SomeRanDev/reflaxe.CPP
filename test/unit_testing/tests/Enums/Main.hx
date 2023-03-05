@@ -26,7 +26,6 @@ class Main {
 		switch(b) {
 			case Entry1: assert(false);
 			case Entry2(i): {
-				trace(Std.string(i));
 				assert(i == 123);
 			}
 			case Entry3(s): assert(false);
@@ -36,7 +35,6 @@ class Main {
 			case Entry1: assert(false);
 			case Entry2(i): assert(false);
 			case Entry3(s): {
-				trace(s);
 				assert(s == "Test");
 			}
 		}

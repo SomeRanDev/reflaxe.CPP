@@ -2,9 +2,6 @@
 
 #include <iostream>
 #include <memory>
-#include <type_traits>
-#include "haxe_Log.h"
-#include "Std.h"
 
 int Main::returnCode = 0;;
 
@@ -33,10 +30,7 @@ int main() {
 			int _g = b->getEntry2().i;
 			{
 				int i = _g;
-				{
-					haxe::Log::trace(Std::string(i), std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 29, "main"));
-					Main::assert(i == 123, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 30, "main"));
-				};
+				Main::assert(i == 123, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 29, "main"));
 			};
 			break;
 		}
@@ -44,7 +38,7 @@ int main() {
 			std::string _g = b->getEntry3().s;
 			{
 				std::string s = _g;
-				Main::assert(false, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 32, "main"));
+				Main::assert(false, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 31, "main"));
 			};
 			break;
 		}
@@ -52,14 +46,14 @@ int main() {
 	switch(c->index) {
 	
 		case 0: {
-			Main::assert(false, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 36, "main"));
+			Main::assert(false, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 35, "main"));
 			break;
 		}
 		case 1: {
 			int _g = c->getEntry2().i;
 			{
 				int i = _g;
-				Main::assert(false, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 37, "main"));
+				Main::assert(false, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 36, "main"));
 			};
 			break;
 		}
@@ -67,10 +61,7 @@ int main() {
 			std::string _g = c->getEntry3().s;
 			{
 				std::string s = _g;
-				{
-					haxe::Log::trace(s, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 39, "main"));
-					Main::assert(s == "Test", std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 40, "main"));
-				};
+				Main::assert(s == "Test", std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Enums/Main.hx", 38, "main"));
 			};
 			break;
 		}

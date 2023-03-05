@@ -1,5 +1,4 @@
 src/Main.cpp
-src/HxString.cpp
 include/haxe_PosInfos.h
 include/_OptionalInfo.h
 include/_AnonStructs.h

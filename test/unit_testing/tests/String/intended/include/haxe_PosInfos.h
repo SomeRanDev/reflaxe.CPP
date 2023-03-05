@@ -1,14 +1,14 @@
 #pragma once
 
+#include <deque>
 #include <optional>
 #include <string>
-#include <vector>
 #include "_AnonStructs.h"
 
 namespace haxe {
 
 struct PosInfos {	
-	PosInfos(std::string className, std::string fileName, int lineNumber, std::string methodName, std::optional<std::vector<std::string>> customParams = std::nullopt):
+	PosInfos(std::string className, std::string fileName, int lineNumber, std::string methodName, std::optional<std::deque<std::string>> customParams = std::nullopt):
 		className(className), fileName(fileName), lineNumber(lineNumber), methodName(methodName), customParams(customParams)
 	{}
 	
@@ -21,7 +21,7 @@ struct PosInfos {
 	std::string fileName;
 	int lineNumber;
 	std::string methodName;
-	std::optional<std::vector<std::string>> customParams;
+	std::optional<std::deque<std::string>> customParams;
 
 	GEN_EXTRACTOR_FUNC(customParams)
 };
