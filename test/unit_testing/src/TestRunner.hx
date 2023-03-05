@@ -31,16 +31,40 @@ The C++ compiling/run tests do not occur.
 The C++ compiling/run tests will occur no matter what, even if the initial output comparison tests fail.
 
 * show-all-output
-The output of the C++ compilation and executable is always shown, even if it ran successfuly.");
+The output of the C++ compilation and executable is always shown, even if it ran successfuly.
+
+* test=TestName
+Makes it so only this test is ran. This option can be added multiple times to perform multiple tests.");
 
 		return;
 	}
 
 	ShowAllOutput = args.contains("show-all-output");
+
+	// ------------------------------------
+	// Allowed tests
+	// ------------------------------------
+	final allowedTests = args.map(a -> {
+		final r = ~/test=(\w+)/;
+		if(r.match(a)) {
+			r.matched(1);
+		} else {
+			null;
+		}
+	}).filter(a -> a != null);
+
 	// ------------------------------------
 	// Haxe compiling
 	// ------------------------------------
-	final tests = checkAndReadDir(TEST_DIR);
+	var tests = checkAndReadDir(TEST_DIR);
+	if(allowedTests.length > 0) {
+		tests = tests.filter(t -> allowedTests.contains(t));
+		if(tests.length <= 0) {
+			printlnErr("The provided tests do not exist: " + tests);
+			Sys.exit(1);
+		}
+	}
+
 	var failures = 0;
 	for(t in tests) {
 		if(!processTest(t)) {
