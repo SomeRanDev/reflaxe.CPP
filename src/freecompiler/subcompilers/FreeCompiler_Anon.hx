@@ -67,10 +67,12 @@ class FreeCompiler_Anon extends FreeSubCompiler {
 		}
 
 		final el = [];
+		final elType = [];
 		for(field in as.constructorOrder) {
 			final e = anonMap.get(field.name);
 			if(e != null) {
 				el.push(e);
+				elType.push(field.type);
 			}
 		}
 		return if(isNamed) {
@@ -81,7 +83,11 @@ class FreeCompiler_Anon extends FreeSubCompiler {
 			}, type, el);
 		} else {
 			IComp.addAnonTypeInclude(false);
-			"std::make_shared<haxe::" + as.name + ">(" + el.map(Main.compileExpressionOrError).join(", ") + ")";
+			final cppArgs = [];
+			for(i in 0...el.length) {
+				cppArgs.push(XComp.compileExpressionForType(el[i], elType[i]));
+			}
+			"std::make_shared<haxe::" + as.name + ">(" + cppArgs.join(", ") + ")";
 		}
 	}
 
