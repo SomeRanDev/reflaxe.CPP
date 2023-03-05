@@ -1,9 +1,10 @@
 package;
 
-@:cppInclude("algorithm", true)
-@:cppInclude("cctype", true)
 @:pseudoCoreApi
+@:headerInclude("algorithm", true)
+@:headerInclude("cctype", true)
 @:filename("HxString")
+@:headerOnly
 class HxString {
 	public static function toLowerCase(s: String): String {
 		untyped __fcpp__("std::string temp = {}", s);
@@ -38,7 +39,6 @@ class HxString {
 @:native("std::string")
 @:include("string", true)
 @:valueType
-@:coreApi
 @:filename("HxString")
 extern class String {
 	// ----------------------------
@@ -54,14 +54,6 @@ extern class String {
 	// @:nativeName
 	@:nativeName("length()")
 	public var length(default, null): Int;
-
-	@:runtime public inline function toUpperCase(): String {
-		return HxString.toUpperCase(this);
-	}
-
-	@:runtime public inline function toLowerCase(): String {
-		return HxString.toLowerCase(this);
-	}
 
 	@:nativeName("find")
 	public function indexOf(str: String, startIndex: Int = 0): Int;
@@ -88,6 +80,14 @@ extern class String {
 
 	// ----------
 	// @:runtime inline
+	@:runtime public inline function toUpperCase(): String {
+		return HxString.toUpperCase(this);
+	}
+
+	@:runtime public inline function toLowerCase(): String {
+		return HxString.toLowerCase(this);
+	}
+
 	@:runtime public inline function split(delimiter: String): Array<String> {
 		return HxString.split(this, delimiter);
 	}
