@@ -119,14 +119,14 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			case TVar(tvar, maybeExpr): {
 				final t = Main.getTVarType(tvar);
 				final typeCpp = if(t.isUnresolvedMonomorph()) {
-					"auto";
-
 					// TODO: Why use std::any instead of auto?
 					// I must have originally made this resolve to Any for a reason?
 					// But Haxe's Any will only apply if explicitly typed as Any.
 					//
 					//IComp.addInclude("any", compilingInHeader, true);
 					//"std::any";
+
+					"auto";
 				} else {
 					TComp.compileType(t, expr.pos);
 				}
