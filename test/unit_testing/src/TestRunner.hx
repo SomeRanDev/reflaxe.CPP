@@ -5,6 +5,8 @@ final OUT_DIR = "out";
 final INTENDED_DIR = "intended";
 final BUILD_DIR = "build";
 
+var ShowAllOutput = false;
+
 function printlnErr(msg: String) {
 	Sys.stderr().writeString(msg + "\n", haxe.io.Encoding.UTF8);
 	Sys.stderr().flush();
@@ -23,11 +25,18 @@ Append the following options to the command:
 Shows this output.
 
 * nocompile
-The C++ compiling/run tests do not occur.");
+The C++ compiling/run tests do not occur.
+
+* always-compile
+The C++ compiling/run tests will occur no matter what, even if the initial output comparison tests fail.
+
+* show-all-output
+The output of the C++ compilation and executable is always shown, even if it ran successfuly.");
 
 		return;
 	}
 
+	ShowAllOutput = args.contains("show-all-output");
 	// ------------------------------------
 	// Haxe compiling
 	// ------------------------------------
@@ -44,7 +53,7 @@ The C++ compiling/run tests do not occur.");
 	Sys.println("");
 	Sys.println(success + " / " + testCount + " tests passed.");
 
-	if(failures > 0) {
+	if(failures > 0 && !args.contains("always-compile")) {
 		Sys.exit(1);
 	}
 
@@ -256,6 +265,10 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 		result = false;
 	} else {
 		Sys.println("C++ compilation success! 🧠");
+		if(ShowAllOutput) {
+			Sys.println(stdoutContent);
+			Sys.println(stderrContent);
+		}
 	}
 
 	// Run output
@@ -270,6 +283,10 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 		result = false;
 	} else {
 		Sys.println("C++ executable ran successfully! 🏃");
+		if(ShowAllOutput) {
+			Sys.println(exeOut);
+			Sys.println(exeErr);
+		}
 	}
 
 	// Reset to original current working directory
