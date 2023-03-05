@@ -482,17 +482,18 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 
 	function isArrowAccessType(t: Type): Bool {
 		final ut = t.unwrapNullTypeOrSelf();
+		final mmt = TComp.getMemoryManagementTypeFromType(ut);
+
 		final mt = ut.toModuleType();
-		return if(mt != null) {
+		if(mt != null) {
 			final cd = mt.getCommonData();
 			final mmt = cd.getMemoryManagementType();
-			mmt != Value || cd.isArrowAccess();
-		} else {
-			switch(ut) {
-				case TAnonymous(a): true;
-				case _: false;
+			if(cd.isArrowAccess()) {
+				return true;
 			}
 		}
+
+		return mmt != Value;
 	}
 
 	function fieldAccessToCpp(e: TypedExpr, fa: FieldAccess): String {
