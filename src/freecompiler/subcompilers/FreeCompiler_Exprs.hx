@@ -64,7 +64,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result = binopToCpp(op, e1, e2);
 			}
 			case TField(e, fa): {
-				result = fieldAccessToCpp(e, fa);
+				result = fieldAccessToCpp(e, fa, expr);
 			}
 			case TTypeExpr(m): {
 				result = moduleNameToCpp(m, expr.pos);
@@ -496,7 +496,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 		return mmt != Value;
 	}
 
-	function fieldAccessToCpp(e: TypedExpr, fa: FieldAccess): String {
+	function fieldAccessToCpp(e: TypedExpr, fa: FieldAccess, accessExpr: TypedExpr): String {
 		final nameMeta: NameAndMeta = switch(fa) {
 			case FInstance(_, _, classFieldRef): classFieldRef.get();
 			case FStatic(_, classFieldRef): classFieldRef.get();
@@ -578,7 +578,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			nfc;
 		} else {
 			// Get list of function argument types
-			var funcParams = switch(Main.getExprType(callExpr)) {
+			var funcArgs = switch(Main.getExprType(callExpr)) {
 				case TFun(args, ret): {
 					args.map(a -> a.t);
 				}
@@ -586,19 +586,39 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			}
 
 			// Compile the parameters
-			var cppParams = [];
+			var cppArgs = [];
 			for(i in 0...el.length) {
 				final paramExpr = el[i];
-				final cpp = if(i < funcParams.length && funcParams[i] != null) {
-					compileExpressionForType(paramExpr, funcParams[i]);
+				final cpp = if(funcArgs != null && i < funcArgs.length && funcArgs[i] != null) {
+					compileExpressionForType(paramExpr, funcArgs[i]);
 				} else {
 					Main.compileExpressionOrError(paramExpr);
 				}
-				cppParams.push(cpp);
+				cppArgs.push(cpp);
+			}
+
+			// Handle type parameters if necessary
+			var typeParamCpp = "";
+			final cf = callExpr.getClassField();
+			if(cf != null && cf.params.length > 0) {
+				final resolvedParams = callExpr.t.findResolvedTypeParams(cf);
+				if(resolvedParams != null) {
+					var compileSuccess = true;
+					final compiledParams = resolvedParams.map(t -> {
+						final result = TComp.maybeCompileType(t, callExpr.pos);
+						if(result == null) {
+							compileSuccess = false;
+						}
+						result;
+					});
+					if(compileSuccess) {
+						typeParamCpp = "<" + compiledParams.join(", ") + ">";
+					}
+				}
 			}
 
 			// Compile final expression
-			Main.compileExpressionOrError(callExpr) + "(" + cppParams.join(", ") + ")";
+			Main.compileExpressionOrError(callExpr) + typeParamCpp + "(" + cppArgs.join(", ") + ")";
 		}
 	}
 
