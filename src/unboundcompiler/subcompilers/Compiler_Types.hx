@@ -20,6 +20,7 @@ using reflaxe.helpers.TypeHelper;
 
 using unboundcompiler.helpers.UError;
 using unboundcompiler.helpers.UMeta;
+using unboundcompiler.helpers.UType;
 
 @:allow(unboundcompiler.UnboundCompiler)
 @:access(unboundcompiler.UnboundCompiler)
@@ -127,13 +128,10 @@ class Compiler_Types extends SubCompiler {
 				}
 			}
 			case TType(defRef, params): {
-				switch(defRef.get()) {
-					case { name: "Ref", module: "Ref" } if(params.length == 1): {
-						compileType(params[0], pos) + "&";
-					}
-					case _: {
-						compileDefName(defRef.get(), pos, params, true, asValue);
-					}
+				if(t.isRef()) {
+					compileType(params[0], pos) + "&";
+				} else {
+					compileDefName(defRef.get(), pos, params, true, asValue);
 				}
 			}
 		}
@@ -224,11 +222,18 @@ class Compiler_Types extends SubCompiler {
 			case TAbstract(absRef, params) if(params.length == 1 && absRef.get().name == "Null"): {
 				getMemoryManagementTypeFromType(params[0]);
 			}
-			case TType(defRef, params) if(params.length == 1 && defRef.get().name == "Ref" && defRef.get().module == "Ref"): {
+			case TType(defRef, params) if(t.isRef()): {
 				getMemoryManagementTypeFromType(params[0]);
 			}
 			case TAnonymous(a): {
 				SharedPtr;
+			}
+			case TDynamic(t): {
+				if(t == null) {
+					Value;
+				} else {
+					getMemoryManagementTypeFromType(t);
+				}
 			}
 			case _: null;
 		}

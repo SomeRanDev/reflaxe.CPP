@@ -47,6 +47,18 @@ class UType {
 			false;
 		}
 	}
+
+	// ----------------------------
+	// Returns true is this is the ucpp.Ref typedef
+	public static function isRef(t: Type): Bool {
+		return switch(t) {
+			case TType(defRef, params) if(params.length == 1): {
+				final defType = defRef.get();
+				defType.name == "Ref" && defType.module == "ucpp.Ref";
+			}
+			case _: false;
+		}
+	}
 }
 
 #end
