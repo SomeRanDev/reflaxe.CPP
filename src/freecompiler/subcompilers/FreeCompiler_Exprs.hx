@@ -58,7 +58,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				result = Main.compileVarName(s, expr);
 			}
 			case TArray(e1, e2): {
-				result = Main.compileExpressionOrError(e1) + "[" + Main.compileExpressionOrError(e2) + "]";
+				result = compileExpressionNotNull(e1) + "[" + compileExpressionNotNull(e2) + "]";
 			}
 			case TBinop(op, e1, e2): {
 				result = binopToCpp(op, e1, e2);
@@ -255,6 +255,26 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 		return result;
 	}
 
+	function compileExpressionNotNull(expr: TypedExpr): Null<String> {
+		final unwrapOptional = switch(expr.expr) {
+			case TLocal(_): true;
+			case TIdent(_): true;
+			case TField(_, _): true;
+			case TCall(_, _): true;
+			case _: false;
+		}
+
+		var result = Main.compileExpression(expr);
+
+		if(unwrapOptional) {
+			if(expr.t.isNull()) {
+				result = result + ".value()";
+			}
+		}
+
+		return result;
+	}
+
 	// ----------------------------
 	// Compile expression, but take into account the target type
 	// and apply additional conversions in the compiled code.
@@ -413,12 +433,18 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	}
 
 	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
-		var gdExpr1 = Main.compileExpressionOrError(e1);
+		var gdExpr1 = if(!op.isAssign() && !op.isEqualityCheck()) {
+			compileExpressionNotNull(e1);
+		} else {
+			Main.compileExpressionOrError(e1);
+		}
+
 		var gdExpr2 = if(op.isAssign()) {
 			compileExpressionForType(e2, Main.getExprType(e1));
 		} else {
-			Main.compileExpressionOrError(e2);
+			compileExpressionNotNull(e2);
 		}
+
 		final operatorStr = OperatorHelper.binopToString(op);
 
 		// Wrap primitives with std::to_string(...) when added with String
@@ -435,7 +461,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 	}
 
 	function unopToCpp(op: Unop, e: TypedExpr, isPostfix: Bool): String {
-		final gdExpr = Main.compileExpressionOrError(e);
+		final gdExpr = compileExpressionNotNull(e);
 		final operatorStr = OperatorHelper.unopToString(op);
 		return isPostfix ? (gdExpr + operatorStr) : (operatorStr + gdExpr);
 	}
