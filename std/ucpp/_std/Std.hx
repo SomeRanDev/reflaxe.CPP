@@ -33,7 +33,7 @@ class Std {
 } else if constexpr(HasToString<T>::value) {
 	return {}.toString();
 }", s, s, s);
-		return "<unknown(size:" + Stdlib.intToString(Stdlib.sizeof(s)) + ")>";
+		return "<unknown(size:" + ucpp.Stdlib.intToString(ucpp.Stdlib.sizeof(s)) + ")>";
 	}
 
 	public extern inline static function int(x: Float): Int {

@@ -37,13 +37,13 @@ class HxArray {
 			if(end <= pos) return [];
 		}
 
-		final beginIt: Auto = untyped a.begin();
-		final startIt: Auto = beginIt + pos;
-		final endIt: Auto = beginIt + end;
+		final beginIt: ucpp.Auto = untyped a.begin();
+		final startIt: ucpp.Auto = beginIt + pos;
+		final endIt: ucpp.Auto = beginIt + end;
 		return untyped __ucpp__("std::deque({}, {})", startIt, endIt);
 	}
 
-	public static function splice<T>(a: Ref<Array<T>>, pos: Int, len: Int): Array<T> {
+	public static function splice<T>(a: ucpp.Ref<Array<T>>, pos: Int, len: Int): Array<T> {
 		// if pos is negative, its value is calculated from the end of the array
 		if(pos < 0) pos += a.length;
 
@@ -54,26 +54,26 @@ class HxArray {
 		// if pos + len exceeds the length of the array, affect all elements after pos
 		if(pos + len > a.length) len = a.length - pos;
 
-		final beginIt: Auto = untyped a.begin();
-		final startIt: Auto = beginIt + pos;
-		final endIt: Auto = beginIt + pos + len;
+		final beginIt: ucpp.Auto = untyped a.begin();
+		final startIt: ucpp.Auto = beginIt + pos;
+		final endIt: ucpp.Auto = beginIt + pos + len;
 		final result = untyped __ucpp__("std::deque({}, {})", startIt, endIt);
 		untyped a.erase(startIt, endIt);
 		return result;
 	}
 
-	public static function insert<T>(a: Ref<Array<T>>, pos: Int, x: T) {
+	public static function insert<T>(a: ucpp.Ref<Array<T>>, pos: Int, x: T) {
 		if(pos < 0) {
-			final it: Auto = untyped a.end() + pos + 1;
+			final it: ucpp.Auto = untyped a.end() + pos + 1;
 			untyped a.cppInsert(it, x);
 		} else {
-			final it: Auto = untyped a.begin() + pos;
+			final it: ucpp.Auto = untyped a.begin() + pos;
 			untyped a.cppInsert(it, x);
 		}
 	}
 
 	public static function indexOf<T>(a: Array<T>, x: T, fromIndex: Int  = 0): Int {
-		final it: Auto = untyped __ucpp__("std::find({}, {}, {})", a.begin(), a.end(), x);
+		final it: ucpp.Auto = untyped __ucpp__("std::find({}, {}, {})", a.begin(), a.end(), x);
 		return if(untyped it != a.end()) {
 			untyped it - a.begin();
 		} else {

@@ -1,4 +1,4 @@
-package std;
+package ucpp.std;
 
 @:native("std::exception")
 @:include("exception", true)

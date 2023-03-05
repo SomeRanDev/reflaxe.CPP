@@ -1,4 +1,4 @@
-package;
+package ucpp;
 
 extern class Stdlib {
 	@:native("malloc")

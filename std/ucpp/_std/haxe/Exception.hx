@@ -1,7 +1,7 @@
 package haxe;
 
 @:coreApi
-class Exception extends std.Exception {
+class Exception extends ucpp.std.Exception {
 	public var message(get, never): String;
 	private function get_message(): String {
 		return "";
