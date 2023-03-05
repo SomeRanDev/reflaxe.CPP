@@ -1,6 +1,6 @@
-package freecompiler.helpers;
+package unboundcompiler.helpers;
 
-class FreeSort {
+class USort {
 	public static function sorted<T>(arr: Array<T>, func: (T, T) -> Int) {
 		final result = arr.copy();
 		result.sort(func);

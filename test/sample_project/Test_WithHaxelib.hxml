@@ -1,6 +1,6 @@
 # Call from top-level to compile properly.
 # haxe test/sample_project/Test_WithHaxelib.hxml
 
--lib free-cpp
+-lib unbound
 
 test/sample_project/hxml/TestParams.hxml

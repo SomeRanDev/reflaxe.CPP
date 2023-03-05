@@ -1,8 +1,9 @@
-# Haxe to Free C++ Sample Project
+# Haxe to Unbound C++ Sample Project
 
 Just a simple sample to help you get started.
 
 Call either .hxml file with `haxe` from the base directory of the repository.
+
 ```
 haxe test/sample_project/Test_WithRepo.hxml
 ```

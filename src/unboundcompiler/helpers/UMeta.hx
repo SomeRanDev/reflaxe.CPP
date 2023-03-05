@@ -1,6 +1,6 @@
-package freecompiler.helpers;
+package unboundcompiler.helpers;
 
-#if (macro || fcpp_runtime)
+#if (macro || ucpp_runtime)
 
 using reflaxe.helpers.NameMetaHelper;
 
@@ -11,7 +11,7 @@ enum MemoryManagementType {
 	UniquePtr;
 }
 
-class FreeMeta {
+class UMeta {
 	public static function hasNativeMeta(meta: NameAndMeta): Bool {
 		return meta.hasMeta(":native");
 	}

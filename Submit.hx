@@ -1,8 +1,8 @@
 //====================================================================
-// * Haxe to (Free) C++ Submit Script
+// * Haxe to (Unbound) C++ Submit Script
 //
 // Haxelib is dumb and only allows for one class path, so this
-// script merges all the class paths (`src`, `std`, `std/fcpp/_std`)
+// script merges all the class paths (`src`, `std`, `std/ucpp/_std`)
 // into a single folder to help with haxelib submission.
 //====================================================================
 
@@ -17,8 +17,8 @@ class Submit {
 		makeDirIfNonExist("_submit");
 
 		copyDirContent("src", "_submit");
-		copyDirContent("std", "_submit", "std/fcpp/_std");
-		copyDirContent("std/fcpp/_std", "_submit", "", ".cross.hx");
+		copyDirContent("std", "_submit", "std/ucpp/_std");
+		copyDirContent("std/ucpp/_std", "_submit", "", ".cross.hx");
 	}
 
 	static function makeDirIfNonExist(p: String) {

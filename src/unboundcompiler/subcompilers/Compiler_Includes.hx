@@ -1,5 +1,5 @@
 // =======================================================
-// * FreeCompiler_Includes
+// * Compiler_Includes
 //
 // This sub-compiler is used to handle compiling of all
 // #include statements.
@@ -13,9 +13,9 @@
 //   compiled list of #include statements.
 // =======================================================
 
-package freecompiler.subcompilers;
+package unboundcompiler.subcompilers;
 
-#if (macro || fcpp_runtime)
+#if (macro || ucpp_runtime)
 
 import haxe.macro.Type;
 
@@ -25,13 +25,13 @@ using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.TypeHelper;
 
-using freecompiler.helpers.FreeError;
-using freecompiler.helpers.FreeMeta;
-using freecompiler.helpers.FreeSort;
+using unboundcompiler.helpers.UError;
+using unboundcompiler.helpers.UMeta;
+using unboundcompiler.helpers.USort;
 
-@:allow(freecompiler.FreeCompiler)
-@:access(freecompiler.FreeCompiler)
-class FreeCompiler_Includes extends FreeSubCompiler {
+@:allow(unboundcompiler.UnboundCompiler)
+@:access(unboundcompiler.UnboundCompiler)
+class Compiler_Includes extends SubCompiler {
 	// ----------------------------
 	// Store list of includes.
 	var headerIncludes: Array<String>;
@@ -161,7 +161,7 @@ class FreeCompiler_Includes extends FreeSubCompiler {
 
 	function addAnonTypeInclude(header: Bool) {
 		anonHeaderRequired = true;
-		IComp.addInclude(FreeCompiler.AnonStructHeaderFile + FreeCompiler.HeaderExt, header);
+		IComp.addInclude(UnboundCompiler.AnonStructHeaderFile + UnboundCompiler.HeaderExt, header);
 	}
 
 	function addIncludeFromModuleType(mt: Null<ModuleType>, header: Bool) {
@@ -175,15 +175,15 @@ class FreeCompiler_Includes extends FreeSubCompiler {
 			if(main != null && main.getUniqueId() == mt.getUniqueId()) return;
 			if(addIncludeFromMetaAccess(cd.meta, header)) {
 				if(!cd.isExtern) {
-					addInclude(Main.getFileNameFromModuleData(cd) + FreeCompiler.HeaderExt, header, false);
+					addInclude(Main.getFileNameFromModuleData(cd) + UnboundCompiler.HeaderExt, header, false);
 				}
 			}
 
 			final mmType = cd.getMemoryManagementType();
 			if(mmType == UniquePtr) {
-				addInclude(FreeCompiler.SharedPtrInclude[0], header, FreeCompiler.SharedPtrInclude[1]);
+				addInclude(UnboundCompiler.SharedPtrInclude[0], header, UnboundCompiler.SharedPtrInclude[1]);
 			} else if(mmType == SharedPtr) {
-				addInclude(FreeCompiler.UniquePtrInclude[0], header, FreeCompiler.UniquePtrInclude[1]);
+				addInclude(UnboundCompiler.UniquePtrInclude[0], header, UnboundCompiler.UniquePtrInclude[1]);
 			}
 		}
 	}
@@ -233,7 +233,7 @@ class FreeCompiler_Includes extends FreeSubCompiler {
 	// compile/format for the output.
 	function compileIncludes(includeArr: Array<String>): String {
 		return if(includeArr.length > 0) {
-			includeArr.sorted(FreeSort.includeBracketOrder).map(i -> "#include " + i).join("\n");
+			includeArr.sorted(USort.includeBracketOrder).map(i -> "#include " + i).join("\n");
 		} else {
 			"";
 		}
@@ -252,7 +252,7 @@ class FreeCompiler_Includes extends FreeSubCompiler {
 		} else {
 			final existingIncludes = existing.split("\n").filter(isNotEmpty);
 			final includes = newIncludes.split("\n").filter(isNotEmpty).filter(i -> !existingIncludes.contains(i));
-			final combined = existingIncludes.concat(includes).sorted(FreeSort.includeBracketOrder);
+			final combined = existingIncludes.concat(includes).sorted(USort.includeBracketOrder);
 			Main.replaceInExtraFile(filename, combined.join("\n"), priority);
 		}
 	}

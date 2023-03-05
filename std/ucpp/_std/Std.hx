@@ -26,7 +26,7 @@ class Std {
 
 	@:include("type_traits", true)
 	public static function string<T>(s: T): String {
-		untyped __fcpp__("if constexpr(std::is_integral_v<T>) {
+		untyped __ucpp__("if constexpr(std::is_integral_v<T>) {
 	return std::to_string({});
 } else if constexpr(std::is_convertible<T, std::string>::value) {
 	return std::string({});
@@ -37,18 +37,18 @@ class Std {
 	}
 
 	public extern inline static function int(x: Float): Int {
-		return untyped __fcpp__("((int){})", x);
+		return untyped __ucpp__("((int){})", x);
 	}
 
 	@:include("string", true)
 	public static function parseInt(x: String): Null<Int> {
-		untyped __fcpp__("try { return std::stoi({}); } catch(...) {}", x);
+		untyped __ucpp__("try { return std::stoi({}); } catch(...) {}", x);
 		return null;
 	}
 
 	@:include("string", true)
 	public static function parseFloat(x: String): Float {
-		untyped __fcpp__("try { return std::stof({}); } catch(...) {}", x);
+		untyped __ucpp__("try { return std::stof({}); } catch(...) {}", x);
 		return Math.NaN;
 	}
 

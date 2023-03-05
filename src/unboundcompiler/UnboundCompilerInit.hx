@@ -1,4 +1,4 @@
-package freecompiler;
+package unboundcompiler;
 
 #if (macro || gdscript_runtime)
 
@@ -6,15 +6,15 @@ import reflaxe.ReflectCompiler;
 
 using reflaxe.helpers.ExprHelper;
 
-class FreeCompilerInit {
+class UnboundCompilerInit {
 	public static function Start() {
-		ReflectCompiler.AddCompiler(new FreeCompiler(), {
+		ReflectCompiler.AddCompiler(new UnboundCompiler(), {
 			fileOutputExtension: ".hpp",
 			outputDirDefineName: "cpp-output",
 			fileOutputType: FilePerClass,
 			ignoreTypes: ["haxe.iterators.ArrayIterator", "haxe.iterators.ArrayKeyValueIterator"],
 			reservedVarNames: reservedNames(),
-			targetCodeInjectionName: "__fcpp__",
+			targetCodeInjectionName: "__ucpp__",
 			dynamicDCE: true,
 			trackUsedTypes: true,
 			allowMetaMetadata: false

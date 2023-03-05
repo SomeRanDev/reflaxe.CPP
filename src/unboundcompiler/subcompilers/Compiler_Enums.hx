@@ -1,13 +1,13 @@
 // =======================================================
-// * FreeCompiler_Enums
+// * Compiler_Enums
 //
 // This sub-compiler is used to handle compiling of all
 // enum delcarations
 // =======================================================
 
-package freecompiler.subcompilers;
+package unboundcompiler.subcompilers;
 
-#if (macro || fcpp_runtime)
+#if (macro || ucpp_runtime)
 
 import haxe.macro.Type;
 
@@ -16,19 +16,19 @@ import reflaxe.BaseCompiler;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
-using freecompiler.helpers.FreeError;
-using freecompiler.helpers.FreeMeta;
-using freecompiler.helpers.FreeSort;
+using unboundcompiler.helpers.UError;
+using unboundcompiler.helpers.UMeta;
+using unboundcompiler.helpers.USort;
 
-@:allow(freecompiler.FreeCompiler)
-@:access(freecompiler.FreeCompiler)
-@:access(freecompiler.subcompilers.FreeCompiler_Exprs)
-@:access(freecompiler.subcompilers.FreeCompiler_Includes)
-@:access(freecompiler.subcompilers.FreeCompiler_Types)
-class FreeCompiler_Enums extends FreeSubCompiler {
+@:allow(unboundcompiler.UnboundCompiler)
+@:access(unboundcompiler.UnboundCompiler)
+@:access(unboundcompiler.subcompilers.Compiler_Exprs)
+@:access(unboundcompiler.subcompilers.Compiler_Includes)
+@:access(unboundcompiler.subcompilers.Compiler_Types)
+class Compiler_Enums extends SubCompiler {
 	public function compileEnum(enumType: EnumType, options: EnumOptions): Null<String> {
 		final filename = Main.getFileNameFromModuleData(enumType);
-		final headerFilename = filename + FreeCompiler.HeaderExt;
+		final headerFilename = filename + UnboundCompiler.HeaderExt;
 
 		// --------------------
 		// Init includes (always headers = true)

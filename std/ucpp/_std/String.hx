@@ -7,14 +7,14 @@ package;
 @:headerOnly
 class HxString {
 	public static function toLowerCase(s: String): String {
-		untyped __fcpp__("std::string temp = {}", s);
-		untyped __fcpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::tolower(c);\n})");
+		untyped __ucpp__("std::string temp = {}", s);
+		untyped __ucpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::tolower(c);\n})");
 		return untyped temp;
 	}
 
 	public static function toUpperCase(s: String): String {
-		untyped __fcpp__("std::string temp = {}", s);
-		untyped __fcpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::toupper(c);\n})");
+		untyped __ucpp__("std::string temp = {}", s);
+		untyped __ucpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::toupper(c);\n})");
 		return untyped temp;
 	}
 

@@ -70,7 +70,13 @@ function bla(a: { function toString(): String; }) {
 }*/
 
 @:topLevel
+function test() {
+	trace("in test");
+}
+
+@:topLevel
 function main(): Int {
+	test();
 	trace("Hello", "world!", "Again");
 
 	var bla = 123;

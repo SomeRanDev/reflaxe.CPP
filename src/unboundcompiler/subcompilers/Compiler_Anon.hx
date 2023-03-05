@@ -1,13 +1,13 @@
 // =======================================================
-// * FreeCompiler_Anon
+// * Compiler_Anon
 //
 // This sub-compiler is used to handle compiling of all
 // anonymous structure expressions and classes.
 // =======================================================
 
-package freecompiler.subcompilers;
+package unboundcompiler.subcompilers;
 
-#if (macro || fcpp_runtime)
+#if (macro || ucpp_runtime)
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -16,17 +16,17 @@ import haxe.macro.Type;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
-using freecompiler.helpers.FreeSort;
+using unboundcompiler.helpers.USort;
 
 typedef AnonField = { name: String, type: Type, optional: Bool, ?pos: Position };
 typedef AnonStruct = { name: String, constructorOrder: Array<AnonField> };
 
-@:allow(freecompiler.FreeCompiler)
-@:access(freecompiler.FreeCompiler)
-@:access(freecompiler.subcompilers.FreeCompiler_Includes)
-@:access(freecompiler.subcompilers.FreeCompiler_Exprs)
-@:access(freecompiler.subcompilers.FreeCompiler_Types)
-class FreeCompiler_Anon extends FreeSubCompiler {
+@:allow(unboundcompiler.UnboundCompiler)
+@:access(unboundcompiler.UnboundCompiler)
+@:access(unboundcompiler.subcompilers.Compiler_Includes)
+@:access(unboundcompiler.subcompilers.Compiler_Exprs)
+@:access(unboundcompiler.subcompilers.Compiler_Types)
+class Compiler_Anon extends SubCompiler {
 	var anonId: Int = 0;
 	var anonStructs: Map<String, AnonStruct> = [];
 	var namedAnonStructs: Map<String, AnonStruct> = [];
@@ -218,7 +218,7 @@ class FreeCompiler_Anon extends FreeSubCompiler {
 	function orderFields(a: AnonField, b: AnonField): Int {
 		if(a.optional && !b.optional) return 1;
 		if(!a.optional && b.optional) return -1;
-		return FreeSort.alphabetic(a.name, b.name);
+		return USort.alphabetic(a.name, b.name);
 	}
 
 	function makeFieldKey(a: AnonField): String {

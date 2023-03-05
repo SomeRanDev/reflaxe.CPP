@@ -1,13 +1,13 @@
 // =======================================================
-// * FreeCompiler
+// * UnboundCompiler
 //
 // The main compiler. Most of its behavior is split
 // between "sub-compilers" in the `subcompilers` package.
 // =======================================================
 
-package freecompiler;
+package unboundcompiler;
 
-#if (macro || fcpp_runtime)
+#if (macro || ucpp_runtime)
 
 import haxe.macro.Expr;
 import haxe.macro.Type;
@@ -22,15 +22,15 @@ using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.TypeHelper;
 
-import freecompiler.subcompilers.FreeSubCompiler;
-import freecompiler.subcompilers.FreeCompiler_Classes;
-import freecompiler.subcompilers.FreeCompiler_Enums;
-import freecompiler.subcompilers.FreeCompiler_Anon;
-import freecompiler.subcompilers.FreeCompiler_Exprs;
-import freecompiler.subcompilers.FreeCompiler_Includes;
-import freecompiler.subcompilers.FreeCompiler_Types;
+import unboundcompiler.subcompilers.SubCompiler;
+import unboundcompiler.subcompilers.Compiler_Classes;
+import unboundcompiler.subcompilers.Compiler_Enums;
+import unboundcompiler.subcompilers.Compiler_Anon;
+import unboundcompiler.subcompilers.Compiler_Exprs;
+import unboundcompiler.subcompilers.Compiler_Includes;
+import unboundcompiler.subcompilers.Compiler_Types;
 
-class FreeCompiler extends reflaxe.PluginCompiler<FreeCompiler> {
+class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// ----------------------------
 	// The extension for the generated header files.
 	static final HeaderExt: String = ".h";
@@ -65,30 +65,30 @@ class FreeCompiler extends reflaxe.PluginCompiler<FreeCompiler> {
 	// ============================
 	// * Plugins
 	// ============================
-	public static function onCompileBegin(callback: (FreeCompiler) -> Void) {
+	public static function onCompileBegin(callback: (UnboundCompiler) -> Void) {
 		ReflectCompiler.onCompileBegin(callback);
 	}
 
 	// ============================
 	// * Sub-Compilers
 	// ============================
-	var CComp: FreeCompiler_Classes;
-	var EComp: FreeCompiler_Enums;
-	var AComp: FreeCompiler_Anon;
-	var IComp: FreeCompiler_Includes;
-	var TComp: FreeCompiler_Types;
-	var XComp: FreeCompiler_Exprs;
+	var CComp: Compiler_Classes;
+	var EComp: Compiler_Enums;
+	var AComp: Compiler_Anon;
+	var IComp: Compiler_Includes;
+	var TComp: Compiler_Types;
+	var XComp: Compiler_Exprs;
 
 	public function new() {
 		super();
-		CComp = new FreeCompiler_Classes(this);
-		EComp = new FreeCompiler_Enums(this);
-		AComp = new FreeCompiler_Anon(this);
-		IComp = new FreeCompiler_Includes(this);
-		TComp = new FreeCompiler_Types(this);
-		XComp = new FreeCompiler_Exprs(this);
+		CComp = new Compiler_Classes(this);
+		EComp = new Compiler_Enums(this);
+		AComp = new Compiler_Anon(this);
+		IComp = new Compiler_Includes(this);
+		TComp = new Compiler_Types(this);
+		XComp = new Compiler_Exprs(this);
 
-		function setup(c: FreeSubCompiler) c.setSubCompilers(CComp, EComp, AComp, IComp, TComp, XComp);
+		function setup(c: SubCompiler) c.setSubCompilers(CComp, EComp, AComp, IComp, TComp, XComp);
 		setup(CComp);
 		setup(EComp);
 		setup(AComp);

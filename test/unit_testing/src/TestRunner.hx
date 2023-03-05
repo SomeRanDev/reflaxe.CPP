@@ -149,7 +149,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 		final args = [
 			"--no-opt",
 			"-cp std",
-			"-cp std/fcpp/_std",
+			"-cp std/ucpp/_std",
 			"-cp src",
 			"-lib reflaxe",
 			"extraParams.hxml",

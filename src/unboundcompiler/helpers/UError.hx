@@ -1,6 +1,6 @@
-package freecompiler.helpers;
+package unboundcompiler.helpers;
 
-#if (macro || fcpp_runtime)
+#if (macro || ucpp_runtime)
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -24,12 +24,12 @@ enum ErrorType {
 	UniqueToUnique;
 }
 
-class FreeError {
+class UError {
 	public static function makeError(pos: Position, err: ErrorType): Dynamic {
 		final msg = switch(err) {
 			// General
 			case CannotCompileNullType: {
-				"FreeCompiler.compileTypeSafe was passed 'null'. Unknown type detected?";
+				"UnboundCompiler.compileTypeSafe was passed 'null'. Unknown type detected?";
 			}
 			case DynamicUnsupported: {
 				"Dynamic not supported. Consider using Any or generics instead?";

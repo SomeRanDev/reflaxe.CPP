@@ -1,14 +1,14 @@
-package freecompiler.helpers;
+package unboundcompiler.helpers;
 
-#if (macro || fcpp_runtime)
+#if (macro || ucpp_runtime)
 
 import haxe.macro.Type;
 
 using reflaxe.helpers.TypeHelper;
 
-using freecompiler.helpers.FreeMeta;
+using unboundcompiler.helpers.UMeta;
 
-class FreeType {
+class UType {
 	// ----------------------------
 	// Returns true if the two types are the same even if
 	// they have different memory management overrides.

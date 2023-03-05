@@ -1,14 +1,14 @@
 // =======================================================
-// * FreeCompiler_Types
+// * Compiler_Types
 //
 // This sub-compiler is used to handle compiling of all
 // type related objects such as haxe.macro.Type and
 // haxe.macro.ClassType/EnumType/DefType/etc.
 // =======================================================
 
-package freecompiler.subcompilers;
+package unboundcompiler.subcompilers;
 
-#if (macro || fcpp_runtime)
+#if (macro || ucpp_runtime)
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -18,13 +18,13 @@ using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
-using freecompiler.helpers.FreeError;
-using freecompiler.helpers.FreeMeta;
+using unboundcompiler.helpers.UError;
+using unboundcompiler.helpers.UMeta;
 
-@:allow(freecompiler.FreeCompiler)
-@:access(freecompiler.FreeCompiler)
-@:access(freecompiler.subcompilers.FreeCompiler_Includes)
-class FreeCompiler_Types extends FreeSubCompiler {
+@:allow(unboundcompiler.UnboundCompiler)
+@:access(unboundcompiler.UnboundCompiler)
+@:access(unboundcompiler.subcompilers.Compiler_Includes)
+class Compiler_Types extends SubCompiler {
 	// ----------------------------
 	// Compiles the provided type.
 	// Position must be provided for error reporting.
@@ -69,7 +69,7 @@ class FreeCompiler_Types extends FreeSubCompiler {
 				if(asValue) {
 					internal;
 				} else {
-					FreeCompiler.SharedPtrClassCpp + "<" + internal + ">";
+					UnboundCompiler.SharedPtrClassCpp + "<" + internal + ">";
 				}
 			}
 			case TDynamic(t3): {
@@ -116,8 +116,8 @@ class FreeCompiler_Types extends FreeSubCompiler {
 
 					switch(abs.name) {
 						case "Null" if(params.length == 1): {
-							IComp.addInclude(FreeCompiler.OptionalInclude[0], true, FreeCompiler.OptionalInclude[1]);
-							FreeCompiler.OptionalClassCpp + "<" + compileType(params[0], pos) + ">";
+							IComp.addInclude(UnboundCompiler.OptionalInclude[0], true, UnboundCompiler.OptionalInclude[1]);
+							UnboundCompiler.OptionalClassCpp + "<" + compileType(params[0], pos) + ">";
 						}
 						case _: {
 							final t = haxe.macro.TypeTools.applyTypeParameters(abs.type, abs.params, params);
@@ -199,8 +199,8 @@ class FreeCompiler_Types extends FreeSubCompiler {
 		return switch(mmType) {
 			case Value: inner;
 			case UnsafePtr: inner + "*";
-			case UniquePtr: FreeCompiler.UniquePtrClassCpp + "<" + inner + ">";
-			case SharedPtr: FreeCompiler.SharedPtrClassCpp + "<" + inner + ">";
+			case UniquePtr: UnboundCompiler.UniquePtrClassCpp + "<" + inner + ">";
+			case SharedPtr: UnboundCompiler.SharedPtrClassCpp + "<" + inner + ">";
 		}
 	}
 

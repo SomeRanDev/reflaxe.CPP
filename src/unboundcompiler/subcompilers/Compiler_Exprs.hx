@@ -1,13 +1,13 @@
 // =======================================================
-// * FreeCompiler_Exprs
+// * Compiler_Exprs
 //
 // This sub-compiler is used to handle compiling of all
 // expressions.
 // =======================================================
 
-package freecompiler.subcompilers;
+package unboundcompiler.subcompilers;
 
-#if (macro || fcpp_runtime)
+#if (macro || ucpp_runtime)
 
 import haxe.ds.Either;
 
@@ -26,15 +26,15 @@ using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypedExprHelper;
 using reflaxe.helpers.TypeHelper;
 
-using freecompiler.helpers.FreeError;
-using freecompiler.helpers.FreeMeta;
-using freecompiler.helpers.FreeType;
+using unboundcompiler.helpers.UError;
+using unboundcompiler.helpers.UMeta;
+using unboundcompiler.helpers.UType;
 
-@:allow(freecompiler.FreeCompiler)
-@:access(freecompiler.FreeCompiler)
-@:access(freecompiler.subcompilers.FreeCompiler_Includes)
-@:access(freecompiler.subcompilers.FreeCompiler_Types)
-class FreeCompiler_Exprs extends FreeSubCompiler {
+@:allow(unboundcompiler.UnboundCompiler)
+@:access(unboundcompiler.UnboundCompiler)
+@:access(unboundcompiler.subcompilers.Compiler_Includes)
+@:access(unboundcompiler.subcompilers.Compiler_Types)
+class Compiler_Exprs extends SubCompiler {
 	// ----------------------------
 	// A public variable modified based on whether the
 	// current expression is being compiled for a header file.
@@ -87,7 +87,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
 				result = "std::deque<" + TComp.compileType(arrayType, expr.pos, true) + ">{" + el.map(e -> compileExpressionForType(e, arrayType)).join(", ") + "}";
 			}
-			case TCall({ expr: TIdent("__finclude__") }, el): {
+			case TCall({ expr: TIdent("__uinclude__") }, el): {
 				switch(el) {
 					case [{ expr: TConst(TString(s)) }]: {
 						IComp.addInclude(s, compilingInHeader, false);
@@ -632,7 +632,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			type = type.unwrapNullTypeOrSelf();
 			final meta = switch(type) {
 				// Used for TObjectDecl of named anonymous struct.
-				// See "XComp.compileNew" in FreeCompiler_Anon.compileObjectDecl to understand.
+				// See "XComp.compileNew" in Compiler_Anon.compileObjectDecl to understand.
 				case TType(typeDefRef, params): {
 					typeDefRef.get().meta;
 				}

@@ -7,7 +7,7 @@ abstract Any(Dynamic) {
 	@:noCompletion
 	@:to
 	extern inline function __promote<T>():T
-		return untyped __fcpp__("std::any_cast({})", this);
+		return untyped __ucpp__("std::any_cast({})", this);
 
 	@:noCompletion
 	@:from
@@ -22,6 +22,6 @@ abstract Any(Dynamic) {
 		return "<Any(" + type().name() + ")>";
 
 	extern inline function type(): StdTypeInfo {
-		return untyped __fcpp__("{}.type()", this);
+		return untyped __ucpp__("{}.type()", this);
 	}
 }

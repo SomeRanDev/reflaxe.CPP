@@ -1,5 +1,5 @@
 # The following are added automatically:
-# -lib free-cpp
+# -lib unbound
 # -D cpp-output=out
 
 Main

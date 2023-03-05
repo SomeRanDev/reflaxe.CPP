@@ -1,13 +1,13 @@
 // =======================================================
-// * FreeCompiler_Classes
+// * Compiler_Classes
 //
 // This sub-compiler is used to handle compiling of all
 // class delcarations
 // =======================================================
 
-package freecompiler.subcompilers;
+package unboundcompiler.subcompilers;
 
-#if (macro || fcpp_runtime)
+#if (macro || ucpp_runtime)
 
 import haxe.macro.Type;
 
@@ -20,14 +20,14 @@ using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
-using freecompiler.helpers.FreeError;
-using freecompiler.helpers.FreeMeta;
+using unboundcompiler.helpers.UError;
+using unboundcompiler.helpers.UMeta;
 
-@:allow(freecompiler.FreeCompiler)
-@:access(freecompiler.FreeCompiler)
-@:access(freecompiler.subcompilers.FreeCompiler_Includes)
-@:access(freecompiler.subcompilers.FreeCompiler_Types)
-class FreeCompiler_Classes extends FreeSubCompiler {
+@:allow(unboundcompiler.UnboundCompiler)
+@:access(unboundcompiler.UnboundCompiler)
+@:access(unboundcompiler.subcompilers.Compiler_Includes)
+@:access(unboundcompiler.subcompilers.Compiler_Types)
+class Compiler_Classes extends SubCompiler {
 	public function compileClass(classType: ClassType, varFields: ClassFieldVars, funcFields: ClassFieldFuncs): Null<String> {
 		// Init variables
 		final variables = [];
@@ -44,7 +44,7 @@ class FreeCompiler_Classes extends FreeSubCompiler {
 		var headerOnly = classType.isHeaderOnly();
 
 		// Init includes
-		IComp.resetAndInitIncludes(headerOnly, [filename + FreeCompiler.HeaderExt]);
+		IComp.resetAndInitIncludes(headerOnly, [filename + UnboundCompiler.HeaderExt]);
 
 		// Ensure no self-reference
 		final isValueType = classType.getMemoryManagementType() == Value;
@@ -218,8 +218,8 @@ class FreeCompiler_Classes extends FreeSubCompiler {
 
 		// Source file
 		if(!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0)) {
-			final srcFilename = "src/" + filename + FreeCompiler.SourceExt;
-			Main.setExtraFileIfEmpty(srcFilename, "#include \"" + filename + FreeCompiler.HeaderExt + "\"");
+			final srcFilename = "src/" + filename + UnboundCompiler.SourceExt;
+			Main.setExtraFileIfEmpty(srcFilename, "#include \"" + filename + UnboundCompiler.HeaderExt + "\"");
 
 			IComp.appendIncludesToExtraFileWithoutRepeats(srcFilename, IComp.compileCppIncludes(), 1);
 			
@@ -238,7 +238,7 @@ class FreeCompiler_Classes extends FreeSubCompiler {
 
 		// Header file
 		{
-			final headerFilename = "include/" + filename + FreeCompiler.HeaderExt;
+			final headerFilename = "include/" + filename + UnboundCompiler.HeaderExt;
 			Main.setExtraFileIfEmpty(headerFilename, "#pragma once");
 
 			IComp.appendIncludesToExtraFileWithoutRepeats(headerFilename, IComp.compileHeaderIncludes(), 1);

@@ -40,7 +40,7 @@ class HxArray {
 		final beginIt: Auto = untyped a.begin();
 		final startIt: Auto = beginIt + pos;
 		final endIt: Auto = beginIt + end;
-		return untyped __fcpp__("std::deque({}, {})", startIt, endIt);
+		return untyped __ucpp__("std::deque({}, {})", startIt, endIt);
 	}
 
 	public static function splice<T>(a: Ref<Array<T>>, pos: Int, len: Int): Array<T> {
@@ -57,7 +57,7 @@ class HxArray {
 		final beginIt: Auto = untyped a.begin();
 		final startIt: Auto = beginIt + pos;
 		final endIt: Auto = beginIt + pos + len;
-		final result = untyped __fcpp__("std::deque({}, {})", startIt, endIt);
+		final result = untyped __ucpp__("std::deque({}, {})", startIt, endIt);
 		untyped a.erase(startIt, endIt);
 		return result;
 	}
@@ -73,7 +73,7 @@ class HxArray {
 	}
 
 	public static function indexOf<T>(a: Array<T>, x: T, fromIndex: Int  = 0): Int {
-		final it: Auto = untyped __fcpp__("std::find({}, {}, {})", a.begin(), a.end(), x);
+		final it: Auto = untyped __ucpp__("std::find({}, {}, {})", a.begin(), a.end(), x);
 		return if(untyped it != a.end()) {
 			untyped it - a.begin();
 		} else {
@@ -140,8 +140,8 @@ extern class Array<T> {
 	}
 
 	@:runtime public inline function reverse(): Void {
-		untyped __finclude__("algorithm", true);
-		untyped __fcpp__("std::reverse({}, {})", this.begin(), this.end());
+		untyped __uinclude__("algorithm", true);
+		untyped __ucpp__("std::reverse({}, {})", this.begin(), this.end());
 	}
 
 	@:runtime public inline function shift(): Null<T>  {
@@ -151,8 +151,8 @@ extern class Array<T> {
 	}
 
 	@:runtime public inline function sort(f: (T, T) -> Int): Void {
-		untyped __finclude__("algorithm", true);
-		untyped __fcpp__("std::sort({}, {}, {})", this.begin(), this.end(), function(a, b) {
+		untyped __uinclude__("algorithm", true);
+		untyped __ucpp__("std::sort({}, {}, {})", this.begin(), this.end(), function(a, b) {
 			return f(a, b) < 0;
 		});
 	}
@@ -167,8 +167,8 @@ extern class Array<T> {
 	}
 
 	@:runtime @:pure public inline function contains(x: T) : Bool {
-		untyped __finclude__("algorithm", true);
-		return untyped __fcpp__("(std::find({}, {}, {}) != {})", this.begin(), this.end(), x, this.end());
+		untyped __uinclude__("algorithm", true);
+		return untyped __ucpp__("(std::find({}, {}, {}) != {})", this.begin(), this.end(), x, this.end());
 	}
 
 	@:runtime public inline function copy(): Array<T> {
