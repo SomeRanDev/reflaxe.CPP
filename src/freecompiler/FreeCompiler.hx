@@ -287,6 +287,10 @@ class FreeCompiler extends reflaxe.PluginCompiler<FreeCompiler> {
 	// ----------------------------
 	// Compiles an typedef into C++.
 	public override function compileTypedef(defType: DefType): Null<String> {
+		if(defType.hasMeta(":extern")) {
+			return null;
+		}
+
 		// Get filename for this typedef
 		final filename = getFileNameFromModuleData(defType);
 		final headerFilename = filename + HeaderExt;
