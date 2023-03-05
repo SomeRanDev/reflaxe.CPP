@@ -85,7 +85,7 @@ class FreeCompiler_Exprs extends FreeSubCompiler {
 			}
 			case TArrayDecl(el): {
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
-				result = "{" + el.map(e -> compileExpressionForType(e, arrayType)).join(", ") + "}";
+				result = "std::deque<" + TComp.compileType(arrayType, expr.pos, true) + ">{" + el.map(e -> compileExpressionForType(e, arrayType)).join(", ") + "}";
 			}
 			case TCall({ expr: TIdent("__finclude__") }, el): {
 				switch(el) {

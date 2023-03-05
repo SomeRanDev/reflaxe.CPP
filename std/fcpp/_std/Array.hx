@@ -1,34 +1,182 @@
 import haxe.iterators.ArrayKeyValueIterator;
 
-@:nativeName("std::vector")
-@:include("vector", true)
+@:pseudoCoreApi
+@:filename("HxArray")
+class HxArray {
+	public static function concat<T>(a: Array<T>, other: Array<T>): Array<T> {
+		final result = a;
+		for(o in other) {
+			result.push(o);
+		}
+		return result;
+	}
+
+	public static function join<T>(a: Array<T>, sep: String): String {
+		var result = "";
+		for(i in 0...a.length) {
+			if(i > 0) result += sep;
+			result += a[i];
+		}
+		return result;
+	}
+
+	public static function slice<T>(a: Array<T>, pos: Int, end: Null<Int> = null): Array<T> {
+		// if pos is negative, its value is calculated from the end of the array
+		if(pos < 0) pos += a.length;
+
+		// if outside bounds, return an empty array
+		if(pos < 0 || pos > a.length) return [];
+
+		// if end is not defined or exceeds the end of the array, set to the end
+		if(end == null || end > a.length) end = a.length;
+		else {
+			// if end is negative, its value is calculated from the end of the array
+			if(end < 0) end += a.length;
+
+			// if outside bounds, return an empty array
+			if(end <= pos) return [];
+		}
+
+		final beginIt: Auto = untyped a.begin();
+		final startIt: Auto = beginIt + pos;
+		final endIt: Auto = beginIt + end;
+		return untyped __fcpp__("std::deque({}, {})", startIt, endIt);
+	}
+
+	public static function splice<T>(a: Ref<Array<T>>, pos: Int, len: Int): Array<T> {
+		// if pos is negative, its value is calculated from the end of the array
+		if(pos < 0) pos += a.length;
+
+		// return an empty array if bounds do not make sense
+		if(pos < 0 || pos > a.length) return [];
+		if(len < 0) return [];
+
+		// if pos + len exceeds the length of the array, affect all elements after pos
+		if(pos + len > a.length) len = a.length - pos;
+
+		final beginIt: Auto = untyped a.begin();
+		final startIt: Auto = beginIt + pos;
+		final endIt: Auto = beginIt + pos + len;
+		final result = untyped __fcpp__("std::deque({}, {})", startIt, endIt);
+		untyped a.erase(startIt, endIt);
+		return result;
+	}
+
+	public static function insert<T>(a: Ref<Array<T>>, pos: Int, x: T) {
+		if(pos < 0) {
+			final it: Auto = untyped a.end() + pos + 1;
+			untyped a.cppInsert(it, x);
+		} else {
+			final it: Auto = untyped a.begin() + pos;
+			untyped a.cppInsert(it, x);
+		}
+	}
+
+	public static function indexOf<T>(a: Array<T>, x: T, fromIndex: Int  = 0): Int {
+		final it: Auto = untyped __fcpp__("std::find({}, {}, {})", a.begin(), a.end(), x);
+		return if(untyped it != a.end()) {
+			untyped it - a.begin();
+		} else {
+			-1;
+		}
+	}
+
+	public static function map<T, S>(a: Array<T>, f: (T) -> S): Array<S> {
+		return [for (v in a) f(v)];
+	}
+
+	public static function filter<T>(a: Array<T>, f: (T) -> Bool): Array<T> {
+		return [for (v in a) if (f(v)) v];
+	}
+
+	public static function toString<T>(a: Array<T>): String {
+		var result = "[";
+		for(i in 0...a.length) {
+			result += (i != 0 ? ", " : "") + Std.string(a[i]);
+		}
+		return result + "]";
+	}
+}
+
+@:pseudoCoreApi
+@:nativeName("std::deque")
+@:include("deque", true)
 @:valueType
-@:coreApi
+@:filename("HxArray")
+@:allow(HxArray)
 extern class Array<T> {
+	// ----------------------------
+	// Haxe String Functions
+	// ----------------------------
+
+	// ----------
+	// constructor
+	public function new():Void;
+
+	// ----------
+	// @:nativeName
 	@:nativeName("size()")
 	var length(default, null):Int;
-	function new():Void;
-	function concat(a:Array<T>):Array<T>;
-	function join(sep:String):String;
-	function pop():Null<T>;
 
 	@:nativeName("push_back")
-	function push(x:T):Int;
-	function reverse():Void;
-	function shift():Null<T>;
-	function slice(pos:Int, ?end:Int):Array<T>;
-	function sort(f:T->T->Int):Void;
-	function splice(pos:Int, len:Int):Array<T>;
-	function toString():String;
-	function unshift(x:T):Void;
-	function insert(pos:Int, x:T):Void;
-	function remove(x:T):Bool;
-	@:pure function contains( x : T ) : Bool;
-	function indexOf(x:T, ?fromIndex:Int):Int;
-	function lastIndexOf(x:T, ?fromIndex:Int):Int;
-	function copy():Array<T>;
+	public function push(x: T): Int;
 
-	@:runtime inline function iterator():haxe.iterators.ArrayIterator<T> {
+	@:nativeName("push_front")
+	public function unshift(x: T): Void;
+
+	@:nativeName("insert")
+	public function cppInsert(pos: Int, x: T): Void;
+
+	public function resize(len: Int): Void;
+
+	public function lastIndexOf(x: T, ?fromIndex: Int): Int;
+
+	// ----------
+	// @:runtime inline
+	@:runtime public inline function pop(): Null<T> {
+		final result = untyped this.back();
+		untyped this.pop_back();
+		return result;
+	}
+
+	@:runtime public inline function reverse(): Void {
+		untyped __finclude__("algorithm", true);
+		untyped __fcpp__("std::reverse({}, {})", this.begin(), this.end());
+	}
+
+	@:runtime public inline function shift(): Null<T>  {
+		final result = untyped this.front();
+		untyped this.pop_front();
+		return result;
+	}
+
+	@:runtime public inline function sort(f: (T, T) -> Int): Void {
+		untyped __finclude__("algorithm", true);
+		untyped __fcpp__("std::sort({}, {}, {})", this.begin(), this.end(), function(a, b) {
+			return f(a, b) < 0;
+		});
+	}
+
+	@:runtime public inline function remove(x: T): Bool {
+		final index = this.indexOf(x);
+		if(index < 0) {
+			return false;
+		}
+		untyped this.erase(this.begin() + index);
+		return true;
+	}
+
+	@:runtime @:pure public inline function contains(x: T) : Bool {
+		untyped __finclude__("algorithm", true);
+		return untyped __fcpp__("(std::find({}, {}, {}) != {})", this.begin(), this.end(), x, this.end());
+	}
+
+	@:runtime public inline function copy(): Array<T> {
+		final result = this;
+		return result;
+	}
+
+	@:runtime public inline function iterator(): haxe.iterators.ArrayIterator<T> {
 		return new haxe.iterators.ArrayIterator(this);
 	}
 
@@ -36,19 +184,41 @@ extern class Array<T> {
 		return new ArrayKeyValueIterator(this);
 	}
 
-	@:runtime inline function map<S>(f:T->S):Array<S> {
-		#if (cpp && !cppia)
-		var result = cpp.NativeArray.create(length);
-		for (i in 0...length) cpp.NativeArray.unsafeSet(result, i, f(cpp.NativeArray.unsafeGet(this, i)));
-		return result;
-		#else
-		return [for (v in this) f(v)];
-		#end
+	// ----------
+	// HxArray
+	@:runtime public inline function concat(a:Array<T>):Array<T> {
+		return HxArray.concat(this, a);
 	}
 
-	@:runtime inline function filter(f:T->Bool):Array<T> {
-		return [for (v in this) if (f(v)) v];
+	@:runtime public inline function join(sep: String): String {
+		return HxArray.join(this, sep);
 	}
 
-	function resize(len:Int):Void;
+	@:runtime public inline function slice(pos: Int, ?end: Int): Array<T> {
+		return HxArray.slice(this, pos, end);
+	}
+
+	@:runtime public inline function splice(pos: Int, len: Int): Array<T> {
+		return HxArray.splice(this, pos, len);
+	}
+
+	@:runtime public inline function toString(): String {
+		return HxArray.toString(this);
+	}
+
+	@:runtime public inline function insert(pos: Int, x: T): Void {
+		HxArray.insert(this, pos, x);
+	}
+
+	@:runtime public inline function indexOf(x: T, fromIndex: Int = 0): Int {
+		return HxArray.indexOf(this, x, fromIndex);
+	}
+
+	@:runtime public inline function map<S>(f: (T) -> S): Array<S> {
+		return HxArray.map(this, f);
+	}
+
+	@:runtime public inline function filter(f: (T) -> Bool): Array<T> {
+		return HxArray.filter(this, f);
+	}
 }
