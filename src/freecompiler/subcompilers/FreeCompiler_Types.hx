@@ -127,7 +127,14 @@ class FreeCompiler_Types extends FreeSubCompiler {
 				}
 			}
 			case TType(defRef, params): {
-				compileDefName(defRef.get(), pos, params, true, asValue);
+				switch(defRef.get()) {
+					case { name: "Ref", module: "Ref" } if(params.length == 1): {
+						compileType(params[0], pos) + "&";
+					}
+					case _: {
+						compileDefName(defRef.get(), pos, params, true, asValue);
+					}
+				}
 			}
 		}
 	}
@@ -216,6 +223,12 @@ class FreeCompiler_Types extends FreeSubCompiler {
 			}
 			case TAbstract(absRef, params) if(params.length == 1 && absRef.get().name == "Null"): {
 				getMemoryManagementTypeFromType(params[0]);
+			}
+			case TType(defRef, params) if(params.length == 1 && defRef.get().name == "Ref" && defRef.get().module == "Ref"): {
+				getMemoryManagementTypeFromType(params[0]);
+			}
+			case TAnonymous(a): {
+				SharedPtr;
 			}
 			case _: null;
 		}
