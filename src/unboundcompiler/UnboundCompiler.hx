@@ -315,6 +315,9 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		// Get typedef alias name
 		final typedefName = defType.getNameOrNative();
 
+		// Include type
+		onTypeEncountered(defType.type, true);
+
 		// Compile content
 		var content = "";
 		content += compileNamespaceStart(defType);
