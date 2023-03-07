@@ -15,7 +15,7 @@ class HxArray {
 		var result = "";
 		for(i in 0...a.length) {
 			if(i > 0) result += sep;
-			result += a[i];
+			result += Std.string(a[i]);
 		}
 		return result;
 	}
@@ -111,7 +111,7 @@ extern class Array<T> {
 
 	// ----------
 	// constructor
-	public function new():Void;
+	public function new(): Void;
 
 	// ----------
 	// @:nativeName
@@ -172,8 +172,7 @@ extern class Array<T> {
 	}
 
 	@:runtime public inline function copy(): Array<T> {
-		final result = this;
-		return result;
+		return untyped __ucpp__("std::deque({}, {})", this.begin(), this.end());
 	}
 
 	@:runtime public inline function iterator(): haxe.iterators.ArrayIterator<T> {
