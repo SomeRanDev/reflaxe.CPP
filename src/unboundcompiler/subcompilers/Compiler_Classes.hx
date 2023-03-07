@@ -180,7 +180,7 @@ class Compiler_Classes extends SubCompiler {
 
 				final retDecl = (useReturnType ? (ret + " ") : "");
 
-				TComp.enableDynamicToTemplate();
+				TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
 
 				final argDecl = "(" + tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos)).join(", ") + ")";
 

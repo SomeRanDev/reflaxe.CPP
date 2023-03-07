@@ -75,9 +75,9 @@ class Compiler_Types extends SubCompiler {
 			}
 			case TDynamic(t3): {
 				if(t3 == null) {
-					if(dynamicToTemplateType) {
+					if(accumulateTemplateTypes) {
 						final result = "Dyn" + (dynamicTemplates.length + 1);
-						dynamicTemplates.push(result);
+						addDynamicTemplate(result);
 						result;
 					} else {
 						pos.makeError(DynamicUnsupported);
@@ -171,7 +171,9 @@ class Compiler_Types extends SubCompiler {
 	function compileClassName(classType: ClassType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
 		switch(classType.kind) {
 			case KTypeParameter(_): {
-				return classType.name;
+				final result = classType.name;
+				addDynamicTemplate(result);
+				return result;
 			}
 			case _: {}
 		}
@@ -247,16 +249,26 @@ class Compiler_Types extends SubCompiler {
 	// ----------------------------
 	// Fields used for system for converting
 	// Dynamic types into generic types.
-	var dynamicToTemplateType: Bool = false;
+	var accumulateTemplateTypes: Bool = false;
+	var existingTemplates: Array<String> = [];
 	var dynamicTemplates: Null<Array<String>> = null;
 
 	// ----------------------------
 	// Once called, Dynamic types will be compiled
 	// with new type names to be used in a template.
-	function enableDynamicToTemplate() {
-		if(!dynamicToTemplateType) {
-			dynamicToTemplateType = true;
+	function enableDynamicToTemplate(existingTemplates: Array<String>) {
+		this.existingTemplates = existingTemplates;
+		if(!accumulateTemplateTypes) {
+			accumulateTemplateTypes = true;
 			dynamicTemplates = [];
+		}
+	}
+
+	// ----------------------------
+	// Adds a dynamic template if it doesn't already exist.
+	function addDynamicTemplate(t: String) {
+		if(!existingTemplates.contains(t) && !dynamicTemplates.contains(t)) {
+			dynamicTemplates.push(t);
 		}
 	}
 
@@ -264,9 +276,9 @@ class Compiler_Types extends SubCompiler {
 	// Disables this feature and returns a list
 	// of all the new "template type names" created.
 	function disableDynamicToTemplate(): Array<String> {
-		return if(dynamicToTemplateType) {
+		return if(accumulateTemplateTypes) {
 			final result = dynamicTemplates;
-			dynamicToTemplateType = false;
+			accumulateTemplateTypes = false;
 			dynamicTemplates = [];
 			result;
 		} else {
