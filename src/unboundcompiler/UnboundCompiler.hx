@@ -364,6 +364,8 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		return null;
 	}
 
+	// ----------------------------
+	// Compile TypedExpr into C++.
 	public function compileExpressionImpl(expr: TypedExpr): Null<String> {
 		return XComp.compileExpressionToCpp(expr);
 	}
