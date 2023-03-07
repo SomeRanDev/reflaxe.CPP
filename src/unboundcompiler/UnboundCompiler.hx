@@ -342,7 +342,13 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		return null;
 	}
 
-	public override function compileAbstract(ab: AbstractType): Null<String> {
+	// ----------------------------
+	// Ensures an abstract's internal type is compiled.
+	public override function compileAbstract(absType: AbstractType): Null<String> {
+		final mt = absType.type.toModuleType();
+		if(mt != null) {
+			addModuleTypeForCompilation(mt);
+		}
 		return null;
 	}
 
