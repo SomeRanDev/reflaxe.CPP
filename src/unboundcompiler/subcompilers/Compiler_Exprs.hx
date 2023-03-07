@@ -17,7 +17,6 @@ import haxe.macro.Type;
 
 import reflaxe.compiler.EverythingIsExprSanitizer;
 
-using reflaxe.helpers.BaseCompilerHelper;
 using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.OperatorHelper;
