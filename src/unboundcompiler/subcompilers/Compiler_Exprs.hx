@@ -58,7 +58,7 @@ class Compiler_Exprs extends SubCompiler {
 				result = Main.compileVarName(s, expr);
 			}
 			case TArray(e1, e2): {
-				result = compileExpressionNotNull(e1) + "[" + compileExpressionNotNull(e2) + "]";
+				result = compileExpressionNotNullAsValue(e1) + "[" + compileExpressionNotNull(e2) + "]";
 			}
 			case TBinop(op, e1, e2): {
 				result = binopToCpp(op, e1, e2);
@@ -273,6 +273,21 @@ class Compiler_Exprs extends SubCompiler {
 		}
 
 		return result;
+	}
+
+	function compileExpressionNotNullAsValue(expr: TypedExpr): Null<String> {
+		final result = compileExpressionNotNull(expr);
+
+		final isValue = switch(TComp.getMemoryManagementTypeFromType(expr.t)) {
+			case Value: true;
+			case _: false;
+		}
+
+		return if(result != null) {
+			isValue ? result : "(*" + result + ")";
+		} else {
+			null;
+		}
 	}
 
 	// ----------------------------
