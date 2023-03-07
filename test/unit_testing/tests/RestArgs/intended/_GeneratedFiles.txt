@@ -1,0 +1,9 @@
+src/haxe_Rest.cpp
+src/Main.cpp
+include/haxe_Rest.h
+include/haxe_PosInfos.h
+include/_OptionalInfo.h
+include/_AnonStructs.h
+include/Std.h
+include/Main.h
+include/HxArray.h
