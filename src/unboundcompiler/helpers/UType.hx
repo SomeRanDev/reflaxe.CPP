@@ -2,6 +2,7 @@ package unboundcompiler.helpers;
 
 #if (macro || ucpp_runtime)
 
+import haxe.macro.Context;
 import haxe.macro.Type;
 
 using reflaxe.helpers.TypeHelper;
@@ -12,7 +13,11 @@ class UType {
 	// ----------------------------
 	// Returns true if the two types are the same even if
 	// they have different memory management overrides.
-	public static function valueTypesEqual(t: Type, other: Type) {
+	public static function valueTypesEqual(t: Type, other: Type, followTypes: Bool = false) {
+		if(followTypes) {
+			t = Context.followWithAbstracts(t);
+			other = Context.followWithAbstracts(other);
+		}
 		return getInternalType(t).equals(getInternalType(other));
 	}
 
