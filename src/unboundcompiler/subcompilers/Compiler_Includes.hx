@@ -17,6 +17,7 @@ package unboundcompiler.subcompilers;
 
 #if (macro || ucpp_runtime)
 
+import haxe.macro.Context;
 import haxe.macro.Type;
 
 using reflaxe.helpers.DynamicHelper;
@@ -123,9 +124,20 @@ class Compiler_Includes extends SubCompiler {
 	// ----------------------------
 	// Returns true if the provided ModuleType should
 	// not generate an include when used.
-	function isNoIncludeType(mt: ModuleType): Bool {
+	function isNoIncludeType(mt: ModuleType, unwrapAbstract: Bool = true): Bool {
 		return switch(mt) {
-			case TAbstract(_): true;
+			case TAbstract(absRef): {
+				if(unwrapAbstract) {
+					final newMt = Context.followWithAbstracts(TypeHelper.fromModuleType(mt)).toModuleType();
+					if(newMt != null) {
+						isNoIncludeType(newMt, false);
+					} else {
+						true;
+					}
+				} else {
+					true;
+				}
+			}
 			case TClassDecl(clsRef): {
 				switch(clsRef.get().kind) {
 					case KTypeParameter(_): true;
