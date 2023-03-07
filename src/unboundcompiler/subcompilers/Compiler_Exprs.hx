@@ -99,7 +99,21 @@ class Compiler_Exprs extends SubCompiler {
 			}
 			case TArrayDecl(el): {
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
-				result = "std::deque<" + TComp.compileType(arrayType, expr.pos, true) + ">{" + el.map(e -> compileExpressionForType(e, arrayType)).join(", ") + "}";
+				result = "std::deque<" + TComp.compileType(arrayType, expr.pos) + ">" + {
+					if(el.length > 0) {
+						final cppList = el.map(e -> compileExpressionForType(e, arrayType));
+						var newLines = false;
+						for(cpp in cppList) {
+							if(cpp.length > 5) {
+								newLines = true;
+								break;
+							}
+						}
+						newLines ? ("{\n\t" + cppList.join(",\n\t") + "\n}") : ("{ " + cppList.join(", ") + " }");
+					} else {
+						"{}";
+					}
+				};
 			}
 			case TCall({ expr: TIdent("__uinclude__") }, el): {
 				switch(el) {
