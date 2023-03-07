@@ -9,6 +9,7 @@ package unboundcompiler;
 
 #if (macro || ucpp_runtime)
 
+import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
@@ -323,7 +324,15 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 				content += AComp.compileNamedAnonTypeDefinition(defType, anonRef);
 			}
 			case _: {
-				content += "typedef " + TComp.compileType(defType.type, defType.pos) + " " + typedefName + ";";
+				final hasParams = defType.params.length > 0;
+				if(hasParams || defType.hasMeta(":cppUsing")) {
+					if(hasParams) {
+						content += "template<" + defType.params.map(p -> "typename " + p.name).join(", ") + ">\n";
+					}
+					content += "using " + typedefName + " = " + TComp.compileType(defType.type, defType.pos) + ";\n";
+				} else {
+					content += "typedef " + TComp.compileType(defType.type, defType.pos) + " " + typedefName + ";\n";
+				}
 			}
 		}
 		content += compileNamespaceEnd(defType);
