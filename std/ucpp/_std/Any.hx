@@ -7,14 +7,12 @@ package;
 abstract Any(Dynamic) {
 	@:noCompletion
 	@:to
-	extern inline function __promote<T>(): T {
-		return untyped __ucpp__("std::any_cast({})", this);
-	}
+	@:nativeFunctionCode("std::any_cast<{type0}>({this})")
+	extern function __promote<T>(): T;
 
 	@:noCompletion
 	@:from
-	extern inline static function __cast<T>(value: Null<T>): Any {
-		if(value == null) throw "Cannot assign null to Any.";
+	extern inline static function __cast<T>(value: T): Any {
 		return cast value;
 	}
 
