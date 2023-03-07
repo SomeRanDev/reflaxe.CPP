@@ -210,14 +210,14 @@ class Compiler_Exprs extends SubCompiler {
 				result += "\n}";
 			}
 			case TTry(e, catches): {
-				final tryContent = Main.compileExpression(e);
+				final tryContent = toIndentedScope(e);
 				if(tryContent != null) {
-					result = "try {\n" + tryContent.tab();
+					result = "try {\n" + tryContent;
 					for(c in catches) {
 						result += "\n} catch(" + TComp.compileType(Main.getTVarType(c.v), expr.pos) + " " + c.v.name + ") {\n";
 						if(c.expr != null) {
-							final cpp = Main.compileExpression(c.expr);
-							if(cpp != null) result += cpp.tab();
+							final cpp = toIndentedScope(c.expr);
+							if(cpp != null) result += cpp;
 						}
 					}
 					result += "\n}";
