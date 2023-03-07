@@ -48,7 +48,7 @@ class Compiler_Exprs extends SubCompiler {
 		var result: Null<String> = null;
 		switch(expr.expr) {
 			case TConst(constant): {
-				result = constantToCpp(constant);
+				result = constantToCpp(constant, expr);
 			}
 			case TLocal(v): {
 				IComp.addIncludeFromMetaAccess(v.meta, compilingInHeader);
@@ -458,13 +458,20 @@ class Compiler_Exprs extends SubCompiler {
 		}
 	}
 
-	function constantToCpp(constant: TConstant): String {
+	function constantToCpp(constant: TConstant, originalExpr: TypedExpr): String {
 		return switch(constant) {
 			case TInt(i): Std.string(i);
 			case TFloat(s): s;
 			case TString(s): stringToCpp(s);
 			case TBool(b): b ? "true" : "false";
-			case TNull: "std::nullopt";
+			case TNull: {
+				final cppType = TComp.maybeCompileType(originalExpr.t, originalExpr.pos);
+				if(cppType != null) {
+					"static_cast<" + cppType + ">(std::nullopt)";
+				} else {
+					"std::nullopt";
+				}
+			}
 			case TThis: "this";
 			case TSuper: Main.superTypeName;
 			case _: "";
