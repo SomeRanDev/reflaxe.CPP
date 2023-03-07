@@ -641,7 +641,40 @@ class Compiler_Exprs extends SubCompiler {
 				}
 			}
 			final native = { name: "", meta: meta }.getNameOrNative();
-			final args = el.map(e -> Main.compileExpressionOrError(e)).join(", ");
+
+			// Find argument types (if possible)
+			var funcArgs = switch(type) {
+				case TInst(clsRef, params): {
+					final cls = clsRef.get();
+					final c = cls.constructor;
+					if(c != null) {
+						final clsField = c.get();
+						switch(clsField.type) {
+							case TFun(args, ret): {
+								args.map(a -> haxe.macro.TypeTools.applyTypeParameters(a.t, cls.params, params));
+							}
+							case _: null;
+						}
+					} else {
+						null;
+					}
+				}
+				case _: null;
+			}
+
+			// Compile the arguments
+			var cppArgs = [];
+			for(i in 0...el.length) {
+				final paramExpr = el[i];
+				final cpp = if(funcArgs != null && i < funcArgs.length && funcArgs[i] != null) {
+					compileExpressionForType(paramExpr, funcArgs[i]);
+				} else {
+					Main.compileExpressionOrError(paramExpr);
+				}
+				cppArgs.push(cpp);
+			}
+
+			final args = cppArgs.join(", ");
 			if(native.length > 0) {
 				native + "(" + args + ")";
 			} else {
