@@ -60,6 +60,20 @@ class Compiler_Exprs extends SubCompiler {
 			case TArray(e1, e2): {
 				result = compileExpressionNotNullAsValue(e1) + "[" + compileExpressionNotNull(e2) + "]";
 			}
+			case TBinop(op, { expr: TConst(TNull) }, nullCompExpr) |
+			     TBinop(op, nullCompExpr, { expr: TConst(TNull) })
+				 if(op == OpEq || op == OpNotEq): {
+				result = Main.compileExpression(nullCompExpr);
+				switch(op) {
+					case OpNotEq: {
+						result += ".has_value()";
+					}
+					case OpEq: {
+						result = "!" + result + ".has_value()";
+					}
+					case _: {}
+				}
+			}
 			case TBinop(op, e1, e2): {
 				result = binopToCpp(op, e1, e2);
 			}
