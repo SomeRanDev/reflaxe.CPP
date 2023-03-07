@@ -128,7 +128,7 @@ class Compiler_Exprs extends SubCompiler {
 				result = null;
 			}
 			case TCall(callExpr, el): {
-				result = compileCall(callExpr, el);
+				result = compileCall(callExpr, el, expr);
 			}
 			case TNew(classTypeRef, params, el): {
 				onModuleTypeEncountered(TClassDecl(classTypeRef));
@@ -280,6 +280,7 @@ class Compiler_Exprs extends SubCompiler {
 				result = Main.compileExpressionOrError(expr) + access + "index";
 			}
 		}
+
 		return result;
 	}
 
@@ -325,7 +326,7 @@ class Compiler_Exprs extends SubCompiler {
 		var cpp = null;
 		if(targetType != null) {
 			expr = expr.unwrapUnsafeCasts();
-			if(expr.t.valueTypesEqual(targetType)) {
+			if(expr.t.valueTypesEqual(targetType, true)) {
 				cpp = compileMMConversion(expr, Left(targetType));
 			} else {
 				// If converting from a normal type to an anonymous struct, we must first convert the
