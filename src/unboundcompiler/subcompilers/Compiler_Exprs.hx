@@ -563,11 +563,23 @@ class Compiler_Exprs extends SubCompiler {
 		return TComp.compileType(TypeHelper.fromModuleType(m), pos, true);
 	}
 
-	function compileCall(callExpr: TypedExpr, el: Array<TypedExpr>) {
+	function checkNativeCodeMeta(callExpr: TypedExpr, el: Array<TypedExpr>, typeParams: Null<Array<Type>> = null): Null<String> {
+		//final typeParams = type.getParams();
+		final params = if(typeParams != null) {
+			typeParams.map(t -> function() {
+				return TComp.compileType(t, callExpr.pos);
+			});
+		} else {
+			null;
+		}
+		return Main.compileNativeFunctionCodeMeta(callExpr, el, params);
+	}
+
+	function compileCall(callExpr: TypedExpr, el: Array<TypedExpr>, originalExpr: TypedExpr) {
 		final inlineTrace = checkForInlinableTrace(callExpr, el);
 		if(inlineTrace != null) return inlineTrace;
 
-		final nfc = Main.compileNativeFunctionCodeMeta(callExpr, el);
+		final nfc = checkNativeCodeMeta(callExpr, el, callExpr.getFunctionTypeParams(originalExpr.t));
 		return if(nfc != null) {
 			// Ensure we use potential #include
 			final declaration = callExpr.getDeclarationMeta();
@@ -623,7 +635,7 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	function compileNew(expr: TypedExpr, type: Type, el: Array<TypedExpr>, overrideMMT: Null<MemoryManagementType> = null): String {
-		final nfc = Main.compileNativeFunctionCodeMeta(expr, el);
+		final nfc = checkNativeCodeMeta(expr, el, type.getParams());
 		return if(nfc != null) {
 			nfc;
 		} else {
