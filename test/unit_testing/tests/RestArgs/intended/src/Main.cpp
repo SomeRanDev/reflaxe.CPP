@@ -4,15 +4,19 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <type_traits>
+#include "_AnonStructs.h"
+#include "haxe_Log.h"
 #include "haxe_Rest.h"
 #include "HxArray.h"
+#include "Std.h"
 
 int Main::returnCode = 0;;
 
 void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) {
 	if(!b) {
 		{
-			auto temp = infos.value_or(std::make_shared<haxe::PosInfos>("", "test/unit_testing/tests/RestArgs/Main.hx",10, ""));
+			auto temp = infos.value_or(haxe::shared_anon<haxe::PosInfos>("", "test/unit_testing/tests/RestArgs/Main.hx", 10, ""));
 			std::cout << temp->fileName << ":" << temp->lineNumber << ": " << "Assert failed" << std::endl;
 		};
 		Main::returnCode = 1;
@@ -20,13 +24,13 @@ void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) 
 }
 
 void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
-	Main::assert(std::deque(numbers->begin(), numbers->end()) == std::deque<int>{ 1, 2, 3 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 18, "oneTwoThree"));
-	Main::assert(HxArray::toString<int>((*numbers)) == "[1, 2, 3]", std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 19, "oneTwoThree"));
+	Main::assert(std::deque(numbers->begin(), numbers->end()) == std::deque<int>{ 1, 2, 3 }, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 18, "oneTwoThree"));
+	Main::assert(HxArray::toString<int>((*numbers)) == "[1, 2, 3]", haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 19, "oneTwoThree"));
 	
 	std::deque<int> arr = std::deque(numbers->begin(), numbers->end());
 	
 	arr.push_back(123);
-	Main::assert(HxArray::toString<int>(arr) == "[1, 2, 3, 123]", std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 24, "oneTwoThree"));
+	Main::assert(HxArray::toString<int>(arr) == "[1, 2, 3, 123]", haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 24, "oneTwoThree"));
 	
 	int i = 1;
 	int _g_current = 0;
@@ -38,7 +42,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 		int index = _g_current++;
 		tempNumber = (*this1)[index];
 		int a = tempNumber;
-		Main::assert(a == i, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 29, "oneTwoThree"));
+		Main::assert(a == i, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 29, "oneTwoThree"));
 		i++;
 	};
 	
@@ -49,7 +53,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 		tempLeft = std::deque(this1->begin(), this1->end());
 	};
 	
-	Main::assert(tempLeft == std::deque<int>{ 1, 2, 3, 4 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 34, "oneTwoThree"));
+	Main::assert(tempLeft == std::deque<int>{ 1, 2, 3, 4 }, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 34, "oneTwoThree"));
 	
 	std::deque<int> tempLeft1;
 	
@@ -58,7 +62,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 		tempLeft1 = std::deque(this1->begin(), this1->end());
 	};
 	
-	Main::assert(tempLeft1 == std::deque<int>{ 0, 1, 2, 3 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 37, "oneTwoThree"));
+	Main::assert(tempLeft1 == std::deque<int>{ 0, 1, 2, 3 }, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 37, "oneTwoThree"));
 }
 
 void Main::testRest(std::shared_ptr<haxe::_Rest::NativeRest<std::string>> strings) {
@@ -66,7 +70,31 @@ void Main::testRest(std::shared_ptr<haxe::_Rest::NativeRest<std::string>> string
 		"one",
 		"two",
 		"three"
-	}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 42, "testRest"));
+	}, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 42, "testRest"));
+}
+
+void Main::testRestAny(std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct0>>> anys) {
+	std::cout << "test/unit_testing/tests/RestArgs/Main.hx:47: aaaaaaa" << std::endl;
+	
+	try {
+		haxe::Log::trace(Std::string<std::deque<int>>(std::any_cast<std::deque<int>>((*anys)[1]->data)), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 49, "testRestAny"));
+	} catch(std::exception e) {
+		std::cout << "test/unit_testing/tests/RestArgs/Main.hx:51: 1" << std::endl;
+		haxe::Log::trace(Std::string<const char*>(e.what()), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 52, "testRestAny"));
+	};
+	try {
+		Main::assert(std::any_cast<std::deque<int>>((*anys)[1]->data)[1] == 500, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 56, "testRestAny"));
+		std::cout << "test/unit_testing/tests/RestArgs/Main.hx:57: bbbbbbbbbb" << std::endl;
+	} catch(std::exception e) {
+		std::cout << "test/unit_testing/tests/RestArgs/Main.hx:59: 2" << std::endl;
+		haxe::Log::trace(Std::string<const char*>(e.what()), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 60, "testRestAny"));
+	};
+	try {
+		Main::assert(std::any_cast<std::deque<int>>((*anys)[1]->data)[2] == 1000, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 64, "testRestAny"));
+	} catch(std::exception e) {
+		std::cout << "test/unit_testing/tests/RestArgs/Main.hx:66: 3" << std::endl;
+		haxe::Log::trace(Std::string<const char*>(e.what()), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 67, "testRestAny"));
+	};
 }
 
 int main() {
@@ -93,6 +121,19 @@ int main() {
 	};
 	
 	Main::testRest(tempRest1);
+	
+	std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct0>>> tempRest2;
+	
+	{
+		std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct0>>> this1;
+		this1 = std::make_shared<std::deque<std::shared_ptr<haxe::AnonStruct0>>>(std::deque<std::shared_ptr<haxe::AnonStruct0>>{
+			haxe::shared_anon<haxe::AnonStruct0>(static_cast<std::any>(std::nullopt)),
+			haxe::shared_anon<haxe::AnonStruct0>(std::deque<int>{ 0, 500, 1000 })
+		});
+		tempRest2 = this1;
+	};
+	
+	Main::testRestAny(tempRest2);
 	
 	return Main::returnCode;
 }

@@ -1,5 +1,5 @@
 src/Main.cpp
 include/haxe_PosInfos.h
-include/_OptionalInfo.h
+include/_AnonUtils.h
 include/_AnonStructs.h
 include/Main.h

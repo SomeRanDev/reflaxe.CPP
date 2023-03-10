@@ -42,32 +42,31 @@ class Main {
 		assert(strings == ["one", "two", "three"]);
 	}
 
-	// TODO
 	// test w/ anonymous structures
-	// static function testRestAny(anys: haxe.Rest<{ data: Any }>) {
-	// 	trace("aaaaaaa");
-	// 	try {
-	// 		trace(Std.string((anys[1].data : Array<Int>)));
-	// 	} catch(e: ucpp.Value<ucpp.std.Exception>) {
-	// 		trace("1");
-	// 		trace(Std.string(e.what()));
-	// 	}
+	static function testRestAny(anys: haxe.Rest<{ data: Any }>) {
+		trace("aaaaaaa");
+		try {
+			trace(Std.string((anys[1].data : Array<Int>)));
+		} catch(e: ucpp.Value<ucpp.std.Exception>) {
+			trace("1");
+			trace(Std.string(e.what()));
+		}
 
-	// 	try {
-	// 		assert((anys[1].data : Array<Int>)[1] == 500);
-	// 		trace("bbbbbbbbbb");
-	// 	} catch(e: ucpp.Value<ucpp.std.Exception>) {
-	// 		trace("2");
-	// 		trace(Std.string(e.what()));
-	// 	}
+		try {
+			assert((anys[1].data : Array<Int>)[1] == 500);
+			trace("bbbbbbbbbb");
+		} catch(e: ucpp.Value<ucpp.std.Exception>) {
+			trace("2");
+			trace(Std.string(e.what()));
+		}
 
-	// 	try {
-	// 		assert((anys[1].data : Array<Int>)[2] == 1000);
-	// 	} catch(e: ucpp.Value<ucpp.std.Exception>) {
-	// 		trace("3");
-	// 		trace(Std.string(e.what()));
-	// 	}
-	// }
+		try {
+			assert((anys[1].data : Array<Int>)[2] == 1000);
+		} catch(e: ucpp.Value<ucpp.std.Exception>) {
+			trace("3");
+			trace(Std.string(e.what()));
+		}
+	}
 
 	@:topLevel
 	@:dce(Off)
@@ -78,9 +77,8 @@ class Main {
 		// test with String + haxe.Rest arg
 		testRest("one", "two", "three");
 
-		// TODO
 		// extreme example using anonymous structures and Array
-		// testRestAny({ data: null }, { data: [0, 500, 1000] });
+		testRestAny({ data: null }, { data: [0, 500, 1000] });
 
 		return returnCode;
 	}

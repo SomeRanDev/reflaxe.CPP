@@ -1,24 +1,45 @@
 #pragma once
 
 #include <optional>
+#include <memory>
+
+// haxe::shared_anon | haxe::unique_anon
+// Helper functions for generating "anonymous struct" smart pointers.
+namespace haxe {
+
+	template<typename Anon, class... Args>
+	std::shared_ptr<Anon> shared_anon(Args... args) {
+		return std::make_shared<Anon>(Anon::make(args...));
+	}
+
+	template<typename Anon, class... Args>
+	std::unique_ptr<Anon> unique_anon(Args... args) {
+		return std::make_unique<Anon>(Anon::make(args...));
+	}
+
+}
+
+// ---------------------------------------------------------------------
 
 // haxe::optional_info
 // Returns information about std::optional<T> types.
 namespace haxe {
 
-template <typename T>
-struct optional_info {
-	using inner = T;
-	static constexpr bool isopt = false;
-};
+	template <typename T>
+	struct optional_info {
+		using inner = T;
+		static constexpr bool isopt = false;
+	};
 
-template <typename T>
-struct optional_info<std::optional<T>> {
-	using inner = typename optional_info<T>::inner;
-	static constexpr bool isopt = true;
-};
+	template <typename T>
+	struct optional_info<std::optional<T>> {
+		using inner = typename optional_info<T>::inner;
+		static constexpr bool isopt = true;
+	};
 
 }
+
+// ---------------------------------------------------------------------
 
 // GEN_EXTRACTOR_FUNC
 // Generates a function named extract_[fieldName].
