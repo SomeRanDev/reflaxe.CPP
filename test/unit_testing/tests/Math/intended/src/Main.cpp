@@ -5,6 +5,7 @@
 #include <iostream>
 #include <limits>
 #include <math.h>
+#include <string>
 
 int Main::returnCode = 0;;
 

@@ -35,7 +35,7 @@ public:
 			if(i > 0) {
 				result += sep;
 			};
-			result += Std::string(a[i]);
+			result += Std::string<T>(a[i]);
 		};
 		
 		return result;
@@ -49,7 +49,7 @@ public:
 		if(pos < 0 || pos > a.size()) {
 			return std::deque<T>{};
 		};
-		if(end == std::nullopt || end.value() > a.size()) {
+		if(!end.has_value() || end.value() > a.size()) {
 			end = a.size();
 		} else {
 			if(end.value() < 0) {

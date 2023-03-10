@@ -1,8 +1,10 @@
 #include "Main.h"
 
+#include <any>
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <string>
 #include <type_traits>
 #include "Std.h"
 
@@ -68,13 +70,7 @@ int main() {
 	Main::assert(dict_hey == "Hey", std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 65, "main"));
 	Main::assert(dict_number == 3, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 66, "main"));
 	
-	std::any tempAny;
-	
-	{
-		tempAny = 123;
-	};
-	
-	std::any anyTest = tempAny;
+	std::any anyTest = 123;
 	
 	Main::assert(std::any_cast<int>(anyTest) == 123, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 69, "main"));
 	Main::assert("<Any(" + Std::string(anyTest.type().name()) + ")>" == "<Any(int)>", std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 70, "main"));

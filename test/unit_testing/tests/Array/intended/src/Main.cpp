@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <string>
 #include "HxArray.h"
 
 int Main::returnCode = 0;;
@@ -27,7 +28,7 @@ int main() {
 	arr.push_back(1 + 1);
 	arr.push_back(2 + 1);
 	Main::assert(arr.size() == 3, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 26, "main"));
-	Main::assert(HxArray::concat<int>(arr, std::deque<int>{4, 5, 6}).size() == 6, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 29, "main"));
+	Main::assert(HxArray::concat<int>(arr, std::deque<int>{ 4, 5, 6 }).size() == 6, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 29, "main"));
 	
 	bool tempBool;
 	
@@ -48,20 +49,12 @@ int main() {
 	std::deque<int> arr2 = arr;
 	
 	Main::assert(arr == arr2, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 37, "main"));
-	
-	std::deque<int> tempRight;
-	
-	{
-		std::deque<int> result = arr2;
-		tempRight = result;
-	};
-	
-	Main::assert(arr == tempRight, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 40, "main"));
+	Main::assert(arr == std::deque(arr2.begin(), arr2.end()), std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 40, "main"));
 	Main::assert(HxArray::filter<int>(arr, [&](int i) mutable {
 		return i != 1;
 	}).size() == 2, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 43, "main"));
 	
-	std::deque<int> arr3 = std::deque<int>{1, 2, 3, 4, 5};
+	std::deque<int> arr3 = std::deque<int>{ 1, 2, 3, 4, 5 };
 	int tempLeft;
 	
 	{
@@ -110,7 +103,7 @@ int main() {
 	Main::assert(keyTotal == 10, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 83, "main"));
 	Main::assert(doubleTotal == 20, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 84, "main"));
 	
-	std::deque<int> stack = std::deque<int>{84, 29, 655};
+	std::deque<int> stack = std::deque<int>{ 84, 29, 655 };
 	std::optional<int> tempMaybeNumber;
 	
 	{
@@ -148,10 +141,10 @@ int main() {
 		Main::assert(false, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 98, "main"));
 	};
 	
-	std::deque<int> ordered = std::deque<int>{3, 6, 9, 12};
+	std::deque<int> ordered = std::deque<int>{ 3, 6, 9, 12 };
 	
 	std::reverse(ordered.begin(), ordered.end());
-	Main::assert(ordered == std::deque<int>{12, 9, 6, 3}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 104, "main"));
+	Main::assert(ordered == std::deque<int>{ 12, 9, 6, 3 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 104, "main"));
 	
 	std::optional<int> tempMaybeNumber1;
 	
@@ -163,7 +156,7 @@ int main() {
 	
 	Main::assert(tempMaybeNumber1 == 12, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 107, "main"));
 	
-	std::deque<int> newArr = std::deque<int>{22, 44, 66, 88};
+	std::deque<int> newArr = std::deque<int>{ 22, 44, 66, 88 };
 	std::deque<int> tempLeft1;
 	
 	{
@@ -171,8 +164,8 @@ int main() {
 		tempLeft1 = HxArray::slice<int>(newArr, 1, end);
 	};
 	
-	Main::assert(tempLeft1 == std::deque<int>{44, 66, 88}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 111, "main"));
-	Main::assert(HxArray::slice<int>(newArr, 2, 3) == std::deque<int>{66}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 112, "main"));
+	Main::assert(tempLeft1 == std::deque<int>{ 44, 66, 88 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 111, "main"));
+	Main::assert(HxArray::slice<int>(newArr, 2, 3) == std::deque<int>{ 66 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 112, "main"));
 	
 	std::deque<int> tempLeft2;
 	
@@ -181,12 +174,12 @@ int main() {
 		tempLeft2 = HxArray::slice<int>(newArr, -1, end);
 	};
 	
-	Main::assert(tempLeft2 == std::deque<int>{88}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 113, "main"));
-	Main::assert(HxArray::slice<int>(newArr, -2, -1) == std::deque<int>{66, 88}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 114, "main"));
-	Main::assert(HxArray::slice<int>(newArr, 0, 999999) == std::deque<int>{22, 44, 66, 88}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 115, "main"));
+	Main::assert(tempLeft2 == std::deque<int>{ 88 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 113, "main"));
+	Main::assert(HxArray::slice<int>(newArr, -2, -1) == std::deque<int>{ 66, 88 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 114, "main"));
+	Main::assert(HxArray::slice<int>(newArr, 0, 999999) == std::deque<int>{ 22, 44, 66, 88 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 115, "main"));
 	Main::assert(HxArray::slice<int>(newArr, 999999, 0) == std::deque<int>{}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 116, "main"));
 	
-	std::deque<int> sortable = std::deque<int>{2, 7, 1, 4, 0, 4};
+	std::deque<int> sortable = std::deque<int>{ 2, 7, 1, 4, 0, 4 };
 	std::function<int(int, int)> f = [&](int a, int b) mutable {
 		return a - b;
 	};
@@ -194,24 +187,24 @@ int main() {
 	std::sort(sortable.begin(), sortable.end(), [&](int a, int b) mutable {
 		return f(a, b) < 0;
 	});
-	Main::assert(sortable == std::deque<int>{0, 1, 2, 4, 4, 7}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 121, "main"));
-	Main::assert(HxArray::splice<int>(sortable, 2, 1) == std::deque<int>{2}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 124, "main"));
-	Main::assert(HxArray::splice<int>(sortable, 1, 3) == std::deque<int>{1, 4, 4}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 125, "main"));
+	Main::assert(sortable == std::deque<int>{ 0, 1, 2, 4, 4, 7 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 121, "main"));
+	Main::assert(HxArray::splice<int>(sortable, 2, 1) == std::deque<int>{ 2 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 124, "main"));
+	Main::assert(HxArray::splice<int>(sortable, 1, 3) == std::deque<int>{ 1, 4, 4 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 125, "main"));
 	
-	std::deque<int> newArr2 = std::deque<int>{12, 24, 36, 48, 60};
+	std::deque<int> newArr2 = std::deque<int>{ 12, 24, 36, 48, 60 };
 	
-	Main::assert(HxArray::splice<int>(newArr2, -2, 1) == std::deque<int>{48}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 128, "main"));
+	Main::assert(HxArray::splice<int>(newArr2, -2, 1) == std::deque<int>{ 48 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 128, "main"));
 	Main::assert(HxArray::splice<int>(newArr2, -4, -1) == std::deque<int>{}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 129, "main"));
-	Main::assert(HxArray::splice<int>(newArr2, 1, 999999) == std::deque<int>{24, 36, 60}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 130, "main"));
+	Main::assert(HxArray::splice<int>(newArr2, 1, 999999) == std::deque<int>{ 24, 36, 60 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 130, "main"));
 	Main::assert(HxArray::splice<int>(newArr2, 999999, 0) == std::deque<int>{}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 131, "main"));
-	Main::assert(newArr2 == std::deque<int>{12}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 132, "main"));
+	Main::assert(newArr2 == std::deque<int>{ 12 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 132, "main"));
 	Main::assert(HxArray::toString<int>(sortable) == "[0, 7]", std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 135, "main"));
 	
-	std::deque<int> unfinished = std::deque<int>{3, 4, 5};
+	std::deque<int> unfinished = std::deque<int>{ 3, 4, 5 };
 	
 	unfinished.push_front(2);
 	unfinished.push_front(1);
-	Main::assert(unfinished == std::deque<int>{1, 2, 3, 4, 5}, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 141, "main"));
+	Main::assert(unfinished == std::deque<int>{ 1, 2, 3, 4, 5 }, std::make_shared<haxe::PosInfos>("Main", "test/unit_testing/tests/Array/Main.hx", 141, "main"));
 	
 	return Main::returnCode;
 }

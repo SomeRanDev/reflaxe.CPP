@@ -1,4 +1,3 @@
-src/haxe_Rest.cpp
 src/Main.cpp
 include/haxe_Rest.h
 include/haxe_PosInfos.h
