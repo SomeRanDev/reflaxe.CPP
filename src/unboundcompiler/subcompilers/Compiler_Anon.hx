@@ -33,11 +33,12 @@ class Compiler_Anon extends SubCompiler {
 
 	static function unknownPos(): Position return Context.makePosition({ min: 0, max: 0, file: "<unknown>" });
 
-	public function compileObjectDecl(type: Type, fields: Array<{ name: String, expr: TypedExpr }>): String {
+	public function compileObjectDecl(type: Type, fields: Array<{ name: String, expr: TypedExpr }>, compilingInHeader: Bool = false): String {
 		final anonFields: Array<AnonField> = [];
 		final anonMap: Map<String, TypedExpr> = [];
 		for(f in fields) {
 			final ft = Main.getExprType(f.expr);
+			Main.onTypeEncountered(ft, compilingInHeader);
 			final field = {
 				name: f.name,
 				type: ft,
