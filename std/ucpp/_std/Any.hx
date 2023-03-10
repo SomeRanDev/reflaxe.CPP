@@ -4,10 +4,11 @@ package;
 @:include("any", true)
 @:forward.variance
 @:valueType
-abstract Any(Dynamic) {
+extern abstract Any(Dynamic) {
 	@:noCompletion
 	@:to
 	@:nativeFunctionCode("std::any_cast<{type0}>({this})")
+	@:include("any", true)
 	extern function __promote<T>(): T;
 
 	@:noCompletion
