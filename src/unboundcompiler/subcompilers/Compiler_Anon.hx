@@ -7,6 +7,7 @@
 
 package unboundcompiler.subcompilers;
 
+import unboundcompiler.helpers.UMeta.MemoryManagementType;
 #if (macro || ucpp_runtime)
 
 import haxe.macro.Context;
@@ -33,7 +34,7 @@ class Compiler_Anon extends SubCompiler {
 
 	static function unknownPos(): Position return Context.makePosition({ min: 0, max: 0, file: "<unknown>" });
 
-	public function compileObjectDecl(type: Type, fields: Array<{ name: String, expr: TypedExpr }>, compilingInHeader: Bool = false): String {
+	public function compileObjectDecl(type: Type, fields: Array<{ name: String, expr: TypedExpr }>, originalExpr: TypedExpr, compilingInHeader: Bool = false): String {
 		final anonFields: Array<AnonField> = [];
 		final anonMap: Map<String, TypedExpr> = [];
 		for(f in fields) {
@@ -76,19 +77,30 @@ class Compiler_Anon extends SubCompiler {
 				elType.push(field.type);
 			}
 		}
-		return if(isNamed) {
-			XComp.compileNew({
-				expr: TIdent(""),
-				pos: unknownPos(),
-				t: type
-			}, type, el);
+
+		final internalType = type.unwrapNullTypeOrSelf();
+
+		final name = if(isNamed) {
+			TComp.compileType(internalType, originalExpr.pos, true);
 		} else {
-			IComp.addAnonTypeInclude(false);
-			final cppArgs = [];
-			for(i in 0...el.length) {
-				cppArgs.push(XComp.compileExpressionForType(el[i], elType[i]));
-			}
-			"std::make_shared<haxe::" + as.name + ">(" + cppArgs.join(", ") + ")";
+			"haxe::" + as.name;
+		}
+
+		IComp.addAnonTypeInclude(compilingInHeader);
+		final cppArgs = [];
+		for(i in 0...el.length) {
+			cppArgs.push(XComp.compileExpressionForType(el[i], elType[i]));
+		}
+		final tmmt = TComp.getMemoryManagementTypeFromType(internalType);
+		return applyAnonMMConversion(name, cppArgs, tmmt);
+	}
+
+	public function applyAnonMMConversion(cppName: String, cppArgs: Array<String>, tmmt: MemoryManagementType): String {
+		return switch(tmmt) {
+			case Value: cppName + "::make(" + cppArgs.join(", ") + ")";
+			case UnsafePtr: throw "Unable to construct.";
+			case SharedPtr: "haxe::shared_anon<" + cppName + ">(" + cppArgs.join(", ") + ")";
+			case UniquePtr: "haxe::unique_anon<" + cppName + ">(" + cppArgs.join(", ") + ")";
 		}
 	}
 
@@ -125,10 +137,11 @@ class Compiler_Anon extends SubCompiler {
 
 		for(f in anonFields) {
 			Main.onTypeEncountered(f.type, true);
-			final v = TComp.compileType(f.type, f.pos) + " " + f.name;
+			final t = TComp.compileType(f.type, f.pos);
+			final v = t + " " + f.name;
 			fields.push(v);
 			constructorParams.push(v + (f.optional ? " = std::nullopt" : ""));
-			constructorAssigns.push(f.name + "(" + f.name + ")");
+			constructorAssigns.push("result." + f.name + " = " + f.name);
 			switch(f.type) {
 				case TFun(args, ret): {
 					final declArgs = args.map(a -> {
@@ -149,22 +162,29 @@ class Compiler_Anon extends SubCompiler {
 
 		var decl = "";
 
+		decl += "// { " + anonFields.map(f -> f.name + ": " + haxe.macro.TypeTools.toString(f.type)).join(", ") + " }\n";
+
 		decl += "struct " + name + " {";
 		
-		if(constructorParams.length > 0) {
-			final constructor = "\n" + name + "(" + constructorParams.join(", ") + "):\n\t" + constructorAssigns.join(", ") + "\n{}";
-			decl += constructor.tab() + "\n";
-		}
+		decl += "\n\n\t// default constructor\n\t" + name + "() {}\n";
 
 		if(templateConstructorAssigns.length > 0 || templateFunctionAssigns.length > 0) {
 			final templateFuncs = templateFunctionAssigns.length > 0 ? ("{\n" + templateFunctionAssigns.map(a -> a.tab()).join("\n") + "\n}") : "\n{}";
 			final templateAssigns = templateConstructorAssigns.length > 0 ? (":\n\t" + templateConstructorAssigns.join(", ")) : " ";
-			final constructor = "\ntemplate<typename T>\n" + name + "(T o)" + templateAssigns + templateFuncs;
+			final constructor = "\n// auto-construct from any object's fields\ntemplate<typename T>\n" + name + "(T o)" + templateAssigns + templateFuncs;
+			decl += constructor.tab() + "\n";
+		}
+
+		if(constructorParams.length > 0) {
+			final constructor = "\n// construct fields directly\nstatic " + name + " " + name + "::make(" + constructorParams.join(", ") + ") {\n\t" +
+				name + " result;\n\t" +
+				constructorAssigns.join(";\n\t") + ";" + 
+				"\n\treturn result;\n}";
 			decl += constructor.tab() + "\n";
 		}
 
 		if(fields.length > 0) {
-			decl += "\n" + fields.map(f -> f.tab() + ";").join("\n") + "\n";
+			decl += "\n\t// fields\n" + fields.map(f -> f.tab() + ";").join("\n") + "\n";
 		}
 
 		if(extractorFuncs.length > 0) {
@@ -238,7 +258,21 @@ class Compiler_Anon extends SubCompiler {
 	}
 
 	function optionalInfoContent() {
-		return "// haxe::optional_info
+		return '// haxe::shared_anon | haxe::unique_anon
+// Helper functions for generating "anonymous struct" smart pointers.
+namespace haxe {
+
+	template<typename Anon, class... Args>
+	${UnboundCompiler.SharedPtrClassCpp}<Anon> shared_anon(Args... args) {
+		return ${UnboundCompiler.SharedPtrMakeCpp}<Anon>(Anon::make(args...));
+	}
+
+	template<typename Anon, class... Args>
+	${UnboundCompiler.UniquePtrClassCpp}<Anon> unique_anon(Args... args) {
+		return ${UnboundCompiler.UniquePtrMakeCpp}<Anon>(Anon::make(args...));
+	}
+
+}
 // Returns information about std::optional<T> types.
 namespace haxe {
 
@@ -262,7 +296,7 @@ struct optional_info<std::optional<T>> {
 // Given any object, it checks whether that object has a field of the same name
 // and type as the class this function is a member of (using `haxe::optional_info`).
 //
-// If it does, it returns the object's field's value; otherwise, it returns `std::nullopt`.
+// If it does, it returns the object\'s field\'s value; otherwise, it returns `std::nullopt`.
 //
 // Useful for extracting values for optional parameters for anonymous structure
 // classes since the input object may or may not have the field.
@@ -277,7 +311,7 @@ static auto extract_##fieldName(T other) {\\
 	} else {\\
 		return std::nullopt;\\
 	}\\
-}";
+}';
 	}
 }
 

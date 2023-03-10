@@ -104,7 +104,7 @@ class Compiler_Exprs extends SubCompiler {
 				}
 			}
 			case TObjectDecl(fields): {
-				result = AComp.compileObjectDecl(Main.getExprType(expr), fields, compilingInHeader);
+				result = AComp.compileObjectDecl(Main.getExprType(expr), fields, expr, compilingInHeader);
 			}
 			case TArrayDecl(el): {
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
@@ -352,7 +352,7 @@ class Compiler_Exprs extends SubCompiler {
 		if(cpp == null) {
 			switch(expr.expr) {
 				case TObjectDecl(fields): {
-					cpp = AComp.compileObjectDecl(targetType, fields, compilingInHeader);
+					cpp = AComp.compileObjectDecl(targetType, fields, expr, compilingInHeader);
 				}
 				case _: {
 					final old = setExplicitNull(true, targetType.isAmbiguousNullable());
@@ -423,8 +423,8 @@ class Compiler_Exprs extends SubCompiler {
 				switch(target) {
 					case Value: cpp;
 					case UnsafePtr: "&" + cpp;
-					case SharedPtr: "std::make_shared<" + typeCpp() + ">(" + cpp + ")";
-					case UniquePtr: "std::make_unique<" + typeCpp() + ">(" + cpp + ")";
+					case SharedPtr: UnboundCompiler.SharedPtrMakeCpp + "<" + typeCpp() + ">(" + cpp + ")";
+					case UniquePtr: UnboundCompiler.UniquePtrMakeCpp + "<" + typeCpp() + ">(" + cpp + ")";
 				}
 			}
 			case UnsafePtr: {
@@ -813,8 +813,8 @@ class Compiler_Exprs extends SubCompiler {
 		return switch(mmt) {
 			case Value: typeOutput;
 			case UnsafePtr: "new " + typeOutput;
-			case UniquePtr: "std::make_unique<" + typeOutput + ">";
-			case SharedPtr: "std::make_shared<" + typeOutput + ">";
+			case SharedPtr: UnboundCompiler.SharedPtrMakeCpp + "<" + typeOutput + ">";
+			case UniquePtr: UnboundCompiler.UniquePtrMakeCpp + "<" + typeOutput + ">";
 		}
 	}
 
@@ -980,8 +980,12 @@ class Compiler_Exprs extends SubCompiler {
 					intro = "auto temp = " + (isNull ? {
 						final line = haxe.macro.PositionTools.toLocation(callExpr.pos).range.start.line;
 						final file = Context.getPosInfos(callExpr.pos).file;
-						final clsConstruct = compileClassConstruction(e1InternalType, e1Type.toModuleType().getCommonData(), [], callExpr.pos);
-						(piCpp + ".value_or(" + clsConstruct + "(\"\", " + stringToCpp(file) + "," + line + ", \"\"))");
+						final clsConstruct = {
+							final clsName = TComp.compileType(e1InternalType, callExpr.pos, true);
+							final tmmt = TComp.getMemoryManagementTypeFromType(e1InternalType);
+							AComp.applyAnonMMConversion(clsName, ["\"\"", stringToCpp(file), Std.string(line), "\"\""], tmmt);
+						};
+						piCpp + ".value_or(" + clsConstruct + ")";
 					} : piCpp) + ";";
 					posInfosCpp = '${accessCpp}fileName << ":" << ${accessCpp}lineNumber << ": "';
 				}

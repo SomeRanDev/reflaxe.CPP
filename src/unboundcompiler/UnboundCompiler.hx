@@ -47,6 +47,11 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	static final UniquePtrClassCpp: String = "std::unique_ptr";
 
 	// ----------------------------
+	// The C++ functions used for generating smart pointers.
+	static final SharedPtrMakeCpp: String = "std::make_shared";
+	static final UniquePtrMakeCpp: String = "std::make_unique";
+
+	// ----------------------------
 	// The include params used upon requiring the above C++ classes.
 	static final OptionalInclude: Dynamic = ["optional", true];
 	static final SharedPtrInclude: Dynamic = ["memory", true];
@@ -55,7 +60,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// ----------------------------
 	// The name of the header file generated for the anonymous structs.
 	static final AnonStructHeaderFile: String = "_AnonStructs";
-	static final OptionalInfoHeaderFile: String = "_OptionalInfo";
+	static final OptionalInfoHeaderFile: String = "_AnonUtils";
 
 	// ----------------------------
 	// Required for adding semicolons at the end of each line.
@@ -178,7 +183,12 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			// Generate haxe::optional_info header.
 			{
 				var content = "#pragma once\n\n";
-				content += "#include " + IComp.wrapInclude(OptionalInclude[0], OptionalInclude[1]) + "\n\n";
+				content += "#include " + IComp.wrapInclude(OptionalInclude[0], OptionalInclude[1]) + "\n";
+				content += "#include " + IComp.wrapInclude(SharedPtrInclude[0], SharedPtrInclude[1]) + "\n";
+				if(UniquePtrInclude[0] != SharedPtrInclude[0]) {
+					content += "#include " + IComp.wrapInclude(UniquePtrInclude[0], UniquePtrInclude[1]) + "\n";
+				}
+				content += "\n";
 				content += AComp.optionalInfoContent() + "\n\n";
 				setExtraFile("include/" + optionalInfoHeaderName, content);
 			}
