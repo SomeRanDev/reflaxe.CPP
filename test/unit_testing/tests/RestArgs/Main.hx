@@ -44,28 +44,9 @@ class Main {
 
 	// test w/ anonymous structures
 	static function testRestAny(anys: haxe.Rest<{ data: Any }>) {
-		trace("aaaaaaa");
-		try {
-			trace(Std.string((anys[1].data : Array<Int>)));
-		} catch(e: ucpp.Value<ucpp.std.Exception>) {
-			trace("1");
-			trace(Std.string(e.what()));
-		}
-
-		try {
-			assert((anys[1].data : Array<Int>)[1] == 500);
-			trace("bbbbbbbbbb");
-		} catch(e: ucpp.Value<ucpp.std.Exception>) {
-			trace("2");
-			trace(Std.string(e.what()));
-		}
-
-		try {
-			assert((anys[1].data : Array<Int>)[2] == 1000);
-		} catch(e: ucpp.Value<ucpp.std.Exception>) {
-			trace("3");
-			trace(Std.string(e.what()));
-		}
+		assert((anys[1].data : Array<Int>) == [0, 500, 1000]);
+		assert((anys[1].data : Array<Int>)[1] == 500);
+		assert((anys[1].data : Array<Int>)[2] == 1000);
 	}
 
 	@:topLevel

@@ -4,12 +4,9 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <type_traits>
 #include "_AnonStructs.h"
-#include "haxe_Log.h"
 #include "haxe_Rest.h"
 #include "HxArray.h"
-#include "Std.h"
 
 int Main::returnCode = 0;;
 
@@ -74,27 +71,9 @@ void Main::testRest(std::shared_ptr<haxe::_Rest::NativeRest<std::string>> string
 }
 
 void Main::testRestAny(std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct0>>> anys) {
-	std::cout << "test/unit_testing/tests/RestArgs/Main.hx:47: aaaaaaa" << std::endl;
-	
-	try {
-		haxe::Log::trace(Std::string<std::deque<int>>(std::any_cast<std::deque<int>>((*anys)[1]->data)), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 49, "testRestAny"));
-	} catch(std::exception e) {
-		std::cout << "test/unit_testing/tests/RestArgs/Main.hx:51: 1" << std::endl;
-		haxe::Log::trace(Std::string<const char*>(e.what()), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 52, "testRestAny"));
-	};
-	try {
-		Main::assert(std::any_cast<std::deque<int>>((*anys)[1]->data)[1] == 500, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 56, "testRestAny"));
-		std::cout << "test/unit_testing/tests/RestArgs/Main.hx:57: bbbbbbbbbb" << std::endl;
-	} catch(std::exception e) {
-		std::cout << "test/unit_testing/tests/RestArgs/Main.hx:59: 2" << std::endl;
-		haxe::Log::trace(Std::string<const char*>(e.what()), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 60, "testRestAny"));
-	};
-	try {
-		Main::assert(std::any_cast<std::deque<int>>((*anys)[1]->data)[2] == 1000, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 64, "testRestAny"));
-	} catch(std::exception e) {
-		std::cout << "test/unit_testing/tests/RestArgs/Main.hx:66: 3" << std::endl;
-		haxe::Log::trace(Std::string<const char*>(e.what()), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 67, "testRestAny"));
-	};
+	Main::assert(std::any_cast<std::deque<int>>((*anys)[1]->data) == std::deque<int>{ 0, 500, 1000 }, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 47, "testRestAny"));
+	Main::assert(std::any_cast<std::deque<int>>((*anys)[1]->data)[1] == 500, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 48, "testRestAny"));
+	Main::assert(std::any_cast<std::deque<int>>((*anys)[1]->data)[2] == 1000, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 49, "testRestAny"));
 }
 
 int main() {
