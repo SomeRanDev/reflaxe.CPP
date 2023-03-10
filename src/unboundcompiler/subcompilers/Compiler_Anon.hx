@@ -176,7 +176,7 @@ class Compiler_Anon extends SubCompiler {
 		}
 
 		if(constructorParams.length > 0) {
-			final constructor = "\n// construct fields directly\nstatic " + name + " " + name + "::make(" + constructorParams.join(", ") + ") {\n\t" +
+			final constructor = "\n// construct fields directly\nstatic " + name + " make(" + constructorParams.join(", ") + ") {\n\t" +
 				name + " result;\n\t" +
 				constructorAssigns.join(";\n\t") + ";" + 
 				"\n\treturn result;\n}";

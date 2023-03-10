@@ -20,7 +20,7 @@ struct PosInfos {
 	{}
 	
 	// construct fields directly
-	static PosInfos PosInfos::make(std::string className, std::string fileName, int lineNumber, std::string methodName, std::optional<std::deque<std::string>> customParams = std::nullopt) {
+	static PosInfos make(std::string className, std::string fileName, int lineNumber, std::string methodName, std::optional<std::deque<std::string>> customParams = std::nullopt) {
 		PosInfos result;
 		result.className = className;
 		result.fileName = fileName;

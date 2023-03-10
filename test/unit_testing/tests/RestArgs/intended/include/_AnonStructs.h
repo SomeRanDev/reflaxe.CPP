@@ -20,7 +20,7 @@ struct AnonStruct0 {
 	{}
 	
 	// construct fields directly
-	static AnonStruct0 AnonStruct0::make(std::any data) {
+	static AnonStruct0 make(std::any data) {
 		AnonStruct0 result;
 		result.data = data;
 		return result;
