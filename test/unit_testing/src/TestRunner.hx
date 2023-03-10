@@ -6,6 +6,7 @@ final INTENDED_DIR = "intended";
 final BUILD_DIR = "build";
 
 var ShowAllOutput = false;
+var UpdateIntended = false;
 
 function printlnErr(msg: String) {
 	Sys.stderr().writeString(msg + "\n", haxe.io.Encoding.UTF8);
@@ -33,6 +34,9 @@ The C++ compiling/run tests will occur no matter what, even if the initial outpu
 * show-all-output
 The output of the C++ compilation and executable is always shown, even if it ran successfuly.
 
+* update-intended
+The C++ output is generated in the `intended` folder.
+
 * test=TestName
 Makes it so only this test is ran. This option can be added multiple times to perform multiple tests.");
 
@@ -40,6 +44,7 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 	}
 
 	ShowAllOutput = args.contains("show-all-output");
+	UpdateIntended = args.contains("update-intended");
 
 	// ------------------------------------
 	// Allowed tests
@@ -154,7 +159,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"-lib reflaxe",
 			"extraParams.hxml",
 			"-cp " + testDir,
-			"-D cpp-output=" + haxe.io.Path.join([testDir, OUT_DIR]),
+			"-D cpp-output=" + haxe.io.Path.join([testDir, UpdateIntended ? INTENDED_DIR : OUT_DIR]),
 			"\"" + absPath + "\""
 		];
 		final process = new sys.io.Process("haxe " + args.join(" "));
