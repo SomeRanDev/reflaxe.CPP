@@ -42,6 +42,16 @@ class Compiler_Exprs extends SubCompiler {
 	function onModuleTypeEncountered(mt: ModuleType) Main.onModuleTypeEncountered(mt, compilingInHeader);
 
 	// ----------------------------
+	// If true, `null` is explicitly cast in C++ output.
+	public var explicitNull: Bool = false;
+	public function setExplicitNull(newVal: Null<Bool>, cond: Bool = true): Null<Bool> {
+		if(!cond) return null;
+		final old = explicitNull;
+		explicitNull = newVal;
+		return old;
+	}
+
+	// ----------------------------
 	// Compiles an expression into C++.
 	public function compileExpressionToCpp(expr: TypedExpr): Null<String> {
 		var result: Null<String> = null;
@@ -94,7 +104,7 @@ class Compiler_Exprs extends SubCompiler {
 				}
 			}
 			case TObjectDecl(fields): {
-				result = AComp.compileObjectDecl(Main.getExprType(expr), fields);
+				result = AComp.compileObjectDecl(Main.getExprType(expr), fields, compilingInHeader);
 			}
 			case TArrayDecl(el): {
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
@@ -247,6 +257,7 @@ class Compiler_Exprs extends SubCompiler {
 						final mCpp = moduleNameToCpp(maybeModuleType, expr.pos);
 						switch(e.t) {
 							case TAbstract(aRef, []) if(aRef.get().name == "Any" && aRef.get().module == "Any"): {
+								IComp.addInclude("any", compilingInHeader, true);
 								result = "std::any_cast<" + mCpp + ">(" + result + ")";
 							}
 							case _: {
@@ -341,10 +352,12 @@ class Compiler_Exprs extends SubCompiler {
 		if(cpp == null) {
 			switch(expr.expr) {
 				case TObjectDecl(fields): {
-					cpp = AComp.compileObjectDecl(targetType, fields);
+					cpp = AComp.compileObjectDecl(targetType, fields, compilingInHeader);
 				}
 				case _: {
+					final old = setExplicitNull(true, targetType.isAmbiguousNullable());
 					cpp = allowNullReturn ? Main.compileExpression(expr) : Main.compileExpressionOrError(expr);
+					setExplicitNull(old);
 				}
 			}
 		}
@@ -466,7 +479,7 @@ class Compiler_Exprs extends SubCompiler {
 			case TBool(b): b ? "true" : "false";
 			case TNull: {
 				final cppType = TComp.maybeCompileType(originalExpr.t, originalExpr.pos);
-				if(cppType != null) {
+				if(explicitNull && cppType != null) {
 					"static_cast<" + cppType + ">(std::nullopt)";
 				} else {
 					"std::nullopt";
@@ -614,7 +627,6 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	function checkNativeCodeMeta(callExpr: TypedExpr, el: Array<TypedExpr>, typeParams: Null<Array<Type>> = null): Null<String> {
-		//final typeParams = type.getParams();
 		final params = if(typeParams != null) {
 			typeParams.map(t -> function() {
 				return TComp.compileType(t, callExpr.pos);
@@ -639,6 +651,18 @@ class Compiler_Exprs extends SubCompiler {
 
 			nfc;
 		} else {
+			final isOverload = switch(callExpr.expr) {
+				case TField(e, fa): {
+					switch(fa) {
+						case FInstance(clsRef, _, cf): {
+							cf.get().overloads.get().length > 0;
+						}
+						case _: false;
+					}
+				}
+				case _: false;
+			}
+
 			// Get list of function argument types
 			var funcArgs = switch(Main.getExprType(callExpr)) {
 				case TFun(args, ret): {
@@ -647,7 +671,10 @@ class Compiler_Exprs extends SubCompiler {
 				case _: null;
 			}
 
-			// Compile the parameters
+			// If this is an overloaded call, ensure `null` is explicit for argument expressions.
+			final old = setExplicitNull(true, isOverload);
+
+			// Compile the arguments
 			var cppArgs = [];
 			for(i in 0...el.length) {
 				final paramExpr = el[i];
@@ -658,6 +685,9 @@ class Compiler_Exprs extends SubCompiler {
 				}
 				cppArgs.push(cpp);
 			}
+
+			// Revert "explictNull" state.
+			setExplicitNull(old);
 
 			// Handle type parameters if necessary
 			var typeParamCpp = "";

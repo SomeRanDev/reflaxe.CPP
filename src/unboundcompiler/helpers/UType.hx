@@ -64,6 +64,25 @@ class UType {
 			case _: false;
 		}
 	}
+
+	// ----------------------------
+	// Sometimes the type of the `null` being passed is
+	// ambiguous in C++ (like being passed to std::any 
+	// function when there is template alternative).
+	// This checks for these "ambiguous" types. 
+	public static function isAmbiguousNullable(t: Type): Bool {
+		return switch(t) {
+			case TInst(clsRef, _): {
+				switch(clsRef.get().kind) {
+					case KTypeParameter(_): true;
+					case _: false;
+				}
+			}
+			case TAbstract(anonRef, _) if(anonRef.get().module == "Any"): true;
+			case TDynamic(_): true;
+			case _: false;
+		}
+	}
 }
 
 #end
