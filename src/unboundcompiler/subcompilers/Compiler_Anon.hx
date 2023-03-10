@@ -273,22 +273,28 @@ namespace haxe {
 	}
 
 }
+
+// ---------------------------------------------------------------------
+
+// haxe::optional_info
 // Returns information about std::optional<T> types.
 namespace haxe {
 
-template <typename T>
-struct optional_info {
-	using inner = T;
-	static constexpr bool isopt = false;
-};
+	template <typename T>
+	struct optional_info {
+		using inner = T;
+		static constexpr bool isopt = false;
+	};
 
-template <typename T>
-struct optional_info<std::optional<T>> {
-	using inner = typename optional_info<T>::inner;
-	static constexpr bool isopt = true;
-};
+	template <typename T>
+	struct optional_info<std::optional<T>> {
+		using inner = typename optional_info<T>::inner;
+		static constexpr bool isopt = true;
+	};
 
 }
+
+// ---------------------------------------------------------------------
 
 // GEN_EXTRACTOR_FUNC
 // Generates a function named extract_[fieldName].
