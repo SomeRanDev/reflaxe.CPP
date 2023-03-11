@@ -19,6 +19,8 @@ public:
 	static void testRest(std::shared_ptr<haxe::_Rest::NativeRest<std::string>> strings);
 	
 	static void testRestAny(std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct0>>> anys);
+	
+	static void testRestAny2(std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct1>>> anys);
 };
 
 

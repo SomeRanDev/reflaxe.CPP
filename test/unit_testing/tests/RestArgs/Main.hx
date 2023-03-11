@@ -49,6 +49,13 @@ class Main {
 		assert((anys[1].data : Array<Int>)[2] == 1000);
 	}
 
+	// test w/ anonymous Null<T> structures
+	static function testRestAny2(anys: haxe.Rest<{ data: Null<Int> }>) {
+		assert(anys[0].data == 123);
+		assert(anys[1].data == null);
+		assert(anys[2].data == 369);
+	}
+
 	@:topLevel
 	@:dce(Off)
 	public static function main(): Int {
@@ -60,6 +67,9 @@ class Main {
 
 		// extreme example using anonymous structures and Array
 		testRestAny({ data: null }, { data: [0, 500, 1000] });
+
+		// extreme example 2
+		testRestAny2({ data: 123 }, { data: null }, { data: 369 });
 
 		return returnCode;
 	}

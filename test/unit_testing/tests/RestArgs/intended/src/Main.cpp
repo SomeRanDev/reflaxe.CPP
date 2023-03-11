@@ -76,6 +76,12 @@ void Main::testRestAny(std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<h
 	Main::assert(std::any_cast<std::deque<int>>((*anys)[1]->data)[2] == 1000, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 49, "testRestAny"));
 }
 
+void Main::testRestAny2(std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct1>>> anys) {
+	Main::assert((*anys)[0]->data == 123, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 54, "testRestAny2"));
+	Main::assert(!(*anys)[1]->data.has_value(), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 55, "testRestAny2"));
+	Main::assert((*anys)[2]->data == 369, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 56, "testRestAny2"));
+}
+
 int main() {
 	std::shared_ptr<haxe::_Rest::NativeRest<int>> tempRest;
 	
@@ -113,6 +119,20 @@ int main() {
 	};
 	
 	Main::testRestAny(tempRest2);
+	
+	std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct1>>> tempRest3;
+	
+	{
+		std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct1>>> this1;
+		this1 = std::make_shared<std::deque<std::shared_ptr<haxe::AnonStruct1>>>(std::deque<std::shared_ptr<haxe::AnonStruct1>>{
+			haxe::shared_anon<haxe::AnonStruct1>(123),
+			haxe::shared_anon<haxe::AnonStruct1>(std::nullopt),
+			haxe::shared_anon<haxe::AnonStruct1>(369)
+		});
+		tempRest3 = this1;
+	};
+	
+	Main::testRestAny2(tempRest3);
 	
 	return Main::returnCode;
 }
