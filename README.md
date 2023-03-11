@@ -37,10 +37,10 @@ void _Main::Main_Fields_::main() {
 | [Installation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#installation)                             | How to install and use this project.               |
 | [Explanation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#explanation)                               | A long winded explanation of this project's goals. |
 | [Compiler Examples](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compiler-examples)                   | Where to find examples.                            |
-| [Compilation Hooks (Plugins)](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compilation-hooks-plugins) | How to write plugins for the compiler.             |
+| [Memory Management](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#memory-management)                   | How the memory management system works.            |
 | [Destructors](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#destructors)                               | How to use destructors.                            |
 | [Top Level Meta](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#top-level-meta)                         | Add top-level functions in C++.                    |
-| [Memory Management](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#memory-management)                   | How the memory management system works.            |
+| [Plugin System](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compilation-hooks-plugins)               | How to write plugins for the compiler.             |
 
 &nbsp;
 
@@ -83,110 +83,6 @@ On the other hand, **Haxe to "Unbound C++"** gives memory types first-class trea
 # Compiler Examples
 
 Visit the `test/unit_testing/tests` directory for a bunch of samples and tests.
-
-&nbsp;
-
-# Compilation Hooks (Plugins)
-
-This compiler also contains hooks to customize the C++ compilation. In an initialization macro, pass `UnboundCompiler.onCompileBegin` a function to access an instance of the `UnboundCompiler` once compiling begins. Then `addHook` can be used on any of the hooks contained within it.
-
-Here is an example where all `Int` literals that are exactly `123` are compiled as `(100 + 20 + 3)`. Note the first parameter ("defaultOutput" in this case) is the output that would be generated normally; return it to prevent any changes to the compiler's normal behavior.
-
-```haxe
-// In some initialization macro...
-UnboundCompiler.onCompileBegin(function(compiler) {
-  compiler.compileExpressionHook.addHook(myHookFunc);
-});
-
-// Called whenever an expression is compiled.
-function myHookFunc(defaultOutput: Null<String>,
-                    compiler: UnboundCompiler,
-		    typedExpr: TypedExpr): Null<String>
-{
-  return switch(typedExpr.expr) {
-    case TConst(TInt(123)): "(100 + 20 + 3)";
-    case _: defaultOutput;
-  }
-}
-```
-
-Now Haxe code will be compiled like this:
-
-```haxe
-// int a = (100 + 20 + 3);
-var a = 123;
-```
-
-Here is a list of all the available `UnboundCompiler` hooks.
-
-```haxe
-var compileExpressionHook;
-function addHook(cb: (Null<String>, UnboundCompiler, TypedExpr) -> Null<String>);
-
-var compileClassHook;
-function addHook(cb: (Null<String>, UnboundCompiler, ClassType, ClassFieldVars, ClassFieldFuncs) -> Null<String>);
-
-var compileEnumHook;
-function addHook(cb: (Null<String>, UnboundCompiler, EnumType, EnumOptions) -> Null<String>);
-
-var compileTypedefHook;
-function addHook(cb: (Null<String>, UnboundCompiler, DefType) -> Null<String>);
-
-var compileAbstractHook;
-function addHook(cb: (Null<String>, UnboundCompiler, AbstractType) -> Null<String>);
-```
-
-&nbsp;
-
-# Destructors
-
-Destructors are allowed in this Haxe target as there is no GC! Simply name any function `destructor` to make it the destructor.
-
-**Haxe**
-
-```haxe
-@:headerOnly
-class MyClass {
-  public function destructor() {
-    trace("Destroyed");
-  }
-}
-```
-
-**C++ Output**
-
-```cpp
-class MyClass {
-public:
-  ~MyClass() {
-    std::cout << "Main.hx:4: Destroyed" << std::endl;
-  }
-};
-```
-
-&nbsp;
-
-# Top Level Meta
-
-The `@:topLevel` meta can be used to generated C++ functions outside of any namespace or class.
-
-**Haxe**
-
-```haxe
-@:topLevel
-function main(): Int {
-  trace("Hello world!");
-  return 0;
-}
-```
-
-**C++ Output**
-
-```cpp
-int main() {
-  std::cout << "Main.hx:3: Hello world!" << std::endl;
-}
-```
 
 &nbsp;
 
@@ -249,4 +145,107 @@ var obj = new UniqueClass();
 
 // std::unique_ptr<ValueClass> obj = std::make_unique<ValueClass>();
 var obj2: UniquePtr<ValueClass> = new ValueClass();
+```
+&nbsp;
+
+# Destructors
+
+Destructors are allowed in this Haxe target as there is no GC! Simply name any function `destructor` to make it the destructor.
+
+**Haxe**
+
+```haxe
+@:headerOnly
+class MyClass {
+  public function destructor() {
+    trace("Destroyed");
+  }
+}
+```
+
+**C++ Output**
+
+```cpp
+class MyClass {
+public:
+  ~MyClass() {
+    std::cout << "Main.hx:4: Destroyed" << std::endl;
+  }
+};
+```
+
+&nbsp;
+
+# Top Level Meta
+
+The `@:topLevel` meta can be used to generated C++ functions outside of any namespace or class.
+
+**Haxe**
+
+```haxe
+@:topLevel
+function main(): Int {
+  trace("Hello world!");
+  return 0;
+}
+```
+
+**C++ Output**
+
+```cpp
+int main() {
+  std::cout << "Main.hx:3: Hello world!" << std::endl;
+}
+```
+
+&nbsp;
+
+# Compilation Hooks (Plugins)
+
+This compiler also contains hooks to customize the C++ compilation. In an initialization macro, pass `UnboundCompiler.onCompileBegin` a function to access an instance of the `UnboundCompiler` once compiling begins. Then `addHook` can be used on any of the hooks contained within it.
+
+Here is an example where all `Int` literals that are exactly `123` are compiled as `(100 + 20 + 3)`. Note the first parameter ("defaultOutput" in this case) is the output that would be generated normally; return it to prevent any changes to the compiler's normal behavior.
+
+```haxe
+// In some initialization macro...
+UnboundCompiler.onCompileBegin(function(compiler) {
+  compiler.compileExpressionHook.addHook(myHookFunc);
+});
+
+// Called whenever an expression is compiled.
+function myHookFunc(defaultOutput: Null<String>,
+                    compiler: UnboundCompiler,
+		    typedExpr: TypedExpr): Null<String>
+{
+  return switch(typedExpr.expr) {
+    case TConst(TInt(123)): "(100 + 20 + 3)";
+    case _: defaultOutput;
+  }
+}
+```
+
+Now Haxe code will be compiled like this:
+
+```haxe
+// int a = (100 + 20 + 3);
+var a = 123;
+```
+
+Here is a list of all the available `UnboundCompiler` hooks.
+
+```haxe
+var compileExpressionHook;
+function addHook(cb: (Null<String>, UnboundCompiler, TypedExpr) -> Null<String>);
+
+var compileClassHook;
+function addHook(cb: (Null<String>, UnboundCompiler, ClassType, ClassFieldVars, ClassFieldFuncs) -> Null<String>);
+
+var compileEnumHook;
+function addHook(cb: (Null<String>, UnboundCompiler, EnumType, EnumOptions) -> Null<String>);
+
+var compileTypedefHook;
+function addHook(cb: (Null<String>, UnboundCompiler, DefType) -> Null<String>);
+
+var compileAbstractHook;
+function addHook(cb: (Null<String>, UnboundCompiler, AbstractType) -> Null<String>);
 ```
