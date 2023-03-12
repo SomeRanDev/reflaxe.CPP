@@ -1,0 +1,9 @@
+src/Main.cpp
+src/EReg.cpp
+include/haxe_PosInfos.h
+include/_AnonUtils.h
+include/_AnonStructs.h
+include/Std.h
+include/Main.h
+include/HxString.h
+include/EReg.h
