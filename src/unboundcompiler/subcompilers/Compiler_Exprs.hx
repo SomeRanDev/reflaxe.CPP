@@ -210,7 +210,7 @@ class Compiler_Exprs extends SubCompiler {
 				} else {
 					result = "do {\n";
 					result += toIndentedScope(blockExpr);
-					result += "\n} while(" + gdCond + ");";
+					result += "\n} while(" + gdCond + ")";
 				}
 			}
 			case TSwitch(e, cases, edef): {
