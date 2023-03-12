@@ -1,0 +1,5 @@
+# The following are added automatically:
+# -lib unbound
+# -D cpp-output=out
+
+Main
