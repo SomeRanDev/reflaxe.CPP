@@ -82,7 +82,10 @@ class Main {
 		// Any
 		var anyTest: Any = 123;
 		assert(cast(anyTest, Int) == 123);
-		assertStringEq(Std.string(anyTest), "<Any(int)>");
+
+		// C++ type info name can vary based on platform,
+		// so just check if matches Any(...)
+		assert(~/Any\(.+\)/.match(Std.string(anyTest)));
 
 		// Array
 		final arr = [1, 2, 3];

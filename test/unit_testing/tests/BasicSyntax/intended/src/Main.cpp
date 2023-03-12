@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include "_AnonStructs.h"
+#include "EReg.h"
 #include "haxe_Log.h"
 #include "Std.h"
 
@@ -82,27 +83,27 @@ int main() {
 	std::any anyTest = 123;
 	
 	Main::assert(std::any_cast<int>(anyTest) == 123, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 84, "main"));
-	Main::assertStringEq("<Any(" + Std::string(anyTest.type().name()) + ")>", "<Any(int)>", haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 85, "main"));
+	Main::assert(EReg("Any\\(.+\\)", "").match("<Any(" + Std::string(anyTest.type().name()) + ")>"), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 88, "main"));
 	
 	int arr_0 = 1;
 	int arr_1 = 2;
 	int arr_2 = 3;
 	
-	Main::assert(arr_1 == 2, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 89, "main"));
-	Main::assert(3 == 3, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 90, "main"));
+	Main::assert(arr_1 == 2, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 92, "main"));
+	Main::assert(3 == 3, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 93, "main"));
 	
 	bool _bool = true;
 	
-	Main::assert(_bool, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 94, "main"));
+	Main::assert(_bool, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 97, "main"));
 	
 	int mutNum = 1000;
 	
 	mutNum++;
 	mutNum++;
-	Main::assert(mutNum++ == 1002, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 100, "main"));
-	Main::assert(--mutNum == 1002, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 101, "main"));
-	Main::assert(--mutNum == 1001, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 102, "main"));
-	Main::assert(mutNum == 1001, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 103, "main"));
+	Main::assert(mutNum++ == 1002, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 103, "main"));
+	Main::assert(--mutNum == 1002, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 104, "main"));
+	Main::assert(--mutNum == 1001, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 105, "main"));
+	Main::assert(mutNum == 1001, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 106, "main"));
 	
 	std::function<void()> myFunc = [&]() mutable {
 		mutNum++;
@@ -110,18 +111,18 @@ int main() {
 	
 	myFunc();
 	myFunc();
-	Main::assert(mutNum == 1003, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 111, "main"));
+	Main::assert(mutNum == 1003, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 114, "main"));
 	
 	int a = 2;
 	int tempNumber = a * a;
 	int blockVal = tempNumber;
 	
-	Main::assert(blockVal == 4, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 118, "main"));
+	Main::assert(blockVal == 4, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 121, "main"));
 	
 	if(blockVal == 4) {
-		Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 122, "main"));
+		Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 125, "main"));
 	} else {
-		Main::assert(false, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 124, "main"));
+		Main::assert(false, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 127, "main"));
 	};
 	
 	int i = 0;
@@ -131,7 +132,7 @@ int main() {
 			break;
 		};
 		if(i == 800) {
-			Main::assert(i / 80 == 10, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 131, "main"));
+			Main::assert(i / 80 == 10, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 134, "main"));
 		};
 	};
 	
@@ -139,22 +140,22 @@ int main() {
 	
 	while(true) {
 		int tempRight;
-		Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 137, "main"));
+		Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 140, "main"));
 		tempRight = 6;
 		if(!(j < tempRight)) {
 			break;
 		};
-		Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 140, "main"));
+		Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 143, "main"));
 		j++;
 	};
 	
 	int anotherNum = 3;
 	int anotherNum2 = anotherNum;
 	
-	Main::assert(anotherNum == anotherNum2, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 147, "main"));
+	Main::assert(anotherNum == anotherNum2, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 150, "main"));
 	anotherNum += 10;
 	anotherNum2 = anotherNum;
-	Main::assert(anotherNum == anotherNum2, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 150, "main"));
+	Main::assert(anotherNum == anotherNum2, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/BasicSyntax/Main.hx", 153, "main"));
 	
 	return Main::returnCode;
 }
