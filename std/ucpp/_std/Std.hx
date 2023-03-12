@@ -11,6 +11,8 @@ template <typename T>
 struct HasToString <T, decltype((void) T::toString, 0)> : std::true_type { };")
 @:pseudoCoreApi
 @:headerOnly
+@:headerInclude("type_traits", true)
+@:headerInclude("string", true)
 class Std {
 	@:deprecated('Std.is is deprecated. Use Std.isOfType instead.')
 	public extern inline static function is(v: Dynamic, t: Dynamic): Bool return isOfType(v, t);
@@ -24,7 +26,6 @@ class Std {
 		return cast value;
 	}
 
-	@:include("type_traits", true)
 	public static function string<T>(s: T): String {
 		untyped __ucpp__("if constexpr(std::is_integral_v<T>) {
 	return std::to_string({});
@@ -40,13 +41,11 @@ class Std {
 		return untyped __ucpp__("((int){})", x);
 	}
 
-	@:include("string", true)
 	public static function parseInt(x: String): Null<Int> {
 		untyped __ucpp__("try { return std::stoi({}); } catch(...) {}", x);
 		return null;
 	}
 
-	@:include("string", true)
 	public static function parseFloat(x: String): Float {
 		untyped __ucpp__("try { return std::stof({}); } catch(...) {}", x);
 		return Math.NaN;
