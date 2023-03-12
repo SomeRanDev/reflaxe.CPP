@@ -50,7 +50,7 @@ class Compiler_Classes extends SubCompiler {
 		final isValueType = classType.getMemoryManagementType() == Value;
 		if(isValueType) {
 			for(v in varFields) {
-				if(Main.isSameAsCurrentModule(v.field.type)) {
+				if(!v.isStatic && Main.isSameAsCurrentModule(v.field.type)) {
 					v.field.pos.makeError(ValueSelfRef);
 				}
 			}
