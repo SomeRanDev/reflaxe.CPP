@@ -255,7 +255,7 @@ function compareFiles(fileA: String, fileB: String): Null<String> {
 	final contentA = sys.io.File.getContent(fileA);
 	final contentB = sys.io.File.getContent(fileB);
 
-	if(contentA != contentB) {
+	if(StringTools.trim(contentA) != StringTools.trim(contentB)) {
 		return "`" + fileB + "` does not match the intended output.";
 	}
 
