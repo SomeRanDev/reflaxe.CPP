@@ -1,6 +1,6 @@
 package;
 
-@:native("std::regex_constants::syntax_option_type")
+@:native("std::regex")
 @:include("regex", true)
 @:valueType
 extern enum abstract SyntaxOptionType(Int) to Int {

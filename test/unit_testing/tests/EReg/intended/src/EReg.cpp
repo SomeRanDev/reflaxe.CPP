@@ -10,7 +10,7 @@
 EReg EReg::escapeRegExpRe = EReg("[\\[\\]{}()*+?.\\\\\\^$|]", "g");
 
 EReg::EReg(std::string r, std::string opt) {
-	this->regex = std::regex(r, std::regex_constants::syntax_option_type::ECMAScript | std::regex_constants::syntax_option_type::icase);
+	this->regex = std::regex(r, std::regex::ECMAScript | std::regex::icase);
 	this->smatch = std::smatch();
 	this->matches = std::nullopt;
 	this->left = std::nullopt;
