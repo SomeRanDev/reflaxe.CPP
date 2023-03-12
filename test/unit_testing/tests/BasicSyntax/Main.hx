@@ -17,6 +17,14 @@ class Main {
 		}
 	}
 
+	static function assertStringEq(first: String, second: String, infos: Null<PosInfos> = null) {
+		if(first != second) {
+			final msg = "Assert failed, \"" + first + "\" does not equal \"" + second + "\".";
+			haxe.Log.trace(msg, infos);
+			returnCode = 1;
+		}
+	}
+
 	@:topLevel
 	@:dce(Off)
 	public static function main(): Int {
@@ -38,7 +46,7 @@ class Main {
 		str = "World";
 		str = "Hello, " + str;
 		str += "!";
-		assert(str == "Hello, World!");
+		assertStringEq(str, "Hello, World!");
 
 		// if/else
 		if(str != "Goodbye World!") {
@@ -68,13 +76,13 @@ class Main {
 			number: 3
 		};
 
-		assert(dict.hey == "Hey");
+		assertStringEq(dict.hey, "Hey");
 		assert(dict.number == 3);
 
 		// Any
 		var anyTest: Any = 123;
 		assert(cast(anyTest, Int) == 123);
-		assert(Std.string(anyTest) == "<Any(int)>");
+		assertStringEq(Std.string(anyTest), "<Any(int)>");
 
 		// Array
 		final arr = [1, 2, 3];
