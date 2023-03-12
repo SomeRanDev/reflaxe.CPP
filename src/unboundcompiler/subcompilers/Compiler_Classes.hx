@@ -91,9 +91,13 @@ class Compiler_Classes extends SubCompiler {
 			final cppVal = if(field.expr() != null) {
 				XComp.compilingInHeader = headerOnly;
 				XComp.compilingForTopLevel = addToCpp;
-				final result = Main.compileClassVarExpr(field.expr());
+
+				// Note to self: should I be using: `Main.compileClassVarExpr(field.expr())`?
+				final result = XComp.compileExpressionForType(field.expr(), field.type, true);
+
 				XComp.compilingForTopLevel = false;
-				result;
+
+				result == null ? "" : result;
 			} else {
 				"";
 			}
