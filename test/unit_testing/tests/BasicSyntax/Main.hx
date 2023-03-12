@@ -20,6 +20,7 @@ class Main {
 	@:topLevel
 	@:dce(Off)
 	public static function main(): Int {
+		// arithmetic
 		assert(true);
 		assert(!false);
 		assert(1 + 1 == 2);
@@ -27,16 +28,19 @@ class Main {
 		assert(2 * 2 == 4);
 		assert(10 / 2 == 5);
 
+		// class
 		final obj = new Main();
 		assert(obj == obj);
 		assert(obj.testField == 123);
 
+		// strings
 		var str = "Hello";
 		str = "World";
 		str = "Hello, " + str;
 		str += "!";
 		assert(str == "Hello, World!");
 
+		// if/else
 		if(str != "Goodbye World!") {
 			var num = 3;
 			assert(num > 1);
@@ -48,6 +52,7 @@ class Main {
 			assert(false);
 		}
 
+		// bit-wise op
 		var num = 3;
 		assert((num & 1) == 1);
 		assert((num & 4) == 0);
@@ -56,6 +61,7 @@ class Main {
 
 		assert((1 + 1) == 1 + 1);
 
+		// anonymous structures
 		final dict = {
 			hey: "Hey",
 			thing: obj,
@@ -65,17 +71,21 @@ class Main {
 		assert(dict.hey == "Hey");
 		assert(dict.number == 3);
 
+		// Any
 		var anyTest: Any = 123;
 		assert(cast(anyTest, Int) == 123);
 		assert(Std.string(anyTest) == "<Any(int)>");
 
+		// Array
 		final arr = [1, 2, 3];
 		assert(arr[1] == 2);
 		assert(arr.length == 3);
 
+		// C++ reserved names
 		final bool = true;
 		assert(!!bool);
 
+		// Unop
 		var mutNum = 1000;
 		mutNum++;
 		mutNum++;
@@ -84,6 +94,7 @@ class Main {
 		assert(--mutNum == 1001);
 		assert(mutNum == 1001);
 
+		// lambda
 		final myFunc = function() {
 			mutNum++;
 		}
@@ -91,18 +102,21 @@ class Main {
 		myFunc();
 		assert(mutNum == 1003);
 
+		// everything is expression
 		final blockVal = {
 			final a = 2;
 			a * a;
 		}
 		assert(blockVal == 4);
 
+		// if/else
 		if(blockVal == 4) {
 			assert(true);
 		} else {
 			assert(false);
 		}
 
+		// while
 		var i = 0;
 		while(i++ < 1000) {
 			if(i == 800) {
@@ -119,6 +133,7 @@ class Main {
 			j++;
 		}
 
+		// value from assignment
 		var anotherNum = 0;
 		var anotherNum2 = anotherNum = 3;
 		assert(anotherNum == anotherNum2);
@@ -126,6 +141,6 @@ class Main {
 		anotherNum2 = anotherNum += 10;
 		assert(anotherNum == anotherNum2);
 
-		return 0;
+		return returnCode;
 	}
 }
