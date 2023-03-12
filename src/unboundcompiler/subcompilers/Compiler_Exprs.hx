@@ -352,7 +352,7 @@ class Compiler_Exprs extends SubCompiler {
 	// ----------------------------
 	// Compile expression, but take into account the target type
 	// and apply additional conversions in the compiled code.
-	function compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool = false): Null<String> {
+	public function compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool = false): Null<String> {
 		var cpp = null;
 		if(targetType != null) {
 			expr = expr.unwrapUnsafeCasts();
