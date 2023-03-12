@@ -196,6 +196,7 @@ class Compiler_Classes extends SubCompiler {
 					"";
 				}
 
+				XComp.pushReturnType(tfunc.t);
 				final funcDeclaration = meta + (topLevel ? "" : prefix) + retDecl + name + argDecl;
 				var content = if(tfunc.expr != null) {
 					XComp.compilingInHeader = !addToCpp;
@@ -203,6 +204,7 @@ class Compiler_Classes extends SubCompiler {
 				} else {
 					"";
 				}
+				XComp.popReturnType();
 				
 				if(addToCpp) {
 					(topLevel ? topLevelFunctions : functions).push(funcDeclaration + ";");

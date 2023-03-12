@@ -52,6 +52,15 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	// ----------------------------
+	// Track the intended return type using a "Stack" system.
+	public var returnTypeStack: Array<Type> = [];
+	public function pushReturnType(t: Type) returnTypeStack.push(t);
+	public function popReturnType() returnTypeStack.pop();
+	public function currentReturnType(): Null<Type> {
+		return returnTypeStack.length == 0 ? null : returnTypeStack[returnTypeStack.length - 1];
+	}
+
+	// ----------------------------
 	// Compiles an expression into C++.
 	public function compileExpressionToCpp(expr: TypedExpr): Null<String> {
 		var result: Null<String> = null;
@@ -150,7 +159,11 @@ class Compiler_Exprs extends SubCompiler {
 				IComp.addInclude("functional", compilingInHeader, true);
 				final captureType = compilingForTopLevel ? "" : "&";
 				result = "[" + captureType + "](" + tfunc.args.map(a -> Main.compileFunctionArgument(a, expr.pos, false, true)).join(", ") + ") mutable {\n";
+				
+				pushReturnType(tfunc.t);
 				result += toIndentedScope(tfunc.expr);
+				popReturnType();
+				
 				result += "\n}";
 			}
 			case TVar(tvar, maybeExpr): {
@@ -233,7 +246,14 @@ class Compiler_Exprs extends SubCompiler {
 				}
 			}
 			case TReturn(maybeExpr): {
-				final cpp = maybeExpr != null ? Main.compileExpression(maybeExpr) : null;
+				final cpp = maybeExpr != null ? {
+					final rt = currentReturnType();
+					if(rt != null) {
+						compileExpressionForType(maybeExpr, rt);
+					} else {
+						Main.compileExpression(maybeExpr);
+					}
+				} : null;
 				if(cpp != null) {
 					result = "return " + cpp;
 				} else {
