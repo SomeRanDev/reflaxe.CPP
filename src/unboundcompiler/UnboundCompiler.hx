@@ -164,8 +164,38 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	public function getExprType(e: TypedExpr): Type {
 		return switch(e.expr) {
+			// Ensure "this" is typed as pointer
 			case TConst(TThis): TAbstract(getPtrType(), [e.t]);
+
+			// Redirect "tvar" type
 			case TLocal(tvar): getTVarType(tvar);
+
+			// For some reason, `e.t` is inaccurate when typing a TField expression.
+			//
+			// This ensures the type attached to the field declaration is used,
+			// rather than the possibly incorrect  type Haxe decided to give it.
+			case TField(_, fa): {
+				final t: Null<{ type: Type, params: Array<TypeParameter> }> = switch(fa) {
+					case FInstance(_, _, cfr): cfr.get();
+					case FStatic(_, cfr): cfr.get();
+					case FAnon(cfr): cfr.get();
+					case FClosure(_, cfr): cfr.get();
+					case FEnum(_, ef): ef;
+					case _: null;
+				}
+
+				// TODO:
+				// If there are any type parameters, `e.t` is more accurate
+				// because it has the actual parameters filled in.
+				// Maybe find a way to fill in the decl type?
+				if(t != null && t.params.length == 0) {
+					t.type;
+				} else {
+					e.t;
+				}
+			}
+
+			// Return the typed expression's type otherwise.
 			case _: e.t;
 		}
 	}
