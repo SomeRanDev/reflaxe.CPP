@@ -200,6 +200,21 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		}
 	}
 
+	var ptrType: Null<Ref<AbstractType>> = null;
+	public function getPtrType(): Ref<AbstractType> {
+		if(ptrType == null) {
+			switch(Context.getModule("ucpp.Ptr")[0]) {
+				case TAbstract(abRef, _): {
+					ptrType = abRef;
+				}
+				case _: {
+					throw "`ucpp.Ptr` does not refer to an abstract type.";
+				}
+			}
+		}
+		return ptrType;
+	}
+
 	// ----------------------------
 	// Generate the header containing all the
 	// specially made classes for the anonymous
