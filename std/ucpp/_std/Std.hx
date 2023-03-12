@@ -27,13 +27,19 @@ class Std {
 	}
 
 	public static function string<T>(s: T): String {
-		untyped __ucpp__("if constexpr(std::is_integral_v<T>) {
+		untyped __ucpp__("if constexpr(haxe::optional_info<T>::isopt) {
+	if(s.has_value()) {
+		return Std::string({}.value());
+	} else {
+		return \"null\";
+	}
+} else if constexpr(std::is_integral_v<T>) {
 	return std::to_string({});
 } else if constexpr(std::is_convertible<T, std::string>::value) {
 	return std::string({});
 } else if constexpr(HasToString<T>::value) {
 	return {}.toString();
-}", s, s, s);
+}", s, s, s, s);
 		return "<unknown(size:" + ucpp.Stdlib.intToString(ucpp.Stdlib.sizeof(s)) + ")>";
 	}
 
