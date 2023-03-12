@@ -164,6 +164,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	public function getExprType(e: TypedExpr): Type {
 		return switch(e.expr) {
+			case TConst(TThis): TAbstract(getPtrType(), [e.t]);
 			case TLocal(tvar): getTVarType(tvar);
 			case _: e.t;
 		}
