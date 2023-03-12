@@ -326,7 +326,7 @@ class Compiler_Exprs extends SubCompiler {
 		var result = Main.compileExpression(expr);
 
 		if(unwrapOptional) {
-			if(expr.t.isNull()) {
+			if(Main.getExprType(expr).isNull()) {
 				result = result + ".value()";
 			}
 		}
@@ -337,7 +337,7 @@ class Compiler_Exprs extends SubCompiler {
 	function compileExpressionNotNullAsValue(expr: TypedExpr): Null<String> {
 		final result = compileExpressionNotNull(expr);
 
-		final isValue = switch(TComp.getMemoryManagementTypeFromType(expr.t)) {
+		final isValue = switch(TComp.getMemoryManagementTypeFromType(Main.getExprType(expr))) {
 			case Value: true;
 			case _: false;
 		}
@@ -356,7 +356,7 @@ class Compiler_Exprs extends SubCompiler {
 		var cpp = null;
 		if(targetType != null) {
 			expr = expr.unwrapUnsafeCasts();
-			if(expr.t.valueTypesEqual(targetType, true)) {
+			if(Main.getExprType(expr).valueTypesEqual(targetType, true)) {
 				cpp = compileMMConversion(expr, Left(targetType));
 			} else {
 				// If converting from a normal type to an anonymous struct, we must first convert the
