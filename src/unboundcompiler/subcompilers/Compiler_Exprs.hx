@@ -570,7 +570,6 @@ class Compiler_Exprs extends SubCompiler {
 		final mt = ut.toModuleType();
 		if(mt != null) {
 			final cd = mt.getCommonData();
-			final mmt = cd.getMemoryManagementType();
 			if(cd.isArrowAccess()) {
 				return true;
 			}
