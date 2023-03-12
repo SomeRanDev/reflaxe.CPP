@@ -7,6 +7,7 @@ final BUILD_DIR = "build";
 
 var ShowAllOutput = false;
 var UpdateIntended = false;
+var NoDetails = false;
 
 function printlnErr(msg: String) {
 	Sys.stderr().writeString(msg + "\n", haxe.io.Encoding.UTF8);
@@ -37,6 +38,9 @@ The output of the C++ compilation and executable is always shown, even if it ran
 * update-intended
 The C++ output is generated in the `intended` folder.
 
+* no-details
+The list of C++ output lines that do not match the tests are ommitted from the output.
+
 * test=TestName
 Makes it so only this test is ran. This option can be added multiple times to perform multiple tests.");
 
@@ -45,6 +49,7 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 
 	ShowAllOutput = args.contains("show-all-output");
 	UpdateIntended = args.contains("update-intended");
+	NoDetails = args.contains("no-details");
 
 	// ------------------------------------
 	// Allowed tests
@@ -256,7 +261,31 @@ function compareFiles(fileA: String, fileB: String): Null<String> {
 	final contentB = sys.io.File.getContent(fileB);
 
 	if(StringTools.trim(contentA) != StringTools.trim(contentB)) {
-		return "`" + fileB + "` does not match the intended output.";
+		final msg = fileB + "` does not match the intended output.";
+
+		return if(NoDetails) {
+			msg;
+		} else {
+			final result = ["---\n`" + msg + "\n---"];
+
+			final linesA = contentA.split("\n");
+			final linesB = contentB.split("\n");
+
+			for(i in 0...linesA.length) {
+				if(linesA[i] != linesB[i]) {
+					var comp = "* Line " + (i + 1) + "\n";
+					comp += "[int] " + linesA[i] + "\n";
+					comp += "[out] " + (i < linesB.length ? linesB[i] : "<empty>");
+					result.push(comp);
+				}
+			}
+
+			if(linesB.length > linesA.length) {
+				result.push(fileB + " also has " + (linesB.length - linesA.length) + " more lines than " + fileA + ".");
+			}
+
+			result.join("\n\n");
+		}
 	}
 
 	return null;
