@@ -3,6 +3,7 @@
 #include <limits>
 #include <optional>
 #include <string>
+#include <type_traits>
 
 template <typename T, typename = std::string>
 struct HasToString : std::false_type { };
@@ -15,7 +16,13 @@ class Std {
 public:
 	template<typename T>
 	static std::string string(T s) {
-		if constexpr(std::is_integral_v<T>) {
+		if constexpr(haxe::optional_info<T>::isopt) {
+			if(s.has_value()) {
+				return Std::string(s.value());
+			} else {
+				return "null";
+			}
+		} else if constexpr(std::is_integral_v<T>) {
 			return std::to_string(s);
 		} else if constexpr(std::is_convertible<T, std::string>::value) {
 			return std::string(s);

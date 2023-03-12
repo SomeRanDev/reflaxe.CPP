@@ -8,7 +8,7 @@
 #include <string>
 #include "_AnonStructs.h"
 
-int Main::returnCode = 0;;
+int Main::returnCode = 0;
 
 void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) {
 	if(!b) {

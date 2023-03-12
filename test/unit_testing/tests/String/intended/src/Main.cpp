@@ -6,7 +6,7 @@
 #include "_AnonStructs.h"
 #include "HxString.h"
 
-int Main::returnCode = 0;;
+int Main::returnCode = 0;
 
 void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) {
 	if(!b) {
