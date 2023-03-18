@@ -4,6 +4,7 @@ package;
 #error "Please don't add haxe/std to your classpath, instead set HAXE_STD_PATH env var"
 #end
 
+@:includeTypeUtils
 @:pseudoCoreApi
 class StdImpl {
 	public static function isOfType<_Value, _Type>(v: _Value, t: _Type): Bool {
@@ -25,6 +26,7 @@ struct HasToString <T, decltype(std::declval<T>().toString())> : std::true_type 
 @:headerInclude("type_traits", true)
 @:headerInclude("utility", true)
 @:headerInclude("string", true)
+@:includeAnonUtils(true)
 class Std {
 	@:deprecated('Std.is is deprecated. Use Std.isOfType instead.')
 	public extern inline static function is(v: Dynamic, t: Dynamic): Bool return isOfType(v, t);

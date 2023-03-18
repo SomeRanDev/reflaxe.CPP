@@ -33,6 +33,7 @@ class Compiler_Enums extends SubCompiler {
 		// --------------------
 		// Init includes (always headers = true)
 		IComp.resetAndInitIncludes(true, [headerFilename]);
+		IComp.handleSpecialIncludeMeta(enumType.meta);
 
 		// --------------------
 		// Ensure no self-reference if value type.

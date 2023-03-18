@@ -45,6 +45,7 @@ class Compiler_Classes extends SubCompiler {
 
 		// Init includes
 		IComp.resetAndInitIncludes(headerOnly, [filename + UnboundCompiler.HeaderExt]);
+		IComp.handleSpecialIncludeMeta(classType.meta);
 
 		// Ensure no self-reference
 		final isValueType = classType.getMemoryManagementType() == Value;
