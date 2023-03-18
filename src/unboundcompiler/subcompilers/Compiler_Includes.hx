@@ -48,6 +48,11 @@ class Compiler_Includes extends SubCompiler {
 	public var anonHeaderRequired(default, null): Bool = false;
 
 	// ----------------------------
+	// If the type utility header was included
+	// somewhere in the output, this will be true.
+	public var typeUtilHeaderRequired(default, null): Bool = false;
+
+	// ----------------------------
 	// Clears include arrays and fills
 	// them with the current type usage data.
 	function resetAndInitIncludes(onlyHeader: Bool = false, ignoreList: Null<Array<String>> = null) {
@@ -152,6 +157,11 @@ class Compiler_Includes extends SubCompiler {
 		IComp.addInclude(UnboundCompiler.AnonStructHeaderFile + UnboundCompiler.HeaderExt, header);
 	}
 
+
+	function addTypeUtilHeader(header: Bool) {
+		typeUtilHeaderRequired = true;
+		IComp.addInclude(UnboundCompiler.TypeUtilsHeaderFile + UnboundCompiler.HeaderExt, header);
+	}
 	function addIncludeFromModuleType(mt: Null<ModuleType>, header: Bool) {
 		if(isNoIncludeType(mt)) return;
 

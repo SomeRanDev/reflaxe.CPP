@@ -91,14 +91,16 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		EComp = new Compiler_Enums(this);
 		AComp = new Compiler_Anon(this);
 		IComp = new Compiler_Includes(this);
+		RComp = new Compiler_Reflection(this);
 		TComp = new Compiler_Types(this);
 		XComp = new Compiler_Exprs(this);
 
-		function setup(c: SubCompiler) c.setSubCompilers(CComp, EComp, AComp, IComp, TComp, XComp);
+		function setup(c: SubCompiler) c.setSubCompilers(CComp, EComp, AComp, IComp, RComp, TComp, XComp);
 		setup(CComp);
 		setup(EComp);
 		setup(AComp);
 		setup(IComp);
+		setup(RComp);
 		setup(TComp);
 		setup(XComp);
 	}
@@ -108,6 +110,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// been passed to this compiler class.
 	public override function onCompileEnd() {
 		generateAnonStructHeader();
+		generateTypeUtilsHeader();
 	}
 
 	// ----------------------------
@@ -249,6 +252,20 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 				content += "\n}";
 				setExtraFile("include/" + AnonStructHeaderFile + HeaderExt, content);
 			}
+
+	// ----------------------------
+	// Generate the header containing all the
+	// type information used for reflection.
+	function generateTypeUtilsHeader() {
+		if(IComp.typeUtilHeaderRequired) {
+			final headerContent = RComp.typeUtilHeaderContent();
+
+			var content = "#pragma once\n\n";
+			content += IComp.compileHeaderIncludes() + "\n\n";
+			content += headerContent + "\n\n";
+			setExtraFile(HeaderFolder + "/" + TypeUtilsHeaderFile + HeaderExt, content); 
+		}
+	}
 		}
 	}
 
