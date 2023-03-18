@@ -19,10 +19,11 @@ class StdImpl {
 struct HasToString : std::false_type { };
 
 template <typename T>
-struct HasToString <T, decltype((void) T::toString, 0)> : std::true_type { };")
+struct HasToString <T, decltype(std::declval<T>().toString())> : std::true_type { };")
 @:pseudoCoreApi
 @:headerOnly
 @:headerInclude("type_traits", true)
+@:headerInclude("utility", true)
 @:headerInclude("string", true)
 class Std {
 	@:deprecated('Std.is is deprecated. Use Std.isOfType instead.')
