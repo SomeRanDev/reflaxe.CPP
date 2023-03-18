@@ -78,7 +78,7 @@ class Compiler_Includes extends SubCompiler {
 
 	// ----------------------------
 	// Add include while compiling code.
-	function addInclude(include: String, header: Bool, triangleBrackets: Bool = false) {
+	public function addInclude(include: String, header: Bool, triangleBrackets: Bool = false) {
 		function add(arr: Array<String>, inc: String) {
 			if(!arr.contains(inc)) {
 				arr.push(inc);
