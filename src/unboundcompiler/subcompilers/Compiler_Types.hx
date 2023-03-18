@@ -128,10 +128,16 @@ class Compiler_Types extends SubCompiler {
 				}
 			}
 			case TType(defRef, params): {
-				if(t.isRef()) {
+				final def = defRef.get();
+				final name = def.name;
+				final module = def.module;
+
+				if(name == "Class<" + module + ">") {
+					"haxe::_class<" + module + ">";
+				} else if(t.isRef()) {
 					compileType(params[0], pos) + "&";
 				} else {
-					compileDefName(defRef.get(), pos, params, true, asValue);
+					compileDefName(def, pos, params, true, asValue);
 				}
 			}
 		}
@@ -218,6 +224,7 @@ class Compiler_Types extends SubCompiler {
 					case "Single": Value;
 					case "Bool": Value;
 					case "Any": Value;
+					case "Class": Value;
 					case _: null;
 				}
 			}
@@ -226,6 +233,13 @@ class Compiler_Types extends SubCompiler {
 			}
 			case TType(defRef, params) if(t.isRef()): {
 				getMemoryManagementTypeFromType(params[0]);
+			}
+			case TType(defRef, params) if(params.length == 1): {
+				final def = defRef.get();
+				switch(def.name) {
+					case "Class": Value;
+					case _: null;
+				}
 			}
 			case TAnonymous(a): {
 				SharedPtr;

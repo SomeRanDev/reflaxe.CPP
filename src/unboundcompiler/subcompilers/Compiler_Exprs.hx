@@ -99,7 +99,8 @@ class Compiler_Exprs extends SubCompiler {
 				result = fieldAccessToCpp(e, fa, expr);
 			}
 			case TTypeExpr(m): {
-				result = moduleNameToCpp(m, expr.pos);
+				IComp.addTypeUtilHeader(compilingInHeader);
+				result = "haxe::_class<" + moduleNameToCpp(m, expr.pos) + ">()";
 			}
 			case TParenthesis(e): {
 				final compiled = Main.compileExpression(e);
