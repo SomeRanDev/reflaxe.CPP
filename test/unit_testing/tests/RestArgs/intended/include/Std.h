@@ -4,12 +4,14 @@
 #include <optional>
 #include <string>
 #include <type_traits>
+#include <utility>
+#include "_AnonUtils.h"
 
 template <typename T, typename = std::string>
 struct HasToString : std::false_type { };
 
 template <typename T>
-struct HasToString <T, decltype((void) T::toString, 0)> : std::true_type { };
+struct HasToString <T, decltype(std::declval<T>().toString())> : std::true_type { };
 
 
 class Std {

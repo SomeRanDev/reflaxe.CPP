@@ -56,9 +56,7 @@ class Main {
 		assert(anys[2].data == 369);
 	}
 
-	@:topLevel
-	@:dce(Off)
-	public static function main(): Int {
+	public static function main() {
 		// asserts will only work with 1, 2, 3
 		oneTwoThree(1, 2, 3);
 
@@ -71,6 +69,8 @@ class Main {
 		// extreme example 2
 		testRestAny2({ data: 123 }, { data: null }, { data: 369 });
 
-		return returnCode;
+		if(returnCode != 0) {
+			Sys.exit(returnCode);
+		}
 	}
 }

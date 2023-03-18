@@ -25,9 +25,7 @@ class Main {
 		}
 	}
 
-	@:topLevel
-	@:dce(Off)
-	public static function main(): Int {
+	public static function main() {
 		// arithmetic
 		assert(true);
 		assert(!false);
@@ -152,6 +150,8 @@ class Main {
 		anotherNum2 = anotherNum += 10;
 		assert(anotherNum == anotherNum2);
 
-		return returnCode;
+		if(returnCode != 0) {
+			Sys.exit(returnCode);
+		}
 	}
 }

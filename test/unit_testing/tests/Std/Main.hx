@@ -12,15 +12,17 @@ class Main {
 		}
 	}
 
-	@:topLevel
-	@:dce(Off)
-	public static function main(): Int {
+	public static function main() {
 		var a: Null<Int> = null;
 		trace(Std.string(a));
 
 		a = 123;
 		trace(Std.string(a));
 
-		return returnCode;
+		trace(Std.string(Std));
+
+		if(returnCode != 0) {
+			Sys.exit(returnCode);
+		}
 	}
 }

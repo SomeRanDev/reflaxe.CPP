@@ -12,9 +12,7 @@ class Main {
 		}
 	}
 
-	@:topLevel
-	@:dce(Off)
-	public static function main(): Int {
+	public static function main() {
 		var str: String = new String("Test");
 		assert(str == "Test");
 		assert(str.length == 4);
@@ -40,6 +38,8 @@ class Main {
 		assert(str2.toLowerCase() == "hello, world!");
 		assert(str2.toUpperCase() == "HELLO, WORLD!");
 
-		return returnCode;
+		if(returnCode != 0) {
+			Sys.exit(returnCode);
+		}
 	}
 }

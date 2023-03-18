@@ -1,3 +1,4 @@
+src/_main_.cpp
 src/Main.cpp
 src/EReg.cpp
 include/haxe_PosInfos.h

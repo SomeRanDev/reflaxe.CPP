@@ -82,7 +82,7 @@ void Main::testRestAny2(std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<
 	Main::assert((*anys)[2]->data == 369, haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/RestArgs/Main.hx", 56, "testRestAny2"));
 }
 
-int main() {
+void Main::main() {
 	std::shared_ptr<haxe::_Rest::NativeRest<int>> tempRest;
 	
 	{
@@ -134,5 +134,7 @@ int main() {
 	
 	Main::testRestAny2(tempRest3);
 	
-	return Main::returnCode;
+	if(Main::returnCode != 0) {
+		exit(Main::returnCode);
+	};
 }

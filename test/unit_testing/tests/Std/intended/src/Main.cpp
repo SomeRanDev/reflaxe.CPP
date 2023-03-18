@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include "_AnonStructs.h"
+#include "_TypeUtils.h"
 #include "haxe_Log.h"
 #include "Std.h"
 
@@ -19,12 +20,15 @@ void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) 
 	};
 }
 
-int main() {
+void Main::main() {
 	std::optional<int> a = std::nullopt;
 	
-	haxe::Log::trace(Std::string<std::optional<int>>(a), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/Std/Main.hx", 19, "main"));
+	haxe::Log::trace(Std::string<std::optional<int>>(a), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/Std/Main.hx", 17, "main"));
 	a = 123;
-	haxe::Log::trace(Std::string<std::optional<int>>(a), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/Std/Main.hx", 22, "main"));
+	haxe::Log::trace(Std::string<std::optional<int>>(a), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/Std/Main.hx", 20, "main"));
+	haxe::Log::trace(Std::string<haxe::_class<Std>>(haxe::_class<Std>()), haxe::shared_anon<haxe::PosInfos>("Main", "test/unit_testing/tests/Std/Main.hx", 22, "main"));
 	
-	return Main::returnCode;
+	if(Main::returnCode != 0) {
+		exit(Main::returnCode);
+	};
 }

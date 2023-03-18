@@ -2,4 +2,5 @@
 # -lib unbound
 # -D cpp-output=out
 
-Main
+-D mainClass=Main
+-main Main

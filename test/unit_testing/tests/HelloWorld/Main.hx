@@ -1,7 +1,5 @@
 package;
 
-@:topLevel
-function main(): Int {
+function main() {
 	trace("Hello world!");
-	return 0;
 }

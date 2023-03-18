@@ -19,9 +19,7 @@ class Main {
 		}
 	}
 
-	@:topLevel
-	@:dce(Off)
-	public static function main(): Int {
+	public static function main() {
 		assert(Math.ceil(2 * Math.pow(Math.PI, 2)) == 20);
 
 		assert(Math.abs(-3) == 3);
@@ -52,6 +50,8 @@ class Main {
 		assert(Math.sqrt(25) == 5);
 		assert(Math.sqrt(100) == 10);
 
-		return returnCode;
+		if(returnCode != 0) {
+			Sys.exit(returnCode);
+		}
 	}
 }

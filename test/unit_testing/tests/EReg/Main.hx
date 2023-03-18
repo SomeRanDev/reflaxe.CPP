@@ -12,9 +12,7 @@ class Main {
 		}
 	}
 
-	@:topLevel
-	@:dce(Off)
-	public static function main(): Int {
+	public static function main() {
 		final reg = ~/abc/;
 
 		// match
@@ -70,6 +68,8 @@ class Main {
 		// EReg.escape
 		assert(EReg.escape("...") == "\\.\\.\\.");
 
-		return returnCode;
+		if(returnCode != 0) {
+			Sys.exit(returnCode);
+		}
 	}
 }

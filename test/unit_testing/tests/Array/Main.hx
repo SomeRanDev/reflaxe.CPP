@@ -12,9 +12,7 @@ class Main {
 		}
 	}
 
-	@:topLevel
-	@:dce(Off)
-	public static function main(): Int {
+	public static function main() {
 		// constructor
 		final arr = new Array<Int>();
 
@@ -140,6 +138,8 @@ class Main {
 		unfinished.unshift(1);
 		assert(unfinished == [1, 2, 3, 4, 5]);
 
-		return returnCode;
+		if(returnCode != 0) {
+			Sys.exit(returnCode);
+		}
 	}
 }

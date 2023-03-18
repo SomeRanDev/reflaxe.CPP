@@ -17,8 +17,7 @@ class Main {
 		}
 	}
 
-	@:topLevel
-	public static function main(): Int {
+	public static function main() {
 		final a = Entry1;
 		final b = Entry2(123);
 		final c = Entry3("Test");
@@ -39,6 +38,8 @@ class Main {
 			}
 		}
 
-		return returnCode;
+		if(returnCode != 0) {
+			Sys.exit(returnCode);
+		}
 	}
 }

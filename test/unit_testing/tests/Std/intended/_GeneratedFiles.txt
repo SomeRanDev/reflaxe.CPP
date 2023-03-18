@@ -1,7 +1,9 @@
 src/haxe_Log.cpp
+src/_main_.cpp
 src/Main.cpp
 include/haxe_PosInfos.h
 include/haxe_Log.h
+include/_TypeUtils.h
 include/_AnonUtils.h
 include/_AnonStructs.h
 include/Std.h
