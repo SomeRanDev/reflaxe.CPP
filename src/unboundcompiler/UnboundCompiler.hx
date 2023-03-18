@@ -42,6 +42,14 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	static final SourceExt: String = ".cpp";
 
 	// ----------------------------
+	// The folder all the header files are placed into.
+	static final HeaderFolder: String = "include";
+
+	// ----------------------------
+	// The folder all the source files are placed into.
+	static final SourceFolder: String = "src";
+
+	// ----------------------------
 	// The C++ classes used for nullability and memory management.
 	static final OptionalClassCpp: String = "std::optional";
 	static final SharedPtrClassCpp: String = "std::shared_ptr";
@@ -417,7 +425,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		}
 		content += compileNamespaceEnd(defType);
 
-		final headerFilePath = "include/" + headerFilename;
+		final headerFilePath = HeaderFolder + "/" + headerFilename;
 
 		// pragma once
 		setExtraFileIfEmpty(headerFilePath, "#pragma once");

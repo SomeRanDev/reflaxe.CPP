@@ -165,7 +165,7 @@ class Compiler_Enums extends SubCompiler {
 		declaration += "\n};";
 
 		// Start output
-		final headerFilePath = "include/" + headerFilename;
+		final headerFilePath = UnboundCompiler.HeaderFolder + "/" + headerFilename;
 
 		// pragma once
 		Main.setExtraFileIfEmpty(headerFilePath, "#pragma once");

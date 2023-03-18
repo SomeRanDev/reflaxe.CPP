@@ -225,7 +225,7 @@ class Compiler_Classes extends SubCompiler {
 
 		// Source file
 		if(!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0)) {
-			final srcFilename = "src/" + filename + UnboundCompiler.SourceExt;
+			final srcFilename = UnboundCompiler.SourceFolder + "/" + filename + UnboundCompiler.SourceExt;
 			Main.setExtraFileIfEmpty(srcFilename, "#include \"" + filename + UnboundCompiler.HeaderExt + "\"");
 
 			IComp.appendIncludesToExtraFileWithoutRepeats(srcFilename, IComp.compileCppIncludes(), 1);
@@ -245,7 +245,7 @@ class Compiler_Classes extends SubCompiler {
 
 		// Header file
 		{
-			final headerFilename = "include/" + filename + UnboundCompiler.HeaderExt;
+			final headerFilename = UnboundCompiler.HeaderFolder + "/" + filename + UnboundCompiler.HeaderExt;
 			Main.setExtraFileIfEmpty(headerFilename, "#pragma once");
 
 			IComp.appendIncludesToExtraFileWithoutRepeats(headerFilename, IComp.compileHeaderIncludes(), 1);
