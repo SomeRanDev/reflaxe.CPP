@@ -4,6 +4,17 @@ package;
 #error "Please don't add haxe/std to your classpath, instead set HAXE_STD_PATH env var"
 #end
 
+@:pseudoCoreApi
+class StdImpl {
+	public static function isOfType<_Value, _Type>(v: _Value, t: _Type): Bool {
+		return false;
+	}
+
+	public static function downcast<T: {}, S: T>(value: T, c: Class<S>): S {
+		return cast value;
+	}
+}
+
 @:headerCode("template <typename T, typename = std::string>
 struct HasToString : std::false_type { };
 
@@ -16,14 +27,14 @@ struct HasToString <T, decltype((void) T::toString, 0)> : std::true_type { };")
 class Std {
 	@:deprecated('Std.is is deprecated. Use Std.isOfType instead.')
 	public extern inline static function is(v: Dynamic, t: Dynamic): Bool return isOfType(v, t);
-	public extern inline static function isOfType(v: Dynamic, t: Dynamic): Bool {
-		return false;
+	public extern inline static function isOfType<_Value, _Type>(v: _Value, t: _Type): Bool {
+		return StdImpl.isOfType(v, t);
 	}
 
 	@:deprecated('Std.instance() is deprecated. Use Std.downcast() instead.')
 	public extern inline static function instance<T:{}, S:T>(value: T, c: Class<S>): S return downcast(value, c);
 	public extern inline static function downcast<T: {}, S: T>(value: T, c: Class<S>): S {
-		return cast value;
+		return StdImpl.downcast(value, c);
 	}
 
 	public static function string<T>(s: T): String {
