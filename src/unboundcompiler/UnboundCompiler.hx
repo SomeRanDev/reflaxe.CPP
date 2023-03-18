@@ -29,6 +29,7 @@ import unboundcompiler.subcompilers.Compiler_Enums;
 import unboundcompiler.subcompilers.Compiler_Anon;
 import unboundcompiler.subcompilers.Compiler_Exprs;
 import unboundcompiler.subcompilers.Compiler_Includes;
+import unboundcompiler.subcompilers.Compiler_Reflection;
 import unboundcompiler.subcompilers.Compiler_Types;
 
 class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
@@ -60,7 +61,8 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// ----------------------------
 	// The name of the header file generated for the anonymous structs.
 	static final AnonStructHeaderFile: String = "_AnonStructs";
-	static final OptionalInfoHeaderFile: String = "_AnonUtils";
+	static final AnonUtilsHeaderFile: String = "_AnonUtils";
+	static final TypeUtilsHeaderFile: String = "_TypeUtils";
 
 	// ----------------------------
 	// Required for adding semicolons at the end of each line.
@@ -82,6 +84,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	var EComp: Compiler_Enums;
 	var AComp: Compiler_Anon;
 	var IComp: Compiler_Includes;
+	var RComp: Compiler_Reflection;
 	var TComp: Compiler_Types;
 	var XComp: Compiler_Exprs;
 
@@ -226,32 +229,33 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		IComp.resetAndInitIncludes(true);
 		IComp.addInclude(OptionalInclude[0], true, OptionalInclude[1]);
 		final anonContent = AComp.makeAllUnnamedDecls();
-		if(IComp.anonHeaderRequired || anonContent.length > 0) {
-			final optionalInfoHeaderName = OptionalInfoHeaderFile + HeaderExt;
+		final optionalInfoHeaderName = AnonUtilsHeaderFile + HeaderExt;
+		final genAnonStructHeader = IComp.anonHeaderRequired || anonContent.length > 0;
 
-			// Generate haxe::optional_info header.
-			{
-				var content = "#pragma once\n\n";
-				content += "#include " + IComp.wrapInclude(OptionalInclude[0], OptionalInclude[1]) + "\n";
-				content += "#include " + IComp.wrapInclude(SharedPtrInclude[0], SharedPtrInclude[1]) + "\n";
-				if(UniquePtrInclude[0] != SharedPtrInclude[0]) {
-					content += "#include " + IComp.wrapInclude(UniquePtrInclude[0], UniquePtrInclude[1]) + "\n";
-				}
-				content += "\n";
-				content += AComp.optionalInfoContent() + "\n\n";
-				setExtraFile("include/" + optionalInfoHeaderName, content);
-			}
+		// Generate anonymous structures header.
+		if(genAnonStructHeader) {
+			var content = "#pragma once\n\n";
+			content += "#include \"" + optionalInfoHeaderName + "\"\n\n";
+			content += IComp.compileHeaderIncludes() + "\n\n";
+			content += "namespace haxe {\n\n";
+			content += anonContent;
+			content += "\n}";
+			setExtraFile(HeaderFolder + "/" + AnonStructHeaderFile + HeaderExt, content);
+		}
 
-			// Generate anonymous structures header.
-			{
-				var content = "#pragma once\n\n";
-				content += "#include \"" + optionalInfoHeaderName + "\"\n\n";
-				content += IComp.compileHeaderIncludes() + "\n\n";
-				content += "namespace haxe {\n\n";
-				content += anonContent;
-				content += "\n}";
-				setExtraFile("include/" + AnonStructHeaderFile + HeaderExt, content);
+		// Generate haxe::optional_info header.
+		if(genAnonStructHeader || IComp.anonUtilHeaderRequired) {
+			var content = "#pragma once\n\n";
+			content += "#include " + IComp.wrapInclude(OptionalInclude[0], OptionalInclude[1]) + "\n";
+			content += "#include " + IComp.wrapInclude(SharedPtrInclude[0], SharedPtrInclude[1]) + "\n";
+			if(UniquePtrInclude[0] != SharedPtrInclude[0]) {
+				content += "#include " + IComp.wrapInclude(UniquePtrInclude[0], UniquePtrInclude[1]) + "\n";
 			}
+			content += "\n";
+			content += AComp.optionalInfoContent() + "\n\n";
+			setExtraFile(HeaderFolder + "/" + optionalInfoHeaderName, content);
+		}
+	}
 
 	// ----------------------------
 	// Generate the header containing all the
