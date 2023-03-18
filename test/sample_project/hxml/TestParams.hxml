@@ -4,4 +4,8 @@
 
 --no-opt
 
-Test
+# If Haxe v4.2.5 or below, must use this define
+# to tell Reflaxe what the `-main` is.
+-D mainClass=Test
+
+-main Test
