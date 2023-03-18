@@ -21,6 +21,7 @@ using reflaxe.helpers.ClassTypeHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
+using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
 import unboundcompiler.subcompilers.SubCompiler;
@@ -122,6 +123,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	public override function onCompileEnd() {
 		generateAnonStructHeader();
 		generateTypeUtilsHeader();
+		generateMainFile();
 	}
 
 	// ----------------------------
@@ -278,6 +280,25 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			setExtraFile(HeaderFolder + "/" + TypeUtilsHeaderFile + HeaderExt, content); 
 		}
 	}
+
+	// ----------------------------
+	// Generates the main.cpp file if necessary.
+	function generateMainFile() {
+		final mainExpr = getMainExpr();
+		if(mainExpr != null) {
+			IComp.resetAndInitIncludes(true);
+
+			// Compile the expression before compiling the
+			// includes so they are all found.
+			final cpp = compileExpression(mainExpr);
+
+			var content = IComp.compileCppIncludes() + "\n\n";
+			content += "int main() {\n";
+			content += cpp.tab() + ";\n";
+			content += "\treturn 0;\n";
+			content += "}\n";
+
+			setExtraFile(SourceFolder + "/_main_.cpp", content);
 		}
 	}
 
