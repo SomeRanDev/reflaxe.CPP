@@ -67,30 +67,6 @@ class Compiler_Includes extends SubCompiler {
 		for(params in meta.extractParamsFromAllMeta(":cppInclude")) {
 			addMetaEntryInc(params, false);
 		}
-
-		// "getTypeUsage" returns information on all
-		// the types used by this ClassType.
-		// Let's add them to our includes.
-		/*
-		final typeUsage = Main.getTypeUsage();
-		for(level => usedTypes in typeUsage) {
-			if(level >= StaticAccess) {
-				final header = onlyHeader || level >= FunctionDeclaration;
-				for(ut in usedTypes) {
-					switch(ut) {
-						case EModuleType(mt): {
-							if(!mt.isAbstract()) {
-								addIncludeFromModuleType(mt, header);
-							}
-						}
-						case EType(t): {
-							addIncludeFromType(t, header);
-						}
-					}
-				}
-			}
-		}
-		*/
 	}
 
 	// ----------------------------
