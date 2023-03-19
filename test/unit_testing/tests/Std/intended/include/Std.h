@@ -21,7 +21,7 @@ public:
 	static bool isOfType(_Value v, _Type t) {
 		if constexpr(!haxe::_unwrap_class<_Type>::iscls) {
 			return false;
-		} else if constexpr(std::is_base_of<haxe::_unwrap_class<_Type>::inner, haxe::_unwrap_mm<_Value>::inner>::value) {
+		} else if constexpr(std::is_base_of<typename haxe::_unwrap_class<_Type>::inner, typename haxe::_unwrap_mm<_Value>::inner>::value) {
 			return true;
 		};
 		
