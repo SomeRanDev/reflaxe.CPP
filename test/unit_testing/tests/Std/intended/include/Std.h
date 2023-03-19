@@ -1,11 +1,12 @@
 #pragma once
 
+#include "_AnonUtils.h"
+#include "_TypeUtils.h"
 #include <limits>
 #include <optional>
 #include <string>
 #include <type_traits>
 #include <utility>
-#include "_AnonUtils.h"
 
 template <typename T, typename = std::string>
 struct HasToString : std::false_type { };
@@ -13,6 +14,20 @@ struct HasToString : std::false_type { };
 template <typename T>
 struct HasToString <T, decltype(std::declval<T>().toString())> : std::true_type { };
 
+
+class StdImpl {
+public:
+	template<typename _Value, typename _Type>
+	static bool isOfType(_Value v, _Type t) {
+		if constexpr(!haxe::_unwrap_class<_Type>::iscls) {
+			return false;
+		} else if constexpr(std::is_base_of<haxe::_unwrap_class<_Type>::inner, haxe::_unwrap_mm<_Value>::inner>::value) {
+			return true;
+		};
+		
+		return false;
+	}
+};
 
 class Std {
 public:
@@ -30,6 +45,8 @@ public:
 			return std::string(s);
 		} else if constexpr(HasToString<T>::value) {
 			return s.toString();
+		} else if constexpr(HasToString<decltype(*s)>::value) {
+			return (*s).toString();
 		};
 		
 		return "<unknown(size:" + std::to_string(sizeof(s)) + ")>";
@@ -48,3 +65,17 @@ public:
 	}
 };
 
+
+
+// Reflection info
+#include "_TypeUtils.h"
+namespace haxe {
+	template<> struct _class<StdImpl> {
+		DEFINE_CLASS_TOSTRING
+		constexpr static _class_data<0, 1> data {"StdImpl", {}, { "isOfType" }};
+	};
+	template<> struct _class<Std> {
+		DEFINE_CLASS_TOSTRING
+		constexpr static _class_data<0, 3> data {"Std", {}, { "string", "parseInt", "parseFloat" }};
+	};
+}

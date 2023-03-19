@@ -30,6 +30,8 @@ public:
 			return std::string(s);
 		} else if constexpr(HasToString<T>::value) {
 			return s.toString();
+		} else if constexpr(HasToString<decltype(*s)>::value) {
+			return (*s).toString();
 		};
 		
 		return "<unknown(size:" + std::to_string(sizeof(s)) + ")>";

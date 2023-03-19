@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <memory>
 #include <optional>
 #include <string>
 
@@ -25,26 +26,21 @@ struct _class_data {
 	const std::array<const char*, if_size> instance_fields;
 };
 
-#define DEFINE_CLASS(cls_name, sf_size, static_fields, if_size, instance_fields) \
-	constexpr static _class_data<0, 0> data {\
-		cls_name,\
-		static_fields,\
-		instance_fields\
-	};\
-	\
+#define DEFINE_CLASS_TOSTRING\
 	std::string toString() {\
 		return std::string("Class<") + data.name + ">";\
 	}
 
-template<typename T>
-struct _class {
-	DEFINE_CLASS("unknown type", 0, {}, 0, {})
+template<typename T> struct _class {
+	constexpr static _class_data<0, 0> data {"unknown type", {}, {}};
 };
 
 }
 
 // ---------------------------------------------------------------------
 // haxe::_unwrap_class
+//
+// Unwraps Class<T> to T.
 // ---------------------------------------------------------------------
 
 namespace haxe {
@@ -52,12 +48,40 @@ namespace haxe {
 template<typename T>
 struct _unwrap_class {
 	using inner = T;
+	constexpr static bool iscls = false;
 };
 
 template<typename T>
 struct _unwrap_class<_class<T>> {
 	using inner = typename _unwrap_class<T>::inner;
+	constexpr static bool iscls = true;
 };
+
+}
+
+// ---------------------------------------------------------------------
+// haxe::_unwrap_mm
+//
+// Unwraps all the "memory management" types to get the underlying
+// value type. Requires the type to be known at compile-time.
+// ---------------------------------------------------------------------
+
+namespace haxe {
+
+template<typename T>
+struct _unwrap_mm { using inner = T; };
+
+template<typename T>
+struct _unwrap_mm<T*> { using inner = typename _unwrap_mm<T>::inner; };
+
+template<typename T>
+struct _unwrap_mm<T&> { using inner = typename _unwrap_mm<T>::inner; };
+
+template<typename T>
+struct _unwrap_mm<std::shared_ptr<T>> { using inner = typename _unwrap_mm<T>::inner; };
+
+template<typename T>
+struct _unwrap_mm<std::unique_ptr<T>> { using inner = typename _unwrap_mm<T>::inner; };
 
 }
 
