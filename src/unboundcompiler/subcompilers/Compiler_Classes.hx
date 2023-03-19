@@ -75,7 +75,7 @@ class Compiler_Classes extends SubCompiler {
 		if(classType.superClass != null) {
 			final superType = classType.superClass.t;
 			Main.onModuleTypeEncountered(TClassDecl(superType), true);
-			Main.superTypeName = TComp.compileClassName(superType.get(), classType.pos, classType.superClass.params);
+			Main.superTypeName = TComp.compileClassName(superType.get(), classType.pos, classType.superClass.params, true, true);
 			header += ": public " + Main.superTypeName;
 		}
 
