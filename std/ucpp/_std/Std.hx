@@ -8,6 +8,11 @@ package;
 @:pseudoCoreApi
 class StdImpl {
 	public static function isOfType<_Value, _Type>(v: _Value, t: _Type): Bool {
+		untyped __ucpp__("if constexpr(!haxe::_unwrap_class<_Type>::iscls) {
+	return false;
+} else if constexpr(std::is_base_of<haxe::_unwrap_class<_Type>::inner, haxe::_unwrap_mm<_Value>::inner>::value) {
+	return true;
+}");
 		return false;
 	}
 
