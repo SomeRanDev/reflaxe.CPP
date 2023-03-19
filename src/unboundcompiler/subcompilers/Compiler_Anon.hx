@@ -7,17 +7,19 @@
 
 package unboundcompiler.subcompilers;
 
-import unboundcompiler.helpers.UMeta.MemoryManagementType;
 #if (macro || ucpp_runtime)
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
+using reflaxe.helpers.PositionHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
 using unboundcompiler.helpers.USort;
+
+import unboundcompiler.helpers.UMeta.MemoryManagementType;
 
 typedef AnonField = { name: String, type: Type, optional: Bool, ?pos: Position };
 typedef AnonStruct = { name: String, constructorOrder: Array<AnonField> };
@@ -31,8 +33,6 @@ class Compiler_Anon extends SubCompiler {
 	var anonId: Int = 0;
 	var anonStructs: Map<String, AnonStruct> = [];
 	var namedAnonStructs: Map<String, AnonStruct> = [];
-
-	static function unknownPos(): Position return Context.makePosition({ min: 0, max: 0, file: "<unknown>" });
 
 	public function compileObjectDecl(type: Type, fields: Array<{ name: String, expr: TypedExpr }>, originalExpr: TypedExpr, compilingInHeader: Bool = false): String {
 		final anonFields: Array<AnonField> = [];
@@ -146,7 +146,7 @@ class Compiler_Anon extends SubCompiler {
 				case TFun(args, ret): {
 					final declArgs = args.map(a -> {
 						Main.onTypeEncountered(a.t, true);
-						return TComp.compileType(a.t, unknownPos()) + " " + a.name;
+						return TComp.compileType(a.t, PositionHelper.unknownPos()) + " " + a.name;
 					}).join(", ");
 					final callArgs = args.map(a -> a.name).join(", ");
 					templateFunctionAssigns.push(f.name + " = [&o](" + declArgs + ") { return o." + f.name + "(" + callArgs + "); };");
