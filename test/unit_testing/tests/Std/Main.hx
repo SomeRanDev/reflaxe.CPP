@@ -15,6 +15,12 @@ class AnotherClass {
 	public function toString() { return "another class as string"; }
 }
 
+class ClassWInt {
+	public function new() {}
+
+	var number: Int = 123;
+}
+
 class Main {
 	static var returnCode = 0;
 
@@ -61,6 +67,14 @@ class Main {
 
 		final anotherVal: ucpp.Value<AnotherClass> = new AnotherClass();
 		assert(Std.string(anotherVal) == anotherVal.toString());
+
+		assert(Std.string(base) == "<unknown(size:1)>");
+
+		final baseVal: ucpp.Value<BaseClass> = new BaseClass();
+		assert(Std.string(baseVal) == "<unknown(size:1)>");
+
+		final numVal: ucpp.Value<ClassWInt> = new ClassWInt();
+		assert(Std.string(numVal) == "<unknown(size:" + ucpp.Stdlib.sizeof(numVal) + ")>");
 
 		// Std.int
 		assert(Std.int(4.5) == 4);
