@@ -58,7 +58,9 @@ class Std {
 	return std::string({});
 } else if constexpr(HasToString<T>::value) {
 	return {}.toString();
-}", s, s, s, s);
+} else if constexpr(HasToString<decltype(*{})>::value) {
+	return (*{}).toString();
+}", s, s, s, s, s, s);
 		return "<unknown(size:" + ucpp.Stdlib.intToString(ucpp.Stdlib.sizeof(s)) + ")>";
 	}
 
