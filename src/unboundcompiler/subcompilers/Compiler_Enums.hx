@@ -181,6 +181,9 @@ class Compiler_Enums extends SubCompiler {
 
 		Main.appendToExtraFile(headerFilePath, content + "\n", 2);
 
+		// Let the reflection compiler know this enum was compiled.
+		RComp.addCompiledModuleType(Main.getCurrentModule());
+
 		return null;
 	}
 }

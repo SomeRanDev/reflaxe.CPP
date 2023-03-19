@@ -121,6 +121,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// Called after all module types have
 	// been passed to this compiler class.
 	public override function onCompileEnd() {
+		generateReflectionInfo();
 		generateAnonStructHeader();
 		generateTypeUtilsHeader();
 		generateMainFile();
@@ -229,6 +230,36 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			}
 		}
 		return ptrType;
+	}
+
+	// ----------------------------
+	// Stores reflection information for Class<T>.
+	// But only generates if necessary.
+	var reflectionCpp: Map<String, Array<String>> = [];
+
+	// Used in sub-compilers to add reflection code
+	// that is only added to the output if necessary.
+	public function addReflectionCpp(filename: String, cpp: String) {
+		if(!reflectionCpp.exists(filename)) {
+			reflectionCpp.set(filename, []);
+		}
+		reflectionCpp.get(filename).push(cpp);
+	}
+
+	// Called on compilation end to add the
+	// reflection code to the output files.
+	function generateReflectionInfo() {
+		if(IComp.typeUtilHeaderRequired) {
+			for(filename => reflectionCppList in reflectionCpp) {
+				var content = "// Reflection info\n";
+				content += "#include \"" + TypeUtilsHeaderFile + HeaderExt + "\"\n";
+				content += "namespace haxe {\n";
+				content += reflectionCppList.map(s -> s.tab()).join("\n");
+				content += "\n}\n";
+
+				appendToExtraFile(filename, content, 4);
+			}
+		}
 	}
 
 	// ----------------------------

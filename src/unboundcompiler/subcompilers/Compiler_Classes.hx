@@ -282,7 +282,12 @@ class Compiler_Classes extends SubCompiler {
 			}
 
 			Main.appendToExtraFile(headerFilename, result + "\n", 3);
+
+			Main.addReflectionCpp(headerFilename, RComp.compileClassReflection(classType));
 		}
+
+		// Let the reflection compiler know this class was compiled.
+		RComp.addCompiledModuleType(Main.getCurrentModule());
 
 		// We generated the files ourselves with "appendToExtraFile",
 		// so we return null so Reflaxe doesn't generate anything itself.
