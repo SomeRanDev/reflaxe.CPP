@@ -127,47 +127,6 @@ struct _unwrap_class<_class<T>> {
 	constexpr static bool iscls = true;
 };
 
-}
-
-// ---------------------------------------------------------------------
-// haxe::_unwrap_mm
-//
-// Unwraps all the \"memory management\" types to get the underlying
-// value type. Requires the type to be known at compile-time.
-// ---------------------------------------------------------------------
-
-namespace haxe {
-
-template<typename T>
-struct _unwrap_mm {
-	using inner = T;
-	constexpr static bool can_deref = false;
-};
-
-template<typename T>
-struct _unwrap_mm<T*> {
-	using inner = typename _unwrap_mm<T>::inner;
-	constexpr static bool can_deref = true;
-};
-
-template<typename T>
-struct _unwrap_mm<T&> {
-	using inner = typename _unwrap_mm<T>::inner;
-	constexpr static bool can_deref = false;
-};
-
-template<typename T>
-struct _unwrap_mm<std::shared_ptr<T>> {
-	using inner = typename _unwrap_mm<T>::inner;
-	constexpr static bool can_deref = true;
-};
-
-template<typename T>
-struct _unwrap_mm<std::unique_ptr<T>> {
-	using inner = typename _unwrap_mm<T>::inner;
-	constexpr static bool can_deref = true;
-};
-
 }";
 	}
 }
