@@ -29,7 +29,7 @@ class Compiler_Types extends SubCompiler {
 	// ----------------------------
 	// Compiles the provided type.
 	// Position must be provided for error reporting.
-	function compileType(t: Null<Type>, pos: Position, asValue: Bool = false): String {
+	public function compileType(t: Null<Type>, pos: Position, asValue: Bool = false): String {
 		if(t == null) {
 			pos.makeError(CannotCompileNullType);
 		}
@@ -44,11 +44,20 @@ class Compiler_Types extends SubCompiler {
 	// The function that actually compiles Types.
 	// Does not cause error if Type compiles to null.
 	// Can be safely passed null.
-	function maybeCompileType(t: Null<Type>, pos: Position, asValue: Bool = false): Null<String> {
+	public function maybeCompileType(t: Null<Type>, pos: Position, asValue: Bool = false): Null<String> {
+		if(t == null) {
+			return null;
+		}
+
+		// Check if this type is Class<T>.
+		// (It can be either TAbstract or TType,
+		// so faster to just check here).
+		final clsParamMt = t.getClassParameter();
+		if(clsParamMt != null) {
+			return "haxe::_class<" + compileType(TypeHelper.fromModuleType(clsParamMt), pos, true) + ">";
+		}
+
 		return switch(t) {
-			case null: {
-				null;
-			}
 			case TMono(t3): {
 				if(t3.get() != null) {
 					compileType(t3.get(), pos, asValue);
@@ -121,23 +130,21 @@ class Compiler_Types extends SubCompiler {
 							UnboundCompiler.OptionalClassCpp + "<" + compileType(params[0], pos) + ">";
 						}
 						case _: {
-							final t = haxe.macro.TypeTools.applyTypeParameters(abs.type, abs.params, params);
-							compileType(t, pos);
+							final newType = haxe.macro.TypeTools.applyTypeParameters(abs.type, abs.params, params);
+							if(t.equals(newType)) {
+								compileModuleTypeName(abs, pos, params, true, asValue);
+							} else {
+								compileType(newType, pos);
+							}
 						}
 					}
 				}
 			}
 			case TType(defRef, params): {
-				final def = defRef.get();
-				final name = def.name;
-				final module = def.module;
-
-				if(name == "Class<" + module + ">") {
-					"haxe::_class<" + module + ">";
-				} else if(t.isRef()) {
+				if(t.isRef()) {
 					compileType(params[0], pos) + "&";
 				} else {
-					compileDefName(def, pos, params, true, asValue);
+					compileDefName(defRef.get(), pos, params, true, asValue);
 				}
 			}
 		}
@@ -174,7 +181,7 @@ class Compiler_Types extends SubCompiler {
 
 	// ----------------------------
 	// Compile ClassType.
-	function compileClassName(classType: ClassType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+	public function compileClassName(classType: ClassType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
 		switch(classType.kind) {
 			case KTypeParameter(_): {
 				final result = classType.name;
@@ -188,13 +195,13 @@ class Compiler_Types extends SubCompiler {
 
 	// ----------------------------
 	// Compile EnumType.
-	function compileEnumName(enumType: EnumType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+	public function compileEnumName(enumType: EnumType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
 		return compileModuleTypeName(enumType, pos, params, useNamespaces, asValue);
 	}
 
 	// ----------------------------
 	// Compile DefType.
-	function compileDefName(defType: DefType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+	public function compileDefName(defType: DefType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
 		return compileModuleTypeName(defType, pos, params, useNamespaces, asValue);
 	}
 
@@ -224,9 +231,11 @@ class Compiler_Types extends SubCompiler {
 					case "Single": Value;
 					case "Bool": Value;
 					case "Any": Value;
-					case "Class": Value;
 					case _: null;
 				}
+			}
+			case TAbstract(absRef, params) if(t.isClass()): {
+				Value;
 			}
 			case TAbstract(absRef, params) if(params.length == 1 && absRef.get().name == "Null"): {
 				getMemoryManagementTypeFromType(params[0]);
