@@ -259,7 +259,7 @@ class Compiler_Classes extends SubCompiler {
 
 			var result = "";
 
-			if(fieldsCompiled > 0) {
+			if(fieldsCompiled > 0 || classType.hasMeta(":used")) {
 				result += Main.compileNamespaceStart(classType);
 				result += header;
 
