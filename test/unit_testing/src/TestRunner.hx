@@ -311,7 +311,7 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 	final compileCommand = if(systemName == "Windows") {
 		"cl ../" + OUT_DIR + "/src/*.cpp /I ../" + OUT_DIR + "/include /std:c++17 /Fe:test_out.exe";
 	} else if(systemName == "Linux") {
-		"g++ -std=c++20 ../" + OUT_DIR + "/src/*.cpp -I ../" + OUT_DIR + "/include -o test_out";
+		"g++ -std=c++17 ../" + OUT_DIR + "/src/*.cpp -I ../" + OUT_DIR + "/include -o test_out";
 	} else {
 		throw "Unsupported system";
 	}
