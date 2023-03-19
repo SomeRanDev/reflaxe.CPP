@@ -15,10 +15,6 @@ class StdImpl {
 }");
 		return false;
 	}
-
-	public static function downcast<T: {}, S: T>(value: T, c: Class<S>): S {
-		return cast value;
-	}
 }
 
 @:headerCode("template <typename T, typename = std::string>
@@ -41,8 +37,12 @@ class Std {
 
 	@:deprecated('Std.instance() is deprecated. Use Std.downcast() instead.')
 	public extern inline static function instance<T:{}, S:T>(value: T, c: Class<S>): S return downcast(value, c);
-	public extern inline static function downcast<T: {}, S: T>(value: T, c: Class<S>): S {
-		return StdImpl.downcast(value, c);
+	public extern inline static function downcast<T: {}, S: T>(value: T, c: Class<S>): Null<S> {
+		// TODO: Need to add system for casting based on memory management type before implementing this.
+		// I.e: use static_cast/dynamic_cast for pointers, and std::static_pointer_cast/dynamic_pointer_cast for std::shared_ptr
+		// Probably not possible to cast value types??? This could get complicated.
+		throw "Std.downcast is unimplemented.";
+		return null;
 	}
 
 	public static function string<T>(s: T): String {
