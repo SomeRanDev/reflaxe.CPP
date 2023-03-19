@@ -139,19 +139,34 @@ struct _unwrap_class<_class<T>> {
 namespace haxe {
 
 template<typename T>
-struct _unwrap_mm { using inner = T; };
+struct _unwrap_mm {
+	using inner = T;
+	constexpr static bool can_deref = false;
+};
 
 template<typename T>
-struct _unwrap_mm<T*> { using inner = typename _unwrap_mm<T>::inner; };
+struct _unwrap_mm<T*> {
+	using inner = typename _unwrap_mm<T>::inner;
+	constexpr static bool can_deref = true;
+};
 
 template<typename T>
-struct _unwrap_mm<T&> { using inner = typename _unwrap_mm<T>::inner; };
+struct _unwrap_mm<T&> {
+	using inner = typename _unwrap_mm<T>::inner;
+	constexpr static bool can_deref = false;
+};
 
 template<typename T>
-struct _unwrap_mm<std::shared_ptr<T>> { using inner = typename _unwrap_mm<T>::inner; };
+struct _unwrap_mm<std::shared_ptr<T>> {
+	using inner = typename _unwrap_mm<T>::inner;
+	constexpr static bool can_deref = true;
+};
 
 template<typename T>
-struct _unwrap_mm<std::unique_ptr<T>> { using inner = typename _unwrap_mm<T>::inner; };
+struct _unwrap_mm<std::unique_ptr<T>> {
+	using inner = typename _unwrap_mm<T>::inner;
+	constexpr static bool can_deref = true;
+};
 
 }";
 	}
