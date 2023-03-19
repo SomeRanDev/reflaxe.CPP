@@ -22,6 +22,13 @@ public:
 	std::string toString();
 };
 
+class ClassWInt {
+public:
+	int number;
+
+	ClassWInt();
+};
+
 class Main {
 public:
 	static int returnCode;
@@ -49,6 +56,10 @@ namespace haxe {
 	template<> struct _class<AnotherClass> {
 		DEFINE_CLASS_TOSTRING
 		constexpr static _class_data<1, 0> data {"AnotherClass", { "toString" }, {}};
+	};
+	template<> struct _class<ClassWInt> {
+		DEFINE_CLASS_TOSTRING
+		constexpr static _class_data<1, 0> data {"ClassWInt", { "number" }, {}};
 	};
 	template<> struct _class<Main> {
 		DEFINE_CLASS_TOSTRING
