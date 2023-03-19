@@ -168,8 +168,12 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"\"" + absPath + "\""
 		];
 		final process = new sys.io.Process("haxe " + args.join(" "));
-		final stdoutContent = process.stdout.readAll().toString();
-		final stderrContent = process.stderr.readAll().toString();
+		final _out = process.stdout.readAll();
+		final _in = process.stderr.readAll();
+
+		final stdoutContent = _out.toString();
+		final stderrContent = _in.toString();
+
 		final ec = process.exitCode();
 		if(ec != 0) {
 			onProcessFail(process, hxml, ec, stdoutContent, stderrContent);
