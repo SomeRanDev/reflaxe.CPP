@@ -80,9 +80,14 @@ On the other hand, **Haxe to "Unbound C++"** gives memory types first-class trea
 
 &nbsp;
 
-# Compiler Examples
+# Examples
 
-Visit the `test/unit_testing/tests` directory for a bunch of samples and tests.
+Visit the [test/unit_testing/tests directory](https://github.com/RobertBorghese/Haxe-to-UnboundCPP/tree/main/test/unit_testing/tests) for a bunch of samples and tests. Note the "intended" folder contains the expected C++ output that would be generated from the Haxe project in that folder. To run one of the examples, run the following command at the top level of the repository (replace "HelloWorld" with the test name).
+```
+haxe test/unit_testing/TestAll.hxml test=HelloWorld
+```
+
+Visit the [Unit Test README](https://github.com/RobertBorghese/Haxe-to-UnboundCPP/blob/main/test/unit_testing/README.md) for more info!
 
 &nbsp;
 
