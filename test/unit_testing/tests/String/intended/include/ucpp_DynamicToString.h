@@ -34,5 +34,4 @@ struct DynamicToString: public std::string {
     }
 };
 
-
 }

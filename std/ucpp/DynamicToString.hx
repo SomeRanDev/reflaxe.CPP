@@ -34,7 +34,6 @@ struct DynamicToString: public std::string {
     }
 };
 
-
 }")
 @:headerInclude("type_traits", true)
 @:headerInclude("utility", true)
