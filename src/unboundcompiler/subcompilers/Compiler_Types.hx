@@ -124,6 +124,10 @@ class Compiler_Types extends SubCompiler {
 						return applyMemoryManagementWrapper(compileType(params[0], pos, true), abs.getMemoryManagementType());
 					}
 
+					if(abs.hasMeta(":native")) {
+						return compileModuleTypeName(abs, pos, params, true, asValue ? Value : getMemoryManagementTypeFromType(abs.type));
+					}
+
 					switch(abs.name) {
 						case "Null" if(params.length == 1): {
 							IComp.addInclude(UnboundCompiler.OptionalInclude[0], true, UnboundCompiler.OptionalInclude[1]);
@@ -132,7 +136,7 @@ class Compiler_Types extends SubCompiler {
 						case _: {
 							final newType = haxe.macro.TypeTools.applyTypeParameters(abs.type, abs.params, params);
 							if(t.equals(newType)) {
-								compileModuleTypeName(abs, pos, params, true, asValue);
+								compileModuleTypeName(abs, pos, params, true, asValue ? Value : null);
 							} else {
 								compileType(newType, pos);
 							}
@@ -152,7 +156,7 @@ class Compiler_Types extends SubCompiler {
 
 	// ----------------------------
 	// Compile internal field of all ModuleTypes.
-	function compileModuleTypeName(typeData: { > NameAndMeta, pack: Array<String> }, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+	function compileModuleTypeName(typeData: { > NameAndMeta, pack: Array<String> }, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, overrideMM: Null<MemoryManagementType> = null): String {
 		return if(typeData.hasNativeMeta()) {
 			var result = typeData.getNameOrNative();
 			result = StringTools.replace(result, "{this}", typeData.name);
@@ -165,8 +169,8 @@ class Compiler_Types extends SubCompiler {
 		} else {
 			final prefix = (useNamespaces ? typeData.pack.join("::") + (typeData.pack.length > 0 ? "::" : "") : "");
 			final innerClass = compileTypeNameWithParams(prefix + typeData.getNameOrNativeName(), pos, params);
-			final mmType = typeData.getMemoryManagementType();
-			applyMemoryManagementWrapper(innerClass, asValue ? Value : mmType);
+			final mmType = overrideMM != null ? overrideMM : typeData.getMemoryManagementType();
+			applyMemoryManagementWrapper(innerClass, mmType);
 		}
 	}
 
@@ -190,19 +194,19 @@ class Compiler_Types extends SubCompiler {
 			}
 			case _: {}
 		}
-		return compileModuleTypeName(classType, pos, params, useNamespaces, asValue);
+		return compileModuleTypeName(classType, pos, params, useNamespaces, asValue ? Value : null);
 	}
 
 	// ----------------------------
 	// Compile EnumType.
 	public function compileEnumName(enumType: EnumType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
-		return compileModuleTypeName(enumType, pos, params, useNamespaces, asValue);
+		return compileModuleTypeName(enumType, pos, params, useNamespaces, asValue ? Value : null);
 	}
 
 	// ----------------------------
 	// Compile DefType.
 	public function compileDefName(defType: DefType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
-		return compileModuleTypeName(defType, pos, params, useNamespaces, asValue);
+		return compileModuleTypeName(defType, pos, params, useNamespaces, asValue ? Value : null);
 	}
 
 	// ----------------------------
@@ -222,23 +226,33 @@ class Compiler_Types extends SubCompiler {
 	// based on the meta of the Type.
 	function getMemoryManagementTypeFromType(t: Type): MemoryManagementType {
 		final mmt = switch(t) {
-			case TAbstract(absRef, params) if(params.length == 0): {
-				final abs = absRef.get();
-				switch(abs.name) {
-					case "Void": Value;
-					case "Int": Value;
-					case "Float": Value;
-					case "Single": Value;
-					case "Bool": Value;
-					case "Any": Value;
-					case _: null;
-				}
-			}
 			case TAbstract(absRef, params) if(t.isClass()): {
 				Value;
 			}
 			case TAbstract(absRef, params) if(params.length == 1 && absRef.get().name == "Null"): {
 				getMemoryManagementTypeFromType(params[0]);
+			}
+			case TAbstract(absRef, params): {
+				final abs = absRef.get();
+				final result = if(params.length == 0) {
+					switch(abs.name) {
+						case "Void": Value;
+						case "Int": Value;
+						case "Float": Value;
+						case "Single": Value;
+						case "Bool": Value;
+						case "Any": Value;
+						case _: null;
+					}
+				} else {
+					null;
+				}
+
+				if(result != null) {
+					result;
+				} else {
+					getMemoryManagementTypeFromType(abs.type);
+				}
 			}
 			case TType(defRef, params) if(t.isRef()): {
 				getMemoryManagementTypeFromType(params[0]);
