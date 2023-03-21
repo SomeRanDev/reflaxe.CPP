@@ -36,7 +36,7 @@ class HxString {
 }
 
 @:coreApi
-@:native("std::string")
+@:nativeName("std::string")
 @:include("string", true)
 @:valueType
 @:filename("HxString")

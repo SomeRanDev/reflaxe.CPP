@@ -1,6 +1,6 @@
 package;
 
-@:native("std::any")
+@:nativeName("std::any")
 @:include("any", true)
 @:forward.variance
 @:valueType
