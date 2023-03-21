@@ -70,16 +70,16 @@ void Main::main() {
 	Main::assert(Std::string(another) == "another class as string"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 65, "main"s));
 	Main::assert(Std::string(another) == another->toString(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 66, "main"s));
 	
-	AnotherClass anotherVal = std::make_shared<AnotherClass>();
+	AnotherClass anotherVal = AnotherClass();
 	
-	Main::assert(Std::string(anotherVal) == anotherVal->toString(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 69, "main"s));
+	Main::assert(Std::string(anotherVal) == anotherVal.toString(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 69, "main"s));
 	Main::assert(Std::string(base) == "<unknown(size:1)>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 71, "main"s));
 	
-	BaseClass baseVal = std::make_shared<BaseClass>();
+	BaseClass baseVal = BaseClass();
 	
 	Main::assert(Std::string(baseVal) == "<unknown(size:1)>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 74, "main"s));
 	
-	ClassWInt numVal = std::make_shared<ClassWInt>();
+	ClassWInt numVal = ClassWInt();
 	
 	Main::assert(Std::string(numVal) == "<unknown(size:"s + std::to_string(sizeof(numVal)) + ")>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 77, "main"s));
 	Main::assert(4 == 4, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 80, "main"s));

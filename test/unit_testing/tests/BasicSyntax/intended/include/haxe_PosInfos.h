@@ -7,7 +7,7 @@
 
 namespace haxe {
 
-// { className: std::string, fileName: std::string, lineNumber: Int, methodName: std::string, customParams: Null<Array<std::string>> }
+// { className: String, fileName: String, lineNumber: Int, methodName: String, customParams: Null<Array<String>> }
 struct PosInfos {
 
 	// default constructor

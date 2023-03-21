@@ -3,11 +3,14 @@
 #include <functional>
 #include <memory>
 #include <regex>
+#include <string>
 #include "_AnonStructs.h"
 #include "HxString.h"
 #include "Std.h"
 
-EReg EReg::escapeRegExpRe = EReg("[\\[\\]{}()*+?.\\\\\\^$|]", "g");
+using namespace std::string_literals;
+
+EReg EReg::escapeRegExpRe = EReg("[\\[\\]{}()*+?.\\\\\\^$|]"s, "g"s);
 
 EReg::EReg(std::string r, std::string opt) {
 	this->regex = std::regex(r, std::regex::ECMAScript | std::regex::icase);
@@ -17,7 +20,7 @@ EReg::EReg(std::string r, std::string opt) {
 	this->right = std::nullopt;
 	this->matchPos = 0;
 	this->matchLen = 0;
-	this->isGlobal = opt.find("g") != -1;
+	this->isGlobal = opt.find("g"s) != -1;
 }
 
 bool EReg::match(std::string s) {
@@ -42,10 +45,10 @@ bool EReg::match(std::string s) {
 
 std::string EReg::matched(int n) {
 	if(!this->matches.has_value()) {
-		return "";
+		return ""s;
 	};
 	if(n < 0 || n >= this->matches.value().size()) {
-		return "";
+		return ""s;
 	};
 	
 	return this->matches.value()[n];
@@ -53,7 +56,7 @@ std::string EReg::matched(int n) {
 
 std::string EReg::matchedLeft() {
 	if(!this->left.has_value()) {
-		return "";
+		return ""s;
 	};
 	
 	return this->left.value();
@@ -61,7 +64,7 @@ std::string EReg::matchedLeft() {
 
 std::string EReg::matchedRight() {
 	if(!this->right.has_value()) {
-		return "";
+		return ""s;
 	};
 	
 	return this->right.value();
@@ -94,16 +97,16 @@ std::deque<std::string> EReg::split(std::string s) {
 	while(true) {
 		if(this->matchSub(s, index)) {
 			std::shared_ptr<haxe::AnonStruct0> pos = this->matchedPos();
-			std::string tempStdstring;
+			std::string tempString;
 			{
 				int endIndex = pos->pos;
 				if(endIndex < 0) {
-					tempStdstring = s.substr(index);
+					tempString = s.substr(index);
 				} else {
-					tempStdstring = s.substr(index, endIndex - index);
+					tempString = s.substr(index, endIndex - index);
 				};
 			};
-			result.push_back(tempStdstring);
+			result.push_back(tempString);
 			if(pos->pos + pos->len <= index) {
 				break;
 			};
@@ -112,16 +115,16 @@ std::deque<std::string> EReg::split(std::string s) {
 				break;
 			};
 		} else {
-			std::string tempStdstring;
+			std::string tempString;
 			{
 				int endIndex = -1;
 				if(endIndex < 0) {
-					tempStdstring = s.substr(index);
+					tempString = s.substr(index);
 				} else {
-					tempStdstring = s.substr(index, endIndex - index);
+					tempString = s.substr(index, endIndex - index);
 				};
 			};
-			result.push_back(tempStdstring);
+			result.push_back(tempString);
 			break;
 		};
 	};
@@ -130,10 +133,10 @@ std::deque<std::string> EReg::split(std::string s) {
 }
 
 std::string EReg::replace(std::string s, std::string by) {
-	std::string b_b = "";
+	std::string b_b = ""s;
 	int pos = 0;
 	int len = s.length();
-	std::deque<std::string> a = HxString::split(by, "$");
+	std::deque<std::string> a = HxString::split(by, "$"s);
 	bool first = true;
 	
 	do {
@@ -165,19 +168,19 @@ std::string EReg::replace(std::string s, std::string by) {
 			std::string k = a[i];
 			std::optional<int> c = k[0];
 			if(c.value() >= 49 && c.value() <= 57) {
-				std::optional<std::string> tempMaybeStdstring;
+				std::optional<std::string> tempMaybeString;
 				int tempLeft;
 				double x = c.value();
 				tempLeft = ((int)x);
 				int matchIndex = tempLeft - 48;
 				if(this->matches.has_value() && matchIndex < this->matches.value().size()) {
-					tempMaybeStdstring = this->matches.value()[matchIndex];
+					tempMaybeString = this->matches.value()[matchIndex];
 				} else {
-					tempMaybeStdstring = std::nullopt;
+					tempMaybeString = std::nullopt;
 				};
-				std::optional<std::string> matchReplace = tempMaybeStdstring;
+				std::optional<std::string> matchReplace = tempMaybeString;
 				if(!matchReplace.has_value()) {
-					b_b += Std::string("$");
+					b_b += Std::string("$"s);
 					b_b += Std::string(k);
 				} else {
 					b_b += Std::string(matchReplace);
@@ -193,14 +196,14 @@ std::string EReg::replace(std::string s, std::string by) {
 					};
 				};
 			} else if(!c.has_value()) {
-				b_b += Std::string("$");
+				b_b += Std::string("$"s);
 				i++;
 				std::string k2 = a[i];
 				if(true && k2.length() > 0) {
 					b_b += Std::string(k2);
 				};
 			} else {
-				b_b += Std::string("$" + k);
+				b_b += Std::string("$"s + k);
 			};
 			i++;
 		};
@@ -219,7 +222,7 @@ std::string EReg::replace(std::string s, std::string by) {
 
 std::string EReg::map(std::string s, std::function<std::string(EReg)> f) {
 	int offset = 0;
-	std::string buf_b = "";
+	std::string buf_b = ""s;
 	
 	do {
 		if(offset >= s.length()) {
@@ -261,6 +264,6 @@ std::string EReg::map(std::string s, std::function<std::string(EReg)> f) {
 
 std::string EReg::escape(std::string s) {
 	return EReg::escapeRegExpRe.map(s, [&](EReg r) mutable {
-		return "\\" + r.matched(0);
+		return "\\"s + r.matched(0);
 	});
 }

@@ -32,23 +32,23 @@ public:
 		while(true) {
 			int newPos = s.find(delimiter, pos);
 			if(newPos == -1) {
-				std::string tempStdstring;
+				std::string tempString;
 				int endIndex = -1;
 				if(endIndex < 0) {
-					tempStdstring = s.substr(pos);
+					tempString = s.substr(pos);
 				} else {
-					tempStdstring = s.substr(pos, endIndex - pos);
+					tempString = s.substr(pos, endIndex - pos);
 				};
-				result.push_back(tempStdstring);
+				result.push_back(tempString);
 				break;
 			} else {
-				std::string tempStdstring;
+				std::string tempString;
 				if(newPos < 0) {
-					tempStdstring = s.substr(pos);
+					tempString = s.substr(pos);
 				} else {
-					tempStdstring = s.substr(pos, newPos - pos);
+					tempString = s.substr(pos, newPos - pos);
 				};
-				result.push_back(tempStdstring);
+				result.push_back(tempString);
 			};
 			pos = newPos + 1;
 		};
