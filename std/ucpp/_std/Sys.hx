@@ -11,7 +11,12 @@ extern class Sys {
 	}
 
 	static function args(): Array<String>;
-	static function getEnv(s: String): String;
+
+	@:include("cstdlib", true)
+	public static extern inline function getEnv(s: String): String {
+		return new String(untyped __ucpp__("std::getenv({})", s.c_str()));
+	}
+
 	static function putEnv(s: String, v: String): Void;
 	static function environment(): Map<String, String>;
 	static function sleep(seconds: Float): Void;
