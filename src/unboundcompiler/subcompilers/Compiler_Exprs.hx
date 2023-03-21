@@ -527,6 +527,9 @@ class Compiler_Exprs extends SubCompiler {
 			result += "s";
 		}
 
+		// Ensure string is included
+		IComp.addInclude("string", compilingInHeader, true);
+
 		return result;
 	}
 
