@@ -99,4 +99,8 @@ extern class String {
 			substr(startIndex, endIndex - startIndex);
 		}
 	}
+
+	// ----------
+	// Native string functions
+	private function c_str(): ucpp.ConstCharPtr;
 }
