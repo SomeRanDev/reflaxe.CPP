@@ -17,17 +17,9 @@ class StdImpl {
 	}
 }
 
-@:headerCode("template <typename T, typename = std::string>
-struct HasToString : std::false_type { };
-
-template <typename T>
-struct HasToString <T, decltype(std::declval<T>().toString())> : std::true_type { };")
 @:pseudoCoreApi
 @:headerOnly
-@:headerInclude("type_traits", true)
-@:headerInclude("utility", true)
 @:headerInclude("string", true)
-@:includeAnonUtils(true)
 class Std {
 	@:deprecated('Std.is is deprecated. Use Std.isOfType instead.')
 	public extern inline static function is(v: Dynamic, t: Dynamic): Bool return isOfType(v, t);
@@ -45,23 +37,8 @@ class Std {
 		return null;
 	}
 
-	public static function string<T>(s: T): String {
-		untyped __ucpp__("if constexpr(haxe::optional_info<T>::isopt) {
-	if(s.has_value()) {
-		return Std::string({}.value());
-	} else {
-		return \"null\";
-	}
-} else if constexpr(std::is_integral_v<T>) {
-	return std::to_string({});
-} else if constexpr(std::is_convertible<T, std::string>::value) {
-	return std::string({});
-} else if constexpr(HasToString<T>::value) {
-	return {}.toString();
-} else if constexpr(haxe::_unwrap_mm<T>::can_deref) {
-	return Std::string(*{});
-}", s, s, s, s, s);
-		return "<unknown(size:" + ucpp.Stdlib.intToString(ucpp.Stdlib.sizeof(s)) + ")>";
+	public static function string(s: ucpp.DynamicToString): String {
+		return s;
 	}
 
 	public extern inline static function int(x: Float): Int {
