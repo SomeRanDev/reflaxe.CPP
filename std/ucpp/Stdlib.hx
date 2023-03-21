@@ -15,4 +15,8 @@ extern class Stdlib {
 	@:native("std::to_string")
 	@:include("string", true)
 	public static extern function intToString(i: Int): String;
+
+	@:native("std::getenv")
+	@:include("cstdlib", true)
+	public static extern function getEnv(c: ucpp.ConstCharPtr): ucpp.Ptr<ucpp.Char>;
 }
