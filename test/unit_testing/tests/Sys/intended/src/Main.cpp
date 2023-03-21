@@ -26,7 +26,16 @@ void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) 
 }
 
 void Main::main() {
-	haxe::Log::trace(std::string(std::getenv("ANDROID_NDK_VERSION"s.c_str())), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 18, "main"s));
+	std::optional<std::string> tempMaybeString;
+	char* result = std::getenv("ANDROID_NDK_VERSION"s.c_str());
+	
+	if(result == nullptr) {
+		tempMaybeString = std::nullopt;
+	} else {
+		tempMaybeString = std::string(result);
+	};
+	
+	haxe::Log::trace(tempMaybeString, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 18, "main"s));
 	
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);

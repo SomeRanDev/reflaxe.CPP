@@ -12,8 +12,9 @@ extern class Sys {
 
 	static function args(): Array<String>;
 
-	public static extern inline function getEnv(s: String): String {
-		return ucpp.Stdlib.getEnv(@:privateAccess s.c_str()).toString();
+	public static extern inline function getEnv(s: String): Null<String> {
+		final result = ucpp.Stdlib.getEnv(@:privateAccess s.c_str());
+		return result.isNull() ? null : result.toString();
 	}
 
 	static function putEnv(s: String, v: String): Void;
