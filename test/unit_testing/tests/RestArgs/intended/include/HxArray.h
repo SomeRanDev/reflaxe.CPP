@@ -25,7 +25,7 @@ public:
 	
 	template<typename T>
 	static std::string join(std::deque<T> a, std::string sep) {
-		std::string result = "";
+		std::string result = std::string("");
 		int _g = 0;
 		int _g1 = a.size();
 		
@@ -34,7 +34,7 @@ public:
 			if(i > 0) {
 				result += sep;
 			};
-			result += Std::string<T>(a[i]);
+			result += Std::string(a[i]);
 		};
 		
 		return result;
@@ -152,7 +152,7 @@ public:
 	
 	template<typename T>
 	static std::string toString(std::deque<T> a) {
-		std::string result = "[";
+		std::string result = std::string("[");
 		int _g = 0;
 		int _g1 = a.size();
 		
@@ -160,14 +160,14 @@ public:
 			int i = _g++;
 			std::string tempLeft;
 			if(i != 0) {
-				tempLeft = ", ";
+				tempLeft = std::string(", ");
 			} else {
-				tempLeft = "";
+				tempLeft = std::string("");
 			};
-			result += tempLeft + Std::string<T>(a[i]);
+			result += tempLeft + Std::string(a[i]);
 		};
 		
-		return result + "]";
+		return result + std::string("]");
 	}
 };
 
