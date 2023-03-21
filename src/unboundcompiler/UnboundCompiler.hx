@@ -429,6 +429,9 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			return null;
 		}
 
+		// Check & compile code from @:headerCode and @:cppFileCode.
+		compileFileCodeMeta(defType);
+
 		// Get filename for this typedef
 		final filename = getFileNameFromModuleData(defType);
 		final headerFilename = filename + HeaderExt;
@@ -494,6 +497,12 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// ----------------------------
 	// Ensures an abstract's internal type is compiled.
 	public override function compileAbstract(absType: AbstractType): Null<String> {
+		// Check & compile code from @:headerCode and @:cppFileCode.
+		// Even if the abstract itself isn't compiled, it can still
+		// add code to an output file using these meta.
+		compileFileCodeMeta(absType);
+
+		// Add internal type for compilation
 		final mt = absType.type.toModuleType();
 		if(mt != null) {
 			addModuleTypeForCompilation(mt);
@@ -505,6 +514,26 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// Compile TypedExpr into C++.
 	public function compileExpressionImpl(expr: TypedExpr): Null<String> {
 		return XComp.compileExpressionToCpp(expr);
+	}
+
+	// ----------------------------
+	// Compiles the content generated from @:headerCode and @:cppFileCode.
+	function compileFileCodeMeta(cd: CommonModuleTypeData, headerPriority: Int = 2, cppFilePriority: Int = 2) {
+		if(cd.hasMeta(":headerCode") || cd.hasMeta(":cppFileCode")) {
+			final filename = getFileNameFromModuleData(cd);
+
+			final headerCode = cd.meta.extractStringFromFirstMeta(":headerCode");
+			if(headerCode != null) {
+				final headerFilePath = HeaderFolder + "/" + filename + HeaderExt;
+				setExtraFileIfEmpty(headerFilePath, "#pragma once");
+				appendToExtraFile(headerFilePath, headerCode + "\n", 2);
+			}
+
+			final cppCode = cd.meta.extractStringFromFirstMeta(":cppFileCode");
+			if(cppCode != null) {
+				appendToExtraFile(SourceFolder + "/" + filename + SourceExt, cppCode + "\n", 2);
+			}
+		}
 	}
 }
 
