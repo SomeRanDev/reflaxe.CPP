@@ -232,7 +232,7 @@ class Compiler_Types extends SubCompiler {
 			case TAbstract(absRef, params) if(params.length == 1 && absRef.get().name == "Null"): {
 				getMemoryManagementTypeFromType(params[0]);
 			}
-			case TAbstract(absRef, params): {
+			case TAbstract(absRef, params) if(!absRef.get().isOverrideMemoryManagement()): {
 				final abs = absRef.get();
 				final result = if(params.length == 0) {
 					switch(abs.name) {
