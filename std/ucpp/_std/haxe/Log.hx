@@ -10,8 +10,8 @@ class Log {
 		return pstr + ": " + v;
 	}
 
-	public static dynamic function trace(v: String, infos: Null<PosInfos> = null): Void {
+	public static dynamic function trace(v: ucpp.DynamicToString, infos: Null<PosInfos> = null): Void {
 		var str = formatOutput(v, infos);
-		untyped __ucpp__("std::cout << {} << std::endl", str);
+		Sys.println(str);
 	}
 }
