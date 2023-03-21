@@ -39,6 +39,13 @@ class Compiler_Includes extends SubCompiler {
 	var cppIncludes: Array<String>;
 
 	// ----------------------------
+	// Store list of "using namespace" uses.
+	//
+	// Using "using namespace" in header files is bad practice,
+	// so only usings for cpp files are tracked.
+	var cppUsings: Array<String>;
+
+	// ----------------------------
 	// List of headers to ignore.
 	var ignoreIncludes: Array<String>;
 
@@ -66,6 +73,10 @@ class Compiler_Includes extends SubCompiler {
 		cppIncludes = [];
 		ignoreIncludes = ignoreList != null ? ignoreList : [];
 
+		// Reset using list
+		cppUsings = [];
+
+		// If not compiling a module, stop here.
 		final current = Main.getCurrentModule();
 		if(current == null) return;
 
@@ -105,6 +116,14 @@ class Compiler_Includes extends SubCompiler {
 
 	function wrapInclude(include: String, triangleBrackets: Bool) {
 		return if(!triangleBrackets) { "\"" + include + "\""; } else { "<" + include + ">"; };
+	}
+
+	// ----------------------------
+	// Add "using namespace" while compiling code.
+	public function addUsingNamespace(ns: String) {
+		if(!cppUsings.contains(ns)) {
+			cppUsings.push(ns);
+		}
 	}
 
 	// ----------------------------
@@ -249,7 +268,12 @@ class Compiler_Includes extends SubCompiler {
 	}
 
 	function compileCppIncludes(): String {
-		return compileIncludes(cppIncludes);
+		var result = compileIncludes(cppIncludes);
+		if(cppUsings.length > 0) {
+			if(result.length > 0) result += "\n\n";
+			result += cppUsings.sortedAlphabetically().map(u -> "using namespace " + u + ";").join("\n");
+		}
+		return result;
 	}
 
 	// Take one of the include arrays and
