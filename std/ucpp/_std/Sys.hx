@@ -2,8 +2,14 @@ package;
 
 @:require(sys)
 extern class Sys {
-	static function print(v: Dynamic): Void;
-	static function println(v: Dynamic): Void;
+	public static extern inline function print(v: ucpp.DynamicToString): Void {
+		untyped __ucpp__("std::cout << {}", v);
+	}
+
+	public static extern inline function println(v: ucpp.DynamicToString): Void {
+		untyped __ucpp__("std::cout << {} << std::endl", v);
+	}
+
 	static function args(): Array<String>;
 	static function getEnv(s: String): String;
 	static function putEnv(s: String, v: String): Void;
