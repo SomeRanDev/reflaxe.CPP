@@ -16,7 +16,7 @@ struct DynamicToString: public std::string {
     static std::string ToString(T s) {
         if constexpr(haxe::optional_info<T>::isopt) {
 			if(s.has_value()) {
-				return Std::string(s.value());
+				return ToString(s.value());
 			} else {
 				return \"null\";
 			}
@@ -27,7 +27,7 @@ struct DynamicToString: public std::string {
 		} else if constexpr(HasToString<T>::value) {
 			return s.toString();
 		} else if constexpr(haxe::_unwrap_mm<T>::can_deref) {
-			return Std::string(*s);
+			return ToString(*s);
 		}
 		
 		return \"<unknown(size:\" + std::to_string(sizeof(s)) + \")>\";
