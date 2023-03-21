@@ -513,7 +513,21 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	function stringToCpp(s: String): String {
-		return "\"" + StringTools.replace(StringTools.replace(s, "\\", "\\\\"), "\"", "\\\"") + "\"";
+		// Add backslash to all quotes and backslashes.
+		var result = "\"" + StringTools.replace(StringTools.replace(s, "\\", "\\\\"), "\"", "\\\"") + "\"";
+
+		if(compilingInHeader) {
+			// If compiling in header, we don't want to taint the global namespace with "using namespace",
+			// so we just wrap the const char* in std::string(...).
+			result = "std::string(" + result + ")";
+		} else {
+			// If compiling in source file, std::string literal can be used with the "s" suffix.
+			// Just make sure "using namespace std::string_literals" is added.
+			IComp.addUsingNamespace("std::string_literals");
+			result += "s";
+		}
+
+		return result;
 	}
 
 	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
