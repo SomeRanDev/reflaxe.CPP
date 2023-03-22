@@ -1,5 +1,11 @@
 package;
 
+// class SysImpl {
+// 	public static function environment(): Map<String, String> {
+// 		return [];
+// 	}
+// }
+
 @:require(sys)
 extern class Sys {
 	public static extern inline function print(v: ucpp.DynamicToString): Void {
@@ -17,10 +23,22 @@ extern class Sys {
 		return result.isNull() ? null : result.toString();
 	}
 
-	static function putEnv(s: String, v: String): Void;
-	static function environment(): Map<String, String>;
-	static function sleep(seconds: Float): Void;
-	static function setTimeLocale(loc: String): Bool;
+	public static extern inline function putEnv(s: String, v: String): Void {
+		ucpp.Stdlib.setEnv(@:privateAccess s.c_str(), @:privateAccess v.c_str());
+	}
+
+	// public static extern inline function environment(): Map<String, String> {
+	// 	return SysImpl.environment();
+	// }
+
+	public static extern inline function sleep(seconds: Float): Void {
+		ucpp.Stdlib.sleep(seconds * 1000.0);
+	}
+
+	public static extern inline function setTimeLocale(loc: String): Bool {
+		return !ucpp.Stdlib.setLocale(untyped __ucpp__("LC_TIME"), @:privateAccess loc.c_str()).isNull();
+	}
+
 	static function getCwd(): String;
 	static function setCwd(s: String): Void;
 	static function systemName(): String;
