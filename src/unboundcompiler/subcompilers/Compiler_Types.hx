@@ -169,7 +169,8 @@ class Compiler_Types extends SubCompiler {
 			}
 			result;
 		} else {
-			final prefix = (useNamespaces ? typeData.pack.join("::") + (typeData.pack.length > 0 ? "::" : "") : "");
+			final useNS = useNamespaces && (!typeData.hasMeta(":noHaxeNamespaces"));
+			final prefix = (useNS ? typeData.pack.join("::") + (typeData.pack.length > 0 ? "::" : "") : "");
 			final innerClass = compileTypeNameWithParams(prefix + typeData.getNameOrNativeName(), pos, params);
 			final mmType = overrideMM != null ? overrideMM : typeData.getMemoryManagementType();
 			applyMemoryManagementWrapper(innerClass, mmType);
