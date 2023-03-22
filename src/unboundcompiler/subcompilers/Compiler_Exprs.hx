@@ -169,6 +169,7 @@ class Compiler_Exprs extends SubCompiler {
 			}
 			case TVar(tvar, maybeExpr): {
 				final t = Main.getTVarType(tvar);
+				Main.onTypeEncountered(t, compilingInHeader);
 				final typeCpp = if(t.isUnresolvedMonomorph()) {
 					// TODO: Why use std::any instead of auto?
 					// I must have originally made this resolve to Any for a reason?
