@@ -9,7 +9,6 @@ package unboundcompiler.subcompilers;
 
 #if (macro || ucpp_runtime)
 
-import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
@@ -22,7 +21,7 @@ using unboundcompiler.helpers.USort;
 import unboundcompiler.helpers.UMeta.MemoryManagementType;
 
 typedef AnonField = { name: String, type: Type, optional: Bool, ?pos: Position };
-typedef AnonStruct = { name: String, constructorOrder: Array<AnonField> };
+typedef AnonStruct = { name: String, constructorOrder: Array<AnonField>, templates: Array<String>, cpp: String };
 
 @:allow(unboundcompiler.UnboundCompiler)
 @:access(unboundcompiler.UnboundCompiler)
@@ -80,10 +79,14 @@ class Compiler_Anon extends SubCompiler {
 
 		final internalType = type.unwrapNullTypeOrSelf();
 
-		final name = if(isNamed) {
+		var name = if(isNamed) {
 			TComp.compileType(internalType, originalExpr.pos, true);
 		} else {
 			"haxe::" + as.name;
+		}
+
+		if(as.templates.length > 0) {
+			name += "<" + as.templates.join(", ") + ">";
 		}
 
 		IComp.addAnonTypeInclude(compilingInHeader);
@@ -114,26 +117,32 @@ class Compiler_Anon extends SubCompiler {
 			});
 		}
 		final as = findAnonStruct(anonFields);
-		return "haxe::" + as.name;
+		return "haxe::" + as.name + {
+			if(as.templates.length > 0) {
+				for(t in as.templates) {
+					TComp.addDynamicTemplate(t);
+				}
+				"<" + as.templates.join(", ") + ">";
+			} else {
+				"";
+			}
+		};
 	}
 
 	public function compileNamedAnonTypeDefinition(defType: DefType, anonRef: Ref<AnonType>): String {
-
 		final anonStruct = getNamedAnonStruct(defType, anonRef);
-
-		final anonType = anonRef.get();
-		final name = defType.name;
-
-		return makeAnonTypeDecl(name, anonStruct.constructorOrder);
+		return anonStruct.cpp;
 	}
 
-	function makeAnonTypeDecl(name: String, anonFields: Array<AnonField>): String {
+	function makeAnonTypeDecl(name: String, anonFields: Array<AnonField>): { templates: Array<String>, cpp: String } {
 		final fields = [];
 		final constructorParams = [];
 		final constructorAssigns = [];
 		final templateConstructorAssigns = [];
 		final templateFunctionAssigns = [];
 		final extractorFuncs = [];
+
+		TComp.enableDynamicToTemplate([]);
 
 		for(f in anonFields) {
 			Main.onTypeEncountered(f.type, true);
@@ -160,9 +169,15 @@ class Compiler_Anon extends SubCompiler {
 			}
 		}
 
+		final templates = TComp.disableDynamicToTemplate();
+
 		var decl = "";
 
 		decl += "// { " + anonFields.map(f -> f.name + ": " + haxe.macro.TypeTools.toString(f.type)).join(", ") + " }\n";
+
+		if(templates.length > 0) {
+			decl += "template<" + templates.map(t -> "typename " + t).join(", ") + ">\n";
+		}
 
 		decl += "struct " + name + " {";
 		
@@ -193,15 +208,19 @@ class Compiler_Anon extends SubCompiler {
 
 		decl += "};\n";
 
-		return decl;
+		return { templates: templates, cpp: decl };
 	}
 
 	function getNamedAnonStruct(defType: DefType, anonRef: Ref<AnonType>): AnonStruct {
 		final key = generateAccessNameFromDefType(defType);
 		final anonFields = anonRef.get().fields.map(classFieldToAnonField);
+		final sortedAnonFields = anonFields.sorted(orderFields);
+		final decl = makeAnonTypeDecl(defType.name, sortedAnonFields);
 		final result = {
 			name: key,
-			constructorOrder: anonFields.sorted(orderFields)
+			constructorOrder: sortedAnonFields,
+			templates: decl.templates,
+			cpp: decl.cpp
 		};
 		namedAnonStructs.set(key, result);
 		return result;
@@ -223,9 +242,13 @@ class Compiler_Anon extends SubCompiler {
 	function findAnonStruct(anonFields: Array<AnonField>): AnonStruct {
 		final key = makeAnonStructKey(anonFields);
 		if(!anonStructs.exists(key)) {
+			final name = "AnonStruct" + (anonId++);
+			final decl = makeAnonTypeDecl(name, anonFields);
 			anonStructs.set(key, {
-				name: "AnonStruct" + (anonId++),
-				constructorOrder: anonFields
+				name: name,
+				constructorOrder: anonFields,
+				templates: decl.templates,
+				cpp: decl.cpp
 			});
 		}
 		return anonStructs.get(key);
@@ -249,7 +272,7 @@ class Compiler_Anon extends SubCompiler {
 	function makeAllUnnamedDecls() {
 		final decls = [];
 		for(name => as in anonStructs) {
-			decls.push(makeAnonTypeDecl(as.name, as.constructorOrder));
+			decls.push(as.cpp);
 			for(f in as.constructorOrder) {
 				IComp.addIncludeFromType(f.type, true);
 			}
