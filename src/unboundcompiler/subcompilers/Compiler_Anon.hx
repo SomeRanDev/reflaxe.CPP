@@ -52,7 +52,8 @@ class Compiler_Anon extends SubCompiler {
 		final t = type.unwrapNullTypeOrSelf();
 		var as: Null<AnonStruct> = switch(t) {
 			case TType(defTypeRef, params): {
-				switch(defTypeRef.get().type) {
+				final inner = Main.getTypedefInner(t);
+				switch(inner) {
 					case TAnonymous(a): {
 						isNamed = true;
 						getNamedAnonStruct(defTypeRef.get(), a);

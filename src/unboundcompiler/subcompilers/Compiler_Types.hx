@@ -134,7 +134,9 @@ class Compiler_Types extends SubCompiler {
 							UnboundCompiler.OptionalClassCpp + "<" + compileType(params[0], pos) + ">";
 						}
 						case _: {
-							final newType = haxe.macro.TypeTools.applyTypeParameters(abs.type, abs.params, params);
+							final inner = Main.getAbstractInner(t);
+							final newType = haxe.macro.TypeTools.applyTypeParameters(inner, abs.params, params);
+
 							if(t.equals(newType)) {
 								compileModuleTypeName(abs, pos, params, true, asValue ? Value : null);
 							} else {
@@ -225,10 +227,11 @@ class Compiler_Types extends SubCompiler {
 	// Returns the memory manage type
 	// based on the meta of the Type.
 	function getMemoryManagementTypeFromType(t: Type): MemoryManagementType {
+		if(t.isClass()) {
+			return Value;
+		}
+
 		final mmt = switch(t) {
-			case TAbstract(absRef, params) if(t.isClass()): {
-				Value;
-			}
 			case TAbstract(absRef, params) if(params.length == 1 && absRef.get().name == "Null"): {
 				getMemoryManagementTypeFromType(params[0]);
 			}
@@ -251,18 +254,15 @@ class Compiler_Types extends SubCompiler {
 				if(result != null) {
 					result;
 				} else {
-					getMemoryManagementTypeFromType(abs.type);
+					final inner = Main.getAbstractInner(t);
+					getMemoryManagementTypeFromType(inner);
 				}
 			}
 			case TType(defRef, params) if(t.isRef()): {
 				getMemoryManagementTypeFromType(params[0]);
 			}
-			case TType(defRef, params) if(params.length == 1): {
-				final def = defRef.get();
-				switch(def.name) {
-					case "Class": Value;
-					case _: null;
-				}
+			case TType(defRef, params): {
+				getMemoryManagementTypeFromType(Main.getTypedefInner(t));
 			}
 			case TAnonymous(a): {
 				SharedPtr;
