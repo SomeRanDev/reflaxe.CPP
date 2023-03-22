@@ -19,4 +19,8 @@ extern class Stdlib {
 	@:native("std::getenv")
 	@:include("cstdlib", true)
 	public static extern function getEnv(c: ucpp.ConstCharPtr): ucpp.Ptr<ucpp.Char>;
+
+	@:native("std::setenv")
+	@:include("cstdlib", true)
+	public static extern function setEnv(varName: ucpp.ConstCharPtr, value: ucpp.ConstCharPtr): Void;
 }
