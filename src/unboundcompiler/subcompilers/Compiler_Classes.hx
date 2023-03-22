@@ -72,11 +72,29 @@ class Compiler_Classes extends SubCompiler {
 		// Class declaration
 		header += "class " + className;
 
+		final extendedFrom = [];
+
 		if(classType.superClass != null) {
 			final superType = classType.superClass.t;
 			Main.onModuleTypeEncountered(TClassDecl(superType), true);
-			Main.superTypeName = TComp.compileClassName(superType.get(), classType.pos, classType.superClass.params, true, true);
-			header += ": public " + Main.superTypeName;
+			for(p in classType.superClass.params) {
+				Main.onTypeEncountered(p, true);
+			}
+			Main.superTypeName = TComp.compileClassName(superType, classType.pos, classType.superClass.params, true, true);
+			extendedFrom.push(Main.superTypeName);
+		}
+
+		for(i in classType.interfaces) {
+			final interfaceType = i.t;
+			Main.onModuleTypeEncountered(TClassDecl(interfaceType), true);
+			for(p in i.params) {
+				Main.onTypeEncountered(p, true);
+			}
+			extendedFrom.push(TComp.compileClassName(interfaceType, classType.pos, i.params, true, true));
+		}
+
+		if(extendedFrom.length > 0) {
+			header += ": " + extendedFrom.map(e -> "public " + e).join(", ");
 		}
 
 		header += " {\npublic:\n";
@@ -124,10 +142,11 @@ class Compiler_Classes extends SubCompiler {
 		// Class functions
 		for(f in funcFields) {
 			final field = f.field;
-			final tfunc = f.tfunc;
+			final data = f.data;
 
 			final isStatic = f.isStatic;
 			final isDynamic = f.kind == MethDynamic;
+			final isAbstract = field.isAbstract || classType.isInterface;
 			final isInstanceFunc = !isStatic && !isDynamic;
 
 			final isConstructor = isInstanceFunc && field.name == "new";
@@ -141,18 +160,22 @@ class Compiler_Classes extends SubCompiler {
 				Main.compileVarName(field.name);
 			}
 
-			var addToCpp = !headerOnly;
+			var addToCpp = !headerOnly && !isAbstract;
 
-			if(tfunc.t != null) {
-				Main.onTypeEncountered(tfunc.t, true);
+			if(data.ret != null) {
+				Main.onTypeEncountered(data.ret, true);
 			}
-			for(a in tfunc.args) {
-				Main.onTypeEncountered(a.v.t, true);
+			for(a in data.args) {
+				Main.onTypeEncountered(a.t, true);
 			}
 
 			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
-			final ret = tfunc.t == null ? "void" : (tfunc.t.isDynamic() ? "auto" : TComp.compileType(tfunc.t, field.pos));
-			final prefix = isStatic ? "static " : "";
+			final ret = data.ret == null ? "void" : (data.ret.isDynamic() ? "auto" : TComp.compileType(data.ret, field.pos));
+
+			var prefixNames = [];
+			if(isStatic) prefixNames.push("static");
+			if(isAbstract) prefixNames.push("virtual");
+			final prefix = prefixNames.length > 0 ? (prefixNames.join(" ") + " ") : "";
 
 			if(isDynamic) {
 				IComp.addInclude("functional", true, true);
@@ -163,8 +186,8 @@ class Compiler_Classes extends SubCompiler {
 				final callable = Main.compileClassVarExpr(field.expr());
 				XComp.compilingForTopLevel = false;
 				final assign = " = " + callable;
-				final type = "std::function<" + ret + "(" + tfunc.args.map(a -> {
-					return TComp.compileType(Main.getTVarType(a.v), field.pos);
+				final type = "std::function<" + ret + "(" + data.args.map(a -> {
+					return TComp.compileType(a.t, field.pos);
 				}).join(", ") + ")>";
 				var decl = meta + prefix + type + " " + name;
 				if(!dynAddToCpp) {
@@ -187,7 +210,12 @@ class Compiler_Classes extends SubCompiler {
 
 				TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
 
-				final argDecl = "(" + tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos)).join(", ") + ")";
+				final argCpp = if(data.tfunc != null) {
+					data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos));
+				} else {
+					data.args.map(a -> Main.compileFunctionArgumentData(a, null, field.pos));
+				}
+				final argDecl = "(" + argCpp.join(", ") + ")";
 
 				final templateTypes = field.params.map(f -> f.name).concat(TComp.disableDynamicToTemplate());
 				final templateDecl = if(templateTypes.length > 0) {
@@ -197,11 +225,11 @@ class Compiler_Classes extends SubCompiler {
 					"";
 				}
 
-				XComp.pushReturnType(tfunc.t);
+				XComp.pushReturnType(data.ret);
 				final funcDeclaration = meta + (topLevel ? "" : prefix) + retDecl + name + argDecl;
-				var content = if(tfunc.expr != null) {
+				var content = if(data.expr != null) {
 					XComp.compilingInHeader = !addToCpp;
-					" {\n" + Main.compileClassFuncExpr(tfunc.expr).tab() + "\n}";
+					" {\n" + Main.compileClassFuncExpr(data.expr).tab() + "\n}";
 				} else {
 					"";
 				}
@@ -209,10 +237,16 @@ class Compiler_Classes extends SubCompiler {
 				
 				if(addToCpp) {
 					(topLevel ? topLevelFunctions : functions).push(funcDeclaration + ";");
-					final cppArgDecl = "(" + tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, true)).join(", ") + ")";
+
+					final argCpp = if(data.tfunc != null) {
+						data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, true));
+					} else {
+						data.args.map(a -> Main.compileFunctionArgumentData(a, null, field.pos, true));
+					}
+					final cppArgDecl = "(" + argCpp.join(", ") + ")";
 					cppFunctions.push(retDecl + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
 				} else {
-					functions.push(templateDecl + funcDeclaration + content);
+					functions.push(templateDecl + funcDeclaration + (isAbstract ? " = 0;" : content));
 				}
 
 				if(!topLevel) {
