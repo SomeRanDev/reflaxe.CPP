@@ -84,8 +84,8 @@ class Compiler_Types extends SubCompiler {
 			}
 			case TDynamic(t3): {
 				if(t3 == null) {
-					if(accumulateTemplateTypes) {
-						final result = "Dyn" + (dynamicTemplates.length + 1);
+					if(isAccumulatingDynamicToTemplate()) {
+						final result = generateDynamicTemplateName();
 						addDynamicTemplate(result);
 						result;
 					} else {
@@ -286,26 +286,31 @@ class Compiler_Types extends SubCompiler {
 	// ----------------------------
 	// Fields used for system for converting
 	// Dynamic types into generic types.
-	var accumulateTemplateTypes: Bool = false;
-	var existingTemplates: Array<String> = [];
-	var dynamicTemplates: Null<Array<String>> = null;
+	var templateState: Array<{ existingTemplates: Array<String>, dynamicTemplates: Array<String> }> = [];
+
+	function isAccumulatingDynamicToTemplate(): Bool {
+		return templateState.length > 0;
+	}
 
 	// ----------------------------
 	// Once called, Dynamic types will be compiled
 	// with new type names to be used in a template.
 	function enableDynamicToTemplate(existingTemplates: Array<String>) {
-		this.existingTemplates = existingTemplates;
-		if(!accumulateTemplateTypes) {
-			accumulateTemplateTypes = true;
-			dynamicTemplates = [];
-		}
+		templateState.push({
+			existingTemplates: existingTemplates,
+			dynamicTemplates: []
+		});
 	}
 
 	// ----------------------------
 	// Adds a dynamic template if it doesn't already exist.
-	function addDynamicTemplate(t: String) {
-		if(!existingTemplates.contains(t) && !dynamicTemplates.contains(t)) {
-			dynamicTemplates.push(t);
+	public function addDynamicTemplate(t: String) {
+		if(templateState.length > 0) {
+			final state = templateState[templateState.length - 1];
+			final d = state.dynamicTemplates;
+			if(!state.existingTemplates.contains(t) && !d.contains(t)) {
+				d.push(t);
+			}
 		}
 	}
 
@@ -313,13 +318,21 @@ class Compiler_Types extends SubCompiler {
 	// Disables this feature and returns a list
 	// of all the new "template type names" created.
 	function disableDynamicToTemplate(): Array<String> {
-		return if(accumulateTemplateTypes) {
-			final result = dynamicTemplates;
-			accumulateTemplateTypes = false;
-			dynamicTemplates = [];
-			result;
+		return if(templateState.length > 0) {
+			templateState.pop().dynamicTemplates;
 		} else {
 			[];
+		}
+	}
+
+	// ----------------------------
+	// Generate name for type parameter from Dynamic.
+	function generateDynamicTemplateName(): String {
+		return if(templateState.length > 0) {
+			final state = templateState[templateState.length - 1];
+			"Dyn" + (state.dynamicTemplates.length + 1);
+		} else {
+			"DynNone";
 		}
 	}
 }
