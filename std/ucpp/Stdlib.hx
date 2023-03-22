@@ -27,4 +27,8 @@ extern class Stdlib {
 	@:native("std::this_thread::sleep_for")
 	@:include("thread", true)
 	public static extern function sleep(duration: Float): Void;
+
+	@:native("std::setlocale")
+	@:include("clocale", true)
+	public static extern function setLocale(category: Int, locale: ucpp.ConstCharPtr): ucpp.Ptr<ucpp.Char>;
 }
