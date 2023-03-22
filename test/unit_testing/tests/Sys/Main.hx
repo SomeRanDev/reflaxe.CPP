@@ -17,6 +17,8 @@ class Main {
 
 		trace(Sys.getEnv("ANDROID_NDK_VERSION"));
 
+		trace(ucpp.std.FileSystem.currentPath());
+
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
 		}
