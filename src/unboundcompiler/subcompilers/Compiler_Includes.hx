@@ -227,6 +227,13 @@ class Compiler_Includes extends SubCompiler {
 			final main = Main.getCurrentModule();
 			if(main != null && main.getUniqueId() == mt.getUniqueId()) return;
 			if(addIncludeFromMetaAccess(cd.meta, header)) {
+				switch(mt) {
+					case TAbstract(absRef) if(!cd.hasMeta(":yesInclude")): {
+						addIncludeFromType(absRef.get().type, header);
+						return;
+					}
+					case _:
+				}
 				if(!cd.isExtern) {
 					addInclude(Main.getFileNameFromModuleData(cd) + UnboundCompiler.HeaderExt, header, false);
 				}
