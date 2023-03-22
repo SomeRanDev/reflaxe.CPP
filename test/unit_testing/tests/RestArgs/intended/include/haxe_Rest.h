@@ -19,25 +19,33 @@ namespace _Rest {
 class Rest_Impl_ {
 public:
 	template<typename T>
-	static std::shared_ptr<haxe::_Rest::NativeRest<T>> append(std::shared_ptr<haxe::_Rest::NativeRest<T>> this1, T item) {
-		std::deque<T> result = std::deque(this1->begin(), this1->end());
+	static haxe::_Rest::NativeRest<T> append(haxe::_Rest::NativeRest<T> this1, T item) {
+		std::deque<T> result = std::deque(this1.begin(), this1.end());
 		
 		result.push_back(item);
 		
-		std::shared_ptr<haxe::_Rest::NativeRest<T>> this2 = std::make_shared<std::deque<T>>(result);
-		std::shared_ptr<haxe::_Rest::NativeRest<T>> tempResult = this2;
+		haxe::_Rest::NativeRest<T> tempResult;
+		
+		{
+			haxe::_Rest::NativeRest<T> this1 = result;
+			tempResult = this1;
+		};
 		
 		return tempResult;
 	}
 	
 	template<typename T>
-	static std::shared_ptr<haxe::_Rest::NativeRest<T>> prepend(std::shared_ptr<haxe::_Rest::NativeRest<T>> this1, T item) {
-		std::deque<T> result = std::deque(this1->begin(), this1->end());
+	static haxe::_Rest::NativeRest<T> prepend(haxe::_Rest::NativeRest<T> this1, T item) {
+		std::deque<T> result = std::deque(this1.begin(), this1.end());
 		
 		result.push_front(item);
 		
-		std::shared_ptr<haxe::_Rest::NativeRest<T>> this2 = std::make_shared<std::deque<T>>(result);
-		std::shared_ptr<haxe::_Rest::NativeRest<T>> tempResult = this2;
+		haxe::_Rest::NativeRest<T> tempResult;
+		
+		{
+			haxe::_Rest::NativeRest<T> this1 = result;
+			tempResult = this1;
+		};
 		
 		return tempResult;
 	}

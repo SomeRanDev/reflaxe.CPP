@@ -1,5 +1,6 @@
 #include "EReg.h"
 
+#include <deque>
 #include <functional>
 #include <memory>
 #include <regex>

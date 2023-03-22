@@ -1,6 +1,7 @@
 #include "Main.h"
 
 #include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -36,6 +37,7 @@ void Main::main() {
 	};
 	
 	haxe::Log::trace(tempMaybeString, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 18, "main"s));
+	haxe::Log::trace(std::filesystem::current_path(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 20, "main"s));
 	
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);

@@ -1,7 +1,9 @@
 #pragma once
 
+#include <deque>
 #include <memory>
 #include <optional>
+#include <string>
 #include "haxe_PosInfos.h"
 
 class Main {
