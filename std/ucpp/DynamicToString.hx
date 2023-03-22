@@ -40,5 +40,6 @@ struct DynamicToString: public std::string {
 @:headerInclude("string", true)
 @:includeAnonUtils(true)
 @:native("haxe::DynamicToString")
+@:yesInclude
 extern abstract DynamicToString(String) from Dynamic to String {
 }
