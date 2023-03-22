@@ -130,7 +130,7 @@ class Compiler_Includes extends SubCompiler {
 	// Returns true if the provided ModuleType should
 	// not generate an include when used.
 	function isNoIncludeType(mt: ModuleType, unwrapAbstract: Bool = true): Bool {
-		return switch(mt) {
+		final result = switch(mt) {
 			case TAbstract(absRef): {
 				if(unwrapAbstract) {
 					final newMt = Context.followWithAbstracts(TypeHelper.fromModuleType(mt)).toModuleType();
@@ -151,6 +151,17 @@ class Compiler_Includes extends SubCompiler {
 			}
 			case _: false;
 		}
+
+		// If this module is set to be ignored,
+		// check if there is include meta.
+		if(result) {
+			final cd = mt.getCommonData();
+			if(cd.hasMeta(":include") || cd.hasMeta(":addInclude") || cd.hasMeta(":yesInclude")) {
+				return false;
+			}
+		}
+
+		return result;
 	}
 
 	// ----------------------------
