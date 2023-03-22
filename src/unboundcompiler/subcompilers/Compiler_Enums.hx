@@ -48,9 +48,14 @@ class Compiler_Enums extends SubCompiler {
 			}
 		}
 
+		final enumTypeRef = switch(Main.getCurrentModule()) {
+			case TEnumDecl(e): e;
+			case _: throw "Impossible";
+		}
+
 		// --------------------
 		// Generate entire class declaration in "declaration"
-		final enumName = TComp.compileEnumName(enumType, enumType.pos, null, false, true);
+		final enumName = TComp.compileEnumName(enumTypeRef, enumType.pos, null, false, true);
 		var declaration = "class " + enumName + " {\npublic:\n";
 		declaration += "\tint index;\n\n";
 

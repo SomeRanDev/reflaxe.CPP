@@ -66,10 +66,10 @@ class Compiler_Types extends SubCompiler {
 				}
 			}
 			case TEnum(enumRef, params): {
-				compileEnumName(enumRef.get(), pos, params, true, asValue);
+				compileEnumName(enumRef, pos, params, true, asValue);
 			}
 			case TInst(clsRef, params): {
-				compileClassName(clsRef.get(), pos, params, true, asValue);
+				compileClassName(clsRef, pos, params, true, asValue);
 			}
 			case TFun(args, ret): {
 				"std::function<" + compileType(ret, pos) + "(" + args.map(a -> compileType(a.t, pos)).join(", ") + ")>";
@@ -120,12 +120,13 @@ class Compiler_Types extends SubCompiler {
 				if(prim != null) {
 					prim;
 				} else {
-					if(abs.isOverrideMemoryManagement() && params.length == 1) {
-						return applyMemoryManagementWrapper(compileType(params[0], pos, true), abs.getMemoryManagementType());
+					if(abs.hasMeta(":native") || abs.hasMeta(":nativeName")) {
+						final inner = Main.getAbstractInner(t);
+						return compileModuleTypeName(abs, pos, params, true, asValue ? Value : getMemoryManagementTypeFromType(inner));
 					}
 
-					if(abs.hasMeta(":native")) {
-						return compileModuleTypeName(abs, pos, params, true, asValue ? Value : getMemoryManagementTypeFromType(abs.type));
+					if(abs.isOverrideMemoryManagement() && params.length == 1) {
+						return applyMemoryManagementWrapper(compileType(params[0], pos, true), abs.getMemoryManagementType());
 					}
 
 					switch(abs.name) {
@@ -150,7 +151,7 @@ class Compiler_Types extends SubCompiler {
 				if(t.isRef()) {
 					compileType(params[0], pos) + "&";
 				} else {
-					compileDefName(defRef.get(), pos, params, true, asValue);
+					compileDefName(defRef, pos, params, true, asValue);
 				}
 			}
 		}
@@ -188,28 +189,32 @@ class Compiler_Types extends SubCompiler {
 
 	// ----------------------------
 	// Compile ClassType.
-	public function compileClassName(classType: ClassType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
-		switch(classType.kind) {
+	public function compileClassName(classType: Ref<ClassType>, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+		final cls = classType.get();
+		switch(cls.kind) {
 			case KTypeParameter(_): {
-				final result = classType.name;
+				final result = cls.name;
 				addDynamicTemplate(result);
 				return result;
 			}
 			case _: {}
 		}
-		return compileModuleTypeName(classType, pos, params, useNamespaces, asValue ? Value : null);
+		final mmt = asValue ? Value : getMemoryManagementTypeFromType(TInst(classType, params != null ? params : []));
+		return compileModuleTypeName(cls, pos, params, useNamespaces, mmt);
 	}
 
 	// ----------------------------
 	// Compile EnumType.
-	public function compileEnumName(enumType: EnumType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
-		return compileModuleTypeName(enumType, pos, params, useNamespaces, asValue ? Value : null);
+	public function compileEnumName(enumType: Ref<EnumType>, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+		final mmt = asValue ? Value : getMemoryManagementTypeFromType(TEnum(enumType, params != null ? params : []));
+		return compileModuleTypeName(enumType.get(), pos, params, useNamespaces, mmt);
 	}
 
 	// ----------------------------
 	// Compile DefType.
-	public function compileDefName(defType: DefType, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
-		return compileModuleTypeName(defType, pos, params, useNamespaces, asValue ? Value : null);
+	public function compileDefName(defType: Ref<DefType>, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+		final mmt = asValue ? Value : getMemoryManagementTypeFromType(TType(defType, params != null ? params : []));
+		return compileModuleTypeName(defType.get(), pos, params, useNamespaces, mmt);
 	}
 
 	// ----------------------------

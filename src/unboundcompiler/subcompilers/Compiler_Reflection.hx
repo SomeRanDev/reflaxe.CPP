@@ -42,8 +42,9 @@ class Compiler_Reflection extends SubCompiler {
 		compiledEnums.push(enm);
 	}
 
-	public function compileClassReflection(cls: ClassType): String {
-		final cpp = TComp.compileClassName(cls, PositionHelper.unknownPos(), null, true, true);
+	public function compileClassReflection(clsRef: Ref<ClassType>): String {
+		final cls = clsRef.get();
+		final cpp = TComp.compileClassName(clsRef, PositionHelper.unknownPos(), null, true, true);
 
 		final instanceFields = cls.fields.get().map(f -> Main.compileVarName(f.name));
 		final staticFields = cls.statics.get().map(f -> Main.compileVarName(f.name));

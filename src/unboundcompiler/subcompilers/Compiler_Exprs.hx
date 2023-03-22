@@ -615,14 +615,14 @@ class Compiler_Exprs extends SubCompiler {
 					return if(cf.hasMeta(":topLevel")) {
 						name;
 					} else {
-						final className = TComp.compileClassName(clsRef.get(), e.pos, null, true, true);
+						final className = TComp.compileClassName(clsRef, e.pos, null, true, true);
 						className + "::" + name;
 					}
 				}
 				case FEnum(enumRef, enumField): {
 					onModuleTypeEncountered(TEnumDecl(enumRef));
 
-					final enumName = TComp.compileEnumName(enumRef.get(), e.pos, null, true, true);
+					final enumName = TComp.compileEnumName(enumRef, e.pos, null, true, true);
 					final potentialArgs = enumField.type.getTFunArgs();
 
 					// If there are no arguments, Haxe treats the enum case as

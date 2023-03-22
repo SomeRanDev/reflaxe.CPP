@@ -35,8 +35,12 @@ class Compiler_Classes extends SubCompiler {
 		final topLevelFunctions = [];
 		final cppVariables = [];
 		final cppFunctions = [];
-		final className = TComp.compileClassName(classType, classType.pos, null, false, true);
-		var classNameNS = TComp.compileClassName(classType, classType.pos, null, true, true);
+		final classTypeRef = switch(Main.getCurrentModule()) {
+			case TClassDecl(c): c;
+			case _: throw "Impossible";
+		}
+		final className = TComp.compileClassName(classTypeRef, classType.pos, null, false, true);
+		var classNameNS = TComp.compileClassName(classTypeRef, classType.pos, null, true, true);
 		if(classNameNS.length > 0) classNameNS += "::";
 
 		final filename = Main.getFileNameFromModuleData(classType);
@@ -317,7 +321,7 @@ class Compiler_Classes extends SubCompiler {
 
 			Main.appendToExtraFile(headerFilename, result + "\n", 3);
 
-			Main.addReflectionCpp(headerFilename, RComp.compileClassReflection(classType));
+			Main.addReflectionCpp(headerFilename, RComp.compileClassReflection(classTypeRef));
 		}
 
 		// Let the reflection compiler know this class was compiled.
