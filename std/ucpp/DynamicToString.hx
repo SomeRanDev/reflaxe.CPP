@@ -42,4 +42,5 @@ struct DynamicToString: public std::string {
 @:native("haxe::DynamicToString")
 @:yesInclude
 extern abstract DynamicToString(String) from Dynamic to String {
+	public function new(d: Dynamic);
 }
