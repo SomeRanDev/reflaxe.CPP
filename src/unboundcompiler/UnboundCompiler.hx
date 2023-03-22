@@ -539,6 +539,26 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			}
 		}
 	}
+
+	// ----------------------------
+	public function getAbstractInner(t: Type): Type {
+		return switch(t) {
+			case TAbstract(absRef, params): {
+				final abs = absRef.get();
+				if(abs.hasMeta(":multiType")) {
+					Context.followWithAbstracts(t, true);
+				} else {
+					abs.type;
+				}
+			}
+			case _: throw "Non-abstract passed to UnboundCompiler.getAbstractInner";
+		}
+	}
+
+	// ----------------------------
+	public function getTypedefInner(t: Type): Type {
+		return Context.follow(t, true);
+	}
 }
 
 #end
