@@ -585,15 +585,6 @@ class Compiler_Exprs extends SubCompiler {
 	function isArrowAccessType(t: Type): Bool {
 		final ut = t.unwrapNullTypeOrSelf();
 		final mmt = TComp.getMemoryManagementTypeFromType(ut);
-
-		final mt = ut.toModuleType();
-		if(mt != null) {
-			final cd = mt.getCommonData();
-			if(cd.isArrowAccess()) {
-				return true;
-			}
-		}
-
 		return mmt != Value;
 	}
 
