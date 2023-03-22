@@ -23,4 +23,8 @@ extern class Stdlib {
 	@:native("std::setenv")
 	@:include("cstdlib", true)
 	public static extern function setEnv(varName: ucpp.ConstCharPtr, value: ucpp.ConstCharPtr): Void;
+
+	@:native("std::this_thread::sleep_for")
+	@:include("thread", true)
+	public static extern function sleep(duration: Float): Void;
 }
