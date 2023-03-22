@@ -12,7 +12,6 @@ class UnboundCompilerInit {
 			fileOutputExtension: ".hpp",
 			outputDirDefineName: "cpp-output",
 			fileOutputType: FilePerClass,
-			ignoreTypes: ["haxe.iterators.ArrayIterator", "haxe.iterators.ArrayKeyValueIterator"],
 			reservedVarNames: reservedNames(),
 			targetCodeInjectionName: "__ucpp__",
 			dynamicDCE: true,
