@@ -42,8 +42,8 @@ struct AnonStruct1 {
 	AnonStruct1() {}
 	
 	// auto-construct from any object's fields
-	template<typename T>
-	AnonStruct1(T o):
+	template<typename T_>
+	AnonStruct1(T_ o):
 		key(o.key), value(o.value)
 	{}
 	
@@ -69,8 +69,8 @@ struct AnonStruct0 {
 	AnonStruct0() {}
 	
 	// auto-construct from any object's fields
-	template<typename T>
-	AnonStruct0(T o) {
+	template<typename T_>
+	AnonStruct0(T_ o) {
 		next = [&o]() { return o.next(); };
 		hasNext = [&o]() { return o.hasNext(); };
 	}

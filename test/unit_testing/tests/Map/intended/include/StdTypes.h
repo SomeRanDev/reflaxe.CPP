@@ -12,8 +12,8 @@ struct Iterator {
 	Iterator() {}
 	
 	// auto-construct from any object's fields
-	template<typename T>
-	Iterator(T o) {
+	template<typename T_>
+	Iterator(T_ o) {
 		hasNext = [&o]() { return o.hasNext(); };
 		next = [&o]() { return o.next(); };
 	}
