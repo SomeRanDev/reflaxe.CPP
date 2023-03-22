@@ -187,7 +187,15 @@ class Compiler_Anon extends SubCompiler {
 		if(templateConstructorAssigns.length > 0 || templateFunctionAssigns.length > 0) {
 			final templateFuncs = templateFunctionAssigns.length > 0 ? ("{\n" + templateFunctionAssigns.map(a -> a.tab()).join("\n") + "\n}") : "\n{}";
 			final templateAssigns = templateConstructorAssigns.length > 0 ? (":\n\t" + templateConstructorAssigns.join(", ")) : " ";
-			final constructor = "\n// auto-construct from any object's fields\ntemplate<typename T>\n" + name + "(T o)" + templateAssigns + templateFuncs;
+			
+			var autoConstructTypeParamName = "T";
+			while(templates.contains(autoConstructTypeParamName)) {
+				autoConstructTypeParamName += "_";
+			}
+			
+			var constructor = "\n// auto-construct from any object's fields\n";
+			constructor += "template<typename " + autoConstructTypeParamName + ">\n";
+			constructor += name + "(" + autoConstructTypeParamName + " o)" + templateAssigns + templateFuncs;
 			decl += constructor.tab() + "\n";
 		}
 
