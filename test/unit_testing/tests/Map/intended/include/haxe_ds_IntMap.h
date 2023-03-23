@@ -57,7 +57,7 @@ public:
 			if(it != end) {
 				int result = it->first;
 				(it++);
-				tempResult = return result;
+				return result;
 			} else {
 				tempResult = -1;
 			};
