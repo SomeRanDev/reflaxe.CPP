@@ -86,7 +86,7 @@ class Compiler_Anon extends SubCompiler {
 			"haxe::" + as.name;
 		}
 
-		if(as.templates.length > 0) {
+		if(!isNamed && as.templates.length > 0) {
 			name += "<" + as.templates.join(", ") + ">";
 		}
 

@@ -66,7 +66,7 @@ public:
 	}
 	
 	std::shared_ptr<Iterator<T>> iterator() {
-		return haxe::shared_anon<Iterator<T><T>>([&]() mutable {
+		return haxe::shared_anon<Iterator<T>>([&]() mutable {
 			return false;
 		}, [&]() mutable {
 			return static_cast<T>(std::nullopt);
