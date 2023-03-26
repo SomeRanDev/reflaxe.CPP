@@ -30,14 +30,19 @@ struct DynamicToString: public std::string {
 			return ToString(*s);
 		}
 		
-		return \"<unknown(size:\" + std::to_string(sizeof(s)) + \")>\";
+		// Print address if all else fails
+		std::stringstream pointer_stream;
+		pointer_stream << std::addressof(s);
+		return \"<unknown(address:\" + pointer_stream.str() + \")>\";
     }
 };
 
 }")
 @:headerInclude("type_traits", true)
-@:headerInclude("utility", true)
+@:headerInclude("memory", true)
 @:headerInclude("string", true)
+@:headerInclude("sstream", true)
+@:headerInclude("utility", true)
 @:includeAnonUtils(true)
 @:native("haxe::DynamicToString")
 @:yesInclude
