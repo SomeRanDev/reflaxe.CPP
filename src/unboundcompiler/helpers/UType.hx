@@ -48,6 +48,15 @@ class UType {
 	}
 
 	// ----------------------------
+	public static function isAnonStructOrNamedStruct(t: Type) {
+		final it = getInternalType(t);
+		if(it.isAnonStruct()) {
+			return true;
+		}
+		return Context.follow(it).isAnonStruct();
+	}
+
+	// ----------------------------
 	// If "t" is Null<T> and "target" is T, returns true.
 	// Returns false otherwise.
 	public static function isNullOfType(t: Type, target: Type): Bool {
