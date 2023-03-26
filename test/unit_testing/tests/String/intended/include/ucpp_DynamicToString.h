@@ -1,5 +1,10 @@
 #pragma once
 
+#include <string>
+#include <type_traits>
+#include <utility>
+#include "_AnonUtils.h"
+
 namespace haxe {
 
 template <typename T, typename = std::string>

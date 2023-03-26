@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cctype>
 #include <deque>
+#include <memory>
 #include <string>
 
 class HxString {
@@ -25,8 +26,8 @@ public:
 		return temp;
 	}
 	
-	static std::deque<std::string> split(std::string s, std::string delimiter) {
-		std::deque<std::string> result = std::deque<std::string>{};
+	static std::shared_ptr<std::deque<std::string>> split(std::string s, std::string delimiter) {
+		std::shared_ptr<std::deque<std::string>> result = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 		int pos = 0;
 		
 		while(true) {
@@ -39,7 +40,7 @@ public:
 				} else {
 					tempString = s.substr(pos, endIndex - pos);
 				};
-				result.push_back(tempString);
+				result->push_back(tempString);
 				break;
 			} else {
 				std::string tempString;
@@ -48,7 +49,7 @@ public:
 				} else {
 					tempString = s.substr(pos, newPos - pos);
 				};
-				result.push_back(tempString);
+				result->push_back(tempString);
 			};
 			pos = newPos + 1;
 		};

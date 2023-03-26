@@ -1,7 +1,10 @@
 #include "haxe_Log.h"
 
+#include <deque>
 #include <functional>
+#include <memory>
 #include <string>
+#include "ucpp_DynamicToString.h"
 
 using namespace std::string_literals;
 
@@ -16,6 +19,17 @@ std::string haxe::Log::formatOutput(std::string v, std::optional<std::shared_ptr
 	};
 	
 	std::string pstr = infos.value()->fileName + ":"s + std::to_string(infos.value()->lineNumber);
+	std::string extra = ""s;
 	
-	return pstr + ": "s + v;
+	if(infos.value()->customParams.has_value()) {
+		int _g = 0;
+		std::optional<std::shared_ptr<std::deque<haxe::DynamicToString>>> _g1 = infos.value()->customParams;
+		while(_g < _g1.value()->size()) {
+			haxe::DynamicToString v2 = (*_g1.value())[_g];
+			++_g;
+			extra += ", "s + v2;
+		};
+	};
+	
+	return pstr + ": "s + v + extra;
 }

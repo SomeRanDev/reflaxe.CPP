@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <string>
 #include "_AnonStructs.h"
 #include "EReg.h"
@@ -54,16 +55,16 @@ void Main::main() {
 	Main::assert(capReg.matched(3) == ""s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 48, "main"s));
 	Main::assert(capReg.matched(-1) == ""s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 49, "main"s));
 	Main::assert(capReg.matched(9999) == ""s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 50, "main"s));
-	Main::assert(EReg("splitme"s, ""s).split(""s) == std::deque<std::string>{ ""s }, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 53, "main"s));
-	Main::assert(EReg("splitme"s, ""s).split("Hello world!"s) == std::deque<std::string>{
+	Main::assert((*EReg("splitme"s, ""s).split(""s)) == (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{ ""s })), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 53, "main"s));
+	Main::assert((*EReg("splitme"s, ""s).split("Hello world!"s)) == (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{
 		"Hello world!"s
-	}, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 54, "main"s));
-	Main::assert(EReg("\\s*,\\s*"s, ""s).split("one,two ,three, four"s) == std::deque<std::string>{
+	})), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 54, "main"s));
+	Main::assert((*EReg("\\s*,\\s*"s, ""s).split("one,two ,three, four"s)) == (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{
 		"one"s,
 		"two"s,
 		"three"s,
 		"four"s
-	}, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 55, "main"s));
+	})), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 55, "main"s));
 	Main::assert(reg.replace("123abc"s, "456"s) == "123456"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 58, "main"s));
 	Main::assert(EReg("\\|([a-z]+)\\|"s, "g"s).replace("|a| |b| fdsf tew |cdef|"s, "($1)"s) == "(a) (b) fdsf tew (cdef)"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 59, "main"s));
 	

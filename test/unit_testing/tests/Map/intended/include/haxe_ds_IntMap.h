@@ -1,20 +1,21 @@
 #pragma once
 
-#include <functional>
+#include <deque>
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
 #include <utility>
-#include "_AnonStructs.h"
 #include "haxe_Constraints.h"
+#include "haxe_iterators_ArrayIterator.h"
+#include "haxe_iterators_MapKeyValueIterator.h"
+#include "Std.h"
 #include "StdTypes.h"
 
-namespace haxe {
-namespace ds {
+namespace haxe::ds {
 
 template<typename T>
-class IntMap: public haxe::IMap<int, T> {
+class IntMap: public haxe::IMap<int, T>, public std::enable_shared_from_this<IntMap<T>> {
 public:
 	std::map<int, T> m;
 
@@ -47,38 +48,31 @@ public:
 	}
 	
 	std::shared_ptr<Iterator<int>> keys() {
-		auto it = this->m.begin();
-		auto end = this->m.end();
+		std::shared_ptr<std::deque<int>> keys = std::make_shared<std::deque<int>>();
+		typename std::map<int, T>::iterator it = this->m.begin();
+		typename std::map<int, T>::iterator end = this->m.end();
 		
-		return haxe::shared_anon<Iterator<int>>([&]() mutable {
-			return it != end;
-		}, [&]() mutable {
-			int tempResult;
-			if(it != end) {
-				int result = it->first;
-				(it++);
-				return result;
-			} else {
-				tempResult = -1;
-			};
-			return tempResult;
-		});
+		for(0; it != end; (it++)) {
+			keys->push_back(it->first);
+		};
+		
+		return std::make_shared<Iterator<int>>(std::make_shared<haxe::iterators::ArrayIterator<int>>(keys));
 	}
 	
 	std::shared_ptr<Iterator<T>> iterator() {
-		return haxe::shared_anon<Iterator<T>>([&]() mutable {
-			return false;
-		}, [&]() mutable {
-			return static_cast<T>(std::nullopt);
-		});
+		std::shared_ptr<std::deque<T>> values = std::make_shared<std::deque<T>>();
+		typename std::map<int, T>::iterator it = this->m.begin();
+		typename std::map<int, T>::iterator end = this->m.end();
+		
+		for(0; it != end; (it++)) {
+			values->push_back(it->second);
+		};
+		
+		return std::make_shared<Iterator<T>>(std::make_shared<haxe::iterators::ArrayIterator<T>>(values));
 	}
 	
 	std::shared_ptr<KeyValueIterator<int, T>> keyValueIterator() {
-		return haxe::shared_anon<haxe::AnonStruct0<T>>([&]() mutable {
-			return std::nullopt;
-		}, [&]() mutable {
-			return false;
-		});
+		return std::make_shared<KeyValueIterator<int, T>>(std::make_shared<haxe::iterators::MapKeyValueIterator<int, T>>(shared_from_this()));
 	}
 	
 	std::shared_ptr<haxe::ds::IntMap<T>> copy() {
@@ -94,7 +88,32 @@ public:
 	}
 	
 	std::string toString() {
-		return std::string("");
+		std::string result = std::string("[");
+		bool first = true;
+		std::shared_ptr<haxe::IMap<int, T>> _g_map = shared_from_this();
+		std::shared_ptr<Iterator<int>> _g_keys = this->keys();
+		
+		while(_g_keys->hasNext()) {
+			T _g1_value;
+			int _g1_key;
+			int key = _g_keys->next();
+			_g1_value = _g_map->get(key).value();
+			_g1_key = key;
+			int key2 = _g1_key;
+			T value = _g1_value;
+			std::string tempLeft;
+			if(first) {
+				tempLeft = std::string("");
+			} else {
+				tempLeft = std::string(", ");
+			};
+			result += tempLeft + (Std::string(key2) + std::string(" => ") + Std::string(value));
+			if(first) {
+				first = false;
+			};
+		};
+		
+		return result + std::string("]");
 	}
 	
 	void clear() {
@@ -102,5 +121,4 @@ public:
 	}
 };
 
-}
 }

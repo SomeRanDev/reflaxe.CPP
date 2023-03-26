@@ -1,13 +1,15 @@
 #pragma once
 
 #include <deque>
+#include <memory>
 #include <optional>
 #include <string>
 #include "_AnonStructs.h"
+#include "ucpp_DynamicToString.h"
 
 namespace haxe {
 
-// { className: String, fileName: String, lineNumber: Int, methodName: String, customParams: Null<Array<String>> }
+// { className: String, fileName: String, lineNumber: Int, methodName: String, customParams: Null<Array<ucpp.DynamicToString>> }
 struct PosInfos {
 
 	// default constructor
@@ -16,11 +18,15 @@ struct PosInfos {
 	// auto-construct from any object's fields
 	template<typename T>
 	PosInfos(T o):
-		className(o.className), fileName(o.fileName), lineNumber(o.lineNumber), methodName(o.methodName), customParams(extract_customParams(o))
+		className(haxe::unwrap(o).className),
+		fileName(haxe::unwrap(o).fileName),
+		lineNumber(haxe::unwrap(o).lineNumber),
+		methodName(haxe::unwrap(o).methodName),
+		customParams(extract_customParams(haxe::unwrap(o)))
 	{}
 	
 	// construct fields directly
-	static PosInfos make(std::string className, std::string fileName, int lineNumber, std::string methodName, std::optional<std::deque<std::string>> customParams = std::nullopt) {
+	static PosInfos make(std::string className, std::string fileName, int lineNumber, std::string methodName, std::optional<std::shared_ptr<std::deque<haxe::DynamicToString>>> customParams = std::nullopt) {
 		PosInfos result;
 		result.className = className;
 		result.fileName = fileName;
@@ -35,7 +41,7 @@ struct PosInfos {
 	std::string fileName;
 	int lineNumber;
 	std::string methodName;
-	std::optional<std::deque<std::string>> customParams;
+	std::optional<std::shared_ptr<std::deque<haxe::DynamicToString>>> customParams;
 
 	GEN_EXTRACTOR_FUNC(customParams)
 };

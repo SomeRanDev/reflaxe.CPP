@@ -1,4 +1,5 @@
 src/_main_.cpp
 src/Main.cpp
 include/ucpp_DynamicToString.h
+include/_AnonUtils.h
 include/Main.h

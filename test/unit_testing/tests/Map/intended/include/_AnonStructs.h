@@ -2,27 +2,27 @@
 
 #include "_AnonUtils.h"
 
-#include <functional>
 #include <optional>
 
 namespace haxe {
 
-// { key: KeyValueIterator.K, value: KeyValueIterator.V }
+// { key: haxe.iterators.MapKeyValueIterator.K, value: haxe.iterators.MapKeyValueIterator.V }
 template<typename K, typename V>
-struct AnonStruct2 {
+struct AnonStruct0 {
 
 	// default constructor
-	AnonStruct2() {}
+	AnonStruct0() {}
 	
 	// auto-construct from any object's fields
 	template<typename T>
-	AnonStruct2(T o):
-		key(o.key), value(o.value)
+	AnonStruct0(T o):
+		key(haxe::unwrap(o).key),
+		value(haxe::unwrap(o).value)
 	{}
 	
 	// construct fields directly
-	static AnonStruct2 make(K key, V value) {
-		AnonStruct2 result;
+	static AnonStruct0 make(K key, V value) {
+		AnonStruct0 result;
 		result.key = key;
 		result.value = value;
 		return result;
@@ -34,21 +34,22 @@ struct AnonStruct2 {
 };
 
 
-// { key: Int, value: haxe.ds.IntMap.T }
-template<typename T>
+// { key: KeyValueIterator.K, value: KeyValueIterator.V }
+template<typename K, typename V>
 struct AnonStruct1 {
 
 	// default constructor
 	AnonStruct1() {}
 	
 	// auto-construct from any object's fields
-	template<typename T_>
-	AnonStruct1(T_ o):
-		key(o.key), value(o.value)
+	template<typename T>
+	AnonStruct1(T o):
+		key(haxe::unwrap(o).key),
+		value(haxe::unwrap(o).value)
 	{}
 	
 	// construct fields directly
-	static AnonStruct1 make(int key, T value) {
+	static AnonStruct1 make(K key, V value) {
 		AnonStruct1 result;
 		result.key = key;
 		result.value = value;
@@ -56,36 +57,8 @@ struct AnonStruct1 {
 	}
 
 	// fields
-	int key;
-	T value;
-};
-
-
-// { next: () -> { value : haxe.ds.IntMap.T, key : Int }, hasNext: () -> Bool }
-template<typename T>
-struct AnonStruct0 {
-
-	// default constructor
-	AnonStruct0() {}
-	
-	// auto-construct from any object's fields
-	template<typename T_>
-	AnonStruct0(T_ o) {
-		next = [&o]() { return o.next(); };
-		hasNext = [&o]() { return o.hasNext(); };
-	}
-	
-	// construct fields directly
-	static AnonStruct0 make(std::function<std::shared_ptr<haxe::AnonStruct1<T>>()> next, std::function<bool()> hasNext) {
-		AnonStruct0 result;
-		result.next = next;
-		result.hasNext = hasNext;
-		return result;
-	}
-
-	// fields
-	std::function<std::shared_ptr<haxe::AnonStruct1<T>>()> next;
-	std::function<bool()> hasNext;
+	K key;
+	V value;
 };
 
 }

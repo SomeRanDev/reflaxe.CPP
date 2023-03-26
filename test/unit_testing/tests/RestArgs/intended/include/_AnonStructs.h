@@ -16,7 +16,7 @@ struct AnonStruct1 {
 	// auto-construct from any object's fields
 	template<typename T>
 	AnonStruct1(T o):
-		data(extract_data(o))
+		data(extract_data(haxe::unwrap(o)))
 	{}
 	
 	// construct fields directly
@@ -42,7 +42,7 @@ struct AnonStruct0 {
 	// auto-construct from any object's fields
 	template<typename T>
 	AnonStruct0(T o):
-		data(o.data)
+		data(haxe::unwrap(o).data)
 	{}
 	
 	// construct fields directly

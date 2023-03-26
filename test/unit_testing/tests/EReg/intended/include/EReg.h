@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <regex>
 #include <string>
@@ -13,7 +14,7 @@ public:
 	
 	std::smatch smatch;
 	
-	std::optional<std::deque<std::string>> matches;
+	std::optional<std::shared_ptr<std::deque<std::string>>> matches;
 	
 	std::optional<std::string> left;
 	
@@ -41,7 +42,7 @@ public:
 	
 	bool matchSub(std::string s, int pos, int len = -1);
 	
-	std::deque<std::string> split(std::string s);
+	std::shared_ptr<std::deque<std::string>> split(std::string s);
 	
 	std::string replace(std::string s, std::string by);
 	

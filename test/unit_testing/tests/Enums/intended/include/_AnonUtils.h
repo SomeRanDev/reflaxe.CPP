@@ -47,34 +47,42 @@ namespace haxe {
 // value type. Also provided whether or not that type is deref-able.
 namespace haxe {
 
+	template<typename T, typename U = _unwrap_mm<T>::inner>
+	static inline U& unwrap(T in) { return _unwrap_mm<T>::get(in); }
+
 	template<typename T>
 	struct _unwrap_mm {
 		using inner = T;
 		constexpr static bool can_deref = false;
+		static inline inner& get(T& in) { return in; }
 	};
 
 	template<typename T>
 	struct _unwrap_mm<T*> {
 		using inner = typename _unwrap_mm<T>::inner;
 		constexpr static bool can_deref = true;
+		static inline inner& get(T* in) { return _unwrap_mm<T>::get(*in); }
 	};
 
 	template<typename T>
 	struct _unwrap_mm<T&> {
 		using inner = typename _unwrap_mm<T>::inner;
 		constexpr static bool can_deref = false;
+		static inline inner& get(T& in) { return _unwrap_mm<T>::get(in); }
 	};
 
 	template<typename T>
 	struct _unwrap_mm<std::shared_ptr<T>> {
 		using inner = typename _unwrap_mm<T>::inner;
 		constexpr static bool can_deref = true;
+		static inline inner& get(std::shared_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
 	};
 
 	template<typename T>
 	struct _unwrap_mm<std::unique_ptr<T>> {
 		using inner = typename _unwrap_mm<T>::inner;
 		constexpr static bool can_deref = true;
+		static inline inner& get(std::unique_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
 	};
 
 }

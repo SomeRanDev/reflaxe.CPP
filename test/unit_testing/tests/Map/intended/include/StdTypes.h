@@ -14,8 +14,8 @@ struct Iterator {
 	// auto-construct from any object's fields
 	template<typename T_>
 	Iterator(T_ o) {
-		hasNext = [&o]() { return o.hasNext(); };
-		next = [&o]() { return o.next(); };
+		hasNext = [=]() { return haxe::unwrap(o).hasNext(); };
+		next = [=]() { return haxe::unwrap(o).next(); };
 	}
 	
 	// construct fields directly
@@ -32,5 +32,5 @@ struct Iterator {
 };
 
 template<typename K, typename V>
-using KeyValueIterator = Iterator<std::shared_ptr<haxe::AnonStruct2<K, V>>>;
+using KeyValueIterator = Iterator<std::shared_ptr<haxe::AnonStruct1<K, V>>>;
 

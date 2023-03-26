@@ -15,7 +15,8 @@ struct AnonStruct0 {
 	// auto-construct from any object's fields
 	template<typename T>
 	AnonStruct0(T o):
-		len(o.len), pos(o.pos)
+		len(haxe::unwrap(o).len),
+		pos(haxe::unwrap(o).pos)
 	{}
 	
 	// construct fields directly

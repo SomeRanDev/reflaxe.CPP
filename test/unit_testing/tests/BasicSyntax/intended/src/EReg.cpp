@@ -32,12 +32,12 @@ bool EReg::match(std::string s) {
 		this->right = this->smatch.suffix();
 		this->matchPos = this->smatch.position();
 		this->matchLen = this->smatch.length();
-		this->matches = std::deque<std::string>{};
+		this->matches = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 		int _g = 0;
 		int _g1 = this->smatch.size();
 		while(_g < _g1) {
 			int i = _g++;
-			this->matches.value().push_back(this->smatch.str(i));
+			this->matches.value()->push_back(this->smatch.str(i));
 		};
 	};
 	
@@ -48,11 +48,11 @@ std::string EReg::matched(int n) {
 	if(!this->matches.has_value()) {
 		return ""s;
 	};
-	if(n < 0 || n >= this->matches.value().size()) {
+	if(n < 0 || n >= this->matches.value()->size()) {
 		return ""s;
 	};
 	
-	return this->matches.value()[n];
+	return (*this->matches.value())[n];
 }
 
 std::string EReg::matchedLeft() {
@@ -87,12 +87,12 @@ bool EReg::matchSub(std::string s, int pos, int len) {
 	return result;
 }
 
-std::deque<std::string> EReg::split(std::string s) {
+std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
 	if(s.length() <= 0) {
-		return std::deque<std::string>{ s };
+		return std::make_shared<std::deque<std::string>>(std::deque<std::string>{ s });
 	};
 	
-	std::deque<std::string> result = std::deque<std::string>{};
+	std::shared_ptr<std::deque<std::string>> result = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 	int index = 0;
 	
 	while(true) {
@@ -107,7 +107,7 @@ std::deque<std::string> EReg::split(std::string s) {
 					tempString = s.substr(index, endIndex - index);
 				};
 			};
-			result.push_back(tempString);
+			result->push_back(tempString);
 			if(pos->pos + pos->len <= index) {
 				break;
 			};
@@ -125,7 +125,7 @@ std::deque<std::string> EReg::split(std::string s) {
 					tempString = s.substr(index, endIndex - index);
 				};
 			};
-			result.push_back(tempString);
+			result->push_back(tempString);
 			break;
 		};
 	};
@@ -137,7 +137,7 @@ std::string EReg::replace(std::string s, std::string by) {
 	std::string b_b = ""s;
 	int pos = 0;
 	int len = s.length();
-	std::deque<std::string> a = HxString::split(by, "$"s);
+	std::shared_ptr<std::deque<std::string>> a = HxString::split(by, "$"s);
 	bool first = true;
 	
 	do {
@@ -161,12 +161,12 @@ std::string EReg::replace(std::string s, std::string by) {
 			};
 			b_b += tempRight;
 		};
-		if(a.size() > 0) {
-			b_b += Std::string(a[0]);
+		if(a->size() > 0) {
+			b_b += Std::string((*a)[0]);
 		};
 		int i = 1;
-		while(i < a.size()) {
-			std::string k = a[i];
+		while(i < a->size()) {
+			std::string k = (*a)[i];
 			std::optional<int> c = k[0];
 			if(c.value() >= 49 && c.value() <= 57) {
 				std::optional<std::string> tempMaybeString;
@@ -174,8 +174,8 @@ std::string EReg::replace(std::string s, std::string by) {
 				double x = c.value();
 				tempLeft = ((int)x);
 				int matchIndex = tempLeft - 48;
-				if(this->matches.has_value() && matchIndex < this->matches.value().size()) {
-					tempMaybeString = this->matches.value()[matchIndex];
+				if(this->matches.has_value() && matchIndex < this->matches.value()->size()) {
+					tempMaybeString = (*this->matches.value())[matchIndex];
 				} else {
 					tempMaybeString = std::nullopt;
 				};
@@ -199,7 +199,7 @@ std::string EReg::replace(std::string s, std::string by) {
 			} else if(!c.has_value()) {
 				b_b += Std::string("$"s);
 				i++;
-				std::string k2 = a[i];
+				std::string k2 = (*a)[i];
 				if(true && k2.length() > 0) {
 					b_b += Std::string(k2);
 				};

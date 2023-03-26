@@ -1,6 +1,7 @@
 #pragma once
 
 #include "haxe_PosInfos.h"
+#include "ucpp_DynamicToString.h"
 #include <deque>
 #include <memory>
 #include <optional>

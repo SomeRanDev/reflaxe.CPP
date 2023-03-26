@@ -32,8 +32,8 @@ void Main::main() {
 	Main::assert(str.find("Hey"s) == -1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 26, "main"s));
 	Main::assert(str.find("Te"s, 2) == -1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 27, "main"s));
 	Main::assert(str.rfind("Te"s) == 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 29, "main"s));
-	Main::assert(HxString::split(str, "s"s)[0] == "Te"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 31, "main"s));
-	Main::assert(HxString::split(str, "e"s).size() == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 32, "main"s));
+	Main::assert((*HxString::split(str, "s"s))[0] == "Te"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 31, "main"s));
+	Main::assert(HxString::split(str, "e"s)->size() == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 32, "main"s));
 	
 	std::string str2 = "Hello, World!"s;
 	

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "haxe_PosInfos.h"
+#include "ucpp_DynamicToString.h"
 #include <deque>
 #include <memory>
 #include <optional>
@@ -16,6 +17,8 @@ public:
 	ChildClass();
 };
 
+
+
 class AnotherClass {
 public:
 	AnotherClass();
@@ -23,12 +26,16 @@ public:
 	std::string toString();
 };
 
+
+
 class ClassWInt {
 public:
 	int number;
 
 	ClassWInt();
 };
+
+
 
 class Main {
 public:
