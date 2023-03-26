@@ -536,16 +536,20 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
-		var gdExpr1 = if(!op.isAssign() && !op.isEqualityCheck()) {
-			compileExpressionNotNull(e1);
-		} else {
+		var gdExpr1 = if(op.isAssign()) {
 			Main.compileExpressionOrError(e1);
+		} else if(op.isEqualityCheck()) {
+			compileForEqualityBinop(e1);
+		} else {
+			compileExpressionNotNullAsValue(e1);
 		}
 
 		var gdExpr2 = if(op.isAssign()) {
 			compileExpressionForType(e2, Main.getExprType(e1));
+		} else if(op.isEqualityCheck()) {
+			compileForEqualityBinop(e2);
 		} else {
-			compileExpressionNotNull(e2);
+			compileExpressionNotNullAsValue(e2);
 		}
 
 		final operatorStr = OperatorHelper.binopToString(op);
@@ -557,6 +561,14 @@ class Compiler_Exprs extends SubCompiler {
 		}
 
 		return gdExpr1 + " " + operatorStr + " " + gdExpr2;
+	}
+
+	inline function compileForEqualityBinop(e: TypedExpr) {
+		return if(Main.getExprType(e).getMeta().maybeHas(":valueEquality")) {
+			compileExpressionAsValue(e);
+		} else {
+			Main.compileExpressionOrError(e);
+		}
 	}
 
 	inline function checkForPrimitiveStringAddition(strExpr: TypedExpr, primExpr: TypedExpr) {
