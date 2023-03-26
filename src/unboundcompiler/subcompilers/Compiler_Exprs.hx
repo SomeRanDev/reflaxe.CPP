@@ -66,6 +66,14 @@ class Compiler_Exprs extends SubCompiler {
 	// ----------------------------
 	// Compiles an expression into C++.
 	public function compileExpressionToCpp(expr: TypedExpr): Null<String> {
+		// ucpp.Stynax.classicFor
+		final classicForArgs = expr.isStaticCall("ucpp.Syntax", "classicFor");
+		if(classicForArgs != null) {
+			function arg(i: Int) Main.compileExpression(classicForArgs[i]);
+			return 'for(${arg(0)}; ${arg(1)}; ${arg(2)}) {\n${toIndentedScope(classicForArgs[3])}\n}';
+		}
+
+		// Check TypedExprDef
 		var result: Null<String> = null;
 		switch(expr.expr) {
 			case TConst(constant): {
