@@ -22,6 +22,7 @@ using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
+using reflaxe.helpers.TypedExprHelper;
 using reflaxe.helpers.TypeHelper;
 
 import unboundcompiler.subcompilers.SubCompiler;
