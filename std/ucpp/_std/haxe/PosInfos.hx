@@ -6,5 +6,5 @@ typedef PosInfos = {
 	var lineNumber: Int;
 	var className: String;
 	var methodName: String;
-	var ?customParams: Array<String>;
+	var ?customParams: Array<ucpp.DynamicToString>;
 }
