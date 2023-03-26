@@ -29,6 +29,7 @@ enum ErrorType {
 	SharedToUnique;
 	UniqueToShared;
 	UniqueToUnique;
+	ThisToUnique;
 }
 
 class UError {
@@ -71,6 +72,9 @@ class UError {
 			}
 			case UniqueToUnique: {
 				"Cannot move or copy a unique pointer (UniquePtr<T>).";
+			}
+			case ThisToUnique: {
+				"Cannot convert \"this\" into a unique pointer (UniquePtr<T>). This may trigger from auto-generated code within a class with @:uniquePtrType; if that is the case, consider changing to @:sharedPtrType.";
 			}
 
 			case _: {

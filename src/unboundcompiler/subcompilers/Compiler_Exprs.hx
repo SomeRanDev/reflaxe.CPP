@@ -402,6 +402,9 @@ class Compiler_Exprs extends SubCompiler {
 		var result = null;
 		if(cmmt != tmmt || nullToValue) {
 			switch(expr.expr) {
+				case TConst(TThis) if(tmmt == UniquePtr): {
+					expr.pos.makeError(ThisToUnique);
+				}
 				case TNew(classTypeRef, params, el): {
 					result = compileNew(expr, TInst(classTypeRef, params), el, tmmt);
 				}
