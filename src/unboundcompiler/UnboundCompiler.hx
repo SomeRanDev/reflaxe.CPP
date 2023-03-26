@@ -373,10 +373,16 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// ----------------------------
 	// Compile the start of all namespaces
 	// for the provided module data.
-	function compileNamespaceStart(md: CommonModuleTypeData): String {
+	function compileNamespaceStart(md: CommonModuleTypeData, combined: Bool = true): String {
 		var result = "";
-		for(p in md.pack) {
-			result += "namespace " + p + " {\n";
+		if(combined) {
+			if(md.pack.length > 0) {
+				result += "namespace " + md.pack.join("::") + " {\n";
+			}
+		} else {
+			for(p in md.pack) {
+				result += "namespace " + p + " {\n";
+			}
 		}
 		if(md.pack.length > 0) result += "\n";
 		return result;
@@ -384,10 +390,16 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	// ----------------------------
 	// Compile all namespace closing brackets.
-	function compileNamespaceEnd(md: CommonModuleTypeData): String {
+	function compileNamespaceEnd(md: CommonModuleTypeData, combined: Bool = true): String {
 		var result = "";
-		for(p in md.pack) {
-			result += "\n}";
+		if(combined) {
+			if(md.pack.length > 0) {
+				result += "\n}";
+			}
+		} else {
+			for(p in md.pack) {
+				result += "\n}";
+			}
 		}
 		return result;
 	}
