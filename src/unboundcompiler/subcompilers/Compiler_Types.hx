@@ -186,8 +186,38 @@ class Compiler_Types extends SubCompiler {
 	}
 
 	// ----------------------------
+	// Compiles the type based on the @:nativeTypeCode meta
+	// if it exists on the type's declaration.
+	function compileNativeTypeCode(t: Null<Type>, pos: Position, asValue: Bool): Null<String> {
+		final meta = t.getMeta();
+		return if(meta.maybeHas(":nativeTypeCode")) {
+			final params = t.getParams();
+			final paramCallbacks = if(params != null && params.length > 0) {
+				params.map(paramType -> function() {
+					return compileType(paramType, pos);
+				});
+			} else {
+				[];
+			}
+
+			final cpp = Main.compileNativeTypeCodeMeta(t, paramCallbacks);
+			if(cpp != null) {
+				final mmt = asValue ? Value : { name: "", meta: meta }.getMemoryManagementType();
+				applyMemoryManagementWrapper(cpp, mmt);
+			} else {
+				null;
+			}
+		} else {
+			null;
+		}
+	}
+
+	// ----------------------------
 	// Compile internal field of all ModuleTypes.
 	function compileModuleTypeName(typeData: { > NameAndMeta, pack: Array<String> }, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, overrideMM: Null<MemoryManagementType> = null): String {
+		if(typeData.hasMeta(":nativeTypeCode")) {
+			throw "@:nativeTypeCode detected on ModuleType being compiled on compileModuleTypeName.\nThis is a bug with Haxe to Unbound C++, please report!";
+		}
 		return if(typeData.hasNativeMeta()) {
 			var result = typeData.getNameOrNative();
 			result = StringTools.replace(result, "{this}", typeData.name);
@@ -227,15 +257,45 @@ class Compiler_Types extends SubCompiler {
 			}
 			case _: {}
 		}
-		final mmt = asValue ? Value : getMemoryManagementTypeFromType(TInst(classType, params != null ? params : []));
-		return compileModuleTypeName(cls, pos, params, useNamespaces, mmt);
+
+		function asType() return TInst(classType, params != null ? params : []);
+
+		var prefix = typePrefix(asType());
+
+		// There are some instances where compileClassName is called outside
+		// of "compileType", so we must check for @:nativeTypeCode again.
+		if(classType.get().hasMeta(":nativeTypeCode")) {
+			final r = compileNativeTypeCode(asType(), pos, asValue);
+			if(r != null) return prefix + r;
+		}
+
+		if(dependent) {
+			final dep = Main.getCurrentDep();
+			if(dep != null) {
+				if(dep.isThisDepOfType(asType())) {
+					prefix = "class " + prefix;
+				} else {
+					Main.addDep(asType());
+				}
+			}
+		}
+
+		final mmt = asValue ? Value : getMemoryManagementTypeFromType(asType());
+		return prefix + compileModuleTypeName(cls, pos, params, useNamespaces, mmt);
 	}
 
 	// ----------------------------
 	// Compile EnumType.
 	public function compileEnumName(enumType: Ref<EnumType>, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
 		final mmt = asValue ? Value : getMemoryManagementTypeFromType(TEnum(enumType, params != null ? params : []));
-		return compileModuleTypeName(enumType.get(), pos, params, useNamespaces, mmt);
+		function asType() return TEnum(enumType, params != null ? params : []);
+
+		// There are some instances where compileEnumName is called outside
+		// of "compileType", so we must check for @:nativeTypeCode again.
+		if(enumType.get().hasMeta(":nativeTypeCode")) {
+			final r = compileNativeTypeCode(asType(), pos, asValue);
+			if(r != null) return prefix + r;
+		}
 	}
 
 	// ----------------------------
