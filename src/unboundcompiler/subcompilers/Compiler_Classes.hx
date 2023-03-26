@@ -222,9 +222,9 @@ class Compiler_Classes extends SubCompiler {
 				TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
 
 				final argCpp = if(data.tfunc != null) {
-					data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos));
+					data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, false, false, true));
 				} else {
-					data.args.map(a -> Main.compileFunctionArgumentData(a, null, field.pos));
+					data.args.map(a -> Main.compileFunctionArgumentData(a, null, field.pos, false, false, true));
 				}
 				final argDecl = "(" + argCpp.join(", ") + ")";
 
