@@ -46,6 +46,15 @@ class Compiler_Includes extends SubCompiler {
 	var cppUsings: Array<String>;
 
 	// ----------------------------
+	// A list of arbitrary flags that may be used.
+	//
+	// Helpful for signaling to the declaration to compile a certain way
+	// based on an expression or pattern detected.
+	//
+	// Cleared at the start of module compilation like includes.
+	var extraFlags: Map<String, Bool>;
+
+	// ----------------------------
 	// List of headers to ignore.
 	var ignoreIncludes: Array<String>;
 
@@ -75,6 +84,9 @@ class Compiler_Includes extends SubCompiler {
 
 		// Reset using list
 		cppUsings = [];
+
+		// Reset extra flags
+		extraFlags = [];
 
 		// If not compiling a module, stop here.
 		final current = Main.getCurrentModule();
@@ -320,6 +332,16 @@ class Compiler_Includes extends SubCompiler {
 			final combined = existingIncludes.concat(includes).sorted(USort.includeBracketOrder);
 			Main.replaceInExtraFile(filename, combined.join("\n"), priority);
 		}
+	}
+
+	// Make note of a special case.
+	public function setExtraFlag(flag: String, value: Bool = true) {
+		extraFlags.set(flag, value);
+	}
+
+	// Get whether a flag was enabled.
+	public function isExtraFlagOn(flag: String): Bool {
+		return extraFlags.exists(flag) && extraFlags.get(flag);
 	}
 }
 
