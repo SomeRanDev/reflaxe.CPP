@@ -1,48 +1,76 @@
-/*
- * Copyright (C)2005-2019 Haxe Foundation
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- */
-
 package haxe.ds;
 
 @:coreApi
-extern class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
-	public function new():Void;
+class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
+	var m: ucpp.std.Map<K, V>;
 
-	public function set(key:K, value:V):Void;
+	public function new(): Void {
+		m = new ucpp.std.Map<K, V>();
+	}
 
-	public function get(key:K):Null<V>;
+	public function set(key: K, value: V): Void {
+		m.insert(new ucpp.std.Pair<K, V>(key, value));
+	}
 
-	public function exists(key:K):Bool;
+	public function get(key: K): Null<V> {
+		return if(exists(key)) {
+			m.at(key);
+		} else {
+			null;
+		}
+	}
 
-	public function remove(key:K):Bool;
+	public function exists(key: K): Bool {
+		return m.count(key) > 0;
+	}
 
-	public function keys():Iterator<K>;
+	public function remove(key: K): Bool {
+		return m.erase(key) > 0;
+	}
 
-	public function iterator():Iterator<V>;
+	public function keys(): Iterator<K> {
+		final keys = new Array<K>();
+		var it = m.begin();
+		var end = m.end();
+		ucpp.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+			keys.push(it.first);
+		});
+		return keys.iterator();
+	}
 
-	public function keyValueIterator():KeyValueIterator<K, V>;
+	public function iterator(): Iterator<V> {
+		final values = new Array<V>();
+		var it = m.begin();
+		var end = m.end();
+		ucpp.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+			values.push(it.second);
+		});
+		return values.iterator();
+	}
 
-	public function copy():ObjectMap<K, V>;
+	@:runtime public inline function keyValueIterator():KeyValueIterator<K, V> {
+		return new haxe.iterators.MapKeyValueIterator(this);
+	}
 
-	public function toString():String;
+	public function copy(): ObjectMap<K, V> {
+		final result = new ObjectMap<K, V>();
+		for(k in keys()) {
+			result.set(k, get(k));
+		}
+		return result;
+	}
 
-	public function clear():Void;
+	public function toString(): String {
+		var result = "[";
+		var first = true;
+		for(key => value in this) {
+			result += (first ? "" : ", ") + (Std.string(key) + " => " + Std.string(value));
+			if(first) first = false;
+		}
+		return result + "]";
+	}
+
+	public function clear(): Void {
+		m.clear();
+	}
 }
