@@ -150,6 +150,8 @@ class Compiler_Classes extends SubCompiler {
 			fieldsCompiled++;
 		}
 
+		final noAutogen = classType.hasMeta(":noAutogen");
+
 		// Class functions
 		for(f in funcFields) {
 			final field = f.field;
@@ -244,7 +246,15 @@ class Compiler_Classes extends SubCompiler {
 				final funcDeclaration = meta + (topLevel ? "" : prefix) + retDecl + name + argDecl;
 				var content = if(data.expr != null) {
 					XComp.compilingInHeader = !addToCpp;
-					" {\n" + Main.compileClassFuncExpr(data.expr).tab() + "\n}";
+
+					// Use initialization list to set _order_id in constructor.
+					final prefix = if(isConstructor && !noAutogen) {
+						": _order_id(generate_order_id())";
+					} else {
+						"";
+					}
+
+					prefix + " {\n" + Main.compileClassFuncExpr(data.expr).tab() + "\n}";
 				} else {
 					"";
 				}
@@ -272,15 +282,37 @@ class Compiler_Classes extends SubCompiler {
 
 		XComp.compilingInHeader = false;
 
+		// Used in autogen and extension classes
+		final classNameWParams = className + if(classType.params.length > 0) {
+			"<" + classType.params.map(p -> p.name).join(", ") + ">";
+		} else {
+			"";
+		}
+
+		// Auto-generated content
+		if(!noAutogen) {
+			functions.push("// ----------
+	// Auto-generated additions from Haxe
+	
+	// Generate unique id for each instance
+	unsigned long _order_id = 0;
+	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
+
+	// Automatic comparison operators
+	bool operator==(const " + classNameWParams + "& other) const {
+		return _order_id == other._order_id;
+	}
+	
+	bool operator<(const " + classNameWParams + "& other) const {
+		return _order_id < other._order_id;
+	}");
+		}
+
 		// Add extension classes
 		if(IComp.isExtraFlagOn(ExtraFlag.SharedFromThis)) {
 			IComp.addInclude("memory", true, true);
-			final typeParams = if(classType.params.length > 0) {
-				"<" + classType.params.map(p -> p.name).join(", ") + ">";
-			} else {
-				"";
-			}
-			extendedFrom.push("std::enable_shared_from_this<" + className + typeParams + ">");
+			
+			extendedFrom.push("std::enable_shared_from_this<" + classNameWParams + ">");
 		}
 
 		if(extendedFrom.length > 0) {
