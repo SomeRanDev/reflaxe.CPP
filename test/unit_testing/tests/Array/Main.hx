@@ -33,8 +33,6 @@ class Main {
 		// copy
 		final arr2 = arr;
 		assert(arr == arr2);
-
-		// GDScript compares Arrays by their content
 		assert(arr == arr2.copy());
 
 		// filter
@@ -137,6 +135,33 @@ class Main {
 		unfinished.unshift(2);
 		unfinished.unshift(1);
 		assert(unfinished == [1, 2, 3, 4, 5]);
+
+		// iterator
+		final itArr = [1, 2, 3];
+		var itArrSum = 0;
+		for(a in itArr) {
+			itArrSum += a;
+		}
+		assert(itArrSum == 6);
+
+		final itArrIt = itArr.iterator();
+		itArrSum = 0;
+		while(itArrIt.hasNext()) {
+			itArrSum += itArrIt.next();
+		}
+		assert(itArrSum == 6);
+
+		// keyValueIterator
+		final doubleArr = [2, 4, 6];
+		for(index => value in doubleArr) {
+			assert(((index + 1) * 2) == value);
+		}
+
+		final doubleArrIt = doubleArr.keyValueIterator();
+		while(doubleArrIt.hasNext()) {
+			final temp = doubleArrIt.next();
+			assert(((temp.key + 1) * 2) == temp.value);
+		}
 
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
