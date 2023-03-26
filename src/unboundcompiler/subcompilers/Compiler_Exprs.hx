@@ -120,8 +120,11 @@ class Compiler_Exprs extends SubCompiler {
 				result = AComp.compileObjectDecl(Main.getExprType(expr), fields, expr, compilingInHeader);
 			}
 			case TArrayDecl(el): {
+				IComp.addInclude("memory", compilingInHeader, true);
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
-				result = "std::deque<" + TComp.compileType(arrayType, expr.pos) + ">" + {
+				final t = TComp.compileType(arrayType, expr.pos);
+				final d = "std::deque<" + t + ">";
+				result = "std::make_shared<" + d + ">(" + d + ({
 					if(el.length > 0) {
 						final cppList = el.map(e -> compileExpressionForType(e, arrayType));
 						var newLines = false;
@@ -135,7 +138,7 @@ class Compiler_Exprs extends SubCompiler {
 					} else {
 						"{}";
 					}
-				};
+				}) + ")";
 			}
 			case TCall({ expr: TIdent("__uinclude__") }, el): {
 				switch(el) {

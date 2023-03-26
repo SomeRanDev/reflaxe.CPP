@@ -4,7 +4,7 @@ import haxe.iterators.ArrayKeyValueIterator;
 @:filename("HxArray")
 class HxArray {
 	public static function concat<T>(a: Array<T>, other: Array<T>): Array<T> {
-		final result = a;
+		final result = a.copy();
 		for(o in other) {
 			result.push(o);
 		}
@@ -25,7 +25,7 @@ class HxArray {
 		if(pos < 0) pos += a.length;
 
 		// if outside bounds, return an empty array
-		if(pos < 0 || pos > a.length) return [];
+		if(pos < 0 || pos >= a.length) return [];
 
 		// if end is not defined or exceeds the end of the array, set to the end
 		if(end == null || end > a.length) end = a.length;
@@ -37,10 +37,13 @@ class HxArray {
 			if(end <= pos) return [];
 		}
 
-		final beginIt: ucpp.Auto = untyped a.begin();
-		final startIt: ucpp.Auto = beginIt + pos;
-		final endIt: ucpp.Auto = beginIt + end;
-		return untyped __ucpp__("std::deque({}, {})", startIt, endIt);
+		final result = new Array<T>();
+		for(i in pos...end) {
+			if(i >= 0 && i < a.length) {
+				result.push(a[i]);
+			}
+		}
+		return result;
 	}
 
 	public static function splice<T>(a: ucpp.Ref<Array<T>>, pos: Int, len: Int): Array<T> {
@@ -57,8 +60,16 @@ class HxArray {
 		final beginIt: ucpp.Auto = untyped a.begin();
 		final startIt: ucpp.Auto = beginIt + pos;
 		final endIt: ucpp.Auto = beginIt + pos + len;
-		final result = untyped __ucpp__("std::deque({}, {})", startIt, endIt);
+
+		final result = new Array<T>();
+		for(i in pos...(pos + len)) {
+			if(i >= 0 && i < a.length) {
+				result.push(a[i]);
+			}
+		}
+
 		untyped a.erase(startIt, endIt);
+
 		return result;
 	}
 
@@ -101,7 +112,8 @@ class HxArray {
 @:pseudoCoreApi
 @:nativeName("std::deque")
 @:include("deque", true)
-@:valueType
+//@:valueType
+@:valueEquality
 @:filename("HxArray")
 @:allow(HxArray)
 extern class Array<T> {
@@ -111,7 +123,7 @@ extern class Array<T> {
 
 	// ----------
 	// constructor
-	public function new(): Void;
+	public extern function new(): Void;
 
 	// ----------
 	// @:nativeName
@@ -172,7 +184,11 @@ extern class Array<T> {
 	}
 
 	@:runtime public inline function copy(): Array<T> {
-		return untyped __ucpp__("std::deque({}, {})", this.begin(), this.end());
+		final result = [];
+		for(obj in this) {
+			result.push(obj);
+		}
+		return result;
 	}
 
 	@:runtime public inline function iterator(): haxe.iterators.ArrayIterator<T> {
