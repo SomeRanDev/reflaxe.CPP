@@ -15,6 +15,7 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 
 using reflaxe.helpers.NameMetaHelper;
+using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
@@ -29,11 +30,11 @@ class Compiler_Types extends SubCompiler {
 	// ----------------------------
 	// Compiles the provided type.
 	// Position must be provided for error reporting.
-	public function compileType(t: Null<Type>, pos: Position, asValue: Bool = false): String {
+	public function compileType(t: Null<Type>, pos: Position, asValue: Bool = false, dependent: Bool = false): String {
 		if(t == null) {
 			pos.makeError(CannotCompileNullType);
 		}
-		final result = maybeCompileType(t, pos, asValue);
+		final result = maybeCompileType(t, pos, asValue, dependent);
 		if(result == null) {
 			Context.error("Could not compile type: " + t, pos);
 		}
@@ -72,9 +73,15 @@ class Compiler_Types extends SubCompiler {
 	// The function that actually compiles Types.
 	// Does not cause error if Type compiles to null.
 	// Can be safely passed null.
-	public function maybeCompileType(t: Null<Type>, pos: Position, asValue: Bool = false): Null<String> {
+	public function maybeCompileTypeImpl(t: Null<Type>, pos: Position, asValue: Bool = false, dependent: Bool = false): Null<String> {
 		if(t == null) {
 			return null;
+		}
+
+		// @:nativeTypeCode
+		final ntc = compileNativeTypeCode(t, pos, asValue);
+		if(ntc != null) {
+			return ntc;
 		}
 
 		// Check if this type is Class<T>.
@@ -94,10 +101,10 @@ class Compiler_Types extends SubCompiler {
 				}
 			}
 			case TEnum(enumRef, params): {
-				compileEnumName(enumRef, pos, params, true, asValue);
+				compileEnumName(enumRef, pos, params, true, asValue, dependent);
 			}
 			case TInst(clsRef, params): {
-				compileClassName(clsRef, pos, params, true, asValue);
+				compileClassName(clsRef, pos, params, true, asValue, dependent);
 			}
 			case TFun(args, ret): {
 				"std::function<" + compileType(ret, pos) + "(" + args.map(a -> compileType(a.t, pos)).join(", ") + ")>";
@@ -247,7 +254,7 @@ class Compiler_Types extends SubCompiler {
 
 	// ----------------------------
 	// Compile ClassType.
-	public function compileClassName(classType: Ref<ClassType>, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
+	public function compileClassName(classType: Ref<ClassType>, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false, dependent: Bool = false): String {
 		final cls = classType.get();
 		switch(cls.kind) {
 			case KTypeParameter(_): {
@@ -286,9 +293,10 @@ class Compiler_Types extends SubCompiler {
 
 	// ----------------------------
 	// Compile EnumType.
-	public function compileEnumName(enumType: Ref<EnumType>, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
-		final mmt = asValue ? Value : getMemoryManagementTypeFromType(TEnum(enumType, params != null ? params : []));
+	public function compileEnumName(enumType: Ref<EnumType>, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false, dependent: Bool = false): String {
 		function asType() return TEnum(enumType, params != null ? params : []);
+
+		var prefix = typePrefix(asType());
 
 		// There are some instances where compileEnumName is called outside
 		// of "compileType", so we must check for @:nativeTypeCode again.
@@ -296,13 +304,29 @@ class Compiler_Types extends SubCompiler {
 			final r = compileNativeTypeCode(asType(), pos, asValue);
 			if(r != null) return prefix + r;
 		}
+		
+		if(dependent) {
+			final dep = Main.getCurrentDep();
+			if(dep != null) {
+				if(dep.isThisDepOfType(asType())) {
+					prefix = "class " + prefix;
+				} else {
+					Main.addDep(asType());
+				}
+			}
+		}
+
+		final mmt = asValue ? Value : getMemoryManagementTypeFromType(asType());
+		return prefix + compileModuleTypeName(enumType.get(), pos, params, useNamespaces, mmt);
 	}
 
 	// ----------------------------
 	// Compile DefType.
 	public function compileDefName(defType: Ref<DefType>, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
-		final mmt = asValue ? Value : getMemoryManagementTypeFromType(TType(defType, params != null ? params : []));
-		return compileModuleTypeName(defType.get(), pos, params, useNamespaces, mmt);
+		function asType() return TType(defType, params != null ? params : []);
+
+		final mmt = asValue ? Value : getMemoryManagementTypeFromType(asType());
+		return typePrefix(asType()) + compileModuleTypeName(defType.get(), pos, params, useNamespaces, mmt);
 	}
 
 	// ----------------------------
