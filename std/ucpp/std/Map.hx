@@ -22,7 +22,9 @@ extern class Map<T, U> {
 }
 
 @:forward
-@:native("auto")
+@:nativeTypeCode("std::map<{type0}, {type1}>::iterator")
+@:typenamePrefixIfDependentScope
+@:valueType
 @:noInclude
 extern abstract MapIterator<T, U>(ucpp.Ptr<ucpp.std.Pair<T, U>>) from ucpp.Ptr<ucpp.std.Pair<T, U>> to ucpp.Ptr<ucpp.std.Pair<T, U>> {
 }
