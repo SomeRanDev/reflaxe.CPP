@@ -569,7 +569,14 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	// ----------------------------
 	public function getTypedefInner(t: Type): Type {
-		return Context.follow(t, true);
+		return switch(t) {
+			case TType(defRef, _): {
+				defRef.get().type;
+			}
+			case _: throw"Non-typedef passed to UnboundCompiler.getTypedefInner";
+		}
+	}
+
 	}
 }
 
