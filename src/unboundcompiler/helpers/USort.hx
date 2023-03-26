@@ -6,6 +6,8 @@
 
 package unboundcompiler.helpers;
 
+#if (macro || ucpp_runtime)
+
 class USort {
 	public static function sorted<T>(arr: Array<T>, func: (T, T) -> Int) {
 		final result = arr.copy();
@@ -35,3 +37,5 @@ class USort {
 		else 0;
 	}
 }
+
+#end
