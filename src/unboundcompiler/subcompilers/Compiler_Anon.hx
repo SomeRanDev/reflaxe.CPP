@@ -143,6 +143,9 @@ class Compiler_Anon extends SubCompiler {
 		final templateFunctionAssigns = [];
 		final extractorFuncs = [];
 
+		// Convert any memory management type of "o" into a value reference.
+		final o = "haxe::unwrap(o)";
+
 		TComp.enableDynamicToTemplate([]);
 
 		for(f in anonFields) {
@@ -152,6 +155,7 @@ class Compiler_Anon extends SubCompiler {
 			fields.push(v);
 			constructorParams.push(v + (f.optional ? " = std::nullopt" : ""));
 			constructorAssigns.push("result." + f.name + " = " + f.name);
+
 			switch(f.type) {
 				case TFun(args, ret): {
 					final declArgs = args.map(a -> {
@@ -159,10 +163,13 @@ class Compiler_Anon extends SubCompiler {
 						return TComp.compileType(a.t, PositionHelper.unknownPos()) + " " + a.name;
 					}).join(", ");
 					final callArgs = args.map(a -> a.name).join(", ");
-					templateFunctionAssigns.push(f.name + " = [&o](" + declArgs + ") { return o." + f.name + "(" + callArgs + "); };");
+					// For callbacks, we don't convert "o" until calling the function.
+					// This is so if a smart pointer is captured, the lambda will keep it alive,
+					// and it is only converted into a reference when necessary.
+					templateFunctionAssigns.push(f.name + " = [=](" + declArgs + ") { return " + o + "." + f.name + "(" + callArgs + "); };");
 				}
 				case _: {
-					templateConstructorAssigns.push(f.name + "(" + (f.optional ? ("extract_" + f.name + "(o)") : ("o." + f.name)) + ")");
+					templateConstructorAssigns.push(f.name + "(" + (f.optional ? ("extract_" + f.name + "(" + o + ")") : (o + "." + f.name)) + ")");
 				}
 			}
 			if(f.optional) {
@@ -185,13 +192,13 @@ class Compiler_Anon extends SubCompiler {
 		decl += "\n\n\t// default constructor\n\t" + name + "() {}\n";
 
 		if(templateConstructorAssigns.length > 0 || templateFunctionAssigns.length > 0) {
-			final templateFuncs = templateFunctionAssigns.length > 0 ? ("{\n" + templateFunctionAssigns.map(a -> a.tab()).join("\n") + "\n}") : "\n{}";
-			final templateAssigns = templateConstructorAssigns.length > 0 ? (":\n\t" + templateConstructorAssigns.join(", ")) : " ";
-			
 			var autoConstructTypeParamName = "T";
 			while(templates.contains(autoConstructTypeParamName)) {
 				autoConstructTypeParamName += "_";
 			}
+
+			final templateFuncs = templateFunctionAssigns.length > 0 ? ("{\n" + templateFunctionAssigns.map(a -> a.tab()).join("\n") + "\n}") : "\n{}";
+			final templateAssigns = templateConstructorAssigns.length > 0 ? (":\n\t" + templateConstructorAssigns.join(",\n\t")) : " ";
 			
 			var constructor = "\n// auto-construct from any object's fields\n";
 			constructor += "template<typename " + autoConstructTypeParamName + ">\n";
@@ -334,34 +341,42 @@ namespace haxe {
 // value type. Also provided whether or not that type is deref-able.
 namespace haxe {
 
+	template<typename T, typename U = _unwrap_mm<T>::inner>
+	static inline U& unwrap(T in) { return _unwrap_mm<T>::get(in); }
+
 	template<typename T>
 	struct _unwrap_mm {
 		using inner = T;
 		constexpr static bool can_deref = false;
+		static inline inner& get(T& in) { return in; }
 	};
 
 	template<typename T>
 	struct _unwrap_mm<T*> {
 		using inner = typename _unwrap_mm<T>::inner;
 		constexpr static bool can_deref = true;
+		static inline inner& get(T* in) { return _unwrap_mm<T>::get(*in); }
 	};
 
 	template<typename T>
 	struct _unwrap_mm<T&> {
 		using inner = typename _unwrap_mm<T>::inner;
 		constexpr static bool can_deref = false;
+		static inline inner& get(T& in) { return _unwrap_mm<T>::get(in); }
 	};
 
 	template<typename T>
 	struct _unwrap_mm<std::shared_ptr<T>> {
 		using inner = typename _unwrap_mm<T>::inner;
 		constexpr static bool can_deref = true;
+		static inline inner& get(std::shared_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
 	};
 
 	template<typename T>
 	struct _unwrap_mm<std::unique_ptr<T>> {
 		using inner = typename _unwrap_mm<T>::inner;
 		constexpr static bool can_deref = true;
+		static inline inner& get(std::unique_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
 	};
 
 }
