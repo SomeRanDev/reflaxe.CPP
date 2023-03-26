@@ -1,3 +1,10 @@
+// =======================================================
+// * UError
+//
+// Where all error messages reside.
+// Call "makeError" on any Position.
+// =======================================================
+
 package unboundcompiler.helpers;
 
 #if (macro || ucpp_runtime)

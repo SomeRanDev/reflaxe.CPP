@@ -1,3 +1,10 @@
+// =======================================================
+// * UMeta
+//
+// Adds static extensions for reflaxe.helpers.NameMetaHelper.NameAndMeta.
+// Aka. objects that match: { name: String, meta: Null<MetaAccess> }
+// =======================================================
+
 package unboundcompiler.helpers;
 
 #if (macro || ucpp_runtime)

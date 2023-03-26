@@ -1,3 +1,9 @@
+// =======================================================
+// * UType
+//
+// Adds static extensions for haxe.macro.Type.
+// =======================================================
+
 package unboundcompiler.helpers;
 
 #if (macro || ucpp_runtime)

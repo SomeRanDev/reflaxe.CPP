@@ -1,3 +1,9 @@
+// =======================================================
+// * USort
+//
+// Adds static extensions for Array involving sorting.
+// =======================================================
+
 package unboundcompiler.helpers;
 
 class USort {
