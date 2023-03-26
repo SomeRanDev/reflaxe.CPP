@@ -272,10 +272,12 @@ function compareFiles(fileA: String, fileB: String): Null<String> {
 		return "`" + fileB + "` does not exist.";
 	}
 
-	final contentA = sys.io.File.getContent(fileA);
-	final contentB = sys.io.File.getContent(fileB);
+	function normalize(s: String) return StringTools.trim(StringTools.replace(s, "\r\n", "\n"));
 
-	if(StringTools.trim(contentA) != StringTools.trim(contentB)) {
+	final contentA = normalize(sys.io.File.getContent(fileA));
+	final contentB = normalize(sys.io.File.getContent(fileB));
+
+	if(contentA != contentB) {
 		final msg = fileB + "` does not match the intended output.";
 
 		return if(NoDetails) {
