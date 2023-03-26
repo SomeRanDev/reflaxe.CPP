@@ -272,22 +272,7 @@ class Compiler_Exprs extends SubCompiler {
 				result = "throw " + Main.compileExpressionOrError(expr);
 			}
 			case TCast(e, maybeModuleType): {
-				final cpp = Main.compileExpression(e);
-				if(cpp != null) {
-					result = cpp;
-					if(maybeModuleType != null) {
-						final mCpp = moduleNameToCpp(maybeModuleType, expr.pos);
-						switch(e.t) {
-							case TAbstract(aRef, []) if(aRef.get().name == "Any" && aRef.get().module == "Any"): {
-								IComp.addInclude("any", compilingInHeader, true);
-								result = "std::any_cast<" + mCpp + ">(" + result + ")";
-							}
-							case _: {
-								result = "((" + mCpp + ")(" + result + "))";
-							}
-						}
-					}
-				}
+				result = compileCast(e, expr, maybeModuleType);
 			}
 			case TMeta(metadataEntry, nextExpr): {
 				final unwrappedInfo = unwrapMetaExpr(expr);
@@ -865,6 +850,36 @@ class Compiler_Exprs extends SubCompiler {
 		} else {
 			result += "\n}";
 		}
+		return result;
+	}
+
+	function compileCast(castedExpr: TypedExpr, originalExpr: TypedExpr, maybeModuleType: Null<ModuleType>): Null<String> {
+		var result = null;
+
+		// If casting from Null<T> to <T>
+		if(maybeModuleType == null && castedExpr.t.isNullOfType(originalExpr.t)) {
+			result = compileExpressionNotNull(castedExpr);
+		} else {
+			// Otherwise...
+			result = Main.compileExpression(castedExpr);
+			if(result != null) {
+				if(maybeModuleType != null) {
+					final mCpp = moduleNameToCpp(maybeModuleType, originalExpr.pos);
+					switch(castedExpr.t) {
+						// If casting from Any
+						case TAbstract(aRef, []) if(aRef.get().name == "Any" && aRef.get().module == "Any"): {
+							IComp.addInclude("any", compilingInHeader, true);
+							result = "std::any_cast<" + mCpp + ">(" + result + ")";
+						}
+						// C-style case
+						case _: {
+							result = "((" + mCpp + ")(" + result + "))";
+						}
+					}
+				}
+			}
+		}
+
 		return result;
 	}
 
