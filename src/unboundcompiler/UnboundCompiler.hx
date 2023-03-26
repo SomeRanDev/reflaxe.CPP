@@ -266,7 +266,9 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 				content += reflectionCppList.map(s -> s.tab()).join("\n");
 				content += "\n}\n";
 
-				appendToExtraFile(filename, content, 4);
+				addCompileEndCallback(function() {
+					appendToExtraFile(filename, content, DependencyTracker.bottom);
+				});
 			}
 		}
 	}
