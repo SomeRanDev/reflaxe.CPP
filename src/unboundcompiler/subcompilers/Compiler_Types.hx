@@ -41,6 +41,34 @@ class Compiler_Types extends SubCompiler {
 	}
 
 	// ----------------------------
+	// This function applies typePreix() to maybeCompileTypeImpl()
+	public function maybeCompileType(t: Null<Type>, pos: Position, asValue: Bool = false, dependent: Bool = false): Null<String> {
+		final result = maybeCompileTypeImpl(t, pos, asValue, dependent);
+		if(result != null) {
+			return typePrefix(t) + result;
+		}
+		return result;
+	}
+
+	// ----------------------------
+	// Compiles any content required prior to the C++ type.
+	function typePrefix(t: Null<Type>): String {
+		if(t != null) {
+			final meta = t.getMeta();
+
+			// @:typenamePrefixIfDependentScope
+			if(meta.maybeHas(":typenamePrefixIfDependentScope")) {
+				final params = t.getParams();
+				if(params != null && params.filter(p -> p.isTypeParameter()).length > 0) {
+					return "typename ";
+				}
+			}
+		}
+
+		return "";
+	}
+
+	// ----------------------------
 	// The function that actually compiles Types.
 	// Does not cause error if Type compiles to null.
 	// Can be safely passed null.
