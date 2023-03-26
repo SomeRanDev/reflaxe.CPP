@@ -90,7 +90,7 @@ class Compiler_Classes extends SubCompiler {
 			for(p in classType.superClass.params) {
 				Main.onTypeEncountered(p, true);
 			}
-			Main.superTypeName = TComp.compileClassName(superType, classType.pos, classType.superClass.params, true, true);
+			Main.superTypeName = TComp.compileClassName(superType, classType.pos, classType.superClass.params, true, true, true);
 			extendedFrom.push(Main.superTypeName);
 		}
 
@@ -100,7 +100,7 @@ class Compiler_Classes extends SubCompiler {
 			for(p in i.params) {
 				Main.onTypeEncountered(p, true);
 			}
-			extendedFrom.push(TComp.compileClassName(interfaceType, classType.pos, i.params, true, true));
+			extendedFrom.push(TComp.compileClassName(interfaceType, classType.pos, i.params, true, true, true));
 		}
 
 
@@ -136,7 +136,7 @@ class Compiler_Classes extends SubCompiler {
 
 			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
 			final assign = (cppVal.length == 0 ? "" : (" = " + cppVal));
-			final type = TComp.compileType(field.type, field.pos);
+			final type = TComp.compileType(field.type, field.pos, false, true);
 			var decl = meta + (isStatic ? "static " : "") + type + " " + varName;
 			if(!addToCpp) {
 				decl += assign;
@@ -181,7 +181,7 @@ class Compiler_Classes extends SubCompiler {
 			}
 
 			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
-			final ret = data.ret == null ? "void" : (data.ret.isDynamic() ? "auto" : TComp.compileType(data.ret, field.pos));
+			final ret = data.ret == null ? "void" : (data.ret.isDynamic() ? "auto" : TComp.compileType(data.ret, field.pos, false, true));
 
 			var prefixNames = [];
 			if(isStatic) prefixNames.push("static");
@@ -198,7 +198,7 @@ class Compiler_Classes extends SubCompiler {
 				XComp.compilingForTopLevel = false;
 				final assign = " = " + callable;
 				final type = "std::function<" + ret + "(" + data.args.map(a -> {
-					return TComp.compileType(a.t, field.pos);
+					return TComp.compileType(a.t, field.pos, false, true);
 				}).join(", ") + ")>";
 				var decl = meta + prefix + type + " " + name;
 				if(!dynAddToCpp) {
