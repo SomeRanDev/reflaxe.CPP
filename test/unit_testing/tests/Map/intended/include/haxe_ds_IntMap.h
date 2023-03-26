@@ -72,7 +72,7 @@ public:
 	}
 	
 	std::shared_ptr<KeyValueIterator<int, T>> keyValueIterator() {
-		return std::make_shared<KeyValueIterator<int, T>>(std::make_shared<haxe::iterators::MapKeyValueIterator<int, T>>(shared_from_this()));
+		return std::make_shared<KeyValueIterator<int, T>>(std::make_shared<haxe::iterators::MapKeyValueIterator<int, T>>(this->shared_from_this()));
 	}
 	
 	std::shared_ptr<haxe::ds::IntMap<T>> copy() {
@@ -90,7 +90,7 @@ public:
 	std::string toString() {
 		std::string result = std::string("[");
 		bool first = true;
-		std::shared_ptr<haxe::IMap<int, T>> _g_map = shared_from_this();
+		std::shared_ptr<haxe::IMap<int, T>> _g_map = this->shared_from_this();
 		std::shared_ptr<Iterator<int>> _g_keys = this->keys();
 		
 		while(_g_keys->hasNext()) {

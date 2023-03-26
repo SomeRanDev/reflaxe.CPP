@@ -418,7 +418,7 @@ class Compiler_Exprs extends SubCompiler {
 			switch(expr.expr) {
 				case TConst(TThis) if(tmmt == SharedPtr): {
 					IComp.setExtraFlag(ExtraFlag.SharedFromThis);
-					result = "shared_from_this()";
+					result = "this->shared_from_this()";
 				}
 				case TConst(TThis) if(tmmt == UniquePtr): {
 					expr.pos.makeError(ThisToUnique);
