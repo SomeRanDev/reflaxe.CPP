@@ -73,11 +73,11 @@ void Main::main() {
 	AnotherClass anotherVal = AnotherClass();
 	
 	Main::assert(Std::string(anotherVal) == anotherVal.toString(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 69, "main"s));
-	Main::assert(Std::string(base) == "<unknown(size:4)>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 71, "main"s));
+	Main::assert(Std::string(base) == "<unknown(size:"s + std::to_string(sizeof(base)) + ")>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 71, "main"s));
 	
 	BaseClass baseVal = BaseClass();
 	
-	Main::assert(Std::string(baseVal) == "<unknown(size:4)>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 74, "main"s));
+	Main::assert(Std::string(baseVal) == "<unknown(size:"s + std::to_string(sizeof(baseVal)) + ")>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 74, "main"s));
 	
 	ClassWInt numVal = ClassWInt();
 	

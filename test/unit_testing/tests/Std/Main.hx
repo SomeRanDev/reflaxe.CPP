@@ -68,10 +68,10 @@ class Main {
 		final anotherVal: ucpp.Value<AnotherClass> = new AnotherClass();
 		assert(Std.string(anotherVal) == anotherVal.toString());
 
-		assert(Std.string(base) == "<unknown(size:4)>");
+		assert(Std.string(base) == "<unknown(size:" + ucpp.Stdlib.sizeof(base) + ")>");
 
 		final baseVal: ucpp.Value<BaseClass> = new BaseClass();
-		assert(Std.string(baseVal) == "<unknown(size:4)>");
+		assert(Std.string(baseVal) == "<unknown(size:" + ucpp.Stdlib.sizeof(baseVal) + ")>");
 
 		final numVal: ucpp.Value<ClassWInt> = new ClassWInt();
 		assert(Std.string(numVal) == "<unknown(size:" + ucpp.Stdlib.sizeof(numVal) + ")>");
