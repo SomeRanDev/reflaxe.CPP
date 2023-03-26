@@ -14,7 +14,7 @@ using namespace std::string_literals;
 
 int Main::returnCode = 0;
 
-Main::Main() {
+Main::Main(): _order_id(generate_order_id()) {
 	this->testField = 123;
 	Main::assert(this->testField == 123, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 9, "new"s));
 }

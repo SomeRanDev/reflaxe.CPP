@@ -292,20 +292,20 @@ class Compiler_Classes extends SubCompiler {
 		// Auto-generated content
 		if(!noAutogen) {
 			functions.push("// ----------
-	// Auto-generated additions from Haxe
-	
-	// Generate unique id for each instance
-	unsigned long _order_id = 0;
-	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
+// Auto-generated additions from Haxe
 
-	// Automatic comparison operators
-	bool operator==(const " + classNameWParams + "& other) const {
-		return _order_id == other._order_id;
-	}
-	
-	bool operator<(const " + classNameWParams + "& other) const {
-		return _order_id < other._order_id;
-	}");
+// Generate unique id for each instance
+unsigned long _order_id = 0;
+static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
+
+// Automatic comparison operators
+bool operator==(const " + classNameWParams + "& other) const {
+	return _order_id == other._order_id;
+}
+
+bool operator<(const " + classNameWParams + "& other) const {
+	return _order_id < other._order_id;
+}");
 		}
 
 		// Add extension classes

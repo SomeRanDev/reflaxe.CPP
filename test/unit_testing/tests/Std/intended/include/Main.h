@@ -10,11 +10,43 @@
 class BaseClass {
 public:
 	BaseClass();
+	
+	// ----------
+	// Auto-generated additions from Haxe
+	
+	// Generate unique id for each instance
+	unsigned long _order_id = 0;
+	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
+	
+	// Automatic comparison operators
+	bool operator==(const BaseClass& other) const {
+		return _order_id == other._order_id;
+	}
+	
+	bool operator<(const BaseClass& other) const {
+		return _order_id < other._order_id;
+	}
 };
 
 class ChildClass: public BaseClass {
 public:
 	ChildClass();
+	
+	// ----------
+	// Auto-generated additions from Haxe
+	
+	// Generate unique id for each instance
+	unsigned long _order_id = 0;
+	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
+	
+	// Automatic comparison operators
+	bool operator==(const ChildClass& other) const {
+		return _order_id == other._order_id;
+	}
+	
+	bool operator<(const ChildClass& other) const {
+		return _order_id < other._order_id;
+	}
 };
 
 
@@ -24,6 +56,22 @@ public:
 	AnotherClass();
 	
 	std::string toString();
+	
+	// ----------
+	// Auto-generated additions from Haxe
+	
+	// Generate unique id for each instance
+	unsigned long _order_id = 0;
+	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
+	
+	// Automatic comparison operators
+	bool operator==(const AnotherClass& other) const {
+		return _order_id == other._order_id;
+	}
+	
+	bool operator<(const AnotherClass& other) const {
+		return _order_id < other._order_id;
+	}
 };
 
 
@@ -33,6 +81,22 @@ public:
 	int number;
 
 	ClassWInt();
+	
+	// ----------
+	// Auto-generated additions from Haxe
+	
+	// Generate unique id for each instance
+	unsigned long _order_id = 0;
+	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
+	
+	// Automatic comparison operators
+	bool operator==(const ClassWInt& other) const {
+		return _order_id == other._order_id;
+	}
+	
+	bool operator<(const ClassWInt& other) const {
+		return _order_id < other._order_id;
+	}
 };
 
 
@@ -46,6 +110,22 @@ public:
 	static void assertFloat(double a, double b, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt);
 	
 	static void main();
+	
+	// ----------
+	// Auto-generated additions from Haxe
+	
+	// Generate unique id for each instance
+	unsigned long _order_id = 0;
+	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
+	
+	// Automatic comparison operators
+	bool operator==(const Main& other) const {
+		return _order_id == other._order_id;
+	}
+	
+	bool operator<(const Main& other) const {
+		return _order_id < other._order_id;
+	}
 };
 
 

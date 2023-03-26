@@ -10,20 +10,20 @@
 #include <string>
 using namespace std::string_literals;
 
-BaseClass::BaseClass() {
+BaseClass::BaseClass(): _order_id(generate_order_id()) {
 	
 }
-ChildClass::ChildClass() {
+ChildClass::ChildClass(): _order_id(generate_order_id()) {
 	BaseClass();
 }
-AnotherClass::AnotherClass() {
+AnotherClass::AnotherClass(): _order_id(generate_order_id()) {
 	
 }
 
 std::string AnotherClass::toString() {
 	return "another class as string"s;
 }
-ClassWInt::ClassWInt() {
+ClassWInt::ClassWInt(): _order_id(generate_order_id()) {
 	this->number = 123;
 }
 int Main::returnCode = 0;
@@ -73,11 +73,11 @@ void Main::main() {
 	AnotherClass anotherVal = AnotherClass();
 	
 	Main::assert(Std::string(anotherVal) == anotherVal.toString(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 69, "main"s));
-	Main::assert(Std::string(base) == "<unknown(size:1)>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 71, "main"s));
+	Main::assert(Std::string(base) == "<unknown(size:4)>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 71, "main"s));
 	
 	BaseClass baseVal = BaseClass();
 	
-	Main::assert(Std::string(baseVal) == "<unknown(size:1)>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 74, "main"s));
+	Main::assert(Std::string(baseVal) == "<unknown(size:4)>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 74, "main"s));
 	
 	ClassWInt numVal = ClassWInt();
 	

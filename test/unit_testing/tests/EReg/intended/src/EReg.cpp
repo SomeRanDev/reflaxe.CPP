@@ -13,7 +13,7 @@ using namespace std::string_literals;
 
 EReg EReg::escapeRegExpRe = EReg("[\\[\\]{}()*+?.\\\\\\^$|]"s, "g"s);
 
-EReg::EReg(std::string r, std::string opt) {
+EReg::EReg(std::string r, std::string opt): _order_id(generate_order_id()) {
 	this->regex = std::regex(r, std::regex::ECMAScript | std::regex::icase);
 	this->smatch = std::smatch();
 	this->matches = std::nullopt;

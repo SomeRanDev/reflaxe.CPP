@@ -12,7 +12,7 @@ using namespace std::string_literals;
 
 int Main::returnCode = 0;
 
-Main::Main() {
+Main::Main(): _order_id(generate_order_id()) {
 	this->a = 123;
 }
 
