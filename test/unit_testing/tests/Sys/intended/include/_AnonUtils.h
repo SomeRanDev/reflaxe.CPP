@@ -47,7 +47,7 @@ namespace haxe {
 // value type. Also provided whether or not that type is deref-able.
 namespace haxe {
 
-	template<typename T, typename U = _unwrap_mm<T>::inner>
+	template<typename T, typename U = typename _unwrap_mm<T>::inner>
 	static inline U& unwrap(T in) { return _unwrap_mm<T>::get(in); }
 
 	template<typename T>
