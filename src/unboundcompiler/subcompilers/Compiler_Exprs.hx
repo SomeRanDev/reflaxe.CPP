@@ -301,7 +301,7 @@ class Compiler_Exprs extends SubCompiler {
 		return result;
 	}
 
-	function compileExpressionNotNull(expr: TypedExpr): Null<String> {
+	function compileExpressionNotNull(expr: TypedExpr): String {
 		final unwrapOptional = switch(expr.expr) {
 			case TLocal(_): true;
 			case TIdent(_): true;
@@ -310,30 +310,23 @@ class Compiler_Exprs extends SubCompiler {
 			case _: false;
 		}
 
-		var result = Main.compileExpression(expr);
+		var result = Main.compileExpressionOrError(expr);
 
 		if(unwrapOptional) {
 			if(Main.getExprType(expr).isNull()) {
-				result = result + ".value()";
+				result = ensureSafeToAccess(result) + ".value()";
 			}
 		}
 
 		return result;
 	}
 
-	function compileExpressionNotNullAsValue(expr: TypedExpr): Null<String> {
-		final result = compileExpressionNotNull(expr);
+	function compileExpressionAsValue(expr: TypedExpr): String {
+		return compileMMConversion(expr, Right(Value), true);
+	}
 
-		final isValue = switch(TComp.getMemoryManagementTypeFromType(Main.getExprType(expr))) {
-			case Value: true;
-			case _: false;
-		}
-
-		return if(result != null) {
-			isValue ? result : "(*" + result + ")";
-		} else {
-			null;
-		}
+	function compileExpressionNotNullAsValue(expr: TypedExpr): String {
+		return compileMMConversion(expr, Right(Value));
 	}
 
 	// ----------------------------
@@ -343,48 +336,67 @@ class Compiler_Exprs extends SubCompiler {
 		var cpp = null;
 		if(targetType != null) {
 			expr = expr.unwrapUnsafeCasts();
-			if(Main.getExprType(expr).valueTypesEqual(targetType, true)) {
+			if(Main.getExprType(expr).shouldConvertMM(targetType)) {
 				cpp = compileMMConversion(expr, Left(targetType));
 			} else {
-				// If converting from a normal type to an anonymous struct, we must first convert the
-				// object to `Value` memory management since the generated anon struct constructors expect value types.
-				//
-				// Next, since unnamed anonymous structs are always `SharedPtr`s, we use applyMMConversion to 
+				// Unnamed anonymous structs are always `SharedPtr`s, we use applyMMConversion to 
 				// format the generated C++ code from `Value` to `SharedPtr`.
-				if(!Main.getExprType(expr).getInternalType().isAnonStruct() && targetType.getInternalType().isAnonStruct()) {
-					cpp = applyMMConversion(compileMMConversion(expr, Right(Value)), expr.pos, targetType, Value, SharedPtr);
+				//
+				// We don't need to worry about the memory management type of the input expression
+				// since anonymous structs use `haxe::unwrap<T>` to access the fields of any type.
+				if(!Main.getExprType(expr).getInternalType().isAnonStruct() && targetType.isAnonStructOrNamedStruct()) {
+					// In an earlier version, all expressions were converted to `Value`.
+					// Here's the code needed to achieve that in case required in the future:
+					// `compileMMConversion(expr, Right(Value));`
+					final exprCpp = Main.compileExpression(expr);
+					cpp = applyMMConversion(exprCpp, expr.pos, targetType, Value, SharedPtr);
 				}
 			}
 		}
 		if(cpp == null) {
-			switch(expr.expr) {
-				case TObjectDecl(fields): {
-					cpp = AComp.compileObjectDecl(targetType, fields, expr, compilingInHeader);
-				}
-				case _: {
-					final old = setExplicitNull(true, targetType.isAmbiguousNullable());
-					cpp = allowNullReturn ? Main.compileExpression(expr) : Main.compileExpressionOrError(expr);
-					setExplicitNull(old);
-				}
-			}
+			cpp = internal_compileExpressionForType(expr, targetType, allowNullReturn);
 		}
 		return cpp;
+	}
+
+	// ----------------------------
+	// Internally compiles the expression for a type.
+	// Used in multiple places where the special cases for the target type do not apply.
+	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool): Null<String> {
+		return switch(expr.expr) {
+			case TObjectDecl(fields) if(targetType != null): {
+				AComp.compileObjectDecl(targetType, fields, expr, compilingInHeader);
+			}
+			case _: {
+				final old = setExplicitNull(true, targetType != null && targetType.isAmbiguousNullable());
+				final result = allowNullReturn ? Main.compileExpression(expr) : Main.compileExpressionOrError(expr);
+				setExplicitNull(old);
+				result;
+			}
+		}
 	}
 
 	// ----------------------------
 	// If the memory management type of the target type (or target memory management type)
 	// is different from the provided expression, compile the expression and with additional
 	// conversions in the generated code.
-	function compileMMConversion(expr: TypedExpr, targetType: Either<Null<Type>, MemoryManagementType>): Null<String> {
+	function compileMMConversion(expr: TypedExpr, target: Either<Null<Type>, MemoryManagementType>, allowNull: Bool = false): String {
 		final cmmt = TComp.getMemoryManagementTypeFromType(Main.getExprType(expr));
-		final tmmt = switch(targetType) {
-			case Left(tt): TComp.getMemoryManagementTypeFromType(tt);
-			case Right(mmt): mmt;
-		}
 
-		final nullToValue = switch(targetType) {
-			case Left(tt): Main.getExprType(expr).isNullOfType(tt);
-			case Right(_): Main.getExprType(expr).isNull();
+		var tmmt;
+		var targetType;
+		var nullToValue;
+		switch(target) {
+			case Left(tt): {
+				tmmt = TComp.getMemoryManagementTypeFromType(tt);
+				targetType = tt;
+				nullToValue = allowNull ? false : Main.getExprType(expr).isNullOfType(tt);
+			}
+			case Right(mmt): {
+				tmmt = mmt;
+				targetType = null;
+				nullToValue = allowNull ? false : Main.getExprType(expr).isNull();
+			}
 		}
 
 		var result = null;
@@ -394,15 +406,19 @@ class Compiler_Exprs extends SubCompiler {
 					result = compileNew(expr, TInst(classTypeRef, params), el, tmmt);
 				}
 				case _: {
-					var cpp = Main.compileExpression(expr);
+					var cpp = internal_compileExpressionForType(expr, targetType, true);
 					if(cpp != null) {
-						if(nullToValue) {
+						if(!allowNull && nullToValue) {
 							cpp = ensureSafeToAccess(cpp) + ".value()";
 						}
 						result = applyMMConversion(cpp, expr.pos, Main.getExprType(expr), cmmt, tmmt);
 					}
 				}
 			}
+		}
+		
+		if(result == null) {
+			result = internal_compileExpressionForType(expr, targetType, false);
 		}
 
 		return result;
