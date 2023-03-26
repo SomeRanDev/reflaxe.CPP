@@ -767,6 +767,7 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	function compileNew(expr: TypedExpr, type: Type, el: Array<TypedExpr>, overrideMMT: Null<MemoryManagementType> = null): String {
+		Main.onTypeEncountered(type, compilingInHeader);
 		final nfc = checkNativeCodeMeta(expr, el, type.getParams());
 		return if(nfc != null) {
 			nfc;
