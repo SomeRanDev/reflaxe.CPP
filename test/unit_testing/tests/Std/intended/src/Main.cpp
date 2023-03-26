@@ -3,6 +3,7 @@
 #include "_AnonStructs.h"
 #include "_TypeUtils.h"
 #include "Std.h"
+#include "StringTools.h"
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -73,15 +74,15 @@ void Main::main() {
 	AnotherClass anotherVal = AnotherClass();
 	
 	Main::assert(Std::string(anotherVal) == anotherVal.toString(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 69, "main"s));
-	Main::assert(Std::string(base) == "<unknown(size:"s + std::to_string(sizeof(base)) + ")>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 71, "main"s));
+	Main::assert(StringTools::startsWith(Std::string(base), "<unknown(address:"s), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 71, "main"s));
 	
 	BaseClass baseVal = BaseClass();
 	
-	Main::assert(Std::string(baseVal) == "<unknown(size:"s + std::to_string(sizeof(baseVal)) + ")>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 74, "main"s));
+	Main::assert(StringTools::startsWith(Std::string(baseVal), "<unknown(address:"s), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 74, "main"s));
 	
 	ClassWInt numVal = ClassWInt();
 	
-	Main::assert(Std::string(numVal) == "<unknown(size:"s + std::to_string(sizeof(numVal)) + ")>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 77, "main"s));
+	Main::assert(StringTools::startsWith(Std::string(numVal), "<unknown(address:"s), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 77, "main"s));
 	Main::assert(4 == 4, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 80, "main"s));
 	Main::assert(0 == 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 81, "main"s));
 	Main::assert(0 == 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 82, "main"s));

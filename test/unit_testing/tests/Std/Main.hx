@@ -68,13 +68,13 @@ class Main {
 		final anotherVal: ucpp.Value<AnotherClass> = new AnotherClass();
 		assert(Std.string(anotherVal) == anotherVal.toString());
 
-		assert(Std.string(base) == "<unknown(size:" + ucpp.Stdlib.sizeof(base) + ")>");
+		assert(StringTools.startsWith(Std.string(base), "<unknown(address:"));
 
 		final baseVal: ucpp.Value<BaseClass> = new BaseClass();
-		assert(Std.string(baseVal) == "<unknown(size:" + ucpp.Stdlib.sizeof(baseVal) + ")>");
+		assert(StringTools.startsWith(Std.string(baseVal), "<unknown(address:"));
 
 		final numVal: ucpp.Value<ClassWInt> = new ClassWInt();
-		assert(Std.string(numVal) == "<unknown(size:" + ucpp.Stdlib.sizeof(numVal) + ")>");
+		assert(StringTools.startsWith(Std.string(numVal), "<unknown(address:"));
 
 		// Std.int
 		assert(Std.int(4.5) == 4);

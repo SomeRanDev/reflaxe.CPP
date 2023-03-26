@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+#include <sstream>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -35,7 +37,10 @@ struct DynamicToString: public std::string {
 			return ToString(*s);
 		}
 		
-		return "<unknown(size:" + std::to_string(sizeof(s)) + ")>";
+		// Print address if all else fails
+		std::stringstream pointer_stream;
+		pointer_stream << std::addressof(s);
+		return "<unknown(address:" + pointer_stream.str() + ")>";
     }
 };
 
