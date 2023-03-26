@@ -349,7 +349,11 @@ class Compiler_Types extends SubCompiler {
 					result;
 				} else {
 					final inner = Main.getAbstractInner(t);
-					getMemoryManagementTypeFromType(inner);
+					if(t.equals(inner)) {
+						Value;
+					} else {
+						getMemoryManagementTypeFromType(inner);
+					}
 				}
 			}
 			case TType(defRef, params) if(t.isRef()): {
