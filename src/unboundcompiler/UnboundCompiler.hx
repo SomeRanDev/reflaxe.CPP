@@ -33,6 +33,8 @@ import unboundcompiler.subcompilers.Compiler_Includes;
 import unboundcompiler.subcompilers.Compiler_Reflection;
 import unboundcompiler.subcompilers.Compiler_Types;
 
+import unboundcompiler.other.DependencyTracker;
+
 class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// ----------------------------
 	// The extension for the generated header files.
@@ -143,6 +145,10 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	public function onTypeEncountered(t: Type, addToHeader: Bool) {
 		IComp.addIncludeFromType(t, addToHeader);
 
+		if(addToHeader) {
+			addDep(t);
+		}
+
 		final mt = t.toModuleType();
 		if(mt != null) {
 			addModuleTypeForCompilation(mt);
@@ -152,6 +158,9 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			case TInst(_, params) | TEnum(_, params) | TType(_, params) | TAbstract(_, params): {
 				for(p in params) {
 					onTypeEncountered(p, addToHeader);
+					if(addToHeader) {
+						addDep(p);
+					}
 				}
 			}
 			case _: {}
@@ -577,6 +586,27 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		}
 	}
 
+	// ----------------------------
+	var currentDep: Null<DependencyTracker> = null;
+	public function setCurrentDep(dep: DependencyTracker) {
+		currentDep = dep;
+	}
+
+	public function getCurrentDep(): Null<DependencyTracker> {
+		return currentDep;
+	}
+
+	public function clearDep() {
+		currentDep = null;
+	}
+
+	public function addDep(t: Null<Type>) {
+		if(t != null && currentDep != null) {
+			final mt = t.toModuleType();
+			if(mt != null) {
+				currentDep.addDep(mt);
+			}
+		}
 	}
 }
 
