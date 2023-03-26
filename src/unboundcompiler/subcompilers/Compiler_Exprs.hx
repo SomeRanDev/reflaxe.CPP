@@ -226,7 +226,7 @@ class Compiler_Exprs extends SubCompiler {
 				}
 				if(edef != null) {
 					result += "\n";
-					result += "\t_:\n";
+					result += "\tdefault: {\n";
 					result += toIndentedScope(edef).tab();
 					result += "\n\t\tbreak;";
 					result += "\n\t}";
