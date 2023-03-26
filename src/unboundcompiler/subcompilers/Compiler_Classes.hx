@@ -15,6 +15,8 @@ import haxe.display.Display.MetadataTarget;
 
 import reflaxe.BaseCompiler;
 
+import unboundcompiler.other.DependencyTracker;
+
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
@@ -44,6 +46,9 @@ class Compiler_Classes extends SubCompiler {
 		if(classNameNS.length > 0) classNameNS += "::";
 
 		final filename = Main.getFileNameFromModuleData(classType);
+
+		final dep = DependencyTracker.make(TClassDecl(classTypeRef), filename);
+		Main.setCurrentDep(dep);
 
 		var headerOnly = classType.isHeaderOnly();
 
@@ -319,13 +324,18 @@ class Compiler_Classes extends SubCompiler {
 				result += (result.length > 0 ? "\n\n" : "") + topLevelFunctions.join("\n\n");
 			}
 
-			Main.appendToExtraFile(headerFilename, result + "\n", 3);
+			Main.addCompileEndCallback(function() {
+				Main.appendToExtraFile(headerFilename, result + "\n", dep.getPriority());
+			});
 
 			Main.addReflectionCpp(headerFilename, RComp.compileClassReflection(classTypeRef));
 		}
 
 		// Let the reflection compiler know this class was compiled.
 		RComp.addCompiledModuleType(Main.getCurrentModule());
+
+		// Clear the dependency tracker.
+		Main.clearDep();
 
 		// We generated the files ourselves with "appendToExtraFile",
 		// so we return null so Reflaxe doesn't generate anything itself.
