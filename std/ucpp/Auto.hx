@@ -1,6 +1,7 @@
 package ucpp;
 
 @:native("auto")
+@:valueType
 extern class IAuto {
 }
 
