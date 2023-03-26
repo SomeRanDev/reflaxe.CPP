@@ -28,6 +28,46 @@ class UType {
 	}
 
 	// ----------------------------
+	// When compiling an expression of type "t" for type "other",
+	// this function is used to test whether memory management conversion should occur.
+	//
+	// For example, a pointer should be converted to value if both of the types are the same.
+	// However, memory management conversion should not occur when converting to anonymous
+	// structures or dynamic types since they are already made to handle any C++ object.
+	public static function shouldConvertMM(t: Type, other: Type): Bool {
+		if(valueTypesEqual(t, other)) {
+			return true;
+		}
+
+		final inner = Context.follow(getInternalType(t));
+		final innerOther = Context.follow(getInternalType(other));
+
+		// If converting from non-anon to anon, no conversion should be applied.
+		if(!inner.isAnonStruct() && innerOther.isAnonStruct()) {
+			return false;
+		}
+
+		// If converting to Dynamic, do not convert.
+		if(innerOther.isDynamic()) {
+			return false;
+		}
+
+		// If converting to an abstract that takes Dynamic, do not convert.
+		switch(innerOther) {
+			case TAbstract(absRef, _): {
+				for(f in absRef.get().from) {
+					if(f.t.isDynamic()) {
+						return false;
+					}
+				}
+			}
+			case _:
+		}
+
+		return Context.unify(t, other);
+	}
+
+	// ----------------------------
 	// If this type is a memory management overrider,
 	// this returns the internal type. Returns the provided type otherwise.
 	// Bypasses all Null<T> outside the overrider class.
