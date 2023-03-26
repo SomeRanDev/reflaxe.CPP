@@ -213,8 +213,12 @@ class Compiler_Classes extends SubCompiler {
 				fieldsCompiled++;
 			} else {
 				final topLevel = field.hasMeta(":topLevel");
-				if(topLevel && !isStatic) {
-					field.pos.makeError(TopLevelInstanceFunction);
+				if(topLevel) {
+					if(isConstructor) {
+						field.pos.makeError(TopLevelConstructor);
+					} else if(!isStatic) {
+						field.pos.makeError(TopLevelInstanceFunction);
+					}
 				}
 
 				final retDecl = (useReturnType ? (ret + " ") : "");

@@ -22,6 +22,7 @@ enum ErrorType {
 	// Meta
 	ConstExprMetaInvalidUse;
 	TopLevelInstanceFunction;
+	TopLevelConstructor;
 
 	// Memory Management Conversion
 	UnsafeToShared;
@@ -55,6 +56,9 @@ class UError {
 			}
 			case TopLevelInstanceFunction: {
 				"Invalid use of @:topLevel. Can only be used on static fields.";
+			}
+			case TopLevelConstructor: {
+				"Invalid use of @:topLevel. Cannot be used on constructors.";
 			}
 
 			// Memory Management Conversion
