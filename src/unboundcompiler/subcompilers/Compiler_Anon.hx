@@ -376,7 +376,7 @@ namespace haxe {
 		static inline inner& get(std::unique_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
 	};
 
-	template<typename T, typename U = _unwrap_mm<T>::inner>
+	template<typename T, typename U = typename _unwrap_mm<T>::inner>
 	static inline U& unwrap(T in) { return _unwrap_mm<T>::get(in); }
 
 }
