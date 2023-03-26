@@ -30,6 +30,12 @@ using unboundcompiler.helpers.UError;
 using unboundcompiler.helpers.UMeta;
 using unboundcompiler.helpers.USort;
 
+enum abstract ExtraFlag(String) from String to String {
+	// An instance of converting "this" to a shared_ptr was encountered.
+	// Ensures the class declaration extends from std::enable_shared_from_this.
+	var SharedFromThis = "SharedFromThis";
+}
+
 @:allow(unboundcompiler.UnboundCompiler)
 @:access(unboundcompiler.UnboundCompiler)
 class Compiler_Includes extends SubCompiler {

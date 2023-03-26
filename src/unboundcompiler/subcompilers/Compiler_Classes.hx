@@ -15,6 +15,7 @@ import haxe.display.Display.MetadataTarget;
 
 import reflaxe.BaseCompiler;
 
+import unboundcompiler.subcompilers.Compiler_Includes.ExtraFlag;
 import unboundcompiler.other.DependencyTracker;
 
 using reflaxe.helpers.NameMetaHelper;
@@ -66,20 +67,20 @@ class Compiler_Classes extends SubCompiler {
 			}
 		}
 
-		var header = "";
+		final header = ["", "", ""];
 
 		// Meta
 		final clsMeta = Main.compileMetadata(classType.meta, MetadataTarget.Class);
-		header += clsMeta;
+		header[0] += clsMeta;
 
 		// Template generics
 		if(classType.params.length > 0) {
 			headerOnly = true;
-			header += "template<" + classType.params.map(p -> "typename " + p.name).join(", ") + ">\n";
+			header[0] += "template<" + classType.params.map(p -> "typename " + p.name).join(", ") + ">\n";
 		}
 
 		// Class declaration
-		header += "class " + className;
+		header[0] += "class " + className;
 
 		final extendedFrom = [];
 
@@ -102,11 +103,12 @@ class Compiler_Classes extends SubCompiler {
 			extendedFrom.push(TComp.compileClassName(interfaceType, classType.pos, i.params, true, true));
 		}
 
-		if(extendedFrom.length > 0) {
-			header += ": " + extendedFrom.map(e -> "public " + e).join(", ");
-		}
 
-		header += " {\npublic:\n";
+		// Normally, "extendedFrom" would be used here to setup all the extended classes.
+		// However, some additional extendedFrom classes may be required based on the compiled expressions.
+		// So we delay this until later.
+
+		header[2] += " {\npublic:\n";
 
 		var fieldsCompiled = 0;
 
@@ -266,6 +268,21 @@ class Compiler_Classes extends SubCompiler {
 
 		XComp.compilingInHeader = false;
 
+		// Add extension classes
+		if(IComp.isExtraFlagOn(ExtraFlag.SharedFromThis)) {
+			IComp.addInclude("memory", true, true);
+			final typeParams = if(classType.params.length > 0) {
+				"<" + classType.params.map(p -> p.name).join(", ") + ">";
+			} else {
+				"";
+			}
+			extendedFrom.push("std::enable_shared_from_this<" + className + typeParams + ">");
+		}
+
+		if(extendedFrom.length > 0) {
+			header[1] += ": " + extendedFrom.map(e -> "public " + e).join(", ");
+		}
+
 		// Source file
 		if(!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0)) {
 			final srcFilename = UnboundCompiler.SourceFolder + "/" + filename + UnboundCompiler.SourceExt;
@@ -304,7 +321,7 @@ class Compiler_Classes extends SubCompiler {
 
 			if(fieldsCompiled > 0 || classType.hasMeta(":used")) {
 				result += Main.compileNamespaceStart(classType);
-				result += header;
+				result += header.join("");
 
 				final varsExist = variables.length > 0;
 				if(varsExist) {

@@ -17,10 +17,13 @@ import haxe.macro.Type;
 
 import reflaxe.compiler.EverythingIsExprSanitizer;
 
+import unboundcompiler.subcompilers.Compiler_Includes.ExtraFlag;
+
 using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.OperatorHelper;
 using reflaxe.helpers.NameMetaHelper;
+using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypedExprHelper;
 using reflaxe.helpers.TypeHelper;
@@ -402,6 +405,10 @@ class Compiler_Exprs extends SubCompiler {
 		var result = null;
 		if(cmmt != tmmt || nullToValue) {
 			switch(expr.expr) {
+				case TConst(TThis) if(tmmt == SharedPtr): {
+					IComp.setExtraFlag(ExtraFlag.SharedFromThis);
+					result = "shared_from_this()";
+				}
 				case TConst(TThis) if(tmmt == UniquePtr): {
 					expr.pos.makeError(ThisToUnique);
 				}
