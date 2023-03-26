@@ -545,22 +545,33 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	// ----------------------------
 	// Compiles the content generated from @:headerCode and @:cppFileCode.
-	function compileFileCodeMeta(cd: CommonModuleTypeData, headerPriority: Int = 2, cppFilePriority: Int = 2) {
+	function compileFileCodeMeta(cd: CommonModuleTypeData, headerPriority: Int = 2, cppFilePriority: Int = 2): Bool {
 		if(cd.hasMeta(":headerCode") || cd.hasMeta(":cppFileCode")) {
 			final filename = getFileNameFromModuleData(cd);
+
+			final headerOnly = !cd.hasMeta(":cppFileCode");
+			IComp.resetAndInitIncludes(headerOnly, [filename + UnboundCompiler.HeaderExt]);
+			IComp.handleSpecialIncludeMeta(cd.meta);
 
 			final headerCode = cd.meta.extractStringFromFirstMeta(":headerCode");
 			if(headerCode != null) {
 				final headerFilePath = HeaderFolder + "/" + filename + HeaderExt;
+				
 				setExtraFileIfEmpty(headerFilePath, "#pragma once");
+				IComp.appendIncludesToExtraFileWithoutRepeats(headerFilePath, IComp.compileHeaderIncludes(), 1);
 				appendToExtraFile(headerFilePath, headerCode + "\n", 2);
 			}
 
 			final cppCode = cd.meta.extractStringFromFirstMeta(":cppFileCode");
 			if(cppCode != null) {
-				appendToExtraFile(SourceFolder + "/" + filename + SourceExt, cppCode + "\n", 2);
+				final srcFilename = SourceFolder + "/" + filename + SourceExt;
+
+				IComp.appendIncludesToExtraFileWithoutRepeats(srcFilename, IComp.compileCppIncludes(), 1);
+				appendToExtraFile(srcFilename, cppCode + "\n", 2);
 			}
 		}
+
+		return false;
 	}
 
 	// ----------------------------
