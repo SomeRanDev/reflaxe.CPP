@@ -41,6 +41,9 @@ The C++ output is generated in the `intended` folder.
 * no-details
 The list of C++ output lines that do not match the tests are ommitted from the output.
 
+* dev-mode
+Enables `always-compile`, `show-all-output`, and `no-details`.
+
 * test=TestName
 Makes it so only this test is ran. This option can be added multiple times to perform multiple tests.");
 
@@ -50,6 +53,14 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 	ShowAllOutput = args.contains("show-all-output");
 	UpdateIntended = args.contains("update-intended");
 	NoDetails = args.contains("no-details");
+
+	var alwaysCompile = args.contains("always-compile");
+
+	if(args.contains("dev-mode")) {
+		alwaysCompile = true;
+		ShowAllOutput = true;
+		NoDetails = true;
+	}
 
 	// ------------------------------------
 	// Allowed tests
@@ -87,7 +98,7 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 	Sys.println("");
 	Sys.println(success + " / " + testCount + " tests passed.");
 
-	if(failures > 0 && !args.contains("always-compile")) {
+	if(failures > 0 && !alwaysCompile) {
 		Sys.exit(1);
 	}
 
