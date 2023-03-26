@@ -227,6 +227,21 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		}
 	}
 
+	var nullType: Null<Ref<AbstractType>> = null;
+	public function getNullType(): Ref<AbstractType> {
+		if(nullType == null) {
+			switch(Context.getModule("Null")[0]) {
+				case TAbstract(abRef, _): {
+					nullType = abRef;
+				}
+				case _: {
+					throw "`Null` does not refer to an abstract type.";
+				}
+			}
+		}
+		return nullType;
+	}
+
 	var ptrType: Null<Ref<AbstractType>> = null;
 	public function getPtrType(): Ref<AbstractType> {
 		if(ptrType == null) {
