@@ -21,8 +21,8 @@ extern class Stdlib {
 	public static extern function getEnv(c: ucpp.ConstCharPtr): ucpp.Ptr<ucpp.Char>;
 
 	@:native("putenv")
-	@:include("stdlib.h", true)
-	public static extern function putEnv(input: ucpp.Ptr<ucpp.Char>): Void;
+	@:include("cstdlib", true)
+	public static extern function putEnv(input: ucpp.Ptr<ucpp.Char>): Int;
 
 	@:native("std::this_thread::sleep_for")
 	@:include("thread", true)

@@ -19,14 +19,15 @@ class Main {
 
 		trace(ucpp.std.FileSystem.currentPath());
 
-		final testStr = "test-value=" + (Std.random(10));
-		Sys.putEnv("Haxe2UC++ Test Value", testStr);
+		final key = "Haxe2UC++ Test Value";
+		final val = "test-value=" + (Std.random(10));
+		Sys.putEnv(key, val);
 
-		assert(Sys.getEnv("Haxe2UC++ Test Value") == testStr);
+		assert(Sys.getEnv("Haxe2UC++ Test Value") == val);
 
-		Sys.putEnv("Haxe2UC++ Test Value", "");
+		Sys.putEnv(key, "");
 
-		assert(Sys.getEnv("Haxe2UC++ Test Value") == null);
+		assert(Sys.getEnv(key) == null);
 
 		if(returnCode != 0) {
 			Sys.exit(returnCode);

@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <iostream>
 #include <memory>
-#include <stdlib.h>
 #include <string>
 #include "_AnonStructs.h"
 #include "haxe_Log.h"
@@ -43,6 +42,7 @@ void Main::main() {
 	haxe::Log::trace(tempMaybeString, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 18, "main"s));
 	haxe::Log::trace(std::filesystem::current_path(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 20, "main"s));
 	
+	std::string key = "Haxe2UC++ Test Value"s;
 	int tempRight;
 	
 	if(10 <= 1) {
@@ -51,10 +51,10 @@ void Main::main() {
 		tempRight = floor((((float)rand()) / RAND_MAX) * 10);
 	};
 	
-	std::string testStr = "test-value="s + std::to_string(tempRight);
+	std::string val = "test-value="s + std::to_string(tempRight);
 	
 	{
-		std::string inputAssign = "Haxe2UC++ Test Value"s + "="s + testStr;
+		std::string inputAssign = key + "="s + val;
 		putenv(inputAssign.data());
 	};
 	
@@ -69,17 +69,17 @@ void Main::main() {
 		};
 	};
 	
-	Main::assert(tempLeft == testStr, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 25, "main"s));
+	Main::assert(tempLeft == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 26, "main"s));
 	
 	{
-		std::string inputAssign = "Haxe2UC++ Test Value"s + "="s + ""s;
+		std::string inputAssign = key + "="s + ""s;
 		putenv(inputAssign.data());
 	};
 	
 	std::optional<std::string> tempLeft1;
 	
 	{
-		char* result = std::getenv("Haxe2UC++ Test Value"s.c_str());
+		char* result = std::getenv(key.c_str());
 		if(result == nullptr) {
 			tempLeft1 = std::nullopt;
 		} else {
@@ -87,7 +87,7 @@ void Main::main() {
 		};
 	};
 	
-	Main::assert(!tempLeft1.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 29, "main"s));
+	Main::assert(!tempLeft1.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 30, "main"s));
 	
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
