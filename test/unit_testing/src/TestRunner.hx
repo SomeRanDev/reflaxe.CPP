@@ -7,6 +7,7 @@ final BUILD_DIR = "build";
 
 var ShowAllOutput = false;
 var UpdateIntended = false;
+var UpdateIntendedSys = false;
 var NoDetails = false;
 
 function printlnErr(msg: String) {
@@ -52,6 +53,7 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 
 	ShowAllOutput = args.contains("show-all-output");
 	UpdateIntended = args.contains("update-intended");
+	UpdateIntendedSys = args.contains("update-intended-sys");
 	NoDetails = args.contains("no-details");
 
 	var alwaysCompile = args.contains("always-compile");
@@ -168,6 +170,13 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 	for(hxml in hxmlFiles) {
 		final absPath = haxe.io.Path.join([testDir, hxml]);
 		final systemNameDefine = Sys.systemName().toLowerCase();
+		final outDir = if(UpdateIntendedSys) {
+			INTENDED_DIR + "-" + Sys.systemName();
+		} else if(UpdateIntended) {
+			INTENDED_DIR;
+		} else {
+			OUT_DIR;
+		}
 		final args = [
 			"--no-opt",
 			"-cp std",
@@ -176,7 +185,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"-lib reflaxe",
 			"extraParams.hxml",
 			"-cp " + testDir,
-			"-D cpp-output=" + haxe.io.Path.join([testDir, UpdateIntended ? INTENDED_DIR : OUT_DIR]),
+			"-D cpp-output=" + haxe.io.Path.join([testDir, outDir]),
 			"-D " + systemNameDefine,
 			"\"" + absPath + "\""
 		];
@@ -226,11 +235,18 @@ function onProcessFail(process: sys.io.Process, hxml: String, ec: Int, stdoutCon
 }
 
 function compareOutputFolders(testDir: String): Bool {
-	final intendedFolder = haxe.io.Path.join([testDir, INTENDED_DIR]);
+	var intendedFolder = haxe.io.Path.join([testDir, INTENDED_DIR]);
 	final outFolder = haxe.io.Path.join([testDir, OUT_DIR]);
 	if(!sys.FileSystem.exists(intendedFolder)) {
-		printFailed("Intended folder does not exist?");
-		return false;
+		// If the normal intended folder doesn't exist,
+		// let's check for the system-specific one.
+		final intendedFolderSys = haxe.io.Path.join([testDir, INTENDED_DIR + "-" + Sys.systemName()]);
+		if(!sys.FileSystem.exists(intendedFolderSys)) {
+			printFailed("Intended folder does not exist?");
+			return false;
+		} else {
+			intendedFolder = intendedFolderSys;
+		}
 	}
 	final files = getAllFiles(intendedFolder);
 	final errors = [];
