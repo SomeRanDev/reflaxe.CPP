@@ -44,7 +44,12 @@ class Compiler_Reflection extends SubCompiler {
 
 	public function compileClassReflection(clsRef: Ref<ClassType>): String {
 		final cls = clsRef.get();
-		final cpp = TComp.compileClassName(clsRef, PositionHelper.unknownPos(), null, true, true);
+
+		var cpp = TComp.compileClassName(clsRef, PositionHelper.unknownPos(), null, true, true);
+		if(cls.params.length > 0) {
+			cpp += "<" + cls.params.map(p -> p.name).join(", ") + ">";
+		}
+		final paramsCpp = cls.params.map(p -> "typename " + p.name).join(", ");
 
 		final instanceFields = cls.fields.get().map(f -> Main.compileVarName(f.name));
 		final staticFields = cls.statics.get().map(f -> Main.compileVarName(f.name));
@@ -65,7 +70,7 @@ class Compiler_Reflection extends SubCompiler {
 			fields.join(", ");
 		}
 
-		return 'template<> struct _class<${cpp}> {
+		return 'template<${paramsCpp}> struct _class<${cpp}> {
 	DEFINE_CLASS_TOSTRING
 	constexpr static _class_data<${ic}, ${sc}> data {${fieldsCpp}};
 };';
