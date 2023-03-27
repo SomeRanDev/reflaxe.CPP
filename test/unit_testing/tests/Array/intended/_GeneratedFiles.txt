@@ -1,9 +1,17 @@
 src/_main_.cpp
+src/Sys.cpp
 src/Main.cpp
 include/ucpp_DynamicToString.h
+include/haxe_iterators_MapKeyValueIterator.h
+include/haxe_iterators_ArrayIterator.h
+include/haxe_ds_StringMap.h
 include/haxe_PosInfos.h
+include/haxe_Constraints.h
 include/_AnonUtils.h
 include/_AnonStructs.h
+include/Sys.h
+include/StdTypes.h
 include/Std.h
+include/Map.h
 include/Main.h
 include/HxArray.h

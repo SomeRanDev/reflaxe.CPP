@@ -21,6 +21,11 @@ struct DynamicToString: public std::string {
 
     template<typename T>
     static std::string ToString(T s) {
+		if constexpr(std::is_pointer<T>::value) {
+			if(s == nullptr) {
+				return "nullptr";
+			}
+		}
         if constexpr(haxe::optional_info<T>::isopt) {
 			if(s.has_value()) {
 				return ToString(s.value());

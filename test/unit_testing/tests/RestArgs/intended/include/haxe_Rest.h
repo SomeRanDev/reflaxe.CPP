@@ -6,7 +6,7 @@
 namespace haxe::_Rest {
 
 template<typename T>
-using NativeRest = std::deque<T>;
+using NativeRest = std::shared_ptr<std::deque<T>>;
 
 }
 
@@ -16,7 +16,7 @@ namespace haxe::_Rest {
 class Rest_Impl_ {
 public:
 	template<typename T>
-	static std::shared_ptr<haxe::_Rest::NativeRest<T>> append(std::shared_ptr<haxe::_Rest::NativeRest<T>> this1, T item) {
+	static haxe::_Rest::NativeRest<T> append(haxe::_Rest::NativeRest<T> this1, T item) {
 		std::shared_ptr<std::deque<T>> tempArray;
 		
 		{
@@ -37,14 +37,14 @@ public:
 		
 		result->push_back(item);
 		
-		std::shared_ptr<haxe::_Rest::NativeRest<T>> this2 = result;
-		std::shared_ptr<haxe::_Rest::NativeRest<T>> tempResult = this2;
+		haxe::_Rest::NativeRest<T> this2 = result;
+		haxe::_Rest::NativeRest<T> tempResult = this2;
 		
 		return tempResult;
 	}
 	
 	template<typename T>
-	static std::shared_ptr<haxe::_Rest::NativeRest<T>> prepend(std::shared_ptr<haxe::_Rest::NativeRest<T>> this1, T item) {
+	static haxe::_Rest::NativeRest<T> prepend(haxe::_Rest::NativeRest<T> this1, T item) {
 		std::shared_ptr<std::deque<T>> tempArray;
 		
 		{
@@ -65,8 +65,8 @@ public:
 		
 		result->push_front(item);
 		
-		std::shared_ptr<haxe::_Rest::NativeRest<T>> this2 = result;
-		std::shared_ptr<haxe::_Rest::NativeRest<T>> tempResult = this2;
+		haxe::_Rest::NativeRest<T> this2 = result;
+		haxe::_Rest::NativeRest<T> tempResult = this2;
 		
 		return tempResult;
 	}
