@@ -530,9 +530,9 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 					if(hasParams) {
 						content += "template<" + defType.params.map(p -> "typename " + p.name).join(", ") + ">\n";
 					}
-					content += "using " + typedefName + " = " + TComp.compileType(defType.type, defType.pos, true) + ";\n";
+					content += "using " + typedefName + " = " + TComp.compileType(defType.type, defType.pos) + ";\n";
 				} else {
-					content += "typedef " + TComp.compileType(defType.type, defType.pos, true) + " " + typedefName + ";\n";
+					content += "typedef " + TComp.compileType(defType.type, defType.pos) + " " + typedefName + ";\n";
 				}
 			}
 		}
