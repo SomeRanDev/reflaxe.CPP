@@ -20,9 +20,23 @@ extern class Stdlib {
 	@:include("cstdlib", true)
 	public static extern function getEnv(c: ucpp.ConstCharPtr): ucpp.Ptr<ucpp.Char>;
 
+	#if windows
+
 	@:native("putenv")
 	@:include("cstdlib", true)
 	public static extern function putEnv(input: ucpp.Ptr<ucpp.Char>): Int;
+
+	#elseif (linux || mac)
+
+	@:native("setenv")
+	@:include("stdlib.h", true)
+	public static extern function setEnv(envName: ucpp.ConstCharPtr, envVal: ucpp.ConstCharPtr, overwrite: Int): Int;
+
+	@:native("unsetenv")
+	@:include("stdlib.h", true)
+	public static extern function unsetEnv(envName: ucpp.ConstCharPtr): Int;
+
+	#end
 
 	@:native("std::this_thread::sleep_for")
 	@:include("thread", true)

@@ -38,8 +38,18 @@ extern class Sys {
 	}
 
 	public static extern inline function putEnv(s: String, v: String): Void {
+		#if windows
 		final inputAssign = (s + "=" + v);
 		ucpp.Stdlib.putEnv(@:privateAccess inputAssign.data());
+		#elseif (mac || linux)
+		if(v.length == 0) {
+			ucpp.Stdlib.unsetEnv(@:privateAccess s.c_str());
+		} else {
+			ucpp.Stdlib.setEnv(@:privateAccess s.c_str(), @:privateAccess v.c_str(), 1);
+		}
+		#else
+		throw "A platform define must be made to use Sys.putEnv. Add -D windows, -D linux, or -D mac to your Haxe project.";
+		#end
 	}
 
 	// public static extern inline function environment(): Map<String, String> {
