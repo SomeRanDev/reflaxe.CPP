@@ -170,13 +170,6 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 	for(hxml in hxmlFiles) {
 		final absPath = haxe.io.Path.join([testDir, hxml]);
 		final systemNameDefine = Sys.systemName().toLowerCase();
-		final outDir = if(UpdateIntendedSys) {
-			INTENDED_DIR + "-" + Sys.systemName();
-		} else if(UpdateIntended) {
-			INTENDED_DIR;
-		} else {
-			OUT_DIR;
-		}
 		final args = [
 			"--no-opt",
 			"-cp std",
@@ -185,7 +178,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"-lib reflaxe",
 			"extraParams.hxml",
 			"-cp " + testDir,
-			"-D cpp-output=" + haxe.io.Path.join([testDir, outDir]),
+			"-D cpp-output=" + haxe.io.Path.join([testDir, getOutputDirectory(testDir)]),
 			"-D " + systemNameDefine,
 			"\"" + absPath + "\""
 		];
@@ -214,6 +207,21 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 	}
 }
 
+function getOutputDirectory(testDir: String): String {
+	final sysDir = INTENDED_DIR + "-" + Sys.systemName();
+	return if(UpdateIntendedSys) {
+		sysDir;
+	} else if(UpdateIntended) {
+		if(sys.FileSystem.exists(haxe.io.Path.join([testDir, sysDir]))) {
+			sysDir;
+		} else {
+			INTENDED_DIR;
+		}
+	} else {
+		OUT_DIR;
+	}
+}
+
 function onProcessFail(process: sys.io.Process, hxml: String, ec: Int, stdoutContent: String, stderrContent: String) {
 	final info = [];
 	info.push(".hxml File:\n" + hxml);
@@ -235,19 +243,19 @@ function onProcessFail(process: sys.io.Process, hxml: String, ec: Int, stdoutCon
 }
 
 function compareOutputFolders(testDir: String): Bool {
-	var intendedFolder = haxe.io.Path.join([testDir, INTENDED_DIR]);
 	final outFolder = haxe.io.Path.join([testDir, OUT_DIR]);
-	if(!sys.FileSystem.exists(intendedFolder)) {
-		// If the normal intended folder doesn't exist,
-		// let's check for the system-specific one.
-		final intendedFolderSys = haxe.io.Path.join([testDir, INTENDED_DIR + "-" + Sys.systemName()]);
-		if(!sys.FileSystem.exists(intendedFolderSys)) {
-			printFailed("Intended folder does not exist?");
-			return false;
-		} else {
-			intendedFolder = intendedFolderSys;
-		}
+	final intendedFolderSys = haxe.io.Path.join([testDir, INTENDED_DIR + "-" + Sys.systemName()]);
+	final intendedFolder = if(sys.FileSystem.exists(intendedFolderSys)) {
+		intendedFolderSys;
+	} else {
+		haxe.io.Path.join([testDir, INTENDED_DIR]);
 	}
+
+	if(!sys.FileSystem.exists(intendedFolder)) {
+		printFailed("Intended folder does not exist?");
+		return false;
+	}
+
 	final files = getAllFiles(intendedFolder);
 	final errors = [];
 	for(f in files) {
