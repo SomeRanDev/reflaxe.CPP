@@ -21,12 +21,11 @@ class Main {
 
 		final key = "Haxe2UC++ Test Value";
 		final val = "test-value=" + (Std.random(10));
+
+		assert(Sys.getEnv(key) == null);
 		Sys.putEnv(key, val);
-
 		assert(Sys.getEnv("Haxe2UC++ Test Value") == val);
-
 		Sys.putEnv(key, "");
-
 		assert(Sys.getEnv(key) == null);
 
 		if(returnCode != 0) {
