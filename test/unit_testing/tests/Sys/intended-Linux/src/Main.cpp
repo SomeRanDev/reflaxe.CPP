@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <iostream>
 #include <memory>
+#include <stdlib.h>
 #include <string>
 #include "_AnonStructs.h"
 #include "haxe_Log.h"
@@ -52,16 +53,10 @@ void Main::main() {
 	};
 	
 	std::string val = "test-value="s + std::to_string(tempRight);
-	
-	{
-		std::string inputAssign = key + "="s + val;
-		putenv(inputAssign.data());
-	};
-	
 	std::optional<std::string> tempLeft;
 	
 	{
-		char* result = std::getenv("Haxe2UC++ Test Value"s.c_str());
+		char* result = std::getenv(key.c_str());
 		if(result == nullptr) {
 			tempLeft = std::nullopt;
 		} else {
@@ -69,17 +64,18 @@ void Main::main() {
 		};
 	};
 	
-	Main::assert(tempLeft == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 26, "main"s));
+	Main::assert(!tempLeft.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 25, "main"s));
 	
-	{
-		std::string inputAssign = key + "="s + ""s;
-		putenv(inputAssign.data());
+	if(val.length() == 0) {
+		unsetenv(key.c_str());
+	} else {
+		setenv(key.c_str(), val.c_str(), 1);
 	};
 	
 	std::optional<std::string> tempLeft1;
 	
 	{
-		char* result = std::getenv(key.c_str());
+		char* result = std::getenv("Haxe2UC++ Test Value"s.c_str());
 		if(result == nullptr) {
 			tempLeft1 = std::nullopt;
 		} else {
@@ -87,7 +83,26 @@ void Main::main() {
 		};
 	};
 	
-	Main::assert(!tempLeft1.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 30, "main"s));
+	Main::assert(tempLeft1 == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 27, "main"s));
+	
+	if(""s.length() == 0) {
+		unsetenv(key.c_str());
+	} else {
+		setenv(key.c_str(), ""s.c_str(), 1);
+	};
+	
+	std::optional<std::string> tempLeft2;
+	
+	{
+		char* result = std::getenv(key.c_str());
+		if(result == nullptr) {
+			tempLeft2 = std::nullopt;
+		} else {
+			tempLeft2 = std::string(result);
+		};
+	};
+	
+	Main::assert(!tempLeft2.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 29, "main"s));
 	
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
