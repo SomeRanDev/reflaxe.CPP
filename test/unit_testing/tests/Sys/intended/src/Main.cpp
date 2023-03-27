@@ -53,7 +53,10 @@ void Main::main() {
 	
 	std::string testStr = "test-value="s + std::to_string(tempRight);
 	
-	putenv(("Haxe2UC++ Test Value"s + "="s + testStr).c_str());
+	{
+		std::string inputAssign = "Haxe2UC++ Test Value"s + "="s + testStr;
+		putenv(inputAssign.data());
+	};
 	
 	std::optional<std::string> tempLeft;
 	
@@ -67,7 +70,11 @@ void Main::main() {
 	};
 	
 	Main::assert(tempLeft == testStr, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 25, "main"s));
-	putenv(("Haxe2UC++ Test Value"s + "="s + ""s).c_str());
+	
+	{
+		std::string inputAssign = "Haxe2UC++ Test Value"s + "="s + ""s;
+		putenv(inputAssign.data());
+	};
 	
 	std::optional<std::string> tempLeft1;
 	

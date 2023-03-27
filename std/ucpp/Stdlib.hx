@@ -22,7 +22,7 @@ extern class Stdlib {
 
 	@:native("putenv")
 	@:include("stdlib.h", true)
-	public static extern function setEnv(input: ucpp.ConstCharPtr): Void;
+	public static extern function putEnv(input: ucpp.Ptr<ucpp.Char>): Void;
 
 	@:native("std::this_thread::sleep_for")
 	@:include("thread", true)

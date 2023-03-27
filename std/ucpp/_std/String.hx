@@ -103,4 +103,5 @@ extern class String {
 	// ----------
 	// Native string functions
 	private function c_str(): ucpp.ConstCharPtr;
+	private function data(): ucpp.Ptr<ucpp.Char>;
 }
