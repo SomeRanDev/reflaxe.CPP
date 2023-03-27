@@ -182,11 +182,17 @@ class Compiler_Types extends SubCompiler {
 					}
 				}
 			}
+			case TType(defRef, params) if(t.isAnonStructOrNamedStruct()): {
+				compileDefName(defRef, pos, params, true, asValue);
+			}
 			case TType(defRef, params): {
 				if(t.isRef()) {
 					compileType(params[0], pos) + "&";
 				} else {
-					compileDefName(defRef, pos, params, true, asValue);
+					// Always compile as value. The memory management type is
+					// already applied to the type the typedef transforms into.
+					final mm = defRef.get().hasMemoryManagementType() ? asValue : true;
+					compileDefName(defRef, pos, params, true, mm);
 				}
 			}
 		}
