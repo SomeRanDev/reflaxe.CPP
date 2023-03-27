@@ -19,6 +19,15 @@ class Main {
 
 		trace(ucpp.std.FileSystem.currentPath());
 
+		final testStr = "test-value=" + (Std.random(10));
+		Sys.putEnv("Haxe2UC++ Test Value", testStr);
+
+		assert(Sys.getEnv("Haxe2UC++ Test Value") == testStr);
+
+		Sys.putEnv("Haxe2UC++ Test Value", "");
+
+		assert(Sys.getEnv("Haxe2UC++ Test Value") == null);
+
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
 		}

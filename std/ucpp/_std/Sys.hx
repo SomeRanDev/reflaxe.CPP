@@ -24,7 +24,7 @@ extern class Sys {
 	}
 
 	public static extern inline function putEnv(s: String, v: String): Void {
-		ucpp.Stdlib.setEnv(@:privateAccess s.c_str(), @:privateAccess v.c_str());
+		ucpp.Stdlib.setEnv(@:privateAccess (s + "=" + v).c_str());
 	}
 
 	// public static extern inline function environment(): Map<String, String> {
