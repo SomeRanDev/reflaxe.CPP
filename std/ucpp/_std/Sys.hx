@@ -1,10 +1,24 @@
 package;
 
-// class SysImpl {
-// 	public static function environment(): Map<String, String> {
-// 		return [];
-// 	}
-// }
+class SysImpl {
+	public static function environment(): Map<String, String> {
+		return [];
+	}
+
+	public static function systemName(): String {
+		untyped __ucpp__("#if defined(_WIN32)
+return \"Windows\";
+#elif defined(BSD)
+return \"BSD\";
+#elif defined(__linux__)
+return \"Linux\";
+#elif defined(__APPLE__) && defined(__MACH__)
+return \"Mac\";
+#endif
+");
+		return "";
+	}
+}
 
 @:require(sys)
 extern class Sys {
@@ -42,7 +56,11 @@ extern class Sys {
 
 	static function getCwd(): String;
 	static function setCwd(s: String): Void;
-	static function systemName(): String;
+
+	public static extern inline function systemName(): String {
+		return SysImpl.systemName();
+	}
+
 	static function command(cmd: String, ?args: Array<String>): Int;
 
 	@:native("exit")
