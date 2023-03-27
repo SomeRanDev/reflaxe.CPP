@@ -49,6 +49,10 @@ class UMeta {
 			SharedPtr;
 		}
 	}
+
+	public static function hasMemoryManagementType(meta: NameAndMeta): Bool {
+		return meta.hasMeta(":valueType") || meta.hasMeta(":unsafePtrType") || meta.hasMeta(":uniquePtrType") || meta.hasMeta(":sharedPtrType");
+	}
 }
 
 #end
