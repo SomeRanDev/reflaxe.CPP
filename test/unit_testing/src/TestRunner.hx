@@ -167,6 +167,7 @@ function printFailed(msg: Null<String> = null) {
 function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 	for(hxml in hxmlFiles) {
 		final absPath = haxe.io.Path.join([testDir, hxml]);
+		final systemNameDefine = Sys.systemName().toLowerCase();
 		final args = [
 			"--no-opt",
 			"-cp std",
@@ -176,6 +177,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"extraParams.hxml",
 			"-cp " + testDir,
 			"-D cpp-output=" + haxe.io.Path.join([testDir, UpdateIntended ? INTENDED_DIR : OUT_DIR]),
+			"-D " + systemNameDefine,
 			"\"" + absPath + "\""
 		];
 		final process = new sys.io.Process("haxe " + args.join(" "));
