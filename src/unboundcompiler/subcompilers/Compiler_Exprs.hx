@@ -585,10 +585,10 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	inline function compileForEqualityBinop(e: TypedExpr) {
-		return if(Main.getExprType(e).getMeta().maybeHas(":valueEquality")) {
-			compileExpressionAsValue(e);
-		} else {
+		return if(Main.getExprType(e).getMeta().maybeHas(":directEquality")) {
 			Main.compileExpressionOrError(e);
+		} else {
+			compileExpressionAsValue(e);
 		}
 	}
 
