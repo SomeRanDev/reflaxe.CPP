@@ -36,6 +36,8 @@ import unboundcompiler.subcompilers.Compiler_Types;
 
 import unboundcompiler.other.DependencyTracker;
 
+using unboundcompiler.helpers.UType;
+
 class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// ----------------------------
 	// The extension for the generated header files.
@@ -124,6 +126,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// Called after all module types have
 	// been passed to this compiler class.
 	public override function onCompileEnd() {
+		compileAllTypedefs();
 		generateReflectionInfo();
 		generateAnonStructHeader();
 		generateTypeUtilsHeader();
@@ -490,18 +493,48 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	}
 
 	// ----------------------------
-	// Compiles an typedef into C++.
+	// Stores typedef to be compiled later.
+	var typedefs: Array<{ defType: DefType, mt: ModuleType, filename: String, dep: DependencyTracker }> = [];
 	public override function compileTypedef(defType: DefType): Null<String> {
+		final filename = getFileNameFromModuleData(defType);
+		final mt = getCurrentModule();
+
+		typedefs.push({
+			defType: defType,
+			mt: mt,
+			filename: filename,
+			dep: DependencyTracker.make(mt, filename)
+		});
+
+		return null;
+	}
+
+	// ----------------------------
+	// Compiles an typedef into C++.
+	public function compileAllTypedefs() {
+		for(t in typedefs) {
+			compileTypedefImpl(t.defType, t.mt, t.filename, t.dep);
+		}
+	}
+
+	public function compileTypedefImpl(defType: DefType, mt: ModuleType, filename: String, dep: DependencyTracker): Null<String> {
 		if(defType.hasMeta(":extern")) {
 			return null;
+		}
+
+		final t = switch(mt) {
+			case TTypeDecl(defRef): TType(defRef, []);
+			case _: throw "Impossible";
 		}
 
 		// Check & compile code from @:headerCode and @:cppFileCode.
 		compileFileCodeMeta(defType);
 
-		// Get filename for this typedef
-		final filename = getFileNameFromModuleData(defType);
+		// Header filename
 		final headerFilename = filename + HeaderExt;
+
+		// Track dependencies
+		setCurrentDep(dep);
 
 		// Init includes
 		IComp.resetAndInitIncludes(true, [headerFilename]);
@@ -556,7 +589,12 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilePath, IComp.compileHeaderIncludes(), 1);
 
 		// Output typedef
-		appendToExtraFile(headerFilePath, content + "\n", 2);
+		addCompileEndCallback(function() {
+			appendToExtraFile(headerFilePath, content, dep.getPriority());
+		});
+
+		// Clear the dependency tracker.
+		clearDep();
 
 		return null;
 	}
