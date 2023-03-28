@@ -47,6 +47,11 @@ class UType {
 			return false;
 		}
 
+		// If they are both anon structs, we handle mm in AComp.compileObjectDecl later.
+		if(inner.isAnonStruct() && innerOther.isAnonStruct()) {
+			return false;
+		}
+
 		// If converting to Dynamic, do not convert.
 		if(innerOther.isDynamic()) {
 			return false;
