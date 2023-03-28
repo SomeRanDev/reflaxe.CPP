@@ -61,6 +61,18 @@ class Compiler_Anon extends SubCompiler {
 					case _: null;
 				}
 			}
+			case TAnonymous(anonRef): {
+				final anonFieldsType: Array<AnonField> = [];
+				for(field in anonRef.get().fields) {
+					anonFieldsType.push({
+						name: field.name,
+						type: field.type,
+						optional: field.type.isNull(),
+						pos: field.pos
+					});
+				}
+				findAnonStruct(anonFieldsType);
+			}
 			case _: null;
 		}
 
