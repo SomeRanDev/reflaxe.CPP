@@ -197,6 +197,15 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			// Redirect "tvar" type
 			case TLocal(tvar): getTVarType(tvar);
 
+			// Get the internal type for a cast
+			case TCast(castExpr, mt): {
+				if(mt == null) {
+					getExprType(castExpr);
+				} else {
+					e.t;
+				}
+			}
+
 			// For some reason, `e.t` is inaccurate when typing a TField expression.
 			//
 			// This ensures the type attached to the field declaration is used,
