@@ -26,5 +26,6 @@ extern class Map<T, U> {
 @:typenamePrefixIfDependentScope
 @:valueType
 @:noInclude
+@:directEquality
 extern abstract MapIterator<T, U>(ucpp.Ptr<ucpp.std.Pair<T, U>>) from ucpp.Ptr<ucpp.std.Pair<T, U>> to ucpp.Ptr<ucpp.std.Pair<T, U>> {
 }
