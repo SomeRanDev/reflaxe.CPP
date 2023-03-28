@@ -37,8 +37,6 @@ public:
 	}
 };
 
-
-
 class Std {
 public:
 	static std::string string(haxe::DynamicToString s) {

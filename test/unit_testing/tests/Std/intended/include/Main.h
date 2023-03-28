@@ -28,6 +28,8 @@ public:
 	}
 };
 
+
+
 class ChildClass: public BaseClass {
 public:
 	ChildClass();
@@ -48,8 +50,6 @@ public:
 		return _order_id < other._order_id;
 	}
 };
-
-
 
 class AnotherClass {
 public:

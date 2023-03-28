@@ -47,7 +47,7 @@ void Main::main() {
 	
 	std::shared_ptr<Main> obj = std::make_shared<Main>();
 	
-	Main::assert(obj == obj, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 39, "main"s));
+	Main::assert((*obj) == (*obj), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 39, "main"s));
 	Main::assert(obj->testField == 123, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 40, "main"s));
 	
 	std::string str = "World"s;

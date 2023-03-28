@@ -10,7 +10,6 @@ using NativeRest = std::shared_ptr<std::deque<T>>;
 
 }
 
-
 namespace haxe::_Rest {
 
 class Rest_Impl_ {
