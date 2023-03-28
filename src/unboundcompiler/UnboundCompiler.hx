@@ -633,9 +633,35 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	public function getTypedefInner(t: Type): Type {
 		return switch(t) {
 			case TType(defRef, _): {
+				// In a rare case of conflicting memory management types:
+				//
+				// typedef MyClassPtr = ucpp.Ptr<MyClass>;
+				// typedef MyClassPtrVal = ucpp.Value<MyClassPtr>; // ucpp.Value<ucpp.Ptr<MyClass>> ???
+				//
+				// We assume the highest-level memory management type is desired.
+				// As such, `MyClassPtrVal` should actually be treated like `ucpp.Value<MyClass>`.
+				//
+				// This code achieves this by recusively iterating through each typedef and
+				// checking if is has an "internal type" that's a typedef, and using that
+				// internal type instead of the original memory-managed-wrapped type.
+				final defType = defRef.get();
+				final internal = defType.type.getInternalType();
+				if(!defType.type.isTypedef() && internal.isTypedef()) {
+					final unwrapped = switch(internal) {
+						case TType(defRef2, _): {
+							getTypedefInner(internal).getInternalType();
+						}
+						case _: {
+							internal;
+						}
+					}
+					return defType.type.replaceInternalType(unwrapped);
+				}
+
+				// Otherwise, let's just return the inner typedef type.
 				defRef.get().type;
 			}
-			case _: throw"Non-typedef passed to UnboundCompiler.getTypedefInner";
+			case _: throw "Non-typedef passed to UnboundCompiler.getTypedefInner";
 		}
 	}
 
