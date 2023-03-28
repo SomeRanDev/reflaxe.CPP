@@ -535,13 +535,13 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			}
 			case _: {
 				final hasParams = defType.params.length > 0;
-				if(hasParams || defType.hasMeta(":cppUsing")) {
+				if(hasParams || !defType.hasMeta(":cppTypedef")) {
 					if(hasParams) {
 						content += "template<" + defType.params.map(p -> "typename " + p.name).join(", ") + ">\n";
 					}
-					content += "using " + typedefName + " = " + TComp.compileType(defType.type, defType.pos) + ";\n";
+					content += "using " + typedefName + " = " + TComp.compileType(getTypedefInner(t), defType.pos) + ";\n";
 				} else {
-					content += "typedef " + TComp.compileType(defType.type, defType.pos) + " " + typedefName + ";\n";
+					content += "typedef " + TComp.compileType(getTypedefInner(t), defType.pos) + " " + typedefName + ";\n";
 				}
 			}
 		}
