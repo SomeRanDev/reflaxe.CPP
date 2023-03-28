@@ -9,6 +9,7 @@ var ShowAllOutput = false;
 var UpdateIntended = false;
 var UpdateIntendedSys = false;
 var NoDetails = false;
+var PrintCommand = false;
 
 function printlnErr(msg: String) {
 	Sys.stderr().writeString(msg + "\n", haxe.io.Encoding.UTF8);
@@ -45,6 +46,9 @@ The list of C++ output lines that do not match the tests are ommitted from the o
 * dev-mode
 Enables `always-compile`, `show-all-output`, and `no-details`.
 
+* print-command
+Prints the Haxe commands instead of running them.
+
 * test=TestName
 Makes it so only this test is ran. This option can be added multiple times to perform multiple tests.");
 
@@ -55,6 +59,7 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 	UpdateIntended = args.contains("update-intended");
 	UpdateIntendedSys = args.contains("update-intended-sys");
 	NoDetails = args.contains("no-details");
+	PrintCommand = args.contains("print-command");
 
 	var alwaysCompile = args.contains("always-compile");
 
@@ -182,6 +187,12 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"-D " + systemNameDefine,
 			"\"" + absPath + "\""
 		];
+
+		if(PrintCommand) {
+			Sys.println("Command:\nhaxe " + args.join(" "));
+			return true;
+		}
+
 		final process = new sys.io.Process("haxe " + args.join(" "));
 		final _out = process.stdout.readAll();
 		final _in = process.stderr.readAll();
