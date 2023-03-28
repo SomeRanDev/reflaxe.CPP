@@ -113,7 +113,7 @@ class DependencyTracker {
 		for(d in dependencies) {
 			if(d.id != id) {
 				final p = d.getPriority();
-				if(result < p) {
+				if(result <= p) {
 					result = p + 1;
 				} else if(p == -1) {
 					return -1;
