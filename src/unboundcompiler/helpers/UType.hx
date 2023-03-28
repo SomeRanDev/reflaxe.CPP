@@ -88,6 +88,23 @@ class UType {
 	}
 
 	// ----------------------------
+	public static function replaceInternalType(t: Type, replacement: Type): Type {
+		switch(t) {
+			case TAbstract(absRef, params): {
+				final abs = absRef.get();
+				if(abs.name == "Null" && params.length == 1) {
+					return TAbstract(absRef, [replaceInternalType(params[0], replacement)]);
+				}
+				if(abs.isOverrideMemoryManagement() && params.length == 1) {
+					return TAbstract(absRef, [replaceInternalType(params[0], replacement)]);
+				}
+			}
+			case _:
+		}
+		return replacement;
+	}
+
+	// ----------------------------
 	public static function isAnonStructOrNamedStruct(t: Type) {
 		final it = getInternalType(t);
 		if(it.isAnonStruct()) {
