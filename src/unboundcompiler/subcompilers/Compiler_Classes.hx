@@ -32,27 +32,37 @@ using unboundcompiler.helpers.UMeta;
 @:access(unboundcompiler.subcompilers.Compiler_Includes)
 @:access(unboundcompiler.subcompilers.Compiler_Types)
 class Compiler_Classes extends SubCompiler {
+	var classType: ClassType;
+
+	var variables: Array<String> = [];
+	var functions: Array<String> = [];
+	var topLevelFunctions: Array<String> = [];
+	var cppVariables: Array<String> = [];
+	var cppFunctions: Array<String> = [];
+
+	var extendedFrom: Array<String> = [];
+
+	var fieldsCompiled = 0;
+
+	var classTypeRef: Null<Ref<ClassType>> = null;
+	var className: String = "";
+	var classNameNS: String = "";
+
+	// Used in autogen and extension classes
+	var classNameWParams: String = "";
+
+	var filename: String = "";
+
+	var dep: Null<DependencyTracker> = null;
+
+	var headerOnly: Bool = false;
+	var noAutogen: Bool = false;
+
+	var headerContent: Array<String> = [];
+
 	public function compileClass(classType: ClassType, varFields: ClassFieldVars, funcFields: ClassFieldFuncs): Null<String> {
 		// Init variables
-		final variables = [];
-		final functions = [];
-		final topLevelFunctions = [];
-		final cppVariables = [];
-		final cppFunctions = [];
-		final classTypeRef = switch(Main.getCurrentModule()) {
-			case TClassDecl(c): c;
-			case _: throw "Impossible";
-		}
-		final className = TComp.compileClassName(classTypeRef, classType.pos, null, false, true);
-		var classNameNS = TComp.compileClassName(classTypeRef, classType.pos, null, true, true);
-		if(classNameNS.length > 0) classNameNS += "::";
-
-		final filename = Main.getFileNameFromModuleData(classType);
-
-		final dep = DependencyTracker.make(TClassDecl(classTypeRef), filename);
-		Main.setCurrentDep(dep);
-
-		var headerOnly = classType.isHeaderOnly();
+		initFields(classType);
 
 		// Init includes
 		IComp.resetAndInitIncludes(headerOnly, [filename + UnboundCompiler.HeaderExt]);
@@ -68,22 +78,20 @@ class Compiler_Classes extends SubCompiler {
 			}
 		}
 
-		final header = ["", "", ""];
+		headerContent = ["", "", ""];
 
 		// Meta
 		final clsMeta = Main.compileMetadata(classType.meta, MetadataTarget.Class);
-		header[0] += clsMeta;
+		headerContent[0] += clsMeta;
 
 		// Template generics
 		if(classType.params.length > 0) {
 			headerOnly = true;
-			header[0] += "template<" + classType.params.map(p -> "typename " + p.name).join(", ") + ">\n";
+			headerContent[0] += "template<" + classType.params.map(p -> "typename " + p.name).join(", ") + ">\n";
 		}
 
 		// Class declaration
-		header[0] += "class " + className;
-
-		final extendedFrom = [];
+		headerContent[0] += "class " + className;
 
 		if(classType.superClass != null) {
 			final superType = classType.superClass.t;
@@ -109,229 +117,307 @@ class Compiler_Classes extends SubCompiler {
 		// However, some additional extendedFrom classes may be required based on the compiled expressions.
 		// So we delay this until later.
 
-		header[2] += " {\npublic:\n";
-
-		var fieldsCompiled = 0;
+		headerContent[2] += " {\npublic:\n";
 
 		// Instance vars
 		for(v in varFields) {
-			final field = v.field;
-			final isStatic = v.isStatic;
-			final addToCpp = !headerOnly && isStatic;
-			final varName = Main.compileVarName(field.name, null, field);
-			final cppVal = if(field.expr() != null) {
-				XComp.compilingInHeader = headerOnly;
-				XComp.compilingForTopLevel = addToCpp;
-
-				// Note to self: should I be using: `Main.compileClassVarExpr(field.expr())`?
-				final result = XComp.compileExpressionForType(field.expr(), field.type, true);
-
-				XComp.compilingForTopLevel = false;
-
-				result == null ? "" : result;
-			} else {
-				"";
-			}
-
-			Main.onTypeEncountered(field.type, true);
-
-			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
-			final assign = (cppVal.length == 0 ? "" : (" = " + cppVal));
-			final type = TComp.compileType(field.type, field.pos, false, true);
-			var decl = meta + (isStatic ? "static " : "") + type + " " + varName;
-			if(!addToCpp) {
-				decl += assign;
-			}
-			variables.push(decl + ";");
-
-			if(addToCpp) {
-				cppVariables.push(type + " " + classNameNS + varName + assign + ";");
-			}
-
-			fieldsCompiled++;
+			compileVar(v);
 		}
-
-		final noAutogen = classType.hasMeta(":noAutogen");
 
 		// Class functions
 		for(f in funcFields) {
-			final field = f.field;
-			final data = f.data;
-
-			final isStatic = f.isStatic;
-			final isDynamic = f.kind == MethDynamic;
-			final isAbstract = field.isAbstract || classType.isInterface;
-			final isInstanceFunc = !isStatic && !isDynamic;
-
-			final isConstructor = isInstanceFunc && field.name == "new";
-			final isDestructor = isInstanceFunc && field.name == "destructor";
-			final useReturnType = !isConstructor && !isDestructor;
-			final name = if(isConstructor) {
-				className;
-			} else if(isDestructor) {
-				"~" + className;
-			} else {
-				Main.compileVarName(field.name);
-			}
-
-			var addToCpp = !headerOnly && !isAbstract;
-
-			if(data.ret != null) {
-				Main.onTypeEncountered(data.ret, true);
-			}
-			for(a in data.args) {
-				Main.onTypeEncountered(a.t, true);
-			}
-
-			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
-			final ret = if(data.ret == null) {
-				"void";
-			} else if(data.ret.isDynamic()) {
-				"auto";
-			} else {
-				final covariant = ClassHierarchyTracker.funcGetCovariantBaseType(classType, field, isStatic);
-				if(covariant != null) {
-					TComp.compileType(covariant, field.pos, false, true);
-				} else {
-					TComp.compileType(data.ret, field.pos, false, true);
-				}
-			}
-
-			var prefixNames = [];
-			if(isStatic) prefixNames.push("static");
-			if(isAbstract) prefixNames.push("virtual");
-			final prefix = prefixNames.length > 0 ? (prefixNames.join(" ") + " ") : "";
-
-			if(isDynamic) {
-				IComp.addInclude("functional", true, true);
-
-				final dynAddToCpp = !headerOnly && isStatic;
-				XComp.compilingInHeader = !dynAddToCpp;
-				XComp.compilingForTopLevel = true;
-				final callable = Main.compileClassVarExpr(field.expr());
-				XComp.compilingForTopLevel = false;
-				final assign = " = " + callable;
-				final type = "std::function<" + ret + "(" + data.args.map(a -> {
-					return TComp.compileType(a.t, field.pos, false, true);
-				}).join(", ") + ")>";
-				var decl = meta + prefix + type + " " + name;
-				if(!dynAddToCpp) {
-					decl += assign;
-				}
-				variables.push(decl + ";");
-	
-				if(dynAddToCpp) {
-					cppVariables.push(type + " " + classNameNS + name + assign);
-				}
-
-				fieldsCompiled++;
-			} else {
-				final topLevel = field.hasMeta(":topLevel");
-				if(topLevel) {
-					if(isConstructor) {
-						field.pos.makeError(TopLevelConstructor);
-					} else if(!isStatic) {
-						field.pos.makeError(TopLevelInstanceFunction);
-					}
-				}
-
-				final retDecl = (useReturnType ? (ret + " ") : "");
-
-				TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
-
-				final argCpp = if(data.tfunc != null) {
-					data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, false, false, true));
-				} else {
-					data.args.map(a -> Main.compileFunctionArgumentData(a, null, field.pos, false, false, true));
-				}
-				final argDecl = "(" + argCpp.join(", ") + ")";
-
-				final templateTypes = field.params.map(f -> f.name).concat(TComp.disableDynamicToTemplate());
-				final templateDecl = if(templateTypes.length > 0) {
-					addToCpp = false;
-					"template<" + templateTypes.map(t -> "typename " + t).join(", ") + ">\n";
-				} else {
-					"";
-				}
-
-				XComp.pushReturnType(data.ret);
-				final funcDeclaration = meta + (topLevel ? "" : prefix) + retDecl + name + argDecl;
-				var content = if(data.expr != null) {
-					XComp.compilingInHeader = !addToCpp;
-
-					// Use initialization list to set _order_id in constructor.
-					final prefix = if(isConstructor && !noAutogen) {
-						": _order_id(generate_order_id())";
-					} else {
-						"";
-					}
-
-					prefix + " {\n" + Main.compileClassFuncExpr(data.expr).tab() + "\n}";
-				} else {
-					"";
-				}
-				XComp.popReturnType();
-				
-				if(addToCpp) {
-					(topLevel ? topLevelFunctions : functions).push(funcDeclaration + ";");
-
-					final argCpp = if(data.tfunc != null) {
-						data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, true));
-					} else {
-						data.args.map(a -> Main.compileFunctionArgumentData(a, null, field.pos, true));
-					}
-					final cppArgDecl = "(" + argCpp.join(", ") + ")";
-					cppFunctions.push(retDecl + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
-				} else {
-					functions.push(templateDecl + funcDeclaration + (isAbstract ? " = 0;" : content));
-				}
-
-				if(!topLevel) {
-					fieldsCompiled++;
-				}
-			}
+			compileFunction(f);
 		}
 
 		XComp.compilingInHeader = false;
 
-		// Used in autogen and extension classes
-		final classNameWParams = className + if(classType.params.length > 0) {
+		generateOutput();
+
+		// Let the reflection compiler know this class was compiled.
+		RComp.addCompiledModuleType(Main.getCurrentModule());
+
+		// Clear the dependency tracker.
+		Main.clearDep();
+
+		// We generated the files ourselves with "appendToExtraFile",
+		// so we return null so Reflaxe doesn't generate anything itself.
+		return null;
+	}
+
+	// Initialize fields at the start of `compileClass`.
+	function initFields(classType: ClassType) {
+		this.classType = classType;
+		variables = [];
+		functions = [];
+		topLevelFunctions = [];
+		cppVariables = [];
+		cppFunctions = [];
+
+		extendedFrom = [];
+
+		fieldsCompiled = 0;
+
+		classTypeRef = switch(Main.getCurrentModule()) {
+			case TClassDecl(c): c;
+			case _: throw "Impossible";
+		}
+		className = TComp.compileClassName(classTypeRef, classType.pos, null, false, true);
+		classNameNS = TComp.compileClassName(classTypeRef, classType.pos, null, true, true);
+		if(classNameNS.length > 0) classNameNS += "::";
+
+		classNameWParams = className + if(classType.params.length > 0) {
 			"<" + classType.params.map(p -> p.name).join(", ") + ">";
 		} else {
 			"";
 		}
 
+		filename = Main.getFileNameFromModuleData(classType);
+
+		// Dependency tracker
+		dep = DependencyTracker.make(TClassDecl(classTypeRef), filename);
+		if(dep != null) Main.setCurrentDep(dep);
+
+		headerOnly = classType.isHeaderOnly();
+		noAutogen = classType.hasMeta(":noAutogen");
+	}
+
+	// Compile class var
+	function compileVar(v: { isStatic: Bool, read: VarAccess, write: VarAccess, field: ClassField }) {
+		final field = v.field;
+		final isStatic = v.isStatic;
+		final addToCpp = !headerOnly && isStatic;
+		final varName = Main.compileVarName(field.name, null, field);
+		final cppVal = if(field.expr() != null) {
+			XComp.compilingInHeader = headerOnly;
+			XComp.compilingForTopLevel = addToCpp;
+
+			// Note to self: should I be using: `Main.compileClassVarExpr(field.expr())`?
+			final result = XComp.compileExpressionForType(field.expr(), field.type, true);
+
+			XComp.compilingForTopLevel = false;
+
+			result == null ? "" : result;
+		} else {
+			"";
+		}
+
+		Main.onTypeEncountered(field.type, true);
+
+		final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
+		final assign = (cppVal.length == 0 ? "" : (" = " + cppVal));
+		final type = TComp.compileType(field.type, field.pos, false, true);
+		var decl = meta + (isStatic ? "static " : "") + type + " " + varName;
+		if(!addToCpp) {
+			decl += assign;
+		}
+		variables.push(decl + ";");
+
+		if(addToCpp) {
+			cppVariables.push(type + " " + classNameNS + varName + assign + ";");
+		}
+
+		fieldsCompiled++;
+	}
+
+	// Compile class function
+	function compileFunction(f: { isStatic: Bool, kind: MethodKind, data: ClassFuncData, field: ClassField }) {
+		final field = f.field;
+		final data = f.data;
+
+		final isStatic = f.isStatic;
+		final isDynamic = f.kind == MethDynamic;
+		final isAbstract = field.isAbstract || classType.isInterface;
+		final isInstanceFunc = !isStatic && !isDynamic;
+
+		final isConstructor = isInstanceFunc && field.name == "new";
+		final isDestructor = isInstanceFunc && field.name == "destructor";
+		final useReturnType = !isConstructor && !isDestructor;
+		final name = if(isConstructor) {
+			className;
+		} else if(isDestructor) {
+			"~" + className;
+		} else {
+			Main.compileVarName(field.name);
+		}
+
+		var addToCpp = !headerOnly && !isAbstract;
+
+		// -----------------
+		// Type encounters
+		if(data.ret != null) {
+			Main.onTypeEncountered(data.ret, true);
+		}
+		for(a in data.args) {
+			Main.onTypeEncountered(a.t, true);
+		}
+
+		final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
+
+		// -----------------
+		// Compile return type
+		final ret = if(data.ret == null) {
+			"void";
+		} else if(data.ret.isDynamic()) {
+			"auto";
+		} else {
+			final covariant = ClassHierarchyTracker.funcGetCovariantBaseType(classType, field, isStatic);
+			if(covariant != null) {
+				TComp.compileType(covariant, field.pos, false, true);
+			} else {
+				TComp.compileType(data.ret, field.pos, false, true);
+			}
+		}
+
+		// -----------------
+		// Attributes
+		var prefixNames = [];
+		if(isStatic) prefixNames.push("static");
+		if(isAbstract) prefixNames.push("virtual");
+		final prefix = prefixNames.length > 0 ? (prefixNames.join(" ") + " ") : "";
+
+		if(isDynamic) {
+			// -----------------
+			// Compile dynamic function as a variable containing a function.
+			// -----------------
+
+			// -----------------
+			// Requires #include <functional>
+			IComp.addInclude("functional", true, true);
+
+			// -----------------
+			// Compile the function content
+			final dynAddToCpp = !headerOnly && isStatic;
+			XComp.compilingInHeader = !dynAddToCpp;
+			XComp.compilingForTopLevel = true;
+			final callable = Main.compileClassVarExpr(field.expr());
+			XComp.compilingForTopLevel = false;
+
+			// -----------------
+			// Compile declaration
+			final assign = " = " + callable;
+			final type = "std::function<" + ret + "(" + data.args.map(a -> {
+				return TComp.compileType(a.t, field.pos, false, true);
+			}).join(", ") + ")>";
+			var decl = meta + prefix + type + " " + name;
+			if(!dynAddToCpp) {
+				decl += assign;
+			}
+
+			// -----------------
+			// Add to output
+			variables.push(decl + ";");
+
+			if(dynAddToCpp) {
+				cppVariables.push(type + " " + classNameNS + name + assign);
+			}
+
+			fieldsCompiled++;
+		} else {
+			// -----------------
+			// Check for @:topLevel and check if valid
+			final topLevel = field.hasMeta(":topLevel");
+			if(topLevel) {
+				if(isConstructor) {
+					field.pos.makeError(TopLevelConstructor);
+				} else if(!isStatic) {
+					field.pos.makeError(TopLevelInstanceFunction);
+				}
+			}
+
+			// -----------------
+			// Add single space padding after return type
+			final retDecl = (useReturnType ? (ret + " ") : "");
+
+			// -----------------
+			// Compile the function arguments
+			TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
+
+			final argCpp = if(data.tfunc != null) {
+				data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, false, false, true));
+			} else {
+				data.args.map(a -> Main.compileFunctionArgumentData(a, null, field.pos, false, false, true));
+			}
+			final argDecl = "(" + argCpp.join(", ") + ")";
+
+			// -----------------
+			// Compile the type parameters
+			final templateTypes = field.params.map(f -> f.name).concat(TComp.disableDynamicToTemplate());
+			final templateDecl = if(templateTypes.length > 0) {
+				addToCpp = false;
+				"template<" + templateTypes.map(t -> "typename " + t).join(", ") + ">\n";
+			} else {
+				"";
+			}
+
+			// -----------------
+			// Compile the function content
+			XComp.pushReturnType(data.ret);
+			final funcDeclaration = meta + (topLevel ? "" : prefix) + retDecl + name + argDecl;
+			var content = if(data.expr != null) {
+				XComp.compilingInHeader = !addToCpp;
+
+				// Use initialization list to set _order_id in constructor.
+				final constructorInitFields = if(isConstructor && !noAutogen) {
+					": _order_id(generate_order_id())";
+				} else {
+					"";
+				}
+
+				constructorInitFields + " {\n" + Main.compileClassFuncExpr(data.expr).tab() + "\n}";
+			} else {
+				"";
+			}
+			XComp.popReturnType();
+
+			// -----------------
+			// Add to output
+			if(addToCpp) {
+				(topLevel ? topLevelFunctions : functions).push(funcDeclaration + ";");
+
+				final argCpp = if(data.tfunc != null) {
+					data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, true));
+				} else {
+					data.args.map(a -> Main.compileFunctionArgumentData(a, null, field.pos, true));
+				}
+				final cppArgDecl = "(" + argCpp.join(", ") + ")";
+				cppFunctions.push(retDecl + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
+			} else {
+				functions.push(templateDecl + funcDeclaration + (isAbstract ? " = 0;" : content));
+			}
+
+			if(!topLevel) {
+				fieldsCompiled++;
+			}
+		}
+	}
+
+	// Generate file output
+	function generateOutput() {
 		// Auto-generated content
 		if(!noAutogen) {
-			functions.push("// ----------
-// Auto-generated additions from Haxe
-
-// Generate unique id for each instance
-unsigned long _order_id = 0;
-static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
-
-// Automatic comparison operators
-bool operator==(const " + classNameWParams + "& other) const {
-	return _order_id == other._order_id;
-}
-
-bool operator<(const " + classNameWParams + "& other) const {
-	return _order_id < other._order_id;
-}");
+			functions.push(autogenContent());
 		}
 
-		// Add extension classes
-		if(IComp.isExtraFlagOn(ExtraFlag.SharedFromThis)) {
-			IComp.addInclude("memory", true, true);
-			
-			extendedFrom.push("std::enable_shared_from_this<" + classNameWParams + ">");
-		}
+		addExtensionClasses();
 
 		if(extendedFrom.length > 0) {
-			header[1] += ": " + extendedFrom.map(e -> "public " + e).join(", ");
+			headerContent[1] += ": " + extendedFrom.map(e -> "public " + e).join(", ");
 		}
 
-		// Source file
+		generateSourceFile();
+		generateHeaderFile();
+	}
+
+	// Add additional extension classes based on flags and found data.
+	function addExtensionClasses() {
+		if(IComp.isExtraFlagOn(ExtraFlag.SharedFromThis)) {
+			IComp.addInclude("memory", true, true);
+			extendedFrom.push("std::enable_shared_from_this<" + classNameWParams + ">");
+		}
+	}
+
+	// Source file (.cpp)
+	function generateSourceFile() {
 		if(!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0)) {
 			final srcFilename = UnboundCompiler.SourceFolder + "/" + filename + UnboundCompiler.SourceExt;
 			Main.setExtraFileIfEmpty(srcFilename, "#include \"" + filename + UnboundCompiler.HeaderExt + "\"");
@@ -350,61 +436,69 @@ bool operator<(const " + classNameWParams + "& other) const {
 
 			Main.appendToExtraFile(srcFilename, result + "\n", 2);
 		}
+	}
 
-		// Header file
-		{
-			final headerFilename = UnboundCompiler.HeaderFolder + "/" + filename + UnboundCompiler.HeaderExt;
-			Main.setExtraFileIfEmpty(headerFilename, "#pragma once");
+	// Header file (.h)
+	function generateHeaderFile() {
+		final headerFilename = UnboundCompiler.HeaderFolder + "/" + filename + UnboundCompiler.HeaderExt;
+		Main.setExtraFileIfEmpty(headerFilename, "#pragma once");
 
-			IComp.appendIncludesToExtraFileWithoutRepeats(headerFilename, IComp.compileHeaderIncludes(), 1);
+		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilename, IComp.compileHeaderIncludes(), 1);
 
-			if(classType.hasMeta(":headerCode")) {
-				final code = classType.meta.extractStringFromFirstMeta(":headerCode");
-				if(code != null) {
-					Main.appendToExtraFile(headerFilename, code + "\n", 2);
-				}
+		if(classType.hasMeta(":headerCode")) {
+			final code = classType.meta.extractStringFromFirstMeta(":headerCode");
+			if(code != null) {
+				Main.appendToExtraFile(headerFilename, code + "\n", 2);
 			}
-
-			var result = "";
-
-			if(fieldsCompiled > 0 || classType.hasMeta(":used")) {
-				result += Main.compileNamespaceStart(classType);
-				result += header.join("");
-
-				final varsExist = variables.length > 0;
-				if(varsExist) {
-					result += variables.join("\n\n").tab() + "\n";
-				}
-
-				if(functions.length > 0) {
-					result += (varsExist ? "\n" : "") + functions.join("\n\n").tab() + "\n";
-				}
-
-				result += "};\n";
-
-				result += Main.compileNamespaceEnd(classType);
-			}
-
-			if(topLevelFunctions.length > 0) {
-				result += (result.length > 0 ? "\n\n" : "") + topLevelFunctions.join("\n\n");
-			}
-
-			Main.addCompileEndCallback(function() {
-				Main.appendToExtraFile(headerFilename, result + "\n", dep.getPriority());
-			});
-
-			Main.addReflectionCpp(headerFilename, RComp.compileClassReflection(classTypeRef));
 		}
 
-		// Let the reflection compiler know this class was compiled.
-		RComp.addCompiledModuleType(Main.getCurrentModule());
+		var result = "";
 
-		// Clear the dependency tracker.
-		Main.clearDep();
+		if(fieldsCompiled > 0 || classType.hasMeta(":used")) {
+			result += Main.compileNamespaceStart(classType);
+			result += headerContent.join("");
 
-		// We generated the files ourselves with "appendToExtraFile",
-		// so we return null so Reflaxe doesn't generate anything itself.
-		return null;
+			final varsExist = variables.length > 0;
+			if(varsExist) {
+				result += variables.join("\n\n").tab() + "\n";
+			}
+
+			if(functions.length > 0) {
+				result += (varsExist ? "\n" : "") + functions.join("\n\n").tab() + "\n";
+			}
+
+			result += "};\n";
+
+			result += Main.compileNamespaceEnd(classType);
+		}
+
+		if(topLevelFunctions.length > 0) {
+			result += (result.length > 0 ? "\n\n" : "") + topLevelFunctions.join("\n\n");
+		}
+
+		Main.addCompileEndCallback(function() {
+			Main.appendToExtraFile(headerFilename, result + "\n", dep != null ? dep.getPriority() : DependencyTracker.minimum);
+		});
+
+		Main.addReflectionCpp(headerFilename, RComp.compileClassReflection(classTypeRef));
+	}
+
+	function autogenContent(): String {
+		return "// ----------
+// Auto-generated additions from Haxe
+
+// Generate unique id for each instance
+unsigned long _order_id = 0;
+static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
+
+// Automatic comparison operators
+bool operator==(const " + classNameWParams + "& other) const {
+	return _order_id == other._order_id;
+}
+
+bool operator<(const " + classNameWParams + "& other) const {
+	return _order_id < other._order_id;
+}";
 	}
 }
 
