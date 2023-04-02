@@ -295,6 +295,14 @@ class Compiler_Classes extends SubCompiler {
 
 		final prefix = specifiers.length > 0 ? (specifiers.join(" ") + " ") : "";
 
+		// -----------------
+		// Function SUFFIX attributes
+		final suffixSpecifiers = [];
+
+		if(field.hasMeta(":noExcept")) {
+			specifiers.push("noexcept");
+		}
+
 		if(isDynamic) {
 			// -----------------
 			// Compile dynamic function as a variable containing a function.
@@ -383,7 +391,7 @@ class Compiler_Classes extends SubCompiler {
 					"";
 				}
 
-				constructorInitFields + " {\n" + Main.compileClassFuncExpr(data.expr).tab() + "\n}";
+				constructorInitFields + suffixSpecifiers.join(" ") + " {\n" + Main.compileClassFuncExpr(data.expr).tab() + "\n}";
 			} else {
 				"";
 			}
