@@ -16,6 +16,7 @@ import haxe.display.Display.MetadataTarget;
 import reflaxe.BaseCompiler;
 import reflaxe.input.ClassHierarchyTracker;
 
+using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
@@ -269,15 +270,21 @@ class Compiler_Classes extends SubCompiler {
 		}
 
 		// -----------------
-		// Attributes
-		var prefixNames = [];
+		// Function attributes
+		var specifiers = [];
+
 		if(isStatic) {
-			prefixNames.push("static");
+			specifiers.push("static");
+		}
+		if(field.hasMeta(":cppInline")) {
+			specifiers.push("inline");
 		}
 		if(isAbstract || field.hasMeta(":virtual") || ClassHierarchyTracker.funcHasChildOverride(classType, field, isStatic)) {
-			prefixNames.push("virtual");
+			specifiers.push("virtual");
 		}
-		final prefix = prefixNames.length > 0 ? (prefixNames.join(" ") + " ") : "";
+		}
+
+		final prefix = specifiers.length > 0 ? (specifiers.join(" ") + " ") : "";
 
 		if(isDynamic) {
 			// -----------------
