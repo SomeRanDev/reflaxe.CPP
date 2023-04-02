@@ -1,3 +1,4 @@
 -D ucpp
 -D unboundcpp
+--macro nullSafety("unboundcompiler")
 --macro unboundcompiler.UnboundCompilerInit.Start()
