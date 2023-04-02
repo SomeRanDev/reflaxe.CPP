@@ -48,32 +48,15 @@ class Compiler_Anon extends SubCompiler {
 			anonMap.set(f.name, f.expr);
 		}
 
+		
 		var isNamed = false;
-		final t = type.unwrapNullTypeOrSelf();
-		var as: Null<AnonStruct> = switch(t) {
-			case TType(defTypeRef, params): {
-				final inner = Main.getTypedefInner(t);
-				switch(inner) {
-					case TAnonymous(a): {
-						isNamed = true;
-						getNamedAnonStruct(defTypeRef.get(), a);
-					}
-					case _: null;
-				}
+		var as: Null<AnonStruct> = null;
+		{
+			final temp = getAnonTypeFromType(type);
+			if(temp != null) {
+				as = temp.as;
+				isNamed = temp.isNamed;
 			}
-			case TAnonymous(anonRef): {
-				final anonFieldsType: Array<AnonField> = [];
-				for(field in anonRef.get().fields) {
-					anonFieldsType.push({
-						name: field.name,
-						type: field.type,
-						optional: field.type.isNull(),
-						pos: field.pos
-					});
-				}
-				findAnonStruct(anonFieldsType);
-			}
-			case _: null;
 		}
 
 		if(as == null) {
@@ -109,6 +92,51 @@ class Compiler_Anon extends SubCompiler {
 		}
 		final tmmt = TComp.getMemoryManagementTypeFromType(internalType);
 		return applyAnonMMConversion(name, cppArgs, tmmt);
+	}
+
+	public function hasSameAnonType(type1: Type, type2: Type): Bool {
+		final data1 = getAnonTypeFromType(type1);
+		final data2 = getAnonTypeFromType(type2);
+		if(data1 != null && data2 != null) {
+			return data1.isNamed == data2.isNamed && data1.as.name == data2.as.name;
+		}
+		return false;
+	}
+
+	function getAnonTypeFromType(type: Type): Null<{ as: AnonStruct, isNamed: Bool }> {
+		var isNamed = false;
+		final t = type.unwrapNullTypeOrSelf();
+		var as: Null<AnonStruct> = switch(t) {
+			case TType(defTypeRef, params): {
+				final inner = Main.getTypedefInner(t);
+				switch(inner) {
+					case TAnonymous(a): {
+						isNamed = true;
+						getNamedAnonStruct(defTypeRef.get(), a);
+					}
+					case _: null;
+				}
+			}
+			case TAnonymous(anonRef): {
+				final anonFieldsType: Array<AnonField> = [];
+				for(field in anonRef.get().fields) {
+					anonFieldsType.push({
+						name: field.name,
+						type: field.type,
+						optional: field.type.isNull(),
+						pos: field.pos
+					});
+				}
+				findAnonStruct(anonFieldsType);
+			}
+			case _: null;
+		}
+
+		return if(as == null) {
+			null;
+		} else {
+			{ as: as, isNamed: isNamed };
+		}
 	}
 
 	public function applyAnonMMConversion(cppName: String, cppArgs: Array<String>, tmmt: MemoryManagementType): String {
