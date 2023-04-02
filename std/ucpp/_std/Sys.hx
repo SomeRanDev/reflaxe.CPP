@@ -74,7 +74,7 @@ extern class Sys {
 	static function command(cmd: String, ?args: Array<String>): Int;
 
 	@:native("exit")
-	@:include("cstdlib")
+	@:include("cstdlib", true)
 	public static function exit(code: Int): Void;
 
 	static function time(): Float;
