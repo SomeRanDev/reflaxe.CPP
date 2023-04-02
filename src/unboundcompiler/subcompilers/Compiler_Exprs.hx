@@ -358,7 +358,8 @@ class Compiler_Exprs extends SubCompiler {
 				//
 				// We don't need to worry about the memory management type of the input expression
 				// since anonymous structs use `haxe::unwrap<T>` to access the fields of any type.
-				if(!Main.getExprType(expr).getInternalType().isAnonStruct() && targetType.isAnonStructOrNamedStruct()) {
+				final exprInternalType = Main.getExprType(expr).getInternalType();
+				if(!exprInternalType.isAnonStruct() && targetType.isAnonStructOrNamedStruct()) {
 					// In an earlier version, all expressions were converted to `Value`.
 					// Here's the code needed to achieve that in case required in the future:
 					// `compileMMConversion(expr, Right(Value));`
