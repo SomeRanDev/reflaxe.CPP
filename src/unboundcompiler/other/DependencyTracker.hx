@@ -64,7 +64,7 @@ class DependencyTracker {
 
 	public function addDep(t: ModuleType) {
 		final dt = make(t);
-		if(!dependencies.contains(dt)) {
+		if(!dependencies.contains(dt) && dt != this) {
 			dependencies.push(dt);
 		}
 	}
