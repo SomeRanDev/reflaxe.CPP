@@ -271,10 +271,13 @@ class Compiler_Classes extends SubCompiler {
 
 		// -----------------
 		// Function attributes
-		var specifiers = [];
+		final specifiers = [];
 
 		if(isStatic) {
 			specifiers.push("static");
+		}
+		if(field.hasMeta(":constExpr")) {
+			specifiers.push("constexpr");
 		}
 		if(field.hasMeta(":cppInline")) {
 			specifiers.push("inline");
