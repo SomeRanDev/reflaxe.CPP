@@ -167,6 +167,14 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 					}
 				}
 			}
+			
+			case _: {}
+		}
+
+		switch(t) {
+			case TAbstract(absRef, _) if(absRef.get().hasMeta(":multiType")): {
+				onTypeEncountered(getAbstractInner(t), addToHeader);
+			}
 			case _: {}
 		}
 	}
