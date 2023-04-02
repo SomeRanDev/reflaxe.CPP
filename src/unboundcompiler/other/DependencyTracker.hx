@@ -59,6 +59,10 @@ class DependencyTracker {
 		priority = (maxPriority++);
 	}
 
+	public function toString() {
+		return "DependencyTracker(" + id + ")";
+	}
+
 	function setFilename(fn: Null<String>) {
 		if(fn != null && filename == null) {
 			filename = fn;
