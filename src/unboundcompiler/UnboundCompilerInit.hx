@@ -1,6 +1,6 @@
 package unboundcompiler;
 
-#if (macro || gdscript_runtime)
+#if (macro || ucpp_runtime)
 
 import reflaxe.ReflectCompiler;
 
