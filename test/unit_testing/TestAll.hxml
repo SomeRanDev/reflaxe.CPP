@@ -1,2 +1,0 @@
--cp test/unit_testing/src
---run TestRunner

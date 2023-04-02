@@ -1,2 +1,4 @@
-# This file helps VS Code function properly while developing.
-test/sample_project/Test_WithRepo.hxml
+# Used for testing, test directory at "test/unit_testing".
+# Use the "help" argument to get started: `haxe Test.hxml help`
+-cp test/unit_testing/src
+--run TestRunner

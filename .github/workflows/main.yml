@@ -1,10 +1,10 @@
 on:
   push:
     branches:
-    - main
+      - main
   pull_request:
     branches:
-    - main
+      - main
 
 jobs:
   build_ubuntu:
@@ -17,7 +17,7 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
-        
+
       - name: Setup GCC
         uses: egor-tensin/setup-gcc@v1
         with:
@@ -26,12 +26,12 @@ jobs:
 
       - name: Install & Check Haxe
         run: haxe -version
-      
+
       - name: Install Reflaxe
         run: haxelib git reflaxe https://github.com/RobertBorghese/reflaxe.git
-      
+
       - name: Run Tests
-        run: haxe "test/unit_testing/TestAll.hxml"
+        run: haxe Test.hxml
 
   build_windows:
     runs-on: windows-2019
@@ -43,7 +43,7 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
-        
+
       - name: Setup VS
         uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -52,9 +52,9 @@ jobs:
 
       - name: Install & Check Haxe
         run: haxe -version
-      
+
       - name: Install Reflaxe
         run: haxelib git reflaxe https://github.com/RobertBorghese/reflaxe.git
-      
+
       - name: Run Tests
-        run: haxe "test/unit_testing/TestAll.hxml"
+        run: haxe Test.hxml

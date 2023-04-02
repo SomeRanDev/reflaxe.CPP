@@ -4,10 +4,10 @@ This is where the tests happen!
 
 ## How to Run Tests
 
-Make sure you're calling from the base directory of this repository.
+Run the `Test.hxml` in the base of this repository. 
 
 ```hxml
-haxe test/unit_testing/TestAll.hxml
+haxe Test.hxml
 ```
 
 ## How to Add Test
@@ -22,7 +22,7 @@ haxe test/unit_testing/TestAll.hxml
 The following options can be appended to the compile command.
 ```
 # for example
-haxe test/unit_testing/TestAll.hxml always-compile test=RestArgs
+haxe Test.hxml always-compile test=RestArgs
 ```
 
 ### help
