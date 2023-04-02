@@ -4,7 +4,7 @@ This is where the tests happen!
 
 ## How to Run Tests
 
-Run the `Test.hxml` in the base of this repository. 
+Run the `Test.hxml` in the base of this repository.
 
 ```hxml
 haxe Test.hxml
@@ -20,25 +20,44 @@ haxe Test.hxml
 ## Arguments
 
 The following options can be appended to the compile command.
+
 ```
 # for example
 haxe Test.hxml always-compile test=RestArgs
 ```
 
 ### help
+
 Lists all the available arguments.
 
+### test=`TestName`
+
+Makes it so only this test is ran. This option can be added multiple times to perform multiple tests.
+
 ### nocompile
+
 The C++ compiling/run tests do not occur.
 
 ### always-compile
+
 The C++ compiling/run tests will occur no matter what, even if the initial output comparison tests fail.
 
 ### show-all-output
+
 The output of the C++ compilation and executable is always shown, even if it ran successfuly.
 
 ### update-intended
+
 The C++ output is generated in the `intended` folder.
 
-### test=`TestName`
-Makes it so only this test is ran. This option can be added multiple times to perform multiple tests.
+### no-details
+
+The list of C++ output lines that do not match the tests are ommitted from the output.
+
+### dev-mode
+
+Enables `always-compile`, `show-all-output`, and `no-details`.
+
+### print-command
+
+Prints the Haxe commands instead of running them.
