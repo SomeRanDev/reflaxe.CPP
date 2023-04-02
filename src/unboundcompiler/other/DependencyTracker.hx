@@ -20,8 +20,11 @@ using reflaxe.helpers.TypeHelper;
 class DependencyTracker {
 	public static final bottom: Int = 99999999;
 
+	// Start from 10 to leave room for built-in stuff like includes and #pragma once
+	public static final minimum: Int = 10;
+
 	static var allDependencies: Map<String, DependencyTracker> = [];
-	static var maxPriority: Int = 0;
+	static var maxPriority: Int = DependencyTracker.minimum;
 
 	public static function make(t: ModuleType, filename: Null<String> = null): DependencyTracker {
 		final id = t.getUniqueId();
