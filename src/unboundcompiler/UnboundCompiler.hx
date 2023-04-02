@@ -151,6 +151,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 		if(addToHeader) {
 			addDep(t);
+			addDep(Context.followWithAbstracts(t));
 		}
 
 		final mt = t.toModuleType();
@@ -162,9 +163,6 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			case TInst(_, params) | TEnum(_, params) | TType(_, params) | TAbstract(_, params): {
 				for(p in params) {
 					onTypeEncountered(p, addToHeader);
-					if(addToHeader) {
-						addDep(p);
-					}
 				}
 			}
 			
