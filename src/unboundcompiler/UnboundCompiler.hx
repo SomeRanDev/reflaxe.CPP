@@ -600,8 +600,9 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilePath, IComp.compileHeaderIncludes(), 1);
 
 		// Output typedef
+		final currentDep = dep;
 		addCompileEndCallback(function() {
-			appendToExtraFile(headerFilePath, content, dep.getPriority());
+			appendToExtraFile(headerFilePath, content, currentDep.getPriority());
 		});
 
 		// Clear the dependency tracker.

@@ -476,8 +476,9 @@ class Compiler_Classes extends SubCompiler {
 			result += (result.length > 0 ? "\n\n" : "") + topLevelFunctions.join("\n\n");
 		}
 
+		final currentDep = dep;
 		Main.addCompileEndCallback(function() {
-			Main.appendToExtraFile(headerFilename, result + "\n", dep != null ? dep.getPriority() : DependencyTracker.minimum);
+			Main.appendToExtraFile(headerFilename, result + "\n", currentDep != null ? currentDep.getPriority() : DependencyTracker.minimum);
 		});
 
 		Main.addReflectionCpp(headerFilename, RComp.compileClassReflection(classTypeRef));
