@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include "_AnonStructs.h"
+#include "cstdlib"
 #include "haxe_Rest.h"
 #include "HxArray.h"
 

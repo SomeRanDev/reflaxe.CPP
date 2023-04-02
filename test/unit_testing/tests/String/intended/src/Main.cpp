@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include "_AnonStructs.h"
+#include "cstdlib"
 #include "HxString.h"
 
 using namespace std::string_literals;

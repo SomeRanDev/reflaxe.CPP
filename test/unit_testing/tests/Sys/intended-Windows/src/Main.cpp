@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include "_AnonStructs.h"
+#include "cstdlib"
 #include "haxe_Log.h"
 
 using namespace std::string_literals;

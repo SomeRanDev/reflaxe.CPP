@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include "_AnonStructs.h"
+#include "cstdlib"
 #include "haxe_Constraints.h"
 #include "haxe_ds_IntMap.h"
 #include "StdTypes.h"

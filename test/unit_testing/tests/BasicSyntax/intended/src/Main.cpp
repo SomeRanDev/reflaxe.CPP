@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include "_AnonStructs.h"
+#include "cstdlib"
 #include "EReg.h"
 #include "haxe_Log.h"
 #include "Std.h"

@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include "_AnonStructs.h"
+#include "cstdlib"
 #include "EReg.h"
 
 using namespace std::string_literals;
