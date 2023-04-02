@@ -90,13 +90,13 @@ using MyIntInt = MyInt;
 using ValueClassDef = ValueClass;
 
 
-using ValueClassPtr = ValueClass*;
+using ValueClassPtr = ValueClass;
 
 
-using ValueClassPtr2 = ValueClass*;
+using ValueClassPtr2 = ValueClass;
 
 
 using ValueClassPtr2Value = ValueClass;
 
 
-using ValueClassPtr2ValueSharedPtr = std::shared_ptr<ValueClass>;
+using ValueClassPtr2ValueSharedPtr = ValueClass;

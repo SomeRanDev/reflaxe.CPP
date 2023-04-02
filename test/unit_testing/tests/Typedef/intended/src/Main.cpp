@@ -36,10 +36,10 @@ void _Main::Main_Fields_::main() {
 	_Main::Main_Fields_::assert(td2Int == tdInt, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Typedef/Main.hx"s, 43, "main"s));
 	
 	ValueClass a = ValueClass();
-	ValueClassPtr b = &a;
-	ValueClassPtr2 c = b;
+	ValueClassPtr* b = &a;
+	ValueClassPtr2* c = b;
 	ValueClassPtr2Value d = (*c);
-	ValueClassPtr2ValueSharedPtr e = std::make_shared<ValueClassPtr2Value>(d);
+	std::shared_ptr<ValueClassPtr2ValueSharedPtr> e = std::make_shared<ValueClassPtr2Value>(d);
 	
 	_Main::Main_Fields_::assert(a.val == 100, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Typedef/Main.hx"s, 51, "main"s));
 	_Main::Main_Fields_::assert(b->val == 100, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Typedef/Main.hx"s, 52, "main"s));

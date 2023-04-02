@@ -6,7 +6,7 @@
 
 using namespace std::string_literals;
 
-Map<std::string, std::string> SysImpl::environment() {
+std::shared_ptr<Map<std::string, std::string>> SysImpl::environment() {
 	return std::make_shared<haxe::ds::StringMap<std::string>>();
 }
 

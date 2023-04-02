@@ -33,4 +33,4 @@ struct Iterator {
 
 
 template<typename K, typename V>
-using KeyValueIterator = std::shared_ptr<Iterator<std::shared_ptr<haxe::AnonStruct3<K, V>>>>;
+using KeyValueIterator = Iterator<std::shared_ptr<haxe::AnonStruct2<K, V>>>;

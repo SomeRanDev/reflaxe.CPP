@@ -6,7 +6,7 @@
 
 class SysImpl {
 public:
-	static Map<std::string, std::string> environment();
+	static std::shared_ptr<Map<std::string, std::string>> environment();
 	
 	static std::string systemName();
 	
