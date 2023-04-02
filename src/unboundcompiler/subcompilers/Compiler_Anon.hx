@@ -322,7 +322,15 @@ class Compiler_Anon extends SubCompiler {
 	}
 
 	function makeFieldKey(a: AnonField): String {
-		return a.name + ":" + Std.string(a.type) + (a.optional ? "?" : "");
+		// All type parameters should be treated the same.
+		// As long as the field names are the same, different
+		// type parameters can be used interchangeably.
+		final key = if(a.type.isTypeParameter()) {
+			"__TypeParam__";
+		} else {
+			Std.string(a.type);
+		}
+		return a.name + ":" + key + (a.optional ? "?" : "");
 	}
 
 	function makeAllUnnamedDecls() {
