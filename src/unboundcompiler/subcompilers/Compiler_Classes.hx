@@ -282,6 +282,12 @@ class Compiler_Classes extends SubCompiler {
 		if(isAbstract || field.hasMeta(":virtual") || ClassHierarchyTracker.funcHasChildOverride(classType, field, isStatic)) {
 			specifiers.push("virtual");
 		}
+
+		final customSpecifiers = field.meta.extractPrimtiveFromAllMeta(":specifier");
+		for(specifier in customSpecifiers) {
+			if(specifier.isString()) {
+				specifiers.push(specifier);
+			}
 		}
 
 		final prefix = specifiers.length > 0 ? (specifiers.join(" ") + " ") : "";
