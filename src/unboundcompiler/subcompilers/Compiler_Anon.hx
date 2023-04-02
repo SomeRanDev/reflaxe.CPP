@@ -338,7 +338,7 @@ class Compiler_Anon extends SubCompiler {
 		for(name => as in anonStructs) {
 			decls.push(as.cpp);
 			for(f in as.constructorOrder) {
-				IComp.addIncludeFromType(f.type, true);
+				Main.onTypeEncountered(f.type, true);
 			}
 		}
 		return decls.join("\n\n");
