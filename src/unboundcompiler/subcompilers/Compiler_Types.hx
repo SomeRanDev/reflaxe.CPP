@@ -160,8 +160,8 @@ class Compiler_Types extends SubCompiler {
 						return compileModuleTypeName(abs, pos, params, true, asValue ? Value : getMemoryManagementTypeFromType(inner));
 					}
 
-					if(abs.isOverrideMemoryManagement() && params.length == 1) {
-						return applyMemoryManagementWrapper(compileType(params[0], pos, true), abs.getMemoryManagementType());
+					if(!asValue && abs.isOverrideMemoryManagement() && params.length == 1) {
+						return applyMemoryManagementWrapper(compileType(params[0], pos, true, dependent), abs.getMemoryManagementType());
 					}
 
 					switch(abs.name) {
@@ -176,7 +176,7 @@ class Compiler_Types extends SubCompiler {
 							if(t.equals(newType)) {
 								compileModuleTypeName(abs, pos, params, true, asValue ? Value : null);
 							} else {
-								compileType(newType, pos);
+								compileType(newType, pos, asValue, dependent);
 							}
 						}
 					}
@@ -189,10 +189,7 @@ class Compiler_Types extends SubCompiler {
 				if(t.isRef()) {
 					compileType(params[0], pos) + "&";
 				} else {
-					// Always compile as value. The memory management type is
-					// already applied to the type the typedef transforms into.
-					final mm = defRef.get().hasMemoryManagementType() ? asValue : true;
-					compileDefName(defRef, pos, params, true, mm);
+					compileDefName(defRef, pos, params, true, asValue);
 				}
 			}
 		}

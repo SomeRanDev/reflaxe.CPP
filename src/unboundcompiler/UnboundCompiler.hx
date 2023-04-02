@@ -575,14 +575,19 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 				content += AComp.compileNamedAnonTypeDefinition(defType, anonRef);
 			}
 			case _: {
+				// Compile the "type" the typedef is being assigned without any memory management
+				// so the mm type can be handled upon construction. Ensures it can be compiled as
+				// a value when passing to an anonymous structure.
+				final targetType = TComp.compileType(getTypedefInner(t), defType.pos, true);
+
 				final hasParams = defType.params.length > 0;
 				if(hasParams || !defType.hasMeta(":cppTypedef")) {
 					if(hasParams) {
 						content += "template<" + defType.params.map(p -> "typename " + p.name).join(", ") + ">\n";
 					}
-					content += "using " + typedefName + " = " + TComp.compileType(getTypedefInner(t), defType.pos) + ";\n";
+					content += "using " + typedefName + " = " + targetType + ";\n";
 				} else {
-					content += "typedef " + TComp.compileType(getTypedefInner(t), defType.pos) + " " + typedefName + ";\n";
+					content += "typedef " + targetType + " " + typedefName + ";\n";
 				}
 			}
 		}
