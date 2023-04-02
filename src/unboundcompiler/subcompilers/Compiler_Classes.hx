@@ -14,14 +14,15 @@ import haxe.macro.Type;
 import haxe.display.Display.MetadataTarget;
 
 import reflaxe.BaseCompiler;
-
-import unboundcompiler.subcompilers.Compiler_Includes.ExtraFlag;
-import unboundcompiler.other.DependencyTracker;
+import reflaxe.input.ClassHierarchyTracker;
 
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
+
+import unboundcompiler.subcompilers.Compiler_Includes.ExtraFlag;
+import unboundcompiler.other.DependencyTracker;
 
 using unboundcompiler.helpers.UError;
 using unboundcompiler.helpers.UMeta;
@@ -183,7 +184,18 @@ class Compiler_Classes extends SubCompiler {
 			}
 
 			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
-			final ret = data.ret == null ? "void" : (data.ret.isDynamic() ? "auto" : TComp.compileType(data.ret, field.pos, false, true));
+			final ret = if(data.ret == null) {
+				"void";
+			} else if(data.ret.isDynamic()) {
+				"auto";
+			} else {
+				final covariant = ClassHierarchyTracker.funcGetCovariantBaseType(classType, field, isStatic);
+				if(covariant != null) {
+					TComp.compileType(covariant, field.pos, false, true);
+				} else {
+					TComp.compileType(data.ret, field.pos, false, true);
+				}
+			}
 
 			var prefixNames = [];
 			if(isStatic) prefixNames.push("static");
