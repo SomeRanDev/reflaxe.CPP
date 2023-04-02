@@ -272,7 +272,7 @@ class Compiler_Classes extends SubCompiler {
 		// Attributes
 		var prefixNames = [];
 		if(isStatic) prefixNames.push("static");
-		if(isAbstract) prefixNames.push("virtual");
+		if(isAbstract || field.hasMeta(":virtual")) prefixNames.push("virtual");
 		final prefix = prefixNames.length > 0 ? (prefixNames.join(" ") + " ") : "";
 
 		if(isDynamic) {
