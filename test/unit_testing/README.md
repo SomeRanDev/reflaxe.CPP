@@ -2,24 +2,30 @@
 
 This is where the tests happen!
 
-## Folders
+## Contents
+| Folder  | Description |
+| ------------- | ------------- |
+| `src/`  | Where the Haxe source code for executing the tests are.  |
+| `tests/`  | Contains all the tests; each directory is a test.  |
+| `fast_test/`  | Contains a program for running all the tests simultaneously.  |
 
-### src/
-Where the Haxe source code for executing the tests are.
+&nbsp;
 
-### tests/
-Contains all the tests.
+## How to Run All Tests
 
-### fast_test/
-Contains a program for running all the tests simultaneously.
-
-## How to Run Tests
-
-Run the `Test.hxml` in the base of this repository.
+Run the `Test.hxml` in the base of this repository. This will use pure Haxe.
 
 ```hxml
 haxe Test.hxml
 ```
+
+To run the tests at super-speed, use the `fast_test/` script.
+```
+cd fast_test
+cargo run --release
+```
+
+&nbsp;
 
 ## How to Add Test
 
@@ -27,6 +33,8 @@ haxe Test.hxml
 - Place as many `.hx` files in this folder as desired.
 - Create as many `.hxml` files are desired, they will be called in alphabetical order. If only one `.hxml` file is desired, please call it `Test.hxml` for consistency.
 - Place the intended C++ output in `intended/`. The generated C++ output will be placed in `out/`. After every `.hxml` file in the directory is executed, the content of these folders are compared. If they do not match, the test will fail.
+
+&nbsp;
 
 ## Arguments
 
