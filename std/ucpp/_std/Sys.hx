@@ -2,7 +2,26 @@ package;
 
 class SysImpl {
 	public static function environment(): Map<String, String> {
-		return [];
+		var strings: Array<String> = [];
+		untyped __ucpp__("char ** env;
+#if defined(WIN) && (_MSC_VER >= 1900)
+	env = *__p__environ();
+#else
+	extern char ** environ;
+	env = environ;
+#endif
+	for (; *env; ++env) {
+		{}(*env);
+	}", strings.push_back);
+
+		final result: Map<String, String> = [];
+		for(en in strings) {
+			final index = en.indexOf("=");
+			if(index >= 0) {
+				result.set(en.substr(0, index), en.substr(index + 1));
+			}
+		}
+		return result;
 	}
 
 	public static function systemName(): String {
@@ -52,9 +71,9 @@ extern class Sys {
 		#end
 	}
 
-	// public static extern inline function environment(): Map<String, String> {
-	// 	return SysImpl.environment();
-	// }
+	public static extern inline function environment(): Map<String, String> {
+		return SysImpl.environment();
+	}
 
 	public static extern inline function sleep(seconds: Float): Void {
 		ucpp.Stdlib.sleep(seconds * 1000.0);
