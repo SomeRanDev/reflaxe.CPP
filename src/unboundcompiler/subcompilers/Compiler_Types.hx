@@ -185,6 +185,9 @@ class Compiler_Types extends SubCompiler {
 			case TType(defRef, params) if(t.isAnonStructOrNamedStruct()): {
 				compileDefName(defRef, pos, params, true, asValue);
 			}
+			case TType(defRef, params) if(t.isMultitype()): {
+				compileType(#if eval Context.follow(t) #else t #end, pos, asValue, dependent);
+			}
 			case TType(defRef, params): {
 				if(t.isRef()) {
 					compileType(params[0], pos) + "&";
