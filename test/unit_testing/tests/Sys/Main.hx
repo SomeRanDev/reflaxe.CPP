@@ -14,11 +14,8 @@ class Main {
 	}
 
 	public static function main() {
-
-		trace(Sys.getEnv("ANDROID_NDK_VERSION"));
-
-		trace(ucpp.std.FileSystem.currentPath());
-
+		// Sys.getEnv
+		// Sys.putEnv
 		final key = "Haxe2UC++ Test Value";
 		final val = "test-value=" + (Std.random(10));
 
@@ -27,6 +24,10 @@ class Main {
 		assert(Sys.getEnv("Haxe2UC++ Test Value") == val);
 		Sys.putEnv(key, "");
 		assert(Sys.getEnv(key) == null);
+
+		// Sys.environment
+		Sys.putEnv(key + "env_map", "123");
+		assert(Sys.environment().get(key + "env_map") == "123");
 
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
