@@ -84,7 +84,13 @@ On the other hand, **Haxe to "Unbound C++"** gives memory types first-class trea
 
 Visit the [test/unit_testing/tests directory](https://github.com/RobertBorghese/Haxe-to-UnboundCPP/tree/main/test/unit_testing/tests) for a bunch of samples and tests. Note the "intended" folder contains the expected C++ output that would be generated from the Haxe project in that folder. To run one of the examples, run the following command at the top level of the repository (replace "HelloWorld" with the test name).
 ```
-haxe test/unit_testing/TestAll.hxml test=HelloWorld
+haxe Test.hxml test=HelloWorld
+```
+
+All the tests can be executed swiftly using the multi-threaded [Rust](https://www.rust-lang.org) script located in `test/unit_testing/fast_test`:
+```
+cd test/unit_testing/fast_test
+cargo run --release
 ```
 
 Visit the [Unit Test README](https://github.com/RobertBorghese/Haxe-to-UnboundCPP/blob/main/test/unit_testing/README.md) for more info!
