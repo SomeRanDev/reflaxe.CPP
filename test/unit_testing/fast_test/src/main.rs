@@ -5,7 +5,8 @@
 // Does it with threads, so happens super fast.
 // ==========================================
 
-use std::env::{self, current_dir};
+#![allow(unused_parens)]
+
 use std::fs;
 use std::io::{stdout, Write};
 use std::path::PathBuf;
@@ -13,6 +14,29 @@ use std::process::Command;
 use std::thread;
 use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicUsize, Ordering};
+
+use clap::Parser;
+
+/// A simple wrapper for "Haxe to Unbound C++" Test.hxml to help run tests faster.
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// The relative or absolute path to "Haxe to Unbound C++" repo base directory.
+    #[arg(short, long, default_value_t = ("../../..".to_string()) )]
+    ucpp_repo_path: String,
+
+    /// If defined, only the test assigned will be used. This can be repeated multiple times for multiple tests.
+    #[arg(short, long)]
+    test: Vec<String>,
+
+    /// If defined, "dev-mode" will be used.
+    #[arg(short, long, default_value_t = false)]
+    dev_mode: bool,
+
+    /// If defined, "update-intended" will be used.
+    #[arg(short, long, default_value_t = false)]
+    update_intended: bool,
+}
 
 // Print updated progress for completed tests
 fn update_progress(progress: Option<usize>, total: &usize) {
@@ -24,25 +48,15 @@ fn update_progress(progress: Option<usize>, total: &usize) {
 }
 
 fn main() -> std::io::Result<()> {
+    // Get args
+    let args = Args::parse();
+
     // Store threads and test names
     let mut threads = vec!();
     let mut test_names = vec!();
 
     // Get base of repository.
-    let repo_path = {
-        // Get a list of the arguments
-        let args: Vec<String> = env::args().collect();
-        if args.len() > 1 {
-            // Generate PathBuf from first argument
-            PathBuf::from(args[1].clone())
-        } else {
-            // Only works if executed in test/unit_testing/fast_test
-            // Used when no argument is provided
-            let mut dir = current_dir()?;
-            for _ in 0..3 { dir.pop(); }
-            dir
-        }
-    };
+    let repo_path = PathBuf::from(args.ucpp_repo_path);
 
     // Get list of tests.
     {
@@ -64,17 +78,30 @@ fn main() -> std::io::Result<()> {
     let complete_count = Arc::new(AtomicUsize::new(0));
     let fail_count = Arc::new(AtomicUsize::new(0));
 
-    // Number of tests
-    let test_len = test_names.len();
-
     // Store the stderr here
     let error_str: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
+
+    // Number of tests
+    let filter_tests = args.test.len() > 0;
+    let test_len = if filter_tests {
+        args.test.len()
+    } else {
+        test_names.len()
+    };
 
     // Print initial tests complete text
     update_progress(Some(0), &test_len);
 
     // Iterate through each test and create new thread.
     for test in test_names {
+        // If specific tests are defined, ignore this test if not one of them.
+        let test_string = test.file_name().unwrap().to_str().unwrap().to_string();
+        if filter_tests {
+            if !args.test.contains(&test_string) {
+                continue;
+            }
+        }
+
         // Make copy of base repository path.
         let rpath = repo_path.as_os_str().to_str().unwrap().to_string();
 
@@ -86,11 +113,19 @@ fn main() -> std::io::Result<()> {
         // Create thread.
         let t = thread::spawn(move || {
             // Make test=TestName argument
-            let test_arg = "test=".to_owned() + test.file_name().unwrap().to_str().unwrap();
+            let test_arg = "test=".to_owned() + &test_string;
             
+            let mut cmd_args = vec!("Test.hxml", &test_arg);
+            if(args.dev_mode) {
+                cmd_args.push("dev-mode");
+            }
+            if(args.update_intended) {
+                cmd_args.push("update-intended");
+            }
+
             // Run command `haxe Test.hxml test=TestName`
             let output = Command::new("haxe")
-                .args(["Test.hxml", &test_arg])
+                .args(cmd_args)
                 .current_dir(&rpath)
                 .output()
                 .unwrap();
