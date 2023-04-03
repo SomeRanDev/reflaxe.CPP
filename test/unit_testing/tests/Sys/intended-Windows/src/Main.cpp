@@ -2,12 +2,12 @@
 
 #include <cmath>
 #include <cstdlib>
-#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
 #include "_AnonStructs.h"
-#include "haxe_Log.h"
+#include "haxe_Constraints.h"
+#include "Sys.h"
 
 using namespace std::string_literals;
 
@@ -28,20 +28,6 @@ void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) 
 }
 
 void Main::main() {
-	std::optional<std::string> tempMaybeString;
-	
-	{
-		char* result = std::getenv("ANDROID_NDK_VERSION"s.c_str());
-		if(result == nullptr) {
-			tempMaybeString = std::nullopt;
-		} else {
-			tempMaybeString = std::string(result);
-		};
-	};
-	
-	haxe::Log::trace(tempMaybeString, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 18, "main"s));
-	haxe::Log::trace(std::filesystem::current_path(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 20, "main"s));
-	
 	std::string key = "Haxe2UC++ Test Value"s;
 	int tempRight;
 	
@@ -63,7 +49,7 @@ void Main::main() {
 		};
 	};
 	
-	Main::assert(!tempLeft.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 25, "main"s));
+	Main::assert(!tempLeft.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 22, "main"s));
 	
 	{
 		std::string inputAssign = key + "="s + val;
@@ -81,7 +67,7 @@ void Main::main() {
 		};
 	};
 	
-	Main::assert(tempLeft1 == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 27, "main"s));
+	Main::assert(tempLeft1 == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 24, "main"s));
 	
 	{
 		std::string inputAssign = key + "="s + ""s;
@@ -99,7 +85,17 @@ void Main::main() {
 		};
 	};
 	
-	Main::assert(!tempLeft2.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 29, "main"s));
+	Main::assert(!tempLeft2.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 26, "main"s));
+	
+	{
+		std::string inputAssign = key + "env_map"s + "="s + "123"s;
+		putenv(inputAssign.data());
+	};
+	
+	std::shared_ptr<haxe::IMap<std::string, std::string>> this1 = SysImpl::environment();
+	std::optional<std::string> tempLeft3 = this1->get(key + "env_map"s);
+	
+	Main::assert(tempLeft3 == "123"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 30, "main"s));
 	
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);

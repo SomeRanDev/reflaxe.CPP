@@ -2,11 +2,12 @@
 
 #include <memory>
 #include <string>
+#include "haxe_ds_StringMap.h"
 #include "Map.h"
 
 class SysImpl {
 public:
-	static std::shared_ptr<Map<std::string, std::string>> environment();
+	static std::shared_ptr<haxe::ds::StringMap<std::string>> environment();
 	
 	static std::string systemName();
 	
