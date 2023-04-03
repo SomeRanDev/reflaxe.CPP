@@ -2,6 +2,17 @@
 
 This is where the tests happen!
 
+## Folders
+
+### src/
+Where the Haxe source code for executing the tests are.
+
+### tests/
+Contains all the tests.
+
+### fast_test/
+Contains a program for running all the tests simultaneously.
+
 ## How to Run Tests
 
 Run the `Test.hxml` in the base of this repository.
