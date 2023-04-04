@@ -8,6 +8,7 @@ include/haxe_ds_StringMap.h
 include/haxe_PosInfos.h
 include/haxe_Log.h
 include/haxe_Constraints.h
+include/_HaxeUtils.h
 include/_AnonUtils.h
 include/_AnonStructs.h
 include/StdTypes.h

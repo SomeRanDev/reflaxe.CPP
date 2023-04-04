@@ -1,5 +1,6 @@
 #pragma once
 
+#include "_HaxeUtils.h"
 #include "haxe_PosInfos.h"
 #include <memory>
 #include <optional>
@@ -10,21 +11,7 @@ public:
 
 	ValueClass();
 	
-	// ----------
-	// Auto-generated additions from Haxe
-	
-	// Generate unique id for each instance
-	unsigned long _order_id = 0;
-	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
-	
-	// Automatic comparison operators
-	bool operator==(const ValueClass& other) const {
-		return _order_id == other._order_id;
-	}
-	
-	bool operator<(const ValueClass& other) const {
-		return _order_id < other._order_id;
-	}
+	HX_COMPARISON_OPERATORS(ValueClass)
 };
 
 
@@ -33,21 +20,7 @@ class NormalClass {
 public:
 	NormalClass();
 	
-	// ----------
-	// Auto-generated additions from Haxe
-	
-	// Generate unique id for each instance
-	unsigned long _order_id = 0;
-	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
-	
-	// Automatic comparison operators
-	bool operator==(const NormalClass& other) const {
-		return _order_id == other._order_id;
-	}
-	
-	bool operator<(const NormalClass& other) const {
-		return _order_id < other._order_id;
-	}
+	HX_COMPARISON_OPERATORS(NormalClass)
 };
 
 

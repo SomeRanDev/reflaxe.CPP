@@ -1,5 +1,6 @@
 #pragma once
 
+#include "_HaxeUtils.h"
 #include <memory>
 
 namespace _Main {
@@ -20,21 +21,7 @@ public:
 	
 	int getVal2();
 	
-	// ----------
-	// Auto-generated additions from Haxe
-	
-	// Generate unique id for each instance
-	unsigned long _order_id = 0;
-	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
-	
-	// Automatic comparison operators
-	bool operator==(const Base& other) const {
-		return _order_id == other._order_id;
-	}
-	
-	bool operator<(const Base& other) const {
-		return _order_id < other._order_id;
-	}
+	HX_COMPARISON_OPERATORS(Base)
 };
 
 
@@ -45,20 +32,6 @@ public:
 	
 	int getVal();
 	
-	// ----------
-	// Auto-generated additions from Haxe
-	
-	// Generate unique id for each instance
-	unsigned long _order_id = 0;
-	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
-	
-	// Automatic comparison operators
-	bool operator==(const Child& other) const {
-		return _order_id == other._order_id;
-	}
-	
-	bool operator<(const Child& other) const {
-		return _order_id < other._order_id;
-	}
+	HX_COMPARISON_OPERATORS(Child)
 };
 

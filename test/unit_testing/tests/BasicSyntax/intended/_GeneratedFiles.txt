@@ -5,6 +5,7 @@ src/EReg.cpp
 include/ucpp_DynamicToString.h
 include/haxe_PosInfos.h
 include/haxe_Log.h
+include/_HaxeUtils.h
 include/_AnonUtils.h
 include/_AnonStructs.h
 include/Std.h

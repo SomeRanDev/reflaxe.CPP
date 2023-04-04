@@ -1,5 +1,6 @@
 #pragma once
 
+#include "_HaxeUtils.h"
 #include "haxe_PosInfos.h"
 #include <memory>
 #include <optional>
@@ -9,21 +10,7 @@ class BaseClass {
 public:
 	BaseClass();
 	
-	// ----------
-	// Auto-generated additions from Haxe
-	
-	// Generate unique id for each instance
-	unsigned long _order_id = 0;
-	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
-	
-	// Automatic comparison operators
-	bool operator==(const BaseClass& other) const {
-		return _order_id == other._order_id;
-	}
-	
-	bool operator<(const BaseClass& other) const {
-		return _order_id < other._order_id;
-	}
+	HX_COMPARISON_OPERATORS(BaseClass)
 };
 
 
@@ -32,21 +19,7 @@ class ChildClass: public BaseClass {
 public:
 	ChildClass();
 	
-	// ----------
-	// Auto-generated additions from Haxe
-	
-	// Generate unique id for each instance
-	unsigned long _order_id = 0;
-	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
-	
-	// Automatic comparison operators
-	bool operator==(const ChildClass& other) const {
-		return _order_id == other._order_id;
-	}
-	
-	bool operator<(const ChildClass& other) const {
-		return _order_id < other._order_id;
-	}
+	HX_COMPARISON_OPERATORS(ChildClass)
 };
 
 
@@ -57,21 +30,7 @@ public:
 	
 	std::string toString();
 	
-	// ----------
-	// Auto-generated additions from Haxe
-	
-	// Generate unique id for each instance
-	unsigned long _order_id = 0;
-	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
-	
-	// Automatic comparison operators
-	bool operator==(const AnotherClass& other) const {
-		return _order_id == other._order_id;
-	}
-	
-	bool operator<(const AnotherClass& other) const {
-		return _order_id < other._order_id;
-	}
+	HX_COMPARISON_OPERATORS(AnotherClass)
 };
 
 
@@ -82,21 +41,7 @@ public:
 
 	ClassWInt();
 	
-	// ----------
-	// Auto-generated additions from Haxe
-	
-	// Generate unique id for each instance
-	unsigned long _order_id = 0;
-	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
-	
-	// Automatic comparison operators
-	bool operator==(const ClassWInt& other) const {
-		return _order_id == other._order_id;
-	}
-	
-	bool operator<(const ClassWInt& other) const {
-		return _order_id < other._order_id;
-	}
+	HX_COMPARISON_OPERATORS(ClassWInt)
 };
 
 

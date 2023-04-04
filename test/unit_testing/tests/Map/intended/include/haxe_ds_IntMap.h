@@ -6,6 +6,7 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include "_HaxeUtils.h"
 #include "haxe_Constraints.h"
 #include "haxe_iterators_ArrayIterator.h"
 #include "haxe_iterators_MapKeyValueIterator.h"
@@ -120,21 +121,7 @@ public:
 		this->m.clear();
 	}
 	
-	// ----------
-	// Auto-generated additions from Haxe
-	
-	// Generate unique id for each instance
-	unsigned long _order_id = 0;
-	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
-	
-	// Automatic comparison operators
-	bool operator==(const IntMap<T>& other) const {
-		return _order_id == other._order_id;
-	}
-	
-	bool operator<(const IntMap<T>& other) const {
-		return _order_id < other._order_id;
-	}
+	HX_COMPARISON_OPERATORS(IntMap<T>)
 };
 
 }
