@@ -9,6 +9,7 @@ package unboundcompiler.subcompilers;
 
 #if (macro || ucpp_runtime)
 
+import haxe.macro.Context;
 import haxe.macro.Type;
 
 import haxe.display.Display.MetadataTarget;
@@ -301,6 +302,41 @@ class Compiler_Classes extends SubCompiler {
 
 		if(field.hasMeta(":noExcept")) {
 			specifiers.push("noexcept");
+		}
+
+		// -----------------
+		// Main function modifiers
+		if(field.hasMeta(":prependToMain")) {
+			final entries = field.meta.maybeExtract(":prependToMain");
+			final pos = entries.length > 0 ? entries[0].pos : field.pos;
+			if(!isStatic) {
+				pos.makeError(MainPrependOnNonStatic);
+			} else {
+				// -----------------
+				// Convert this static function information into a TypedExpr.
+				#if eval
+				final clsComplex = haxe.macro.ComplexTypeTools.toString(Context.toComplexType(TInst(classTypeRef, []))).split(".");
+				final untypedExpr = if(data.args.length == 0) {
+					macro $p{clsComplex}.$name();
+				} else {
+					// Check that the arguments match (Int, ucpp.CArray)
+					// First check that there are no more than two required arguments.
+					// Next check that the first two arguments match the required types.
+					if(
+						data.args.map(a -> !a.opt).length <= 2 &&
+						Context.unify(data.args[0].t, Context.getType("Int")) &&
+						Context.unify(data.args[1].t, Context.getType("ucpp.CArray"))
+					) {
+						macro $p{clsComplex}.$name(untyped argc, untyped argv);
+					} else {
+						pos.makeError(MainPrependWrongArguments);
+					}
+				}
+
+				final typedExpr = Context.typeExpr(untypedExpr);
+				Main.addMainPrependFunction(typedExpr);
+				#end
+			}
 		}
 
 		if(isDynamic) {

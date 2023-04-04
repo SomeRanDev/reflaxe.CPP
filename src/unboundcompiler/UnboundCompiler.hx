@@ -382,12 +382,16 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		if(mainExpr != null) {
 			IComp.resetAndInitIncludes(true);
 
-			// Compile the expression before compiling the
+			// Compile the expressions before compiling the
 			// includes so they are all found.
 			final cpp = compileExpression(mainExpr);
+			final prependsCpp = prependExpressions.map(compileExpression);
 
 			var content = IComp.compileCppIncludes() + "\n\n";
-			content += "int main() {\n";
+			content += "int main(int argc, const char* argv[]) {\n";
+			for(pcpp in prependsCpp) {
+				content += pcpp.tab() + ";\n";
+			}
 			content += cpp.tab() + ";\n";
 			content += "\treturn 0;\n";
 			content += "}\n";
@@ -738,6 +742,18 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			if(mt != null) {
 				currentDep.addDep(mt);
 			}
+		}
+	}
+
+	// ----------------------------
+	// Prepend expressions are expressions called before the main expression.
+	// A static class function can be marked using @:prependToMain and it will
+	// be automatically generated at the beginning of the main function.
+	var prependExpressions: Array<TypedExpr> = [];
+
+	public function addMainPrependFunction(expr: TypedExpr) {
+		if(!prependExpressions.contains(expr)) {
+			prependExpressions.push(expr);
 		}
 	}
 }
