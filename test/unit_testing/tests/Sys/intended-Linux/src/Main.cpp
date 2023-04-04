@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <deque>
 #include <iostream>
 #include <memory>
 #include <stdlib.h>
@@ -102,6 +103,11 @@ void Main::main() {
 	std::optional<std::string> tempLeft3 = this1->get(key + "env_map"s);
 	
 	Main::assert(tempLeft3 == "123"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 30, "main"s));
+	
+	std::shared_ptr<std::deque<std::string>> args = SysImpl::args();
+	
+	Main::assert(args->size() == 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 33, "main"s));
+	Main::assert((*args)[0].find("test_out"s) >= 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 34, "main"s));
 	
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);

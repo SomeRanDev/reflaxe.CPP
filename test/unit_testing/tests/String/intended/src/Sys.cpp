@@ -8,14 +8,30 @@
 
 using namespace std::string_literals;
 
+std::deque<std::string> SysImpl::_args = (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{}));
+
+void SysImpl::setupArgs(int argCount, const char** args) {
+	int _g = 0;
+	int _g1 = argCount;
+	
+	while(_g < _g1) {
+		int i = _g++;
+		SysImpl::_args.push_back(std::string(args[i]));
+	};
+}
+
+std::shared_ptr<std::deque<std::string>> SysImpl::args() {
+	return std::make_shared<std::deque<std::string>>(SysImpl::_args);
+}
+
 std::shared_ptr<haxe::ds::StringMap<std::string>> SysImpl::environment() {
 	std::shared_ptr<std::deque<std::string>> strings = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 	
-	char ** env;
+	char** env;
 	#if defined(WIN) && (_MSC_VER >= 1900)
 		env = *__p__environ();
 	#else
-		extern char ** environ;
+		extern char** environ;
 		env = environ;
 	#endif
 		for (; *env; ++env) {

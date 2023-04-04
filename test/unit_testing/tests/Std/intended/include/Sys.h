@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <memory>
 #include <string>
 #include "haxe_ds_StringMap.h"
@@ -7,6 +8,12 @@
 
 class SysImpl {
 public:
+	static std::deque<std::string> _args;
+
+	static void setupArgs(int argCount, const char** args);
+	
+	static std::shared_ptr<std::deque<std::string>> args();
+	
 	static std::shared_ptr<haxe::ds::StringMap<std::string>> environment();
 	
 	static std::string systemName();
@@ -35,6 +42,6 @@ public:
 namespace haxe {
 	template<> struct _class<SysImpl> {
 		DEFINE_CLASS_TOSTRING
-		constexpr static _class_data<0, 2> data {"SysImpl", {}, { "environment", "systemName" }};
+		constexpr static _class_data<0, 5> data {"SysImpl", {}, { "_args", "setupArgs", "args", "environment", "systemName" }};
 	};
 }

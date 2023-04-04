@@ -30,6 +30,8 @@ public:
 	}
 };
 
+
+
 class NormalClass {
 public:
 	NormalClass();
