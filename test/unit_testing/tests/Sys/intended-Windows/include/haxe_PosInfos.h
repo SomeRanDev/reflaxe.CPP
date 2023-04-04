@@ -1,7 +1,11 @@
 #pragma once
 
+#include <deque>
+#include <memory>
 #include <optional>
+#include <string>
 #include "_AnonStructs.h"
+#include "ucpp_DynamicToString.h"
 
 namespace haxe {
 
