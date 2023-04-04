@@ -38,7 +38,6 @@ class Compiler_Anon extends SubCompiler {
 		final anonMap: Map<String, TypedExpr> = [];
 		for(f in fields) {
 			final ft = Main.getExprType(f.expr);
-			Main.onTypeEncountered(ft, compilingInHeader);
 			final field = {
 				name: f.name,
 				type: ft,
@@ -172,6 +171,9 @@ class Compiler_Anon extends SubCompiler {
 
 	public function compileNamedAnonTypeDefinition(defType: DefType, anonRef: Ref<AnonType>): String {
 		final anonStruct = getNamedAnonStruct(defType, anonRef);
+		for(f in anonStruct.constructorOrder) {
+			Main.onTypeEncountered(f.type, true);
+		}
 		return anonStruct.cpp;
 	}
 
@@ -189,7 +191,6 @@ class Compiler_Anon extends SubCompiler {
 		TComp.enableDynamicToTemplate([]);
 
 		for(f in anonFields) {
-			Main.onTypeEncountered(f.type, true);
 			final t = TComp.compileType(f.type, f.pos);
 			final v = t + " " + f.name;
 			fields.push(v);
@@ -199,7 +200,6 @@ class Compiler_Anon extends SubCompiler {
 			switch(f.type) {
 				case TFun(args, ret): {
 					final declArgs = args.map(a -> {
-						Main.onTypeEncountered(a.t, true);
 						return TComp.compileType(a.t, PositionHelper.unknownPos()) + " " + a.name;
 					}).join(", ");
 					final callArgs = args.map(a -> a.name).join(", ");
