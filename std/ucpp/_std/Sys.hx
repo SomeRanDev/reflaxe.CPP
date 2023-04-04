@@ -1,13 +1,33 @@
 package;
 
 class SysImpl {
+	// Store program arguments
+	static var _args: ucpp.Value<Array<String>> = [];
+
+	// Automatically called at start of the main
+	// function if this class is generated.
+	@:prependToMain
+	public static function setupArgs(argCount: Int, args: ucpp.CArray<ucpp.ConstCharPtr>) {
+		for(i in 0...argCount) {
+			_args.push(args[i].toString());
+		}
+	}
+
+	public static function args(): Array<String> {
+		return _args;
+	}
+
+	// ---
+
 	public static function environment(): Map<String, String> {
 		var strings: Array<String> = [];
-		untyped __ucpp__("char ** env;
+
+		// https://stackoverflow.com/a/71483564/8139481
+		untyped __ucpp__("char** env;
 #if defined(WIN) && (_MSC_VER >= 1900)
 	env = *__p__environ();
 #else
-	extern char ** environ;
+	extern char** environ;
 	env = environ;
 #endif
 	for (; *env; ++env) {
@@ -23,6 +43,8 @@ class SysImpl {
 		}
 		return result;
 	}
+
+	// ---
 
 	public static function systemName(): String {
 		untyped __ucpp__("#if defined(_WIN32)
@@ -49,7 +71,9 @@ extern class Sys {
 		untyped __ucpp__("std::cout << {} << std::endl", v);
 	}
 
-	static function args(): Array<String>;
+	public static extern inline function args(): Array<String> {
+		return SysImpl.args();
+	}
 
 	public static extern inline function getEnv(s: String): Null<String> {
 		final result = ucpp.Stdlib.getEnv(@:privateAccess s.c_str());
