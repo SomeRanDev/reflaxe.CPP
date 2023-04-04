@@ -1,7 +1,6 @@
 #pragma once
 
 #include "_AnonStructs.h"
-#include <functional>
 #include <memory>
 
 // { hasNext: () -> Bool, next: () -> Iterator.T }

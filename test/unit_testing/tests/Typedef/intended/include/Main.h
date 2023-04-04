@@ -1,11 +1,8 @@
 #pragma once
 
 #include "haxe_PosInfos.h"
-#include "ucpp_DynamicToString.h"
-#include <deque>
 #include <memory>
 #include <optional>
-#include <string>
 
 class ValueClass {
 public:
@@ -58,6 +55,12 @@ public:
 using MyInt = int;
 
 
+using MyIntInt = MyInt;
+
+
+using ValueClassDef = ValueClass;
+
+
 namespace _Main {
 
 class Main_Fields_ {
@@ -86,10 +89,6 @@ public:
 };
 
 }
-using MyIntInt = MyInt;
-
-
-using ValueClassDef = ValueClass;
 
 
 using ValueClassPtr = ValueClass;
