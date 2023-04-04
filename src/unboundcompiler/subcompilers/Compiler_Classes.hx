@@ -59,6 +59,7 @@ class Compiler_Classes extends SubCompiler {
 
 	var headerOnly: Bool = false;
 	var noAutogen: Bool = false;
+	var hasConstructor: Bool = false;
 
 	var headerContent: Array<String> = [];
 
@@ -181,6 +182,7 @@ class Compiler_Classes extends SubCompiler {
 
 		headerOnly = classType.isHeaderOnly();
 		noAutogen = classType.hasMeta(":noAutogen");
+		hasConstructor = false;
 	}
 
 	// Compile class var
@@ -235,6 +237,7 @@ class Compiler_Classes extends SubCompiler {
 		final isDestructor = isInstanceFunc && field.name == "destructor";
 		final useReturnType = !isConstructor && !isDestructor;
 		final name = if(isConstructor) {
+			hasConstructor = true;
 			className;
 		} else if(isDestructor) {
 			"~" + className;
@@ -458,7 +461,7 @@ class Compiler_Classes extends SubCompiler {
 	// Generate file output
 	function generateOutput() {
 		// Auto-generated content
-		if(!noAutogen) {
+		if(hasConstructor && !noAutogen) {
 			functions.push(autogenContent());
 		}
 
