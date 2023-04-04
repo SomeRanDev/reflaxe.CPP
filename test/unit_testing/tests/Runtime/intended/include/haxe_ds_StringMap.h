@@ -76,7 +76,7 @@ public:
 		return std::make_shared<KeyValueIterator<std::string, T>>(std::make_shared<haxe::iterators::MapKeyValueIterator<std::string, T>>(this->shared_from_this()));
 	}
 	
-	std::shared_ptr<haxe::IMap<std::string, T>> copy() {
+	std::shared_ptr<haxe::ds::StringMap<T>> copy() {
 		std::shared_ptr<haxe::ds::StringMap<T>> result = std::make_shared<haxe::ds::StringMap<T>>();
 		std::shared_ptr<Iterator<std::string>> k = this->keys();
 		
