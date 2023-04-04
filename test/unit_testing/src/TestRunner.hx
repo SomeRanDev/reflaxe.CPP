@@ -8,6 +8,7 @@ final BUILD_DIR = "build";
 var ShowAllOutput = false;
 var UpdateIntended = false;
 var UpdateIntendedSys = false;
+var OSExclusive = false;
 var NoDetails = false;
 var PrintCommand = false;
 
@@ -40,6 +41,9 @@ The output of the C++ compilation and executable is always shown, even if it ran
 * update-intended
 The C++ output is generated in the `intended` folder.
 
+* os-exclusive
+Only tests with intended folders exclusive to this operating system will be processed.
+
 * no-details
 The list of C++ output lines that do not match the tests are ommitted from the output.
 
@@ -58,6 +62,7 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 	ShowAllOutput = args.contains("show-all-output");
 	UpdateIntended = args.contains("update-intended");
 	UpdateIntendedSys = args.contains("update-intended-sys");
+	OSExclusive = args.contains("os-exclusive");
 	NoDetails = args.contains("no-details");
 	PrintCommand = args.contains("print-command");
 
@@ -91,6 +96,13 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 			printlnErr("The provided tests do not exist: " + tests);
 			Sys.exit(1);
 		}
+	}
+
+	if(OSExclusive) {
+		tests = tests.filter(function(t) {
+			final sysDir = INTENDED_DIR + "-" + Sys.systemName();
+			return sys.FileSystem.exists(haxe.io.Path.join([TEST_DIR, t, sysDir]));
+		});
 	}
 
 	var failures = 0;
