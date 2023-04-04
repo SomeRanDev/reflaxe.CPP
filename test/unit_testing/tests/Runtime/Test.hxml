@@ -2,7 +2,7 @@
 # -lib unbound
 # -D cpp-output=out
 
--dce no
+# -dce no
 -D ucpp_runtime
 
 -D mainClass=Main
