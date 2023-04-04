@@ -672,6 +672,8 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	}
 
 	// ----------------------------
+	// This should be used instead of `AbstractType.type`.
+	// Properly unwraps @:multiType.
 	public function getAbstractInner(t: Type): Type {
 		return switch(t) {
 			case TAbstract(absRef, params): {
@@ -687,6 +689,8 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	}
 
 	// ----------------------------
+	// This should be used instead of `DefType.type`.
+	// Properly unwraps memory management types and returns the desired type.
 	public function getTypedefInner(t: Type): Type {
 		return switch(t) {
 			case TType(defRef, _): {
@@ -723,6 +727,14 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	}
 
 	// ----------------------------
+	// This is a simple way of managing and configuring the DependencyTracker system.
+	//
+	// `setCurrentDep`, `getCurrentDep`, & `clearDep` manage the dependency tracker
+	// that is being compiled for. These should be called before compiling the
+	// content for a module declaration.
+	//
+	// `addDep` adds a dependency to the current dependency tracker. It can be called
+	// from any of the sub-compilers to add a dependency for the current module.
 	var currentDep: Null<DependencyTracker> = null;
 	public function setCurrentDep(dep: DependencyTracker) {
 		currentDep = dep;
