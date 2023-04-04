@@ -462,7 +462,8 @@ class Compiler_Classes extends SubCompiler {
 	function generateOutput() {
 		// Auto-generated content
 		if(hasConstructor && !noAutogen) {
-			functions.push(autogenContent());
+			IComp.addHaxeUtilHeader(true);
+			functions.push("HX_COMPARISON_OPERATORS(" + classNameWParams + ")");
 		}
 
 		addExtensionClasses();
@@ -549,24 +550,6 @@ class Compiler_Classes extends SubCompiler {
 		});
 
 		Main.addReflectionCpp(headerFilename, RComp.compileClassReflection(classTypeRef));
-	}
-
-	function autogenContent(): String {
-		return "// ----------
-// Auto-generated additions from Haxe
-
-// Generate unique id for each instance
-unsigned long _order_id = 0;
-static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }
-
-// Automatic comparison operators
-bool operator==(const " + classNameWParams + "& other) const {
-	return _order_id == other._order_id;
-}
-
-bool operator<(const " + classNameWParams + "& other) const {
-	return _order_id < other._order_id;
-}";
 	}
 }
 

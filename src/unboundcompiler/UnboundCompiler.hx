@@ -74,6 +74,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	// ----------------------------
 	// The name of the header file generated for the anonymous structs.
+	static final HaxeUtilsHeaderFile: String = "_HaxeUtils";
 	static final AnonStructHeaderFile: String = "_AnonStructs";
 	static final AnonUtilsHeaderFile: String = "_AnonUtils";
 	static final TypeUtilsHeaderFile: String = "_TypeUtils";
@@ -140,10 +141,11 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// been passed to this compiler class.
 	public override function onCompileEnd() {
 		compileAllTypedefs();
+		generateMainFile();
 		generateReflectionInfo();
 		generateAnonStructHeader();
 		generateTypeUtilsHeader();
-		generateMainFile();
+		generateHaxeUtilsHeader();
 	}
 
 	// ----------------------------
@@ -386,6 +388,24 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			content += headerContent + "\n\n";
 			setExtraFile(HeaderFolder + "/" + TypeUtilsHeaderFile + HeaderExt, content); 
 		}
+	}
+
+	function generateHaxeUtilsHeader() {
+		if(IComp.haxeUtilHeaderRequired) {
+			final headerContent = haxeUtilsHeaderContent();
+
+			var content = "#pragma once\n\n";
+			content += headerContent + "\n\n";
+			setExtraFile(HeaderFolder + "/" + HaxeUtilsHeaderFile + HeaderExt, content); 
+		}
+	}
+
+	function haxeUtilsHeaderContent() {
+		return "#define HX_COMPARISON_OPERATORS(...)\\
+	unsigned long _order_id = 0;\\
+	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }\\
+	bool operator==(const __VA_ARGS__& other) const { return _order_id == other._order_id; }\\
+	bool operator<(const __VA_ARGS__& other) const { return _order_id < other._order_id; }";
 	}
 
 	// ----------------------------

@@ -65,6 +65,11 @@ class Compiler_Includes extends SubCompiler {
 	var ignoreIncludes: Array<String>;
 
 	// ----------------------------
+	// If the Haxe utility header was included
+	// somewhere in the output, this will be true.
+	public var haxeUtilHeaderRequired(default, null): Bool = false;
+
+	// ----------------------------
 	// If the anonymous structure header was included
 	// somewhere in the output, this will be true.
 	public var anonHeaderRequired(default, null): Bool = false;
@@ -203,6 +208,11 @@ class Compiler_Includes extends SubCompiler {
 
 	function addFunctionTypeInclude(header: Bool) {
 		IComp.addInclude("functional", header, true);
+	}
+
+	function addHaxeUtilHeader(header: Bool) {
+		haxeUtilHeaderRequired = true;
+		IComp.addInclude(UnboundCompiler.HaxeUtilsHeaderFile + UnboundCompiler.HeaderExt, header);
 	}
 
 	function addAnonTypeInclude(header: Bool) {
