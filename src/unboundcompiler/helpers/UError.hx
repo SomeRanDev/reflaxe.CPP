@@ -23,6 +23,8 @@ enum ErrorType {
 	ConstExprMetaInvalidUse;
 	TopLevelInstanceFunction;
 	TopLevelConstructor;
+	MainPrependOnNonStatic;
+	MainPrependWrongArguments;
 
 	// Memory Management Conversion
 	UnsafeToShared;
@@ -59,6 +61,12 @@ class UError {
 			}
 			case TopLevelConstructor: {
 				"Invalid use of @:topLevel. Cannot be used on constructors.";
+			}
+			case MainPrependOnNonStatic: {
+				"@:prependToMain must be used on static function.";
+			}
+			case MainPrependWrongArguments: {
+				"Functions with @:prependToMain must either have no required arguments or the first two must match (Int, ucpp.CArray<ucpp.ConstCharPtr>).";
 			}
 
 			// Memory Management Conversion
