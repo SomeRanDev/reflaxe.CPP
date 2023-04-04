@@ -29,6 +29,10 @@ class Main {
 		Sys.putEnv(key + "env_map", "123");
 		assert(Sys.environment().get(key + "env_map") == "123");
 
+		final args = Sys.args();
+		assert(args.length == 1);
+		assert(args[0].indexOf("test_out") >= 0);
+
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
 		}
