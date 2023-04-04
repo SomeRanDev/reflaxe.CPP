@@ -123,6 +123,19 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	}
 
 	// ----------------------------
+	// Called before anything is compiled.
+	public override function onCompileStart() {
+		// Compile the -main expression if available
+		// to load some types to be compiled with
+		// Reflaxe's dynamic dce.
+		final mainExpr = getMainExpr();
+		if(mainExpr != null) {
+			IComp.resetAndInitIncludes(true);
+			compileExpression(mainExpr);
+		}
+	}
+
+	// ----------------------------
 	// Called after all module types have
 	// been passed to this compiler class.
 	public override function onCompileEnd() {
