@@ -32,32 +32,4 @@ struct AnonStruct0 {
 	int pos;
 };
 
-
-// { key: haxe.iterators.MapKeyValueIterator.K, value: haxe.iterators.MapKeyValueIterator.V }
-template<typename K, typename V>
-struct AnonStruct1 {
-
-	// default constructor
-	AnonStruct1() {}
-	
-	// auto-construct from any object's fields
-	template<typename T>
-	AnonStruct1(T o):
-		key(haxe::unwrap(o).key),
-		value(haxe::unwrap(o).value)
-	{}
-	
-	// construct fields directly
-	static AnonStruct1 make(K key, V value) {
-		AnonStruct1 result;
-		result.key = key;
-		result.value = value;
-		return result;
-	}
-
-	// fields
-	K key;
-	V value;
-};
-
 }

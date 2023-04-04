@@ -58,9 +58,6 @@ using MyInt = int;
 using MyIntInt = MyInt;
 
 
-using ValueClassDef = ValueClass;
-
-
 namespace _Main {
 
 class Main_Fields_ {
@@ -89,8 +86,6 @@ public:
 };
 
 }
-
-
 using ValueClassPtr = ValueClass;
 
 

@@ -3,24 +3,6 @@
 #include <cstdlib>
 #include <memory>
 
-Base::Base(): _order_id(generate_order_id()) {
-	
-}
-
-int Base::getVal() {
-	return 1;
-}
-
-int Base::getVal2() {
-	return 999;
-}
-Child::Child(): _order_id(generate_order_id()) {
-	Base();
-}
-
-int Child::getVal() {
-	return 2;
-}
 void _Main::Main_Fields_::main() {
 	std::shared_ptr<Base> b = std::make_shared<Base>();
 	std::shared_ptr<Child> c = std::make_shared<Child>();
@@ -38,4 +20,22 @@ void _Main::Main_Fields_::main() {
 	if(b2->getVal2() != 999) {
 		exit(1);
 	};
+}
+Base::Base(): _order_id(generate_order_id()) {
+	
+}
+
+int Base::getVal() {
+	return 1;
+}
+
+int Base::getVal2() {
+	return 999;
+}
+Child::Child(): _order_id(generate_order_id()) {
+	Base();
+}
+
+int Child::getVal() {
+	return 2;
 }

@@ -1,6 +1,5 @@
 src/haxe_Log.cpp
 src/_main_.cpp
-src/Sys.cpp
 src/Main.cpp
 include/ucpp_DynamicToString.h
 include/haxe_iterators_MapKeyValueIterator.h
@@ -11,8 +10,6 @@ include/haxe_Log.h
 include/haxe_Constraints.h
 include/_AnonUtils.h
 include/_AnonStructs.h
-include/Sys.h
 include/StdTypes.h
 include/Std.h
-include/Map.h
 include/Main.h

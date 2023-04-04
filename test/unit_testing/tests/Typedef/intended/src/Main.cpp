@@ -8,12 +8,6 @@
 
 using namespace std::string_literals;
 
-ValueClass::ValueClass(): _order_id(generate_order_id()) {
-	this->val = 100;
-}
-NormalClass::NormalClass(): _order_id(generate_order_id()) {
-	
-}
 int _Main::Main_Fields_::exitCode = 0;
 
 void _Main::Main_Fields_::assert(bool cond, std::optional<std::shared_ptr<haxe::PosInfos>> pos) {
@@ -56,4 +50,10 @@ void _Main::Main_Fields_::main() {
 	if(_Main::Main_Fields_::exitCode != 0) {
 		exit(_Main::Main_Fields_::exitCode);
 	};
+}
+ValueClass::ValueClass(): _order_id(generate_order_id()) {
+	this->val = 100;
+}
+NormalClass::NormalClass(): _order_id(generate_order_id()) {
+	
 }

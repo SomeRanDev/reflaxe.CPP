@@ -133,6 +133,10 @@ public:
 // Reflection info
 #include "_TypeUtils.h"
 namespace haxe {
+	template<> struct _class<Main> {
+		DEFINE_CLASS_TOSTRING
+		constexpr static _class_data<0, 4> data {"Main", {}, { "returnCode", "assert", "assertFloat", "main" }};
+	};
 	template<> struct _class<BaseClass> {
 		DEFINE_CLASS_TOSTRING
 		constexpr static _class_data<0, 0> data {"BaseClass", {}, {}};
@@ -148,9 +152,5 @@ namespace haxe {
 	template<> struct _class<ClassWInt> {
 		DEFINE_CLASS_TOSTRING
 		constexpr static _class_data<1, 0> data {"ClassWInt", { "number" }, {}};
-	};
-	template<> struct _class<Main> {
-		DEFINE_CLASS_TOSTRING
-		constexpr static _class_data<0, 4> data {"Main", {}, { "returnCode", "assert", "assertFloat", "main" }};
 	};
 }

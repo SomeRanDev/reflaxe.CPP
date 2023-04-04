@@ -11,22 +11,6 @@
 #include <string>
 using namespace std::string_literals;
 
-BaseClass::BaseClass(): _order_id(generate_order_id()) {
-	
-}
-ChildClass::ChildClass(): _order_id(generate_order_id()) {
-	BaseClass();
-}
-AnotherClass::AnotherClass(): _order_id(generate_order_id()) {
-	
-}
-
-std::string AnotherClass::toString() {
-	return "another class as string"s;
-}
-ClassWInt::ClassWInt(): _order_id(generate_order_id()) {
-	this->number = 123;
-}
 int Main::returnCode = 0;
 
 void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) {
@@ -115,4 +99,20 @@ void Main::main() {
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
 	};
+}
+BaseClass::BaseClass(): _order_id(generate_order_id()) {
+	
+}
+ChildClass::ChildClass(): _order_id(generate_order_id()) {
+	BaseClass();
+}
+AnotherClass::AnotherClass(): _order_id(generate_order_id()) {
+	
+}
+
+std::string AnotherClass::toString() {
+	return "another class as string"s;
+}
+ClassWInt::ClassWInt(): _order_id(generate_order_id()) {
+	this->number = 123;
 }
