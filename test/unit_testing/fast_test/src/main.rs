@@ -29,6 +29,10 @@ struct Args {
     #[arg(short, long)]
     test: Vec<String>,
 
+    /// If defined, only tests with intended folders exclusive for this platform are processed.
+    #[arg(short, long, default_value_t = false)]
+    os_exclusive: bool,
+
     /// If defined, "dev-mode" will be used.
     #[arg(short, long, default_value_t = false)]
     dev_mode: bool,
@@ -70,7 +74,24 @@ fn main() -> std::io::Result<()> {
         // Iterate through all folders and store their names
         for file in fs::read_dir(dir)? {
             let dir = file?;
-            test_names.push(dir.path());
+
+            let should_add = if args.os_exclusive {
+                let mut dir_intended = dir.path().clone();
+                dir_intended.push("intended-".to_string() + if cfg!(windows) {
+                    "Windows"
+                } else if cfg!(unix) {
+                    "Linux"
+                } else {
+                    panic!("Operating system not Windows or Linux")
+                });
+                dir_intended.as_path().exists()
+            } else {
+                true
+            };
+
+            if should_add {
+                test_names.push(dir.path());
+            }
         }
     }
 
