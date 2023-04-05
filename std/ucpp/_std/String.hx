@@ -109,4 +109,12 @@ extern class String {
 	// Native string functions
 	private function c_str(): ucpp.ConstCharPtr;
 	private function data(): ucpp.Ptr<ucpp.Char>;
+	private function at(index: Int): Int;
+
+	// ----------
+	// API functions
+	private extern inline function cca(index: Int): Int {
+		return if(index < 0 || index >= length) -1;
+		else at(index);
+	}
 }
