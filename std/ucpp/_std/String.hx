@@ -56,7 +56,8 @@ extern class String {
 
 	// ----------
 	// @:nativeName
-	@:nativeName("length()")
+	@:nativeName("size()")
+	@:nativeVariableCode("static_cast<int>({var})")
 	public var length(default, null): Int;
 
 	@:nativeName("find")
