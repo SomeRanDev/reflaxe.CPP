@@ -651,18 +651,19 @@ class Compiler_Exprs extends SubCompiler {
 		IComp.addIncludeFromMetaAccess(nameMeta.meta, compilingInHeader);
 
 		return if(nameMeta.hasNativeMeta()) {
+			// @:native
 			nameMeta.getNameOrNative();
 		} else {
 			final name = Main.compileVarName(nameMeta.getNameOrNativeName());
 
 			// Check if this is a static variable,
 			// and if so use singleton.
-			switch(fa) {
+			final result = switch(fa) {
 				case FStatic(clsRef, cfRef): {
 					onModuleTypeEncountered(TClassDecl(clsRef));
 
 					final cf = cfRef.get();
-					return if(cf.hasMeta(":topLevel")) {
+					if(cf.hasMeta(":topLevel")) {
 						name;
 					} else {
 						final className = TComp.compileClassName(clsRef, e.pos, null, true, true);
@@ -683,20 +684,28 @@ class Compiler_Exprs extends SubCompiler {
 					// add a call operator to the end so the C++ function version
 					// is properly called.
 					final end = potentialArgs != null && potentialArgs.length > 0 ? "" : "()";
-					return enumName + "::" + name + end;
+					enumName + "::" + name + end;
 				}
-				case _:
+				case _: {
+					var useArrow = isThisExpr(e) || isArrowAccessType(Main.getExprType(e));
+
+					final nullType = Main.getExprType(e).unwrapNullType();
+					final gdExpr = if(nullType != null) {
+						compileExpressionForType(e, nullType);
+					} else {
+						Main.compileExpressionOrError(e);
+					}
+					gdExpr + (useArrow ? "->" : ".") + name;
+				}
 			}
 
-			var useArrow = isThisExpr(e) || isArrowAccessType(Main.getExprType(e));
-
-			final nullType = Main.getExprType(e).unwrapNullType();
-			final gdExpr = if(nullType != null) {
-				compileExpressionForType(e, nullType);
+			// @:nativeVariableCode
+			final nvc = Main.compileNativeVariableCodeMeta(accessExpr, result);
+			return if(nvc != null) {
+				nvc;
 			} else {
-				Main.compileExpressionOrError(e);
+				result;
 			}
-			return gdExpr + (useArrow ? "->" : ".") + name;
 		}
 	}
 
