@@ -98,13 +98,30 @@ class Main {
 		
 		assert(StringTools.lpad("Hello", "-", 10) == "-----Hello");
 		assert(StringTools.lpad("Hello", "-=", 10) == "-=-=-=Hello");
-		trace("a");
 		assert(StringTools.lpad("Hello", "", 100) == "Hello");
-		trace("b");
 		assert(StringTools.lpad("Hello", "123456789", 1) == "Hello");
-		trace("c");
+
+		assert(StringTools.rpad("Hello", "-", 10) == "Hello-----");
+		assert(StringTools.rpad("Hello", "-=", 10) == "Hello-=-=-=");
+		assert(StringTools.rpad("Hello", "", 100) == "Hello");
+		assert(StringTools.rpad("Hello", "123456789", 1) == "Hello");
 
 		assert(StringTools.ltrim("    Hello") == "Hello");
+		assert(StringTools.ltrim("Hello") == "Hello");
+		assert(StringTools.rtrim("Hello        ") == "Hello");
+		assert(StringTools.rtrim("Hello") == "Hello");
+
+		assert(StringTools.replace("Hello world!", "Hello", "Goodbye") == "Goodbye world!");
+		assert(StringTools.replace("Hello world!", "Greetings", "Goodbye") == "Hello world!");
+
+		// urlEncode & urlDecode have platform specific implementations using
+		// conditional compilation, so they simple return null for our custom
+		// C++ target.
+		//
+		// This can be fixed later using @:build macros, but for the time
+		// being, these are unsupported by Haxe/UCPP.
+		assert(StringTools.urlEncode("https://github.com/RobertBorghese") == null);
+		assert(StringTools.urlDecode("https://github.com/RobertBorghese") == null);
 
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
