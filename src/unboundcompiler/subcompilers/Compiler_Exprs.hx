@@ -538,7 +538,12 @@ class Compiler_Exprs extends SubCompiler {
 
 	function stringToCpp(s: String): String {
 		// Add backslash to all quotes and backslashes.
-		var result = "\"" + StringTools.replace(StringTools.replace(s, "\\", "\\\\"), "\"", "\\\"") + "\"";
+		var result = StringTools.replace(s, "\\", "\\\\");
+		result = StringTools.replace(result, "\"", "\\\"");
+		result = StringTools.replace(result, "\t", "\\t");
+		result = StringTools.replace(result, "\n", "\\n");
+		result = StringTools.replace(result, "\r", "\\r");
+		result = "\"" + result + "\"";
 
 		if(compilingInHeader) {
 			// If compiling in header, we don't want to taint the global namespace with "using namespace",
