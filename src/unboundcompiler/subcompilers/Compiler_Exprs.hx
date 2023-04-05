@@ -601,7 +601,7 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	inline function compileForEqualityBinop(e: TypedExpr) {
-		return if(Main.getExprType(e).getMeta().maybeHas(":directEquality")) {
+		return if(Main.getExprType(e).getMeta().maybeHas(Meta.DirectEquality)) {
 			Main.compileExpressionOrError(e);
 		} else {
 			compileExpressionAsValue(e);
@@ -663,7 +663,7 @@ class Compiler_Exprs extends SubCompiler {
 					onModuleTypeEncountered(TClassDecl(clsRef));
 
 					final cf = cfRef.get();
-					if(cf.hasMeta(":topLevel")) {
+					if(cf.hasMeta(Meta.TopLevel)) {
 						name;
 					} else {
 						final className = TComp.compileClassName(clsRef, e.pos, null, true, true);

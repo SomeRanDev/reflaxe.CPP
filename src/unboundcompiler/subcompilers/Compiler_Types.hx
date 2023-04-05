@@ -58,7 +58,7 @@ class Compiler_Types extends SubCompiler {
 			final meta = t.getMeta();
 
 			// @:typenamePrefixIfDependentScope
-			if(meta.maybeHas(":typenamePrefixIfDependentScope")) {
+			if(meta.maybeHas(Meta.TypenamePrefixIfDependentScope)) {
 				final params = t.getParams();
 				if(params != null && params.filter(p -> p.isTypeParameter()).length > 0) {
 					return "typename ";
@@ -155,7 +155,7 @@ class Compiler_Types extends SubCompiler {
 				if(prim != null) {
 					prim;
 				} else {
-					if(abs.hasMeta(":native") || abs.hasMeta(":nativeName")) {
+					if(abs.hasMeta(":native") || abs.hasMeta(Meta.NativeName)) {
 						final inner = Main.getAbstractInner(t);
 						return compileModuleTypeName(abs, pos, params, true, asValue ? Value : getMemoryManagementTypeFromType(inner));
 					}
@@ -203,7 +203,7 @@ class Compiler_Types extends SubCompiler {
 	// if it exists on the type's declaration.
 	function compileNativeTypeCode(t: Null<Type>, pos: Position, asValue: Bool): Null<String> {
 		final meta = t.getMeta();
-		return if(meta.maybeHas(":nativeTypeCode")) {
+		return if(meta.maybeHas(Meta.NativeTypeCode)) {
 			final params = t.getParams();
 			final paramCallbacks = if(params != null && params.length > 0) {
 				params.map(paramType -> function() {
@@ -228,7 +228,7 @@ class Compiler_Types extends SubCompiler {
 	// ----------------------------
 	// Compile internal field of all ModuleTypes.
 	function compileModuleTypeName(typeData: { > NameAndMeta, pack: Array<String> }, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, overrideMM: Null<MemoryManagementType> = null): String {
-		if(typeData.hasMeta(":nativeTypeCode")) {
+		if(typeData.hasMeta(Meta.NativeTypeCode)) {
 			throw "@:nativeTypeCode detected on ModuleType being compiled on compileModuleTypeName.\nThis is a bug with Haxe to Unbound C++, please report!";
 		}
 		return if(typeData.hasNativeMeta()) {
@@ -241,7 +241,7 @@ class Compiler_Types extends SubCompiler {
 			}
 			result;
 		} else {
-			final useNS = useNamespaces && (!typeData.hasMeta(":noHaxeNamespaces"));
+			final useNS = useNamespaces && (!typeData.hasMeta(Meta.NoHaxeNamespaces));
 			final prefix = (useNS ? typeData.pack.join("::") + (typeData.pack.length > 0 ? "::" : "") : "");
 			final innerClass = compileTypeNameWithParams(prefix + typeData.getNameOrNativeName(), pos, params);
 			final mmType = overrideMM != null ? overrideMM : typeData.getMemoryManagementType();
@@ -277,7 +277,7 @@ class Compiler_Types extends SubCompiler {
 
 		// There are some instances where compileClassName is called outside
 		// of "compileType", so we must check for @:nativeTypeCode again.
-		if(classType.get().hasMeta(":nativeTypeCode")) {
+		if(classType.get().hasMeta(Meta.NativeTypeCode)) {
 			final r = compileNativeTypeCode(asType(), pos, asValue);
 			if(r != null) return prefix + r;
 		}
@@ -306,7 +306,7 @@ class Compiler_Types extends SubCompiler {
 
 		// There are some instances where compileEnumName is called outside
 		// of "compileType", so we must check for @:nativeTypeCode again.
-		if(enumType.get().hasMeta(":nativeTypeCode")) {
+		if(enumType.get().hasMeta(Meta.NativeTypeCode)) {
 			final r = compileNativeTypeCode(asType(), pos, asValue);
 			if(r != null) return prefix + r;
 		}

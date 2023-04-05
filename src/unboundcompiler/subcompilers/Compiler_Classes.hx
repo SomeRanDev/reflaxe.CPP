@@ -181,7 +181,7 @@ class Compiler_Classes extends SubCompiler {
 		if(dep != null) Main.setCurrentDep(dep);
 
 		headerOnly = classType.isHeaderOnly();
-		noAutogen = classType.hasMeta(":noAutogen");
+		noAutogen = classType.hasMeta(Meta.NoAutogen);
 		hasConstructor = false;
 	}
 
@@ -280,17 +280,17 @@ class Compiler_Classes extends SubCompiler {
 		if(isStatic) {
 			specifiers.push("static");
 		}
-		if(field.hasMeta(":constExpr")) {
+		if(field.hasMeta(Meta.ConstExpr)) {
 			specifiers.push("constexpr");
 		}
-		if(field.hasMeta(":cppInline")) {
+		if(field.hasMeta(Meta.CppInline)) {
 			specifiers.push("inline");
 		}
-		if(isAbstract || field.hasMeta(":virtual") || ClassHierarchyTracker.funcHasChildOverride(classType, field, isStatic)) {
+		if(isAbstract || field.hasMeta(Meta.Virtual) || ClassHierarchyTracker.funcHasChildOverride(classType, field, isStatic)) {
 			specifiers.push("virtual");
 		}
 
-		final customSpecifiers = field.meta.extractPrimtiveFromAllMeta(":specifier");
+		final customSpecifiers = field.meta.extractPrimtiveFromAllMeta(Meta.Specifier);
 		for(specifier in customSpecifiers) {
 			if(specifier.isString()) {
 				specifiers.push(specifier);
@@ -303,14 +303,14 @@ class Compiler_Classes extends SubCompiler {
 		// Function SUFFIX attributes
 		final suffixSpecifiers = [];
 
-		if(field.hasMeta(":noExcept")) {
+		if(field.hasMeta(Meta.NoExcept)) {
 			specifiers.push("noexcept");
 		}
 
 		// -----------------
 		// Main function modifiers
-		if(field.hasMeta(":prependToMain")) {
-			final entries = field.meta.maybeExtract(":prependToMain");
+		if(field.hasMeta(Meta.PrependToMain)) {
+			final entries = field.meta.maybeExtract(Meta.PrependToMain);
 			final pos = entries.length > 0 ? entries[0].pos : field.pos;
 			if(!isStatic) {
 				pos.makeError(MainPrependOnNonStatic);
@@ -382,7 +382,7 @@ class Compiler_Classes extends SubCompiler {
 		} else {
 			// -----------------
 			// Check for @:topLevel and check if valid
-			final topLevel = field.hasMeta(":topLevel");
+			final topLevel = field.hasMeta(Meta.TopLevel);
 			if(topLevel) {
 				if(isConstructor) {
 					field.pos.makeError(TopLevelConstructor);
@@ -513,8 +513,8 @@ class Compiler_Classes extends SubCompiler {
 
 		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilename, IComp.compileHeaderIncludes(), 1);
 
-		if(classType.hasMeta(":headerCode")) {
-			final code = classType.meta.extractStringFromFirstMeta(":headerCode");
+		if(classType.hasMeta(Meta.HeaderCode)) {
+			final code = classType.meta.extractStringFromFirstMeta(Meta.HeaderCode);
 			if(code != null) {
 				Main.appendToExtraFile(headerFilename, code + "\n", 2);
 			}

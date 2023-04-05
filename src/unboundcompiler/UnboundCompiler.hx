@@ -36,6 +36,7 @@ import unboundcompiler.subcompilers.Compiler_Types;
 
 import unboundcompiler.other.DependencyTracker;
 
+using unboundcompiler.helpers.UMeta;
 using unboundcompiler.helpers.UType;
 
 class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
@@ -463,8 +464,8 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	}
 
 	function getFileNameFromModuleData(md: CommonModuleTypeData): String {
-		return if(md.hasMeta(":filename")) {
-			md.meta.extractStringFromFirstMeta(":filename");
+		return if(md.hasMeta(Meta.Filename)) {
+			md.meta.extractStringFromFirstMeta(Meta.Filename);
 		} else {
 			md.moduleId();
 		}
@@ -564,7 +565,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	}
 
 	public function compileTypedefImpl(defType: DefType, mt: ModuleType, filename: String, dep: DependencyTracker): Null<String> {
-		if(defType.hasMeta(":extern")) {
+		if(defType.hasMeta(Meta.Extern)) {
 			return null;
 		}
 
@@ -619,7 +620,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 				final targetType = TComp.compileType(getTypedefInner(t), defType.pos, true);
 
 				final hasParams = defType.params.length > 0;
-				if(hasParams || !defType.hasMeta(":cppTypedef")) {
+				if(hasParams || !defType.hasMeta(Meta.CppTypedef)) {
 					if(hasParams) {
 						content += "template<" + defType.params.map(p -> "typename " + p.name).join(", ") + ">\n";
 					}
@@ -676,14 +677,14 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// ----------------------------
 	// Compiles the content generated from @:headerCode and @:cppFileCode.
 	function compileFileCodeMeta(cd: CommonModuleTypeData, headerPriority: Int = 2, cppFilePriority: Int = 2): Bool {
-		if(cd.hasMeta(":headerCode") || cd.hasMeta(":cppFileCode")) {
+		if(cd.hasMeta(Meta.HeaderCode) || cd.hasMeta(Meta.CppFileCode)) {
 			final filename = getFileNameFromModuleData(cd);
 
-			final headerOnly = !cd.hasMeta(":cppFileCode");
+			final headerOnly = !cd.hasMeta(Meta.CppFileCode);
 			IComp.resetAndInitIncludes(headerOnly, [filename + UnboundCompiler.HeaderExt]);
 			IComp.handleSpecialIncludeMeta(cd.meta);
 
-			final headerCode = cd.meta.extractStringFromFirstMeta(":headerCode");
+			final headerCode = cd.meta.extractStringFromFirstMeta(Meta.HeaderCode);
 			if(headerCode != null) {
 				final headerFilePath = HeaderFolder + "/" + filename + HeaderExt;
 				
@@ -692,7 +693,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 				appendToExtraFile(headerFilePath, headerCode + "\n", 2);
 			}
 
-			final cppCode = cd.meta.extractStringFromFirstMeta(":cppFileCode");
+			final cppCode = cd.meta.extractStringFromFirstMeta(Meta.CppFileCode);
 			if(cppCode != null) {
 				final srcFilename = SourceFolder + "/" + filename + SourceExt;
 
