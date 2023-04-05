@@ -579,6 +579,16 @@ class Compiler_Exprs extends SubCompiler {
 			compileExpressionNotNullAsValue(e2);
 		}
 
+		// TODO: Is unsigned shift right is only generated for Int?
+		final isUShrAssign = op.isAssignOp(OpUShr);
+		if(isUShrAssign || op.isUnsignedShiftRight()) {
+			var cpp = "static_cast<unsigned int>(" + gdExpr1 + ") >> " + gdExpr2;
+			if(isUShrAssign) {
+				cpp = gdExpr1 + " = " + cpp;
+			}
+			return cpp;
+		}
+
 		final operatorStr = OperatorHelper.binopToString(op);
 
 		// Wrap primitives with std::to_string(...) when added with String
