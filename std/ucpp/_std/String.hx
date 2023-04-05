@@ -19,6 +19,10 @@ class HxString {
 	}
 
 	public static function split(s: String, delimiter: String): Array<String> {
+		if(delimiter.length <= 0) {
+			return [];
+		}
+
 		var result = [];
 		var pos = 0;
 		while (true) {
@@ -29,7 +33,7 @@ class HxString {
 			} else {
 				result.push(s.substring(pos, newPos));
 			}
-			pos = newPos + 1;
+			pos = newPos + delimiter.length;
 		}
 		return result;
 	}
