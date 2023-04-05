@@ -3,6 +3,7 @@ package unboundcompiler;
 #if (macro || ucpp_runtime)
 
 import reflaxe.ReflectCompiler;
+import reflaxe.input.ClassModifier;
 
 using reflaxe.helpers.ExprHelper;
 
@@ -18,6 +19,13 @@ class UnboundCompilerInit {
 			trackUsedTypes: true,
 			allowMetaMetadata: false
 		});
+
+		applyMods();
+	}
+
+	static function applyMods() {
+		// Provide StringTools.isEof implementation for this target.
+		ClassModifier.mod("StringTools", "isEof", macro return c == 0);
 	}
 
 	static function reservedNames() {
