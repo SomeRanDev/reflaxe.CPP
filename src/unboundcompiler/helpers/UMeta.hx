@@ -206,8 +206,8 @@ enum abstract Meta(String) from String to String {
 
 	// @:nativeVariableCode(code: String)
 	//
-	// Works just like @:native, but allows for some macros to
-	// be used within the "code".
+	// Works just like @:native, but includes some helpeful text
+	// macros to be used within the "code".
 	//
 	// {this}
 	// Replaced with the expression whose field is accessed.
@@ -220,8 +220,8 @@ enum abstract Meta(String) from String to String {
 
 	// @:nativeFunctionCode(code: String)
 	//
-	// Works just like @:native, but allows for some macros to
-	// be used within the "code".
+	// Works just like @:native, but includes some helpeful text
+	// macros to be used within the "code".
 	//
 	// {this}
 	// Replaced with the expression whose field is accessed.
@@ -237,8 +237,8 @@ enum abstract Meta(String) from String to String {
 
 	// @:nativeFunctionCode(code: String)
 	//
-	// Works just like @:native, but allows for some macros to
-	// be used within the "code".
+	// Works just like @:native, but includes some helpeful text
+	// macros to be used within the "code".
 	//
 	// {typeX}
 	// Replaced with the C++ output that would be generated for
