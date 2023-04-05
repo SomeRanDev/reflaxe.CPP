@@ -563,7 +563,7 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
-		var gdExpr1 = if(op.isAssign()) {
+		var gdExpr1 = if(op.isAssignDirect()) {
 			Main.compileExpressionOrError(e1);
 		} else if(op.isEqualityCheck()) {
 			compileForEqualityBinop(e1);
