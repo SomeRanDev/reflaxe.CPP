@@ -311,6 +311,9 @@ class Compiler_Includes extends SubCompiler {
 			addMetaEntryInc(inc, header);
 		}
 
+		// Include special meta headers at call location if used on field.
+		handleSpecialIncludeMeta(metaAccess, header);
+
 		return defaultOverrided;
 	}
 
