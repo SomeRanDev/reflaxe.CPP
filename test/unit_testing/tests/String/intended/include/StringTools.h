@@ -17,7 +17,13 @@ public:
 	
 	static std::string ltrim(std::string s);
 	
+	static std::string rtrim(std::string s);
+	
 	static std::string lpad(std::string s, std::string c, int l);
+	
+	static std::string rpad(std::string s, std::string c, int l);
+	
+	static std::string replace(std::string s, std::string sub, std::string by);
 	
 	static std::string hex(int n, std::optional<int> digits = std::nullopt);
 };

@@ -154,12 +154,20 @@ void Main::main() {
 	
 	Main::assert(StringTools::lpad("Hello"s, "-"s, 10) == "-----Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 99, "main"s));
 	Main::assert(StringTools::lpad("Hello"s, "-="s, 10) == "-=-=-=Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 100, "main"s));
-	std::cout << "test/unit_testing/tests/String/Main.hx:101: a"s << std::endl;
-	Main::assert(StringTools::lpad("Hello"s, ""s, 100) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 102, "main"s));
-	std::cout << "test/unit_testing/tests/String/Main.hx:103: b"s << std::endl;
-	Main::assert(StringTools::lpad("Hello"s, "123456789"s, 1) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 104, "main"s));
-	std::cout << "test/unit_testing/tests/String/Main.hx:105: c"s << std::endl;
-	Main::assert(StringTools::ltrim("    Hello"s) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 107, "main"s));
+	Main::assert(StringTools::lpad("Hello"s, ""s, 100) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 101, "main"s));
+	Main::assert(StringTools::lpad("Hello"s, "123456789"s, 1) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 102, "main"s));
+	Main::assert(StringTools::rpad("Hello"s, "-"s, 10) == "Hello-----"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 104, "main"s));
+	Main::assert(StringTools::rpad("Hello"s, "-="s, 10) == "Hello-=-=-="s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 105, "main"s));
+	Main::assert(StringTools::rpad("Hello"s, ""s, 100) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 106, "main"s));
+	Main::assert(StringTools::rpad("Hello"s, "123456789"s, 1) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 107, "main"s));
+	Main::assert(StringTools::ltrim("    Hello"s) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 109, "main"s));
+	Main::assert(StringTools::ltrim("Hello"s) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 110, "main"s));
+	Main::assert(StringTools::rtrim("Hello        "s) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 111, "main"s));
+	Main::assert(StringTools::rtrim("Hello"s) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 112, "main"s));
+	Main::assert(StringTools::replace("Hello world!"s, "Hello"s, "Goodbye"s) == "Goodbye world!"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 114, "main"s));
+	Main::assert(StringTools::replace("Hello world!"s, "Greetings"s, "Goodbye"s) == "Hello world!"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 115, "main"s));
+	Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 123, "main"s));
+	Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 124, "main"s));
 	
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);

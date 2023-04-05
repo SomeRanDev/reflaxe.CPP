@@ -172,6 +172,21 @@ std::string StringTools::ltrim(std::string s) {
 	};
 }
 
+std::string StringTools::rtrim(std::string s) {
+	int l = static_cast<int>(s.size());
+	int r = 0;
+	
+	while(r < l && StringTools::isSpace(s, l - r - 1)) {
+		r++;
+	};
+	
+	if(r > 0) {
+		return s.substr(0, l - r);
+	} else {
+		return s;
+	};
+}
+
 std::string StringTools::lpad(std::string s, std::string c, int l) {
 	if(static_cast<int>(c.size()) <= 0) {
 		return s;
@@ -188,6 +203,29 @@ std::string StringTools::lpad(std::string s, std::string c, int l) {
 	buf_b += Std::string(s);
 	
 	return buf_b;
+}
+
+std::string StringTools::rpad(std::string s, std::string c, int l) {
+	if(static_cast<int>(c.size()) <= 0) {
+		return s;
+	};
+	
+	std::string buf_b = ""s;
+	
+	buf_b += Std::string(s);
+	
+	while(static_cast<int>(buf_b.size()) < l) {
+		buf_b += Std::string(c);
+	};
+	
+	return buf_b;
+}
+
+std::string StringTools::replace(std::string s, std::string sub, std::string by) {
+	std::shared_ptr<std::deque<std::string>> _this = HxString::split(s, sub);
+	std::string tempResult = HxArray::join<std::string>(_this, by);
+	
+	return tempResult;
 }
 
 std::string StringTools::hex(int n, std::optional<int> digits) {
