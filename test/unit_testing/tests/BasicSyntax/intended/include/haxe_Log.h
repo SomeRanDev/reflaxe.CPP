@@ -5,6 +5,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include "_AnonUtils.h"
 #include "haxe_PosInfos.h"
 #include "ucpp_DynamicToString.h"
 

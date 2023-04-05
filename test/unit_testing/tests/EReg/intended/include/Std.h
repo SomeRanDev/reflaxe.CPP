@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include "_AnonUtils.h"
 #include "ucpp_DynamicToString.h"
 
 class Std {

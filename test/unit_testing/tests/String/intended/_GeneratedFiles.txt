@@ -1,8 +1,12 @@
 src/_main_.cpp
+src/StringTools.cpp
 src/Main.cpp
 include/ucpp_DynamicToString.h
 include/haxe_PosInfos.h
 include/_AnonUtils.h
 include/_AnonStructs.h
+include/StringTools.h
+include/Std.h
 include/Main.h
 include/HxString.h
+include/HxArray.h

@@ -53,7 +53,7 @@ void Main::main() {
 	
 	Main::assert(!tempLeft.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 22, "main"s));
 	
-	if(val.length() == 0) {
+	if(static_cast<int>(val.size()) == 0) {
 		unsetenv(key.c_str());
 	} else {
 		setenv(key.c_str(), val.c_str(), 1);
@@ -72,7 +72,7 @@ void Main::main() {
 	
 	Main::assert(tempLeft1 == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 24, "main"s));
 	
-	if(""s.length() == 0) {
+	if(static_cast<int>(""s.size()) == 0) {
 		unsetenv(key.c_str());
 	} else {
 		setenv(key.c_str(), ""s.c_str(), 1);
@@ -93,7 +93,7 @@ void Main::main() {
 	
 	std::string s = key + "env_map"s;
 	
-	if("123"s.length() == 0) {
+	if(static_cast<int>("123"s.size()) == 0) {
 		unsetenv(s.c_str());
 	} else {
 		setenv(s.c_str(), "123"s.c_str(), 1);

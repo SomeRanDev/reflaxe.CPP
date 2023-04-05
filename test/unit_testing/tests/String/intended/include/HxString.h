@@ -27,6 +27,10 @@ public:
 	}
 	
 	static std::shared_ptr<std::deque<std::string>> split(std::string s, std::string delimiter) {
+		if(static_cast<int>(delimiter.size()) <= 0) {
+			return std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
+		};
+		
 		std::shared_ptr<std::deque<std::string>> result = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 		int pos = 0;
 		
@@ -43,15 +47,15 @@ public:
 				result->push_back(tempString);
 				break;
 			} else {
-				std::string tempString;
+				std::string tempString1;
 				if(newPos < 0) {
-					tempString = s.substr(pos);
+					tempString1 = s.substr(pos);
 				} else {
-					tempString = s.substr(pos, newPos - pos);
+					tempString1 = s.substr(pos, newPos - pos);
 				};
-				result->push_back(tempString);
+				result->push_back(tempString1);
 			};
-			pos = newPos + 1;
+			pos = newPos + static_cast<int>(delimiter.size());
 		};
 		
 		return result;

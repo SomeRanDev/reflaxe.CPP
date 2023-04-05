@@ -88,7 +88,7 @@ bool EReg::matchSub(std::string s, int pos, int len) {
 }
 
 std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
-	if(s.length() <= 0) {
+	if(static_cast<int>(s.size()) <= 0) {
 		return std::make_shared<std::deque<std::string>>(std::deque<std::string>{ s });
 	};
 	
@@ -112,20 +112,20 @@ std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
 				break;
 			};
 			index = pos->pos + pos->len;
-			if(index >= s.length()) {
+			if(index >= static_cast<int>(s.size())) {
 				break;
 			};
 		} else {
-			std::string tempString;
+			std::string tempString1;
 			{
 				int endIndex = -1;
 				if(endIndex < 0) {
-					tempString = s.substr(index);
+					tempString1 = s.substr(index);
 				} else {
-					tempString = s.substr(index, endIndex - index);
+					tempString1 = s.substr(index, endIndex - index);
 				};
 			};
-			result->push_back(tempString);
+			result->push_back(tempString1);
 			break;
 		};
 	};
@@ -136,7 +136,7 @@ std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
 std::string EReg::replace(std::string s, std::string by) {
 	std::string b_b = ""s;
 	int pos = 0;
-	int len = s.length();
+	int len = static_cast<int>(s.size());
 	std::shared_ptr<std::deque<std::string>> a = HxString::split(by, "$"s);
 	bool first = true;
 	
@@ -146,21 +146,19 @@ std::string EReg::replace(std::string s, std::string by) {
 		};
 		std::shared_ptr<haxe::AnonStruct0> p = this->matchedPos();
 		if(p->len == 0 && !first) {
-			if(p->pos == s.length()) {
+			if(p->pos == static_cast<int>(s.size())) {
 				break;
 			};
 			p->pos += 1;
 		};
-		{
-			std::optional<int> len1 = p->pos - pos;
-			std::string tempRight;
-			if(!len1.has_value()) {
-				tempRight = s.substr(pos);
-			} else {
-				tempRight = s.substr(pos, len1.value());
-			};
-			b_b += tempRight;
+		std::optional<int> len1 = p->pos - pos;
+		std::string tempRight;
+		if(!len1.has_value()) {
+			tempRight = s.substr(pos);
+		} else {
+			tempRight = s.substr(pos, len1.value());
 		};
+		b_b += tempRight;
 		if(a->size() > 0) {
 			b_b += Std::string((*a)[0]);
 		};
@@ -185,22 +183,20 @@ std::string EReg::replace(std::string s, std::string by) {
 					b_b += Std::string(k);
 				} else {
 					b_b += Std::string(matchReplace);
-					{
-						std::optional<int> len2 = k.length() - 1;
-						std::string tempRight;
-						if(!len2.has_value()) {
-							tempRight = k.substr(1);
-						} else {
-							tempRight = k.substr(1, len2.value());
-						};
-						b_b += tempRight;
+					std::optional<int> len2 = static_cast<int>(k.size()) - 1;
+					std::string tempRight1;
+					if(!len2.has_value()) {
+						tempRight1 = k.substr(1);
+					} else {
+						tempRight1 = k.substr(1, len2.value());
 					};
+					b_b += tempRight1;
 				};
 			} else if(!c.has_value()) {
 				b_b += Std::string("$"s);
 				i++;
 				std::string k2 = (*a)[i];
-				if(true && k2.length() > 0) {
+				if(true && static_cast<int>(k2.size()) > 0) {
 					b_b += Std::string(k2);
 				};
 			} else {
@@ -214,9 +210,9 @@ std::string EReg::replace(std::string s, std::string by) {
 		first = false;
 	} while(this->isGlobal);
 	
-	std::string tempRight = s.substr(pos, len);
+	std::string tempRight2 = s.substr(pos, len);
 	
-	b_b += tempRight;
+	b_b += tempRight2;
 	
 	return b_b;
 }
@@ -226,7 +222,7 @@ std::string EReg::map(std::string s, std::function<std::string(EReg)> f) {
 	std::string buf_b = ""s;
 	
 	do {
-		if(offset >= s.length()) {
+		if(offset >= static_cast<int>(s.size())) {
 			break;
 		} else if(!this->matchSub(s, offset)) {
 			{
@@ -255,7 +251,7 @@ std::string EReg::map(std::string s, std::function<std::string(EReg)> f) {
 		};
 	} while(this->isGlobal);
 	
-	if(!this->isGlobal && offset > 0 && offset < s.length()) {
+	if(!this->isGlobal && offset > 0 && offset < static_cast<int>(s.size())) {
 		std::string x = s.substr(offset);
 		buf_b += Std::string(x);
 	};

@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 #include "_AnonStructs.h"
+#include "_AnonUtils.h"
 #include "ucpp_DynamicToString.h"
 
 namespace haxe {
