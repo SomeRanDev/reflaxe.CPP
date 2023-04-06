@@ -253,16 +253,16 @@ void Main::main() {
 	Main::assert(itArrSum == 6, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 152, "main"s));
 	
 	std::shared_ptr<std::deque<int>> doubleArr2 = std::make_shared<std::deque<int>>(std::deque<int>{ 2, 4, 6 });
-	int _g1_current = 0;
-	std::shared_ptr<std::deque<int>> _g1_array = doubleArr2;
+	int _g_current = 0;
+	std::shared_ptr<std::deque<int>> _g_array = doubleArr2;
 	
-	while(_g1_current < _g1_array->size()) {
-		int _g2_value;
-		int _g2_key;
-		_g2_value = (*_g1_array)[_g1_current];
-		_g2_key = _g1_current++;
-		int index = _g2_key;
-		int value = _g2_value;
+	while(_g_current < _g_array->size()) {
+		int _g_value;
+		int _g_key;
+		_g_value = (*_g_array)[_g_current];
+		_g_key = _g_current++;
+		int index = _g_key;
+		int value = _g_value;
 		Main::assert((index + 1) * 2 == value, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 157, "main"s));
 	};
 	

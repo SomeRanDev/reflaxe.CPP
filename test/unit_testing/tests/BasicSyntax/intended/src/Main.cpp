@@ -86,7 +86,10 @@ void Main::main() {
 	std::any anyTest = 123;
 	
 	Main::assert(std::any_cast<int>(anyTest) == 123, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 82, "main"s));
-	Main::assert(EReg("Any\\(.+\\)"s, ""s).match("<Any("s + Std::string(anyTest.type().name()) + ")>"s), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 86, "main"s));
+	
+	std::string tempString = "<Any("s + Std::string(anyTest.type().name()) + ")>"s;
+	
+	Main::assert(EReg("Any\\(.+\\)"s, ""s).match(tempString), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 86, "main"s));
 	
 	int arr_0 = 1;
 	int arr_1 = 2;

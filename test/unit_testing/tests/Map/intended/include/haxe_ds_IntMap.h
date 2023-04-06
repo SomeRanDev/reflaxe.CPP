@@ -95,13 +95,13 @@ public:
 		std::shared_ptr<Iterator<int>> _g_keys = this->keys();
 		
 		while(_g_keys->hasNext()) {
-			T _g1_value;
-			int _g1_key;
+			T _g_value;
+			int _g_key;
 			int key = _g_keys->next();
-			_g1_value = _g_map->get(key).value();
-			_g1_key = key;
-			int key2 = _g1_key;
-			T value = _g1_value;
+			_g_value = _g_map->get(key).value();
+			_g_key = key;
+			int key2 = _g_key;
+			T value = _g_value;
 			std::string tempLeft;
 			if(first) {
 				tempLeft = std::string("");

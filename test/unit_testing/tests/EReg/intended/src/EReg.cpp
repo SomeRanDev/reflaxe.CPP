@@ -177,7 +177,7 @@ std::string EReg::replace(std::string s, std::string by) {
 				} else {
 					tempMaybeString = std::nullopt;
 				};
-				std::optional<std::string> matchReplace = tempMaybeString;
+				std::optional<std::optional<std::string>> matchReplace = tempMaybeString;
 				if(!matchReplace.has_value()) {
 					b_b += Std::string("$"s);
 					b_b += Std::string(k);
