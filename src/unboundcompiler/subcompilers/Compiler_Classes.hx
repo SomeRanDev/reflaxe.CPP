@@ -114,7 +114,7 @@ class Compiler_Classes extends SubCompiler {
 
 		// Class declaration
 		final classNamePrefix = classType.meta.extractStringFromFirstMeta(Meta.ClassNamePrefix);
-		headerContent[0] += "class " + (classNamePrefix != null ? classNamePrefix + " " : "") + className;
+		headerContent[0] += "class " + (classNamePrefix != null ? (classNamePrefix + " ") : "") + className;
 
 		if(classType.superClass != null) {
 			final superType = classType.superClass.t;
@@ -235,7 +235,7 @@ class Compiler_Classes extends SubCompiler {
 			decl += assign;
 		}
 		final section = field.meta.extractStringFromFirstMeta(Meta.ClassSection);
-		addVariable(decl + ";", section != null ? section : "public");
+		addVariable(decl + ";", section ?? "public");
 
 		if(addToCpp) {
 			cppVariables.push(type + " " + classNameNS + varName + assign + ";");

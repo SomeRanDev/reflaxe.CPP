@@ -91,7 +91,7 @@ class Compiler_Includes extends SubCompiler {
 		// Reset include lists
 		headerIncludes = [];
 		cppIncludes = [];
-		ignoreIncludes = ignoreList != null ? ignoreList : [];
+		ignoreIncludes = ignoreList ?? [];
 
 		// Reset using list
 		cppUsings = [];

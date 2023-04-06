@@ -2,6 +2,8 @@ package unboundcompiler;
 
 #if (macro || ucpp_runtime)
 
+import haxe.macro.Context;
+
 import reflaxe.ReflectCompiler;
 import reflaxe.input.ClassModifier;
 
@@ -9,6 +11,16 @@ using reflaxe.helpers.ExprHelper;
 
 class UnboundCompilerInit {
 	public static function Start() {
+		#if !eval
+		Sys.println("UnboundCompilerInit.Start can only be called from a macro context.");
+		return;
+		#end
+
+		#if (haxe_ver < "4.3.0")
+		Sys.println("Haxe to Unbound C++ requires Haxe version 4.3.0 or greater.");
+		return;
+		#end
+
 		ReflectCompiler.AddCompiler(new UnboundCompiler(), {
 			fileOutputExtension: ".hpp",
 			outputDirDefineName: "cpp-output",

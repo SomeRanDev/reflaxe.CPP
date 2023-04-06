@@ -291,7 +291,7 @@ class Compiler_Exprs extends SubCompiler {
 			case TMeta(metadataEntry, nextExpr): {
 				final unwrappedInfo = unwrapMetaExpr(expr);
 				final cpp = compileExprWithMultipleMeta(unwrappedInfo.meta, expr, unwrappedInfo.internalExpr);
-				result = cpp != null ? cpp : Main.compileExpression(unwrappedInfo.internalExpr);
+				result = cpp ?? Main.compileExpression(unwrappedInfo.internalExpr);
 			}
 			case TEnumParameter(expr, enumField, index): {
 				IComp.addIncludeFromMetaAccess(enumField.meta, compilingInHeader);
@@ -327,7 +327,7 @@ class Compiler_Exprs extends SubCompiler {
 		var result = Main.compileExpressionOrError(expr);
 
 		if(unwrapOptional) {
-			if(Main.getExprType(expr).isNull()) {
+			if(Main.getExprType(expr).isNull() && !expr.isNullExpr()) {
 				result = ensureSafeToAccess(result) + ".value()";
 			}
 		}
@@ -430,7 +430,7 @@ class Compiler_Exprs extends SubCompiler {
 				case _: {
 					var cpp = internal_compileExpressionForType(expr, targetType, true);
 					if(cpp != null) {
-						if(!allowNull && nullToValue) {
+						if(!allowNull && nullToValue && !expr.isNullExpr()) {
 							cpp = ensureSafeToAccess(cpp) + ".value()";
 						}
 						result = applyMMConversion(cpp, expr.pos, Main.getExprType(expr), cmmt, tmmt);
@@ -860,8 +860,7 @@ class Compiler_Exprs extends SubCompiler {
 				native + "(" + args + ")";
 			} else {
 				final params = {
-					final temp = type.getParams();
-					temp != null ? temp : [];
+					type.getParams() ?? [];
 				};
 				final typeParams = params.map(p -> TComp.compileType(p, expr.pos)).join(", ");
 				final cd = type.toModuleType().getCommonData();
@@ -875,7 +874,7 @@ class Compiler_Exprs extends SubCompiler {
 					}
 				}
 
-				compileClassConstruction(type, cd, params != null ? params : [], expr.pos, overrideMMT) + "(" + args + ")";
+				compileClassConstruction(type, cd, params ?? [], expr.pos, overrideMMT) + "(" + args + ")";
 			}
 		}
 	}

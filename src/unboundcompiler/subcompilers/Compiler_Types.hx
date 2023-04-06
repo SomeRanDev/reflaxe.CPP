@@ -244,7 +244,7 @@ class Compiler_Types extends SubCompiler {
 			final useNS = useNamespaces && (!typeData.hasMeta(Meta.NoHaxeNamespaces));
 			final prefix = (useNS ? typeData.pack.join("::") + (typeData.pack.length > 0 ? "::" : "") : "");
 			final innerClass = compileTypeNameWithParams(prefix + typeData.getNameOrNativeName(), pos, params);
-			final mmType = overrideMM != null ? overrideMM : typeData.getMemoryManagementType();
+			final mmType = overrideMM ?? typeData.getMemoryManagementType();
 			applyMemoryManagementWrapper(innerClass, mmType);
 		}
 	}
@@ -271,7 +271,7 @@ class Compiler_Types extends SubCompiler {
 			case _: {}
 		}
 
-		function asType() return TInst(classType, params != null ? params : []);
+		function asType() return TInst(classType, params ?? []);
 
 		var prefix = typePrefix(asType());
 
@@ -300,7 +300,7 @@ class Compiler_Types extends SubCompiler {
 	// ----------------------------
 	// Compile EnumType.
 	public function compileEnumName(enumType: Ref<EnumType>, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false, dependent: Bool = false): String {
-		function asType() return TEnum(enumType, params != null ? params : []);
+		function asType() return TEnum(enumType, params ?? []);
 
 		var prefix = typePrefix(asType());
 
@@ -329,7 +329,7 @@ class Compiler_Types extends SubCompiler {
 	// ----------------------------
 	// Compile DefType.
 	public function compileDefName(defType: Ref<DefType>, pos: Position, params: Null<Array<Type>> = null, useNamespaces: Bool = true, asValue: Bool = false): String {
-		function asType() return TType(defType, params != null ? params : []);
+		function asType() return TType(defType, params ?? []);
 
 		final mmt = asValue ? Value : getMemoryManagementTypeFromType(asType());
 		return typePrefix(asType()) + compileModuleTypeName(defType.get(), pos, params, useNamespaces, mmt);
