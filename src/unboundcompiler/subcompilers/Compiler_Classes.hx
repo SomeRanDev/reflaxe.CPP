@@ -98,7 +98,8 @@ class Compiler_Classes extends SubCompiler {
 		}
 
 		// Class declaration
-		headerContent[0] += "class " + className;
+		final classNamePrefix = classType.meta.extractStringFromFirstMeta(Meta.ClassNamePrefix);
+		headerContent[0] += "class " + (classNamePrefix != null ? classNamePrefix + " " : "") + className;
 
 		if(classType.superClass != null) {
 			final superType = classType.superClass.t;

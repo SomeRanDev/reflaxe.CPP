@@ -258,6 +258,12 @@ enum abstract Meta(String) from String to String {
 	// module type or field.
 	var PrependContent = ":prependContent";
 
+	// @:classNamePrefix(code: String)
+	//
+	// Prepends arbitrary C++ code between the "class" keyword
+	// and the class name of the class C++ declaration.
+	var ClassNamePrefix = ":classNamePrefix";
+
 	// @:directEquality
 	//
 	// If defined on a class, objects are not converted to value type
