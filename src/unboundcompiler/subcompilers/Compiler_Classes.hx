@@ -36,8 +36,23 @@ using unboundcompiler.helpers.UMeta;
 class Compiler_Classes extends SubCompiler {
 	var classType: ClassType;
 
-	var variables: Array<String> = [];
-	var functions: Array<String> = [];
+	var variables: Map<String, Array<String>> = [];
+	var functions: Map<String, Array<String>> = [];
+
+	function addVariable(funcOutput: String, access: String = "public") {
+		if(!variables.exists(access)) {
+			variables.set(access, []);
+		}
+		variables.get(access).push(funcOutput);
+	}
+
+	function addFunction(funcOutput: String, access: String = "public") {
+		if(!functions.exists(access)) {
+			functions.set(access, []);
+		}
+		functions.get(access).push(funcOutput);
+	}
+
 	var topLevelFunctions: Array<String> = [];
 	var cppVariables: Array<String> = [];
 	var cppFunctions: Array<String> = [];
@@ -125,7 +140,7 @@ class Compiler_Classes extends SubCompiler {
 		// However, some additional extendedFrom classes may be required based on the compiled expressions.
 		// So we delay this until later.
 
-		headerContent[2] += " {\npublic:\n";
+		headerContent[2] += " {\n";
 
 		// Instance vars
 		for(v in varFields) {
@@ -219,7 +234,8 @@ class Compiler_Classes extends SubCompiler {
 		if(!addToCpp) {
 			decl += assign;
 		}
-		variables.push(decl + ";");
+		final section = field.meta.extractStringFromFirstMeta(Meta.ClassSection);
+		addVariable(decl + ";", section != null ? section : "public");
 
 		if(addToCpp) {
 			cppVariables.push(type + " " + classNameNS + varName + assign + ";");
@@ -249,6 +265,9 @@ class Compiler_Classes extends SubCompiler {
 		} else {
 			Main.compileVarName(field.name);
 		}
+
+		var section = field.meta.extractStringFromFirstMeta(Meta.ClassSection);
+		if(section == null) section = "public";
 
 		var addToCpp = !headerOnly && !isAbstract;
 
@@ -380,7 +399,7 @@ class Compiler_Classes extends SubCompiler {
 
 			// -----------------
 			// Add to output
-			variables.push(prependFieldContent + decl + ";" + appendFieldContent);
+			addVariable(prependFieldContent + decl + ";" + appendFieldContent, section);
 
 			if(dynAddToCpp) {
 				cppVariables.push(type + " " + classNameNS + name + assign);
@@ -447,7 +466,12 @@ class Compiler_Classes extends SubCompiler {
 			// -----------------
 			// Add to output
 			if(addToCpp) {
-				(topLevel ? topLevelFunctions : functions).push(prependFieldContent + funcDeclaration + ";" + appendFieldContent);
+				final headerContent = prependFieldContent + funcDeclaration + ";" + appendFieldContent;
+				if(topLevel) {
+					topLevelFunctions.push(headerContent);
+				} else {
+					addFunction(headerContent, section);
+				}
 
 				final argCpp = if(data.tfunc != null) {
 					data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, true));
@@ -457,7 +481,8 @@ class Compiler_Classes extends SubCompiler {
 				final cppArgDecl = "(" + argCpp.join(", ") + ")";
 				cppFunctions.push(retDecl + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
 			} else {
-				functions.push(prependFieldContent + templateDecl + funcDeclaration + (isAbstract ? " = 0;" : content) + appendFieldContent);
+				final content = prependFieldContent + templateDecl + funcDeclaration + (isAbstract ? " = 0;" : content) + appendFieldContent;
+				addFunction(content, section);
 			}
 
 			if(!topLevel) {
@@ -471,7 +496,7 @@ class Compiler_Classes extends SubCompiler {
 		// Auto-generated content
 		if(hasConstructor && !noAutogen) {
 			IComp.addHaxeUtilHeader(true);
-			functions.push("HX_COMPARISON_OPERATORS(" + classNameWParams + ")");
+			addFunction("HX_COMPARISON_OPERATORS(" + classNameWParams + ")");
 		}
 
 		addExtensionClasses();
@@ -534,13 +559,25 @@ class Compiler_Classes extends SubCompiler {
 			result += Main.compileNamespaceStart(classType);
 			result += headerContent.join("");
 
-			final varsExist = variables.length > 0;
-			if(varsExist) {
-				result += variables.join("\n\n").tab() + "\n";
+
+			final keys: Array<String> = Lambda.array({ iterator: () -> variables.keys() });
+			for(fk in functions.keys()) {
+				if(!keys.contains(fk)) keys.push(fk);
 			}
 
-			if(functions.length > 0) {
-				result += (varsExist ? "\n" : "") + functions.join("\n\n").tab() + "\n";
+			for(key in keys) {
+				result += key + ":\n";
+
+				var varsExist = false;
+				if(variables.exists(key) && variables.get(key).length > 0) {
+					result += variables.get(key).join("\n\n").tab() + "\n";
+					varsExist = true;
+				}
+
+				if(functions.exists(key) && functions.get(key).length > 0) {
+					result += (varsExist ? "\n" : "");
+					result += functions.get(key).join("\n\n").tab() + "\n";
+				}
 			}
 
 			result += "};";

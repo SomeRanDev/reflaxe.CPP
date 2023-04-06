@@ -264,6 +264,14 @@ enum abstract Meta(String) from String to String {
 	// and the class name of the class C++ declaration.
 	var ClassNamePrefix = ":classNamePrefix";
 
+	// @:classSection(code: String)
+	//
+	// Places the class field in a different section than the
+	// default "public" section. Useful for C++ frameworks like
+	// Qt that provide their own class sections like "signals"
+	// and "public slots".
+	var ClassSection = ":classSection";
+
 	// @:directEquality
 	//
 	// If defined on a class, objects are not converted to value type
