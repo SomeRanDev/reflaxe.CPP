@@ -13,6 +13,7 @@ package unboundcompiler.helpers;
 #if (macro || ucpp_runtime)
 
 using reflaxe.helpers.NameMetaHelper;
+using reflaxe.helpers.NullableMetaAccessHelper;
 
 enum abstract Meta(String) from String to String {
 	// @:headerOnly
@@ -245,6 +246,18 @@ enum abstract Meta(String) from String to String {
 	// type parameter number "X" (starting from 0).
 	var NativeTypeCode = ":nativeTypeCode";
 
+	// @:appendContent(code: String)
+	//
+	// Appends arbitrary C++ code to the declaration of the 
+	// module type or field.
+	var AppendContent = ":appendContent";
+
+	// @:prependContent(code: String)
+	//
+	// Prepends arbitrary C++ code to the declaration of the 
+	// module type or field.
+	var PrependContent = ":prependContent";
+
 	// @:directEquality
 	//
 	// If defined on a class, objects are not converted to value type
@@ -287,6 +300,10 @@ class UMeta {
 
 	public static function isOverrideMemoryManagement(meta: NameAndMeta): Bool {
 		return meta.hasMeta(Meta.OverrideMemoryManagement);
+	}
+
+	public static function getCombinedStringContentOfMeta(meta: NameAndMeta, metaName: String): String {
+		return meta.meta.extractPrimtiveFromAllMeta(metaName, 0).join("");
 	}
 
 	// ----------------------------

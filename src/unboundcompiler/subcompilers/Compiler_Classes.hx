@@ -83,6 +83,10 @@ class Compiler_Classes extends SubCompiler {
 
 		headerContent = ["", "", ""];
 
+		// @:prependContent
+		final prependContent = classType.getCombinedStringContentOfMeta(Meta.PrependContent);
+		headerContent[0] += prependContent;
+
 		// Meta
 		final clsMeta = Main.compileMetadata(classType.meta, MetadataTarget.Class);
 		headerContent[0] += clsMeta;
@@ -342,6 +346,9 @@ class Compiler_Classes extends SubCompiler {
 			}
 		}
 
+		final prependFieldContent = field.getCombinedStringContentOfMeta(Meta.PrependContent);
+		final appendFieldContent = field.getCombinedStringContentOfMeta(Meta.AppendContent);
+
 		if(isDynamic) {
 			// -----------------
 			// Compile dynamic function as a variable containing a function.
@@ -372,7 +379,7 @@ class Compiler_Classes extends SubCompiler {
 
 			// -----------------
 			// Add to output
-			variables.push(decl + ";");
+			variables.push(prependFieldContent + decl + ";" + appendFieldContent);
 
 			if(dynAddToCpp) {
 				cppVariables.push(type + " " + classNameNS + name + assign);
@@ -439,7 +446,7 @@ class Compiler_Classes extends SubCompiler {
 			// -----------------
 			// Add to output
 			if(addToCpp) {
-				(topLevel ? topLevelFunctions : functions).push(funcDeclaration + ";");
+				(topLevel ? topLevelFunctions : functions).push(prependFieldContent + funcDeclaration + ";" + appendFieldContent);
 
 				final argCpp = if(data.tfunc != null) {
 					data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, true));
@@ -449,7 +456,7 @@ class Compiler_Classes extends SubCompiler {
 				final cppArgDecl = "(" + argCpp.join(", ") + ")";
 				cppFunctions.push(retDecl + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
 			} else {
-				functions.push(templateDecl + funcDeclaration + (isAbstract ? " = 0;" : content));
+				functions.push(prependFieldContent + templateDecl + funcDeclaration + (isAbstract ? " = 0;" : content) + appendFieldContent);
 			}
 
 			if(!topLevel) {
@@ -535,7 +542,15 @@ class Compiler_Classes extends SubCompiler {
 				result += (varsExist ? "\n" : "") + functions.join("\n\n").tab() + "\n";
 			}
 
-			result += "};\n";
+			result += "};";
+
+			// @:appendContent
+			final appendContent = classType.getCombinedStringContentOfMeta(Meta.AppendContent);
+			if(appendContent.length > 0) {
+				result += appendContent;
+			}
+
+			result += "\n";
 
 			result += Main.compileNamespaceEnd(classType);
 		}
