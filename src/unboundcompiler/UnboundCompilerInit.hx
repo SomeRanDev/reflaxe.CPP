@@ -17,7 +17,8 @@ class UnboundCompilerInit {
 			targetCodeInjectionName: "__ucpp__",
 			dynamicDCE: true,
 			trackUsedTypes: true,
-			allowMetaMetadata: false
+			allowMetaMetadata: true,
+			autoNativeMetaFormat: "[[{}]]"
 		});
 
 		applyMods();
