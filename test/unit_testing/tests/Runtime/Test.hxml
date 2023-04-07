@@ -1,9 +1,0 @@
-# The following are added automatically:
-# -lib unbound
-# -D cpp-output=out
-
-# -dce no
--D ucpp_runtime
-
--D mainClass=Main
--main Main

@@ -1,6 +1,0 @@
-# Call from top-level to compile properly.
-# haxe test/sample_project/Test_WithHaxelib.hxml
-
--lib unbound
-
-test/sample_project/hxml/TestParams.hxml

@@ -1,8 +1,0 @@
-[package]
-name = "haxe-ucpp-fast-test"
-authors = ["RoBBoR"]
-version = "1.0.0"
-edition = "2021"
-
-[dependencies]
-clap = { version = "4.2.1", features = ["derive"] }
