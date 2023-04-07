@@ -36,6 +36,7 @@ class Submit {
 	
 	static function copyDirContent(from: String, to: String, ignore: String = "", replaceExt: Null<String> = null) {
 		if(sys.FileSystem.exists(from)) {
+			trace(from, sys.FileSystem.readDirectory(from));
 			for(file in sys.FileSystem.readDirectory(from)) {
 				final path = Path.join([from, file]);
 				var dest = Path.join([to, file]);
