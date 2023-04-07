@@ -39,6 +39,7 @@ class Submit {
 			for(file in sys.FileSystem.readDirectory(from)) {
 				final path = Path.join([from, file]);
 				var dest = Path.join([to, file]);
+				trace(file, path, dest, sys.FileSystem.isDirectory(path));
 				if(!sys.FileSystem.isDirectory(path)) {
 					if(replaceExt != null) {
 						dest = Path.withoutExtension(dest) + replaceExt;
