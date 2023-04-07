@@ -32,16 +32,16 @@ void _Main::Main_Fields_::main() {
 
 # Table of Contents
 
-| Topic                                                                                                         | Description                                        |
-| ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| [Installation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#installation)                             | How to install and use this project.               |
-| [Nightly Installation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#nightly-installation)             | How to install the development/nightly version.    |
-| [Explanation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#explanation)                               | A long winded explanation of this project's goals. |
-| [Compiler Examples](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compiler-examples)                   | Where to find examples.                            |
-| [Memory Management](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#memory-management)                   | How the memory management system works.            |
-| [Destructors](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#destructors)                               | How to use destructors.                            |
-| [Top Level Meta](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#top-level-meta)                         | Add top-level functions in C++.                    |
-| [Plugin System](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compilation-hooks-plugins)               | How to write plugins for the compiler.             |
+| Topic                                                                                             | Description                                        |
+| ------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| [Installation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#installation)                 | How to install and use this project.               |
+| [Nightly Installation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#nightly-installation) | How to install the development/nightly version.    |
+| [Explanation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#explanation)                   | A long winded explanation of this project's goals. |
+| [Compiler Examples](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compiler-examples)       | Where to find examples.                            |
+| [Memory Management](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#memory-management)       | How the memory management system works.            |
+| [Destructors](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#destructors)                   | How to use destructors.                            |
+| [Top Level Meta](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#top-level-meta)             | Add top-level functions in C++.                    |
+| [Plugin System](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compilation-hooks-plugins)   | How to write plugins for the compiler.             |
 
 &nbsp;
 
@@ -51,8 +51,8 @@ This project is currently in development, but once posted on haxelib, this is no
 
 | #   | What to do                                           | What to write                            |
 | --- | ---------------------------------------------------- | ---------------------------------------- |
-| 1   | Install via haxelib.                                 | <pre>haxelib install ucpp</pre>       |
-| 2   | Add the lib to your `.hxml` file or compile command. | <pre lang="hxml">-lib ucpp</pre>      |
+| 1   | Install via haxelib.                                 | <pre>haxelib install ucpp</pre>          |
+| 2   | Add the lib to your `.hxml` file or compile command. | <pre lang="hxml">-lib ucpp</pre>         |
 | 3   | Set the output folder for the compiled C++.          | <pre lang="hxml">-D cpp-output=out</pre> |
 
 Now your `.hxml` should be ready to go! Simply run with Haxe and the output will be generated just like any other Haxe target.
@@ -62,6 +62,7 @@ Now your `.hxml` should be ready to go! Simply run with Haxe and the output will
 # Nightly Installation
 
 If this project isn't on haxelib yet, or you'd like to use the development version, use `haxelib git` on the nightly branch. Just make sure the development version of Reflaxe is also installed:
+
 ```sh
 # Install Reflaxe from git
 haxelib git reflaxe https://github.com/RobertBorghese/reflaxe
@@ -97,11 +98,13 @@ On the other hand, **Haxe to "Unbound C++"** gives memory types first-class trea
 # Examples
 
 Visit the [test/unit_testing/tests directory](https://github.com/RobertBorghese/Haxe-to-UnboundCPP/tree/main/test/unit_testing/tests) for a bunch of samples and tests. Note the "intended" folder contains the expected C++ output that would be generated from the Haxe project in that folder. To run one of the examples, run the following command at the top level of the repository (replace "HelloWorld" with the test name).
+
 ```
 haxe Test.hxml test=HelloWorld
 ```
 
 All the tests can be executed swiftly using the multi-threaded [Rust](https://www.rust-lang.org) script located in `test/unit_testing/fast_test`:
+
 ```
 cd test/unit_testing/fast_test
 cargo run --release
@@ -171,6 +174,7 @@ var obj = new UniqueClass();
 // std::unique_ptr<ValueClass> obj = std::make_unique<ValueClass>();
 var obj2: UniquePtr<ValueClass> = new ValueClass();
 ```
+
 &nbsp;
 
 # Destructors
