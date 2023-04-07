@@ -36,20 +36,17 @@ class Submit {
 	
 	static function copyDirContent(from: String, to: String, ignore: String = "", replaceExt: Null<String> = null) {
 		if(sys.FileSystem.exists(from)) {
-			trace(from, sys.FileSystem.readDirectory(from));
 			for(file in sys.FileSystem.readDirectory(from)) {
 				final path = Path.join([from, file]);
 				var dest = Path.join([to, file]);
-				trace(file, path, dest, sys.FileSystem.isDirectory(path));
 				if(!sys.FileSystem.isDirectory(path)) {
 					if(replaceExt != null) {
 						dest = Path.withoutExtension(dest) + replaceExt;
 					}
-					trace("copied: " + path + "  to  " + dest);
 					File.copy(path, dest);
 				} else {
 					if(ignore.length > 0 && ignore == path) {
-						return;
+						continue;
 					}
 					final d = Path.addTrailingSlash(path);
 					final d2 = Path.addTrailingSlash(dest);
