@@ -35,6 +35,7 @@ void _Main::Main_Fields_::main() {
 | Topic                                                                                                         | Description                                        |
 | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | [Installation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#installation)                             | How to install and use this project.               |
+| [Nightly Installation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#nightly-installation)             | How to install the development/nightly version.    |
 | [Explanation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#explanation)                               | A long winded explanation of this project's goals. |
 | [Compiler Examples](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compiler-examples)                   | Where to find examples.                            |
 | [Memory Management](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#memory-management)                   | How the memory management system works.            |
@@ -50,11 +51,24 @@ This project is currently in development, but once posted on haxelib, this is no
 
 | #   | What to do                                           | What to write                            |
 | --- | ---------------------------------------------------- | ---------------------------------------- |
-| 1   | Install via haxelib.                                 | <pre>haxelib install unbound</pre>       |
-| 2   | Add the lib to your `.hxml` file or compile command. | <pre lang="hxml">-lib unbound</pre>      |
+| 1   | Install via haxelib.                                 | <pre>haxelib install ucpp</pre>       |
+| 2   | Add the lib to your `.hxml` file or compile command. | <pre lang="hxml">-lib ucpp</pre>      |
 | 3   | Set the output folder for the compiled C++.          | <pre lang="hxml">-D cpp-output=out</pre> |
 
 Now your `.hxml` should be ready to go! Simply run with Haxe and the output will be generated just like any other Haxe target.
+
+&nbsp;
+
+# Nightly Installation
+
+If this project isn't on haxelib yet, or you'd like to use the development version, use `haxelib git` on the nightly branch. Just make sure the development version of Reflaxe is also installed:
+```sh
+# Install Reflaxe from git
+haxelib git reflaxe https://github.com/RobertBorghese/reflaxe
+
+# Install the "nightly" auto-build branch
+haxelib git ucpp https://github.com/RobertBorghese/Haxe-to-UnboundCPP nightly
+```
 
 &nbsp;
 
