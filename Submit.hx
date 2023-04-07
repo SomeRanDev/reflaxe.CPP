@@ -43,6 +43,7 @@ class Submit {
 					if(replaceExt != null) {
 						dest = Path.withoutExtension(dest) + replaceExt;
 					}
+					trace("copied: " + path + "  to  " + dest);
 					File.copy(path, dest);
 				} else {
 					if(ignore.length > 0 && ignore == path) {
