@@ -12,13 +12,20 @@ import sys.io.File;
 import haxe.io.Path;
 
 class Submit {
-	public static function main() {
-		if(sys.FileSystem.exists("_submit")) throw "'Folder /_submit/ should not exist before running this script.'";
-		makeDirIfNonExist("_submit");
+	static final destFolder = "_submit";
 
-		copyDirContent("src", "_submit");
-		copyDirContent("std", "_submit", "std/ucpp/_std");
-		copyDirContent("std/ucpp/_std", "_submit", "", ".cross.hx");
+	public static function main() {
+		if(destFolder.length <= 0) throw "Destination folder must be defined.";
+		if(sys.FileSystem.exists(destFolder)) throw "'Folder /" + destFolder + "/ should not exist before running this script.'";
+		makeDirIfNonExist(destFolder);
+
+		copyDirContent("src", destFolder + "/src");
+		copyDirContent("std", destFolder + "/src", "std/ucpp/_std");
+		copyDirContent("std/ucpp/_std", destFolder + "/src", "", ".cross.hx");
+
+		for(file in ["haxelib.json", "extraParams.hxml", "LICENSE", "README.md"]) {
+			File.copy(file, destFolder + "/" + file);
+		}
 	}
 
 	static function makeDirIfNonExist(p: String) {
