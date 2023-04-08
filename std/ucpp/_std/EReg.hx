@@ -35,6 +35,9 @@ class EReg {
 	var regex: StdRegex;
 	var smatch: StringMatch;
 
+	var originalString: String;
+	var originalOptions: String;
+
 	var matches: Null<Array<String>>;
 	var left: Null<String>;
 	var right: Null<String>;
@@ -47,6 +50,9 @@ class EReg {
 		regex = new StdRegex(r, SyntaxOptionType.ECMAScript | SyntaxOptionType.ICase);
 		smatch = new StringMatch();
 
+		originalString = r;
+		originalOptions = opt;
+
 		matches = null;
 		left = null;
 		right = null;
@@ -54,6 +60,10 @@ class EReg {
 		matchLen = 0;
 
 		isGlobal = StringTools.contains(opt, "g");
+	}
+
+	function toString(): String {
+		return "~/" + originalString + "/" + originalOptions;
 	}
 
 	public function match(s: String): Bool {
