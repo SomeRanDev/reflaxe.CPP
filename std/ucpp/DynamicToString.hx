@@ -25,7 +25,7 @@ struct DynamicToString: public std::string {
 			} else {
 				return \"null\";
 			}
-		} else if constexpr(std::is_integral_v<T>) {
+		} else if constexpr(std::is_integral_v<T> || std::is_floating_point_v<T>) {
 			return std::to_string(s);
 		} else if constexpr(std::is_convertible<T, std::string>::value) {
 			return std::string(s);
