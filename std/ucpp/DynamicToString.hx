@@ -2,11 +2,11 @@ package ucpp;
 
 @:headerCode("namespace haxe {
 
-template <typename T, typename = std::string>
-struct HasToString : std::false_type { };
+template<typename T, typename = std::string>
+struct has_to_string : std::false_type { };
 
-template <typename T>
-struct HasToString <T, decltype(std::declval<T>().toString())> : std::true_type { };
+template<typename T>
+struct has_to_string <T, decltype(std::declval<T>().toString())> : std::true_type { };
 
 struct DynamicToString: public std::string {
     template<typename T>
@@ -29,7 +29,7 @@ struct DynamicToString: public std::string {
 			return std::to_string(s);
 		} else if constexpr(std::is_convertible<T, std::string>::value) {
 			return std::string(s);
-		} else if constexpr(HasToString<T>::value) {
+		} else if constexpr(has_to_string<T>::value) {
 			return s.toString();
 		} else if constexpr(haxe::_unwrap_mm<T>::can_deref) {
 			return ToString(*s);
