@@ -2,11 +2,17 @@ package ucpp;
 
 @:headerCode("namespace haxe {
 
-template <typename T, typename = std::string>
-struct HasToString : std::false_type { };
+template<typename T, typename = std::string>
+struct has_to_string : std::false_type { };
 
-template <typename T>
-struct HasToString <T, decltype(std::declval<T>().toString())> : std::true_type { };
+template<typename T>
+struct has_to_string <T, decltype(std::declval<T>().toString())> : std::true_type { };
+
+template<typename>
+struct is_deque : std::false_type {};
+
+template<typename T>
+struct is_deque<std::deque<T>> : std::true_type {};
 
 struct DynamicToString: public std::string {
     template<typename T>
@@ -29,12 +35,18 @@ struct DynamicToString: public std::string {
 			return std::to_string(s);
 		} else if constexpr(std::is_convertible<T, std::string>::value) {
 			return std::string(s);
-		} else if constexpr(HasToString<T>::value) {
+		} else if constexpr(has_to_string<T>::value) {
 			return s.toString();
 		} else if constexpr(haxe::_unwrap_mm<T>::can_deref) {
 			return ToString(*s);
+		} else if constexpr(is_deque<T>::value) {
+			std::string result = \"[\";
+			for(int i = 0; i < s.size(); i++) {
+				result += (i > 0 ? \", \" : \"\") + ToString(s[i]);
+			}
+			return result + \"]\";
 		}
-		
+
 		// Print address if all else fails
 		std::stringstream pointer_stream;
 		pointer_stream << std::addressof(s);

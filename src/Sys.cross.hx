@@ -63,12 +63,12 @@ return \"Mac\";
 
 @:require(sys)
 extern class Sys {
-	public static extern inline function print(v: ucpp.DynamicToString): Void {
-		untyped __ucpp__("std::cout << {}", v);
+	public static extern inline function print(v: Dynamic): Void {
+		untyped __ucpp__("std::cout << {}", Std.string(v));
 	}
 
-	public static extern inline function println(v: ucpp.DynamicToString): Void {
-		untyped __ucpp__("std::cout << {} << std::endl", v);
+	public static extern inline function println(v: Dynamic): Void {
+		untyped __ucpp__("std::cout << {} << std::endl", Std.string(v));
 	}
 
 	public static extern inline function args(): Array<String> {

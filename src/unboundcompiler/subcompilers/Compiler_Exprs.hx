@@ -64,6 +64,18 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	// ----------------------------
+	// Override the expression used for compiling "this".
+	var thisOverride: Null<TypedExpr> = null;
+
+	public function setThisOverride(thisExpr: TypedExpr) {
+		thisOverride = thisExpr;
+	}
+
+	public function clearThisOverride() {
+		thisOverride = null;
+	}
+
+	// ----------------------------
 	// Compiles an expression into C++.
 	public function compileExpressionToCpp(expr: TypedExpr): Null<String> {
 		// ucpp.Stynax.classicFor
@@ -417,11 +429,11 @@ class Compiler_Exprs extends SubCompiler {
 		var result = null;
 		if(cmmt != tmmt || nullToValue) {
 			switch(expr.expr) {
-				case TConst(TThis) if(tmmt == SharedPtr): {
+				case TConst(TThis) if(thisOverride == null && tmmt == SharedPtr): {
 					IComp.setExtraFlag(ExtraFlag.SharedFromThis);
-					result = "this->shared_from_this()";
+					result = "weak_from_this().expired() ? std::make_shared<" + TComp.compileType(expr.t, expr.pos, true) + ">(*this) : shared_from_this()";
 				}
-				case TConst(TThis) if(tmmt == UniquePtr): {
+				case TConst(TThis) if(thisOverride == null && tmmt == UniquePtr): {
 					expr.pos.makeError(ThisToUnique);
 				}
 				case TNew(classTypeRef, params, el): {
@@ -530,7 +542,13 @@ class Compiler_Exprs extends SubCompiler {
 					"std::nullopt";
 				}
 			}
-			case TThis: "this";
+			case TThis: {
+				if(thisOverride != null) {
+					Main.compileExpressionOrError(thisOverride);
+				} else {
+					"this";
+				}
+			}
 			case TSuper: Main.superTypeName;
 			case _: "";
 		}
@@ -620,7 +638,7 @@ class Compiler_Exprs extends SubCompiler {
 
 	function isThisExpr(te: TypedExpr): Bool {
 		return switch(te.expr) {
-			case TConst(TThis): {
+			case TConst(TThis) if(thisOverride == null): {
 				true;
 			}
 			case TParenthesis(te2): {
