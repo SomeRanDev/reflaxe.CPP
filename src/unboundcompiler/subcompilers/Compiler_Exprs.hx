@@ -431,7 +431,7 @@ class Compiler_Exprs extends SubCompiler {
 			switch(expr.expr) {
 				case TConst(TThis) if(thisOverride == null && tmmt == SharedPtr): {
 					IComp.setExtraFlag(ExtraFlag.SharedFromThis);
-					result = "weak_from_this().expired() ? std::make_shared<" + TComp.compileType(expr.t, expr.pos, true) + ">(*this) : shared_from_this()";
+					result = "this->weak_from_this().expired() ? std::make_shared<" + TComp.compileType(expr.t, expr.pos, true) + ">(*this) : this->shared_from_this()";
 				}
 				case TConst(TThis) if(thisOverride == null && tmmt == UniquePtr): {
 					expr.pos.makeError(ThisToUnique);
