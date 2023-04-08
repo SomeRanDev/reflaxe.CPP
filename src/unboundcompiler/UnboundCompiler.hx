@@ -174,6 +174,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		final mt = t.toModuleType();
 		if(mt != null) {
 			addModuleTypeForCompilation(mt);
+			// checkForExternToString(mt);
 		}
 
 		switch(t) {
@@ -676,6 +677,15 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		// add code to an output file using these meta.
 		compileFileCodeMeta(absType);
 
+		// Append some special code to the ucpp.DynamicToString output.
+		// The custom string conversion of extern classes with toString
+		// functions are handled here.
+		//
+		// For now, this feature is disabled. But keeping commented just in case.
+		// if(absType.pack.length == 1 && absType.pack[0] == "ucpp" && absType.name == "DynamicToString") {
+		// 	compileExtraDynamicToString(absType);
+		// }
+
 		// Add internal type for compilation
 		final mt = absType.type.toModuleType();
 		if(mt != null) {
@@ -818,6 +828,103 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			prependExpressions.push(expr);
 		}
 	}
+
+	// ----------------------------
+	// Find all instances of inline "toString" functions on extern classes.
+	// They are stored to be compiled later with ucpp.DynamicToString so these
+	// extern classes can be given their own print behavior.
+	var externToStrings: Map<String, { field: ClassField, mt: ModuleType }> = [];
+
+	function checkForExternToString(mt: ModuleType) {
+		final id = mt.getUniqueId();
+		if(externToStrings.exists(id)) {
+			return;
+		}
+
+		// Get the `ClassType` if it's an extern.
+		final classType = switch(mt) {
+			case TClassDecl(clsRef): {
+				final cls = clsRef.get();
+				cls.isExtern ? cls : null;
+			}
+			case _: null;
+		}
+
+		// Find an inline toString function field.
+		var toStringField = null;
+		if(classType != null) {
+			for(field in classType.fields.get()) {
+				switch(field.kind) {
+					case FMethod(MethInline) if(field.name == "toString"): {
+						if(field.expr() != null) {
+							toStringField = field;
+						}
+					}
+					case _:
+				}
+			}
+		}
+
+		// Store in map for later.
+		if(toStringField != null) {
+			externToStrings.set(id, { field: toStringField, mt: mt });
+		}
+	}
+
+	// This function is unused, but keeping around in case decide to achieve
+	// something similar in the future!
+	//
+	// function compileExtraDynamicToString(absType: AbstractType, ) {
+	// 	final filename = getFileNameFromModuleData(absType);
+	// 	final headerFilePath = HeaderFolder + "/" + filename + HeaderExt;
+
+	// 	addCompileEndCallback(function() {
+	// 		IComp.resetAndInitIncludes(true, [filename + UnboundCompiler.HeaderExt]);
+
+	// 		var headerCode = [];
+
+	// 		for(_ => fieldData in externToStrings) {
+	// 			final classType = switch(fieldData.mt) {
+	// 				case TClassDecl(clsRef): clsRef.get();
+	// 				case _: null;
+	// 			}
+	// 			final t = TypeHelper.fromModuleType(fieldData.mt);
+	// 			final field = fieldData.field;
+	// 			final typeCpp = TComp.compileType(t, field.pos, true);
+
+	// 			final thisExpr = {
+	// 				expr: TIdent("value"),
+	// 				pos: field.pos,
+	// 				t: t
+	// 			};
+
+	// 			final e = switch(field.expr().expr) {
+	// 				case TFunction(tfunc): {
+	// 					tfunc.expr;
+	// 				}
+	// 				case _: null;
+	// 			}
+
+	// 			if(e != null) {
+	// 				XComp.setThisOverride(thisExpr);
+	// 				final exprCpp = compileExpression(e);
+	// 				XComp.clearThisOverride();
+
+	// 				final typeArgs = classType.params.map(p -> "typename " + p.name).join(", ");
+	// 				var cpp = "template<" + typeArgs + ">\n";
+	// 				cpp += "std::string to_string<" + typeCpp + ">(" + typeCpp + " value) {\n";
+	// 				cpp += exprCpp.tab();
+	// 				cpp += "\n}";
+
+	// 				headerCode.push(cpp);
+	// 			}
+	// 		}
+
+	// 		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilePath, IComp.compileHeaderIncludes(), 1);
+
+	// 		appendToExtraFile(headerFilePath, "namespace haxe {\n" + headerCode.join("\n\n") + "\n}\n", 10);
+	// 	});
+	// }
 }
 
 #end
