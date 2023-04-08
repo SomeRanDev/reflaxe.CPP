@@ -147,6 +147,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		generateAnonStructHeader();
 		generateTypeUtilsHeader();
 		generateHaxeUtilsHeader();
+		copyAdditionalFiles();
 	}
 
 	// ----------------------------
@@ -407,6 +408,21 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }\\
 	bool operator==(const __VA_ARGS__& other) const { return _order_id == other._order_id; }\\
 	bool operator<(const __VA_ARGS__& other) const { return _order_id < other._order_id; }";
+	}
+
+	// ----------------------------
+	// Copies files configured to be added
+	// to the output using `ucpp.Compiler`.
+	function copyAdditionalFiles() {
+		for(file in ucpp.Compiler.findAllExtraFiles()) {
+			final fp = file.path;
+			if(sys.FileSystem.exists(fp)) {
+				final path = new haxe.io.Path(fp);
+				final outPath = (file.includeFolder ? HeaderFolder : SourceFolder) + "/" + path.file + "." + path.ext;
+				final content = sys.io.File.getContent(fp);
+				setExtraFile(outPath, content);
+			}
+		}
 	}
 
 	// ----------------------------
