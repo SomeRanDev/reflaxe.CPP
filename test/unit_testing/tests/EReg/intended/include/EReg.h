@@ -15,6 +15,10 @@ public:
 	
 	std::smatch smatch;
 	
+	std::string originalString;
+	
+	std::string originalOptions;
+	
 	std::optional<std::shared_ptr<std::deque<std::string>>> matches;
 	
 	std::optional<std::string> left;
@@ -30,6 +34,8 @@ public:
 	static EReg escapeRegExpRe;
 
 	EReg(std::string r, std::string opt);
+	
+	std::string toString();
 	
 	bool match(std::string s);
 	

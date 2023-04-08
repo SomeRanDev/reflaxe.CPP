@@ -16,12 +16,18 @@ EReg EReg::escapeRegExpRe = EReg("[\\[\\]{}()*+?.\\\\\\^$|]"s, "g"s);
 EReg::EReg(std::string r, std::string opt): _order_id(generate_order_id()) {
 	this->regex = std::regex(r, std::regex::ECMAScript | std::regex::icase);
 	this->smatch = std::smatch();
+	this->originalString = r;
+	this->originalOptions = opt;
 	this->matches = std::nullopt;
 	this->left = std::nullopt;
 	this->right = std::nullopt;
 	this->matchPos = 0;
 	this->matchLen = 0;
 	this->isGlobal = opt.find("g"s) != -1;
+}
+
+std::string EReg::toString() {
+	return "~/"s + this->originalString + "/"s + this->originalOptions;
 }
 
 bool EReg::match(std::string s) {

@@ -4,13 +4,14 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include "Std.h"
 #include "ucpp_DynamicToString.h"
 
 using namespace std::string_literals;
 
 std::function<void(haxe::DynamicToString, std::optional<std::shared_ptr<haxe::PosInfos>>)> haxe::Log::trace = [](haxe::DynamicToString v, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt) mutable {
 	std::string str = haxe::Log::formatOutput(v, infos);
-	std::cout << str << std::endl;
+	std::cout << Std::string(str) << std::endl;
 };
 
 std::string haxe::Log::formatOutput(std::string v, std::optional<std::shared_ptr<haxe::PosInfos>> infos) {
