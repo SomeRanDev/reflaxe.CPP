@@ -221,8 +221,16 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	public function getExprType(e: TypedExpr): Type {
 		return switch(e.expr) {
-			// Ensure "this" is typed as pointer
-			case TConst(TThis): TAbstract(getPtrType(), [e.t]);
+			// Get "this" type"
+			case TConst(TThis): {
+				if(XComp.thisOverride != null) {
+					// Get "this" override type
+					getExprType(XComp.thisOverride);
+				} else {
+					// Ensure "this" is typed as pointer
+					TAbstract(getPtrType(), [e.t]);
+				}
+			}
 
 			// Redirect "tvar" type
 			case TLocal(tvar): getTVarType(tvar);
