@@ -107,12 +107,12 @@ extern class Sys {
 		return result.isNull() ? null : result.toString();
 	}
 
-	public static extern inline function putEnv(s: String, v: String): Void {
+	public static extern inline function putEnv(s: String, v: Null<String>): Void {
 		#if windows
-		final inputAssign = (s + "=" + v);
+		final inputAssign = (s + "=" + (v ?? ""));
 		ucpp.Stdlib.putEnv(@:privateAccess inputAssign.data());
 		#elseif (mac || linux)
-		if(v.length == 0) {
+		if(v == null || v.length == 0) {
 			ucpp.Stdlib.unsetEnv(@:privateAccess s.c_str());
 		} else {
 			ucpp.Stdlib.setEnv(@:privateAccess s.c_str(), @:privateAccess v.c_str(), 1);
