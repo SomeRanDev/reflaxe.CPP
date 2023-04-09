@@ -273,7 +273,9 @@ class Compiler_Exprs extends SubCompiler {
 				if(tryContent != null) {
 					result = "try {\n" + tryContent;
 					for(c in catches) {
-						result += "\n} catch(" + TComp.compileType(Main.getTVarType(c.v), expr.pos) + " " + c.v.name + ") {\n";
+						final errType = Main.getTVarType(c.v);
+						Main.onTypeEncountered(errType, compilingInHeader);
+						result += "\n} catch(" + TComp.compileType(errType, expr.pos) + " " + c.v.name + ") {\n";
 						if(c.expr != null) {
 							final cpp = toIndentedScope(c.expr);
 							if(cpp != null) result += cpp;
