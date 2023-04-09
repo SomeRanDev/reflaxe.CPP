@@ -1,30 +1,14 @@
 #include "Sys.h"
 
+#include "haxe_ds_StringMap.h"
+#include "Map.h"
+#include <chrono>
 #include <deque>
 #include <memory>
 #include <string>
-#include "haxe_ds_StringMap.h"
-#include "Map.h"
-
 using namespace std::string_literals;
 
-std::deque<std::string> SysImpl::_args = (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{}));
-
-void SysImpl::setupArgs(int argCount, const char** args) {
-	int _g = 0;
-	int _g1 = argCount;
-	
-	while(_g < _g1) {
-		int i = _g++;
-		SysImpl::_args.push_back(std::string(args[i]));
-	};
-}
-
-std::shared_ptr<std::deque<std::string>> SysImpl::args() {
-	return std::make_shared<std::deque<std::string>>(SysImpl::_args);
-}
-
-std::shared_ptr<haxe::ds::StringMap<std::string>> SysImpl::environment() {
+std::shared_ptr<haxe::ds::StringMap<std::string>> Sys_Environment::environment() {
 	std::shared_ptr<std::deque<std::string>> strings = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 	
 	char** env;
@@ -54,18 +38,27 @@ std::shared_ptr<haxe::ds::StringMap<std::string>> SysImpl::environment() {
 	
 	return result;
 }
+std::deque<std::string> Sys_Args::_args = (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{}));
 
-std::string SysImpl::systemName() {
-	#if defined(_WIN32)
-	return "Windows";
-	#elif defined(BSD)
-	return "BSD";
-	#elif defined(__linux__)
-	return "Linux";
-	#elif defined(__APPLE__) && defined(__MACH__)
-	return "Mac";
-	#endif
-	;
+void Sys_Args::setupArgs(int argCount, const char** args) {
+	int _g = 0;
+	int _g1 = argCount;
 	
-	return ""s;
+	while(_g < _g1) {
+		int i = _g++;
+		Sys_Args::_args.push_back(std::string(args[i]));
+	};
+}
+
+std::shared_ptr<std::deque<std::string>> Sys_Args::args() {
+	return std::make_shared<std::deque<std::string>>(Sys_Args::_args);
+}
+std::chrono::time_point<std::chrono::system_clock> Sys_CpuTime::_startTime;
+
+void Sys_CpuTime::setupStart() {
+	Sys_CpuTime::_startTime = std::chrono::system_clock::now();
+}
+
+double Sys_CpuTime::cpuTime() {
+	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() / 1000.0 - std::chrono::duration_cast<std::chrono::milliseconds>(Sys_CpuTime::_startTime.time_since_epoch()).count() / 1000.0;
 }
