@@ -142,7 +142,8 @@ extern class Sys {
 	}
 
 	public static extern inline function sleep(seconds: Float): Void {
-		ucpp.Stdlib.sleep(seconds * 1000.0);
+		untyped __using_namespace__("std::chrono_literals");
+		ucpp.Stdlib.sleep(seconds * untyped __ucpp__("1s"));
 	}
 
 	public static extern inline function setTimeLocale(loc: String): Bool {
