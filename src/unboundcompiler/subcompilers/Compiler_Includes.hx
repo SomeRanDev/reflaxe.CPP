@@ -311,6 +311,12 @@ class Compiler_Includes extends SubCompiler {
 			addMetaEntryInc(inc, header);
 		}
 
+		// Additional "using namespace" instances to use.
+		final usingNamespaces = metaAccess.extractPrimtiveFromAllMeta(Meta.UsingNamespace, 0);
+		for(useNs in usingNamespaces) {
+			addUsingNamespace(useNs);
+		}
+
 		// Include special meta headers at call location if used on field.
 		handleSpecialIncludeMeta(metaAccess, header);
 

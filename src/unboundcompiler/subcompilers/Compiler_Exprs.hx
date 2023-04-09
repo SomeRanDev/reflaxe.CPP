@@ -160,13 +160,22 @@ class Compiler_Exprs extends SubCompiler {
 					}
 				}) + ")";
 			}
-			case TCall({ expr: TIdent("__uinclude__") }, el): {
+			case TCall({ expr: TIdent("__include__") }, el): {
 				switch(el) {
 					case [{ expr: TConst(TString(s)) }]: {
 						IComp.addInclude(s, compilingInHeader, false);
 					}
 					case [{ expr: TConst(TString(s)) }, { expr: TConst(TBool(b)) }]: {
 						IComp.addInclude(s, compilingInHeader, b);
+					}
+					case _: {}
+				}
+				result = null;
+			}
+			case TCall({ expr: TIdent("__using_namespace__") }, el): {
+				switch(el) {
+					case [{ expr: TConst(TString(s)) }]: {
+						IComp.addUsingNamespace(s);
 					}
 					case _: {}
 				}
@@ -264,7 +273,9 @@ class Compiler_Exprs extends SubCompiler {
 				if(tryContent != null) {
 					result = "try {\n" + tryContent;
 					for(c in catches) {
-						result += "\n} catch(" + TComp.compileType(Main.getTVarType(c.v), expr.pos) + " " + c.v.name + ") {\n";
+						final errType = Main.getTVarType(c.v);
+						Main.onTypeEncountered(errType, compilingInHeader);
+						result += "\n} catch(" + TComp.compileType(errType, expr.pos) + " " + c.v.name + ") {\n";
 						if(c.expr != null) {
 							final cpp = toIndentedScope(c.expr);
 							if(cpp != null) result += cpp;
