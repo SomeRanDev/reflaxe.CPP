@@ -160,7 +160,7 @@ class Compiler_Exprs extends SubCompiler {
 					}
 				}) + ")";
 			}
-			case TCall({ expr: TIdent("__uinclude__") }, el): {
+			case TCall({ expr: TIdent("__include__") }, el): {
 				switch(el) {
 					case [{ expr: TConst(TString(s)) }]: {
 						IComp.addInclude(s, compilingInHeader, false);

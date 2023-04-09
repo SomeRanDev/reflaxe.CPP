@@ -152,7 +152,7 @@ extern class Array<T> {
 	}
 
 	@:runtime public inline function reverse(): Void {
-		untyped __uinclude__("algorithm", true);
+		untyped __include__("algorithm", true);
 		untyped __ucpp__("std::reverse({}, {})", this.begin(), this.end());
 	}
 
@@ -163,7 +163,7 @@ extern class Array<T> {
 	}
 
 	@:runtime public inline function sort(f: (T, T) -> Int): Void {
-		untyped __uinclude__("algorithm", true);
+		untyped __include__("algorithm", true);
 		untyped __ucpp__("std::sort({}, {}, {})", this.begin(), this.end(), function(a, b) {
 			return f(a, b) < 0;
 		});
@@ -179,7 +179,7 @@ extern class Array<T> {
 	}
 
 	@:runtime @:pure public inline function contains(x: T) : Bool {
-		untyped __uinclude__("algorithm", true);
+		untyped __include__("algorithm", true);
 		return untyped __ucpp__("(std::find({}, {}, {}) != {})", this.begin(), this.end(), x, this.end());
 	}
 
