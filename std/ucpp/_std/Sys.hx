@@ -61,6 +61,33 @@ return \"Mac\";
 	}
 }
 
+
+/**
+	A class containing the implementation for `Sys.cpuTime`.
+
+	Records the time the program starts to calculate the program time later.
+**/
+final class Sys_CpuTime {
+	/**
+		Store when the program started.
+	**/
+	static var _startTime: ucpp.std.chrono.TimePoint<ucpp.std.chrono.SystemClock>;
+
+	/**
+		Automatically called at start of the main function if this class is generated.
+
+		Records the current time toe `_startTime`.
+	**/
+	@:prependToMain
+	public static function setupStart() {
+		_startTime = ucpp.std.chrono.SystemClock.now();
+	}
+
+	public static function cpuTime(): Float {
+		return Sys.time() - (_startTime.timeSinceEpoch().toMilliseconds().count() / 1000.0);
+	}
+}
+
 @:require(sys)
 extern class Sys {
 	public static extern inline function print(v: Dynamic): Void {
@@ -120,8 +147,14 @@ extern class Sys {
 	@:include("cstdlib", true)
 	public static function exit(code: Int): Void;
 
-	static function time(): Float;
-	static function cpuTime(): Float;
+	public static extern inline function time(): Float {
+		return ucpp.std.chrono.SystemClock.now().timeSinceEpoch().toMilliseconds().count() / 1000.0;
+	}
+
+	public static extern inline function cpuTime(): Float {
+		return Sys_CpuTime.cpuTime();
+	}
+
 	@:deprecated("Use programPath instead") static function executablePath(): String;
 	static function programPath(): String;
 	static function getChar(echo: Bool): Int;
