@@ -6,11 +6,15 @@ package ucpp.std;
 extern class FileSystem {
 	@:native("std::filesystem::current_path")
 	@:include("filesystem", true)
-	public static extern function currentPath(): FileSystem;
+	public static overload extern function currentPath(): Path;
 
-	public extern inline function toString(): ucpp.DynamicToString {
-		return new ucpp.DynamicToString(this);
-	}
+	@:native("std::filesystem::current_path")
+	@:include("filesystem", true)
+	public static overload extern function currentPath(newPath: Path): Path;
+
+	@:native("std::filesystem::current_path")
+	@:include("filesystem", true)
+	public static overload extern function currentPath(newPath: String): Path;
 }
 
 @:native("std::filesystem::path")
