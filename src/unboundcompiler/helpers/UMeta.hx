@@ -84,6 +84,12 @@ enum abstract Meta(String) from String to String {
 	// is used in a file.
 	var AddInclude = ":addInclude";
 
+	// @:usingNamespace(ns: String)
+	//
+	// Adds "using namespace {ns};" to the top of the file of the class
+	// is generated to or the location this field is accessed.
+	var UsingNamespace = ":usingNamespace";
+
 	// @:headerInclude(includePath: String, triangleBrackets: Bool = false)
 	//
 	// Generates an include in the header file this module type is
