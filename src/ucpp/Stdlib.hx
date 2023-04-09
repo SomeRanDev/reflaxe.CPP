@@ -40,7 +40,7 @@ extern class Stdlib {
 
 	@:native("std::this_thread::sleep_for")
 	@:include("thread", true)
-	public static extern function sleep(duration: Float): Void;
+	public static extern function sleep(duration: ucpp.std.chrono.Duration): Void;
 
 	@:native("std::setlocale")
 	@:include("clocale", true)

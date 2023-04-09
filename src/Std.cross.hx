@@ -42,7 +42,7 @@ class Std {
 	}
 
 	public extern inline static function int(x: Float): Int {
-		return untyped __ucpp__("((int){})", x);
+		return untyped __ucpp__("((int)({}))", x);
 	}
 
 	public static function parseInt(x: String): Null<Int> {
