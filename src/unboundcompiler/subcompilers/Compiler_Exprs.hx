@@ -172,6 +172,15 @@ class Compiler_Exprs extends SubCompiler {
 				}
 				result = null;
 			}
+			case TCall({ expr: TIdent("__using_namespace__") }, el): {
+				switch(el) {
+					case [{ expr: TConst(TString(s)) }]: {
+						IComp.addUsingNamespace(s);
+					}
+					case _: {}
+				}
+				result = null;
+			}
 			case TCall(callExpr, el): {
 				result = compileCall(callExpr, el, expr);
 			}
