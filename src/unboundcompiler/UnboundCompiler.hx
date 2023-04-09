@@ -187,14 +187,20 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			case _: {}
 		}
 
-		if(t.isMultitype()) {
-			final followed = Context.follow(t);
-			switch(followed) {
-				case TAbstract(absRef, _): {
-					onTypeEncountered(getAbstractInner(followed), addToHeader);
+		switch(t) {
+			case TType(_, _) | TAbstract(_, _): {
+				final followed = Context.follow(t);
+				switch(followed) {
+					case TAbstract(absRef, _): {
+						final inner = getAbstractInner(followed);
+						if(!t.equals(inner) && !followed.equals(inner)) {
+							onTypeEncountered(inner, addToHeader);
+						}
+					}
+					case _:
 				}
-				case _: {}
 			}
+			case _:
 		}
 	}
 
