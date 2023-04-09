@@ -176,7 +176,7 @@ std::string EReg::replace(std::string s, std::string by) {
 				std::optional<std::string> tempMaybeString;
 				int tempLeft;
 				double x = c.value();
-				tempLeft = ((int)x);
+				tempLeft = ((int)(x));
 				int matchIndex = tempLeft - 48;
 				if(this->matches.has_value() && matchIndex < this->matches.value()->size()) {
 					tempMaybeString = (*this->matches.value())[matchIndex];

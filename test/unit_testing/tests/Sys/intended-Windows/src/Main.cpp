@@ -14,7 +14,6 @@
 #include "haxe_Log.h"
 #include "Sys.h"
 
-using namespace std::chrono_literals;
 using namespace std::string_literals;
 
 int Main::returnCode = 0;
@@ -141,7 +140,7 @@ void Main::main() {
 	
 	double beforeSleep = Sys_CpuTime::cpuTime();
 	
-	std::this_thread::sleep_for(1.3 * 1s);
+	std::this_thread::sleep_for(std::chrono::milliseconds(((int)(1.3 * 1000.0))));
 	
 	double sleepTime = Sys_CpuTime::cpuTime() - beforeSleep;
 	
