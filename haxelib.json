@@ -17,7 +17,7 @@
     "externs"
   ],
   "dependencies": {
-    "reflaxe": "3.0.0"
+    "reflaxe": "git:https://github.com/RobertBorghese/reflaxe"
   },
   "classPath": "src/",
   "releasenote": "Initial release.",
