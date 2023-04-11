@@ -39,6 +39,7 @@ void _Main::Main_Fields_::main() {
 | [Explanation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#explanation)                   | A long winded explanation of this project's goals. |
 | [Compiler Examples](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compiler-examples)       | Where to find examples.                            |
 | [Memory Management](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#memory-management)       | How the memory management system works.            |
+| [Includes](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#includes)                         | Features for configuring `#include`s.              |
 | [Destructors](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#destructors)                   | How to use destructors.                            |
 | [Top Level Meta](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#top-level-meta)             | Add top-level functions in C++.                    |
 | [Plugin System](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compilation-hooks-plugins)   | How to write plugins for the compiler.             |
@@ -180,6 +181,40 @@ var obj = new UniqueClass();
 // std::unique_ptr<ValueClass> obj = std::make_unique<ValueClass>();
 var obj2: UniquePtr<ValueClass> = new ValueClass();
 ```
+
+&nbsp;
+
+# Includes
+
+This projects provides many methods for configuring include statements in the generated C++ output.
+
+## @:include(path: String, brackets: Bool = false)
+
+`@:include` will configure the "#include" statement that will be generated in files this class, enum, typedef, abstract, or field is used in. The first argument is the content of the include, and the second argument configures whether the include uses quotes or triangle brackets.
+
+## @:addInclude
+
+Typically, types only have one "#include" statement associated with them. However, an indefinite number of includes can be associated using `@:addInclude`.
+
+## @:headerInclude + @:cppInclude
+
+These work the same as their Haxe/C++ equivalent. They add additional "#include" statements in the header or source file the class, enum, or typedef is generated in.
+
+## @:noInclude + @:yesInclude
+
+Normally all types have at least one "#include" statement associated with them. However, this can be disabled using `@:noInclude`. On the other hand, abstracts do not generate "#include" statements when used, but this can be changed if the abstract is using the `@:yesInclude`.
+
+## @:usingNamespace(ns: String)
+
+If this meta is used on a class or enum, a "using namespace" statement will be generated at the top of the source file the type is generated in. For example, `@:usingNamespace("std")` will generate `using namespace std;` in the `.cpp` file the class is generated for.
+
+## \_\_include\_\_i(path: String, brackets: Bool)
+
+If an expression to a function call of `__include__` is compiled, the provided content will be "#include"-ed in the file the expression is being generated for. This is helpful for "extern inline" functions that cannot normally use metadata or in combination with conditional compilation.
+
+## \_\_using_namespace\_\_i(path: String)
+
+Works the same as `__include__`, but adds a "using namespace" statement to the file.
 
 &nbsp;
 
