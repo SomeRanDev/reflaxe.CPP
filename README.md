@@ -61,14 +61,20 @@ Now your `.hxml` should be ready to go! Simply run with Haxe and the output will
 
 # Nightly Installation
 
-If this project isn't on haxelib yet, or you'd like to use the development version, use `haxelib git` on the nightly branch. Just make sure the development version of Reflaxe is also installed:
+If this project isn't on haxelib yet, or you'd like to use the development version, use `haxelib git` on the nightly branch.
 
 ```sh
-# Install Reflaxe from git
-haxelib git reflaxe https://github.com/RobertBorghese/reflaxe
-
-# Install the "nightly" auto-build branch
 haxelib git ucpp https://github.com/RobertBorghese/Haxe-to-UnboundCPP nightly
+```
+
+Here's a simple `.hxml` template to get you started!
+
+```hxml
+-cp src
+-main Main
+
+-lib ucpp
+-D cpp-output=out
 ```
 
 &nbsp;
