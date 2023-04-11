@@ -208,11 +208,11 @@ Normally all types have at least one "#include" statement associated with them. 
 
 If this meta is used on a class or enum, a "using namespace" statement will be generated at the top of the source file the type is generated in. For example, `@:usingNamespace("std")` will generate `using namespace std;` in the `.cpp` file the class is generated for.
 
-## \_\_include\_\_i(path: String, brackets: Bool)
+## \_\_include\_\_(path: String, brackets: Bool)
 
 If an expression to a function call of `__include__` is compiled, the provided content will be "#include"-ed in the file the expression is being generated for. This is helpful for "extern inline" functions that cannot normally use metadata or in combination with conditional compilation.
 
-## \_\_using_namespace\_\_i(path: String)
+## \_\_using_namespace\_\_(path: String)
 
 Works the same as `__include__`, but adds a "using namespace" statement to the file.
 
