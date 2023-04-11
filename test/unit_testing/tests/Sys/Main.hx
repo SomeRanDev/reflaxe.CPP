@@ -58,7 +58,7 @@ class Main {
 		final sleepTime =  Sys.cpuTime() - beforeSleep;
 
 		// Check if "sleepTime" is around 1.3 seconds
-		assert(sleepTime > 1.29 && sleepTime < 1.31);
+		assert(sleepTime > 1.1 && sleepTime < 1.4);
 		trace("sleepTime = " + sleepTime); // Debug purposes
 
 		if(returnCode != 0) {

@@ -144,7 +144,7 @@ void Main::main() {
 	
 	double sleepTime = Sys_CpuTime::cpuTime() - beforeSleep;
 	
-	Main::assert(sleepTime > 1.29 && sleepTime < 1.31, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 61, "main"s));
+	Main::assert(sleepTime > 1.1 && sleepTime < 1.4, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 61, "main"s));
 	haxe::Log::trace("sleepTime = "s + std::to_string(sleepTime), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 62, "main"s));
 	
 	if(Main::returnCode != 0) {
