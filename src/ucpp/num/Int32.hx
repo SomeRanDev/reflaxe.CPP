@@ -1,5 +1,5 @@
 package ucpp.num;
 
 @:native("int")
-extern Int32(Int) from Int to Int {
+extern abstract Int32(Int) from Int to Int {
 }

@@ -1,5 +1,5 @@
 package ucpp.num;
 
 @:native("double")
-extern Float64(Float) from Float to Float {
+extern abstract Float64(Float) from Float to Float {
 }
