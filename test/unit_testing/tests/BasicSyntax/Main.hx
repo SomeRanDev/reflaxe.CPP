@@ -153,5 +153,9 @@ class Main {
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
 		}
+
+		// ucpp.num
+		final float32: ucpp.num.Float32 = 12.32;
+		assert(float32 == 12.32);
 	}
 }

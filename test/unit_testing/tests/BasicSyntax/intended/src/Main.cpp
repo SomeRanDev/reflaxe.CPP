@@ -166,4 +166,8 @@ void Main::main() {
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
 	};
+	
+	float float32 = 12.32;
+	
+	Main::assert(float32 == 12.32, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 159, "main"s));
 }

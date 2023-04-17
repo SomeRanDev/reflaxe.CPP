@@ -1,5 +1,5 @@
 package ucpp.num;
 
 @:native("unsigned short")
-extern UInt16(Int) from Int to Int {
+extern abstract UInt16(Int) from Int to Int {
 }
