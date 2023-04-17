@@ -175,7 +175,11 @@ extern class Sys {
 		return Sys_CpuTime.cpuTime();
 	}
 
-	@:deprecated("Use programPath instead") static function executablePath(): String;
+	@:deprecated("Use programPath instead")
+	public static extern inline function executablePath(): String {
+		return programPath();
+	}
+
 	static function programPath(): String;
 	static function getChar(echo: Bool): Int;
 	static function stdin(): haxe.io.Input;
