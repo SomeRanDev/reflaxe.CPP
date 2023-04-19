@@ -1,5 +1,6 @@
 package haxe;
 
+@:ucppStd
 @:coreApi
 @:valueType
 class Exception extends ucpp.std.Exception {

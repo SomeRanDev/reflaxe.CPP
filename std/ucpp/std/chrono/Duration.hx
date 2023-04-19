@@ -1,5 +1,6 @@
 package ucpp.std.chrono;
 
+@:ucppStd
 @:nativeName("std::chrono::duration")
 @:valueType
 extern class Duration {

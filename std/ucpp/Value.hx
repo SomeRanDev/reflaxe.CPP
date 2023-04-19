@@ -1,5 +1,6 @@
 package ucpp;
 
+@:ucppStd
 @:overrideMemoryManagement
 @:valueType
 @:forward

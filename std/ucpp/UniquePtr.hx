@@ -1,5 +1,6 @@
 package ucpp;
 
+@:ucppStd
 @:arrowAccess
 @:overrideMemoryManagement
 @:uniquePtrType

@@ -1,5 +1,6 @@
 import haxe.iterators.ArrayKeyValueIterator;
 
+@:ucppStd
 @:pseudoCoreApi
 @:filename("HxArray")
 class HxArray {
@@ -109,10 +110,10 @@ class HxArray {
 	}
 }
 
+@:ucppStd
 @:pseudoCoreApi
 @:nativeName("std::deque")
 @:include("deque", true)
-//@:valueType
 @:valueEquality
 @:filename("HxArray")
 @:allow(HxArray)

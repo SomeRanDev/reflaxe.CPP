@@ -55,6 +55,7 @@ struct DynamicToString: public std::string {
 };
 
 }")
+@:ucppStd
 @:headerInclude("type_traits", true)
 @:headerInclude("memory", true)
 @:headerInclude("string", true)

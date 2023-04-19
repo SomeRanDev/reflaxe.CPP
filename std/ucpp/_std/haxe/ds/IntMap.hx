@@ -1,5 +1,6 @@
 package haxe.ds;
 
+@:ucppStd
 @:coreApi
 class IntMap<T> implements haxe.Constraints.IMap<Int, T> {
 	var m: ucpp.std.Map<Int, T>;

@@ -1,5 +1,6 @@
 package;
 
+@:ucppStd
 @:coreType
 @:runtimeValue
 @:valueType

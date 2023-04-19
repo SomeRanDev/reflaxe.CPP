@@ -1,5 +1,6 @@
 package ucpp.std;
 
+@:ucppStd
 @:native("std::exception")
 @:include("exception", true)
 @:valueType

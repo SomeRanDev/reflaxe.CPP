@@ -1,5 +1,6 @@
 package ucpp;
 
+@:ucppStd
 extern class Stdlib {
 	@:native("malloc")
 	@:include("stdlib.h", true)

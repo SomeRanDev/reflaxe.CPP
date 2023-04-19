@@ -1,5 +1,6 @@
 package haxe;
 
+@:ucppStd
 @:pseudoCoreApi
 @:headerInclude("iostream", true)
 class Log {

@@ -2,6 +2,7 @@ package ucpp.std.chrono;
 
 import ucpp.std.chrono.TimePoint;
 
+@:ucppStd
 @:native("std::chrono::system_clock")
 @:include("chrono", true)
 @:valueType

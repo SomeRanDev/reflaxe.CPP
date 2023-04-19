@@ -1,5 +1,6 @@
 package;
 
+@:ucppStd
 @:native("std::regex")
 @:include("regex", true)
 @:valueType
@@ -10,6 +11,7 @@ extern enum abstract SyntaxOptionType(Int) to Int {
 	var ECMAScript;
 }
 
+@:ucppStd
 @:native("std::regex")
 @:include("regex", true)
 @:valueType
@@ -17,6 +19,7 @@ extern class StdRegex {
 	public function new(r: String, options: Int);
 }
 
+@:ucppStd
 @:valueType
 @:native("std::smatch")
 extern class StringMatch {
@@ -29,6 +32,7 @@ extern class StringMatch {
 	public function size(): Int;
 }
 
+@:ucppStd
 @:coreApi
 @:valueType
 class EReg {

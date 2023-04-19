@@ -1,5 +1,6 @@
 package ucpp;
 
+@:ucppStd
 @:include("cstddef", true)
 @:native("std::size_t")
 @:notNull

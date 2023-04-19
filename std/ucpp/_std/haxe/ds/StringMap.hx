@@ -1,5 +1,6 @@
 package haxe.ds;
 
+@:ucppStd
 @:coreApi
 class StringMap<T> implements haxe.Constraints.IMap<String, T> {
 	var m: ucpp.std.Map<String, T>;

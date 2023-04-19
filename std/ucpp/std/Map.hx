@@ -1,5 +1,6 @@
 package ucpp.std;
 
+@:ucppStd
 @:nativeName("std::map")
 @:noHaxeNamespaces
 @:include("map", true)
@@ -21,6 +22,7 @@ extern class Map<T, U> {
 	@:const public function count(key: T): ucpp.SizeT;
 }
 
+@:ucppStd
 @:forward
 @:nativeTypeCode("std::map<{type0}, {type1}>::iterator")
 @:typenamePrefixIfDependentScope

@@ -12,6 +12,7 @@ import sys.FileSystem;
 	For example, additional C++ files can be included in the
 	output.
 **/
+@:ucppStd
 class Compiler {
 	static var extraCppDirectories: Array<{ path: String, recursive: Bool }> = [];
 	static var extraHeaderFiles: Array<String> = [];

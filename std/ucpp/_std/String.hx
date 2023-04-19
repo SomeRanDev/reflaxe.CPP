@@ -1,5 +1,6 @@
 package;
 
+@:ucppStd
 @:pseudoCoreApi
 @:headerInclude("algorithm", true)
 @:headerInclude("cctype", true)

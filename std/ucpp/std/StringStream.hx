@@ -1,5 +1,6 @@
 package ucpp.std;
 
+@:ucppStd
 @:include("sstream", true)
 extern class StringStream {
 	public function new();

@@ -1,5 +1,6 @@
 package ucpp;
 
+@:ucppStd
 @:native("const char*")
 @:valueType
 extern class ConstCharPtr {

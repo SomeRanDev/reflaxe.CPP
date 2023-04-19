@@ -4,6 +4,7 @@ package;
 #error "Please don't add haxe/std to your classpath, instead set HAXE_STD_PATH env var"
 #end
 
+@:ucppStd
 @:includeTypeUtils
 @:pseudoCoreApi
 class StdImpl {
@@ -17,6 +18,7 @@ class StdImpl {
 	}
 }
 
+@:ucppStd
 @:pseudoCoreApi
 @:headerOnly
 @:headerInclude("string", true)
