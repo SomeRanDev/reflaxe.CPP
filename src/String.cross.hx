@@ -21,7 +21,12 @@ class HxString {
 
 	public static function split(s: String, delimiter: String): Array<String> {
 		if(delimiter.length <= 0) {
-			return [];
+			var result = [];
+			var pos = 0;
+			for(i in 0...s.length) {
+				result.push(s.substr(pos++, 1));
+			}
+			return result;
 		}
 
 		var result = [];
