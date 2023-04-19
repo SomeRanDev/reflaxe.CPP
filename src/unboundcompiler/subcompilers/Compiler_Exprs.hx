@@ -908,7 +908,7 @@ class Compiler_Exprs extends SubCompiler {
 		}
 	}
 
-	function compileClassConstruction(type: Type, cd: CommonModuleTypeData, params: Array<Type>, pos: Position, overrideMMT: Null<MemoryManagementType> = null): String {
+	function compileClassConstruction(type: Type, cd: BaseType, params: Array<Type>, pos: Position, overrideMMT: Null<MemoryManagementType> = null): String {
 		var mmt = cd.getMemoryManagementType();
 		var typeSource = if(cd.isOverrideMemoryManagement()) {
 			if(params.length != 1) {

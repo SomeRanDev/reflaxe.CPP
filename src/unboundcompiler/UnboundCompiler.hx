@@ -17,7 +17,7 @@ import reflaxe.BaseCompiler;
 import reflaxe.PluginCompiler;
 import reflaxe.ReflectCompiler;
 
-using reflaxe.helpers.ClassTypeHelper;
+using reflaxe.helpers.BaseTypeHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
@@ -494,7 +494,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		return getFileNameFromModuleData(mt.getCommonData());
 	}
 
-	function getFileNameFromModuleData(md: CommonModuleTypeData): String {
+	function getFileNameFromModuleData(md: BaseType): String {
 		return if(md.hasMeta(Meta.Filename)) {
 			md.meta.extractStringFromFirstMeta(Meta.Filename);
 		} else {
@@ -505,7 +505,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// ----------------------------
 	// Compile the start of all namespaces
 	// for the provided module data.
-	function compileNamespaceStart(md: CommonModuleTypeData, combined: Bool = true): String {
+	function compileNamespaceStart(md: BaseType, combined: Bool = true): String {
 		var result = "";
 		if(combined) {
 			if(md.pack.length > 0) {
@@ -522,7 +522,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	// ----------------------------
 	// Compile all namespace closing brackets.
-	function compileNamespaceEnd(md: CommonModuleTypeData, combined: Bool = true): String {
+	function compileNamespaceEnd(md: BaseType, combined: Bool = true): String {
 		var result = "";
 		if(combined) {
 			if(md.pack.length > 0) {
@@ -716,7 +716,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	// ----------------------------
 	// Compiles the content generated from @:headerCode and @:cppFileCode.
-	function compileFileCodeMeta(cd: CommonModuleTypeData, headerPriority: Int = 2, cppFilePriority: Int = 2): Bool {
+	function compileFileCodeMeta(cd: BaseType, headerPriority: Int = 2, cppFilePriority: Int = 2): Bool {
 		if(cd.hasMeta(Meta.HeaderCode) || cd.hasMeta(Meta.CppFileCode)) {
 			final filename = getFileNameFromModuleData(cd);
 
