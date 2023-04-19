@@ -1,5 +1,6 @@
 package ucpp.std;
 
+@:ucppStd
 @:nativeName("std::pair")
 @:noHaxeNamespaces
 @:include("utility", true)

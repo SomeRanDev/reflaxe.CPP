@@ -1,5 +1,6 @@
 package;
 
+@:ucppStd
 @:nativeName("std::any")
 @:include("any", true)
 @:forward.variance

@@ -1,5 +1,6 @@
 package;
 
+@:ucppStd
 @:pseudoCoreApi
 @:pure
 extern class Math {

@@ -1,5 +1,6 @@
 package ucpp.std.chrono;
 
+@:ucppStd
 @:nativeTypeCode("std::chrono::time_point<{type0}>")
 @:include("chrono", true)
 @:valueType

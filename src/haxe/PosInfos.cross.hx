@@ -1,5 +1,6 @@
 package haxe;
 
+@:ucppStd
 @:coreApi
 typedef PosInfos = {
 	var fileName: String;

@@ -1,5 +1,6 @@
 package haxe.ds;
 
+@:ucppStd
 @:coreApi
 class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
 	var m: ucpp.std.Map<K, V>;

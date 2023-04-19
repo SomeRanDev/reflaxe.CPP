@@ -1,5 +1,6 @@
 package ucpp.std;
 
+@:ucppStd
 @:native("std::filesystem")
 @:include("filesystem", true)
 @:valueType

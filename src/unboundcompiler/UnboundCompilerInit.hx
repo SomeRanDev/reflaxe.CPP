@@ -28,6 +28,7 @@ class UnboundCompilerInit {
 			reservedVarNames: reservedNames(),
 			targetCodeInjectionName: "__ucpp__",
 			dynamicDCE: true,
+			customStdMeta: [":ucppStd"],
 			trackUsedTypes: true,
 			allowMetaMetadata: true,
 			autoNativeMetaFormat: "[[{}]]"

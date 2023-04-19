@@ -1,5 +1,6 @@
 package ucpp;
 
+@:ucppStd
 @:nativeTypeCode("{type0}*")
 @:valueType
 @:overrideMemoryManagement
