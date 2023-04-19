@@ -37,7 +37,7 @@ void Main::main() {
 	Main::assert(str.rfind("Te"s) == 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 30, "main"s));
 	Main::assert((*HxString::split(str, "s"s))[0] == "Te"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 32, "main"s));
 	Main::assert(HxString::split(str, "e"s)->size() == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 33, "main"s));
-	Main::assert((*HxString::split("Hello"s, ""s)) == (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{})), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 34, "main"s));
+	Main::assert((*HxString::split("Hello"s, ""s)) == (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{ "H"s, "e"s, "l"s, "l"s, "o"s })), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 34, "main"s));
 	Main::assert((*HxString::split("Hello BLAworld BLA how areBLAyou?"s, "BLA"s)) == (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{
 		"Hello "s,
 		"world "s,
