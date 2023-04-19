@@ -541,6 +541,10 @@ class Compiler_Classes extends SubCompiler {
 
 	// Header file (.h)
 	function generateHeaderFile() {
+		if(fieldsCompiled <= 0 && !classType.hasMeta(":used")) {
+			return;
+		}
+
 		final headerFilename = UnboundCompiler.HeaderFolder + "/" + filename + UnboundCompiler.HeaderExt;
 		Main.setExtraFileIfEmpty(headerFilename, "#pragma once");
 
@@ -554,44 +558,40 @@ class Compiler_Classes extends SubCompiler {
 		}
 
 		var result = "";
+		result += Main.compileNamespaceStart(classType);
+		result += headerContent.join("");
 
-		if(fieldsCompiled > 0 || classType.hasMeta(":used")) {
-			result += Main.compileNamespaceStart(classType);
-			result += headerContent.join("");
-
-
-			final keys: Array<String> = Lambda.array({ iterator: () -> variables.keys() });
-			for(fk in functions.keys()) {
-				if(!keys.contains(fk)) keys.push(fk);
-			}
-
-			for(key in keys) {
-				result += key + ":\n";
-
-				var varsExist = false;
-				if(variables.exists(key) && variables.get(key).length > 0) {
-					result += variables.get(key).join("\n\n").tab() + "\n";
-					varsExist = true;
-				}
-
-				if(functions.exists(key) && functions.get(key).length > 0) {
-					result += (varsExist ? "\n" : "");
-					result += functions.get(key).join("\n\n").tab() + "\n";
-				}
-			}
-
-			result += "};";
-
-			// @:appendContent
-			final appendContent = classType.getCombinedStringContentOfMeta(Meta.AppendContent);
-			if(appendContent.length > 0) {
-				result += appendContent;
-			}
-
-			result += "\n";
-
-			result += Main.compileNamespaceEnd(classType);
+		final keys: Array<String> = Lambda.array({ iterator: () -> variables.keys() });
+		for(fk in functions.keys()) {
+			if(!keys.contains(fk)) keys.push(fk);
 		}
+
+		for(key in keys) {
+			result += key + ":\n";
+
+			var varsExist = false;
+			if(variables.exists(key) && variables.get(key).length > 0) {
+				result += variables.get(key).join("\n\n").tab() + "\n";
+				varsExist = true;
+			}
+
+			if(functions.exists(key) && functions.get(key).length > 0) {
+				result += (varsExist ? "\n" : "");
+				result += functions.get(key).join("\n\n").tab() + "\n";
+			}
+		}
+
+		result += "};";
+
+		// @:appendContent
+		final appendContent = classType.getCombinedStringContentOfMeta(Meta.AppendContent);
+		if(appendContent.length > 0) {
+			result += appendContent;
+		}
+
+		result += "\n";
+
+		result += Main.compileNamespaceEnd(classType);
 
 		if(topLevelFunctions.length > 0) {
 			result += (result.length > 0 ? "\n\n" : "") + topLevelFunctions.join("\n\n");
