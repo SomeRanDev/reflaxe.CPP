@@ -32,6 +32,7 @@ class Main {
 		assert(str.split("s")[0] == "Te");
 		assert(str.split("e").length == 2);
 		assert("Hello".split("") == ["H","e","l","l","o"]);
+		assert("".split("") == []);
 		assert("Hello BLAworld BLA how areBLAyou?".split("BLA") == ["Hello ", "world ", " how are", "you?"]);
 
 		var str2 = "Hello, World!";
