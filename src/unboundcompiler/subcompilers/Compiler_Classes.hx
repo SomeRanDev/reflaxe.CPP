@@ -96,7 +96,7 @@ class Compiler_Classes extends SubCompiler {
 			}
 		}
 
-		headerContent = ["", "", ""];
+		headerContent = ["", "", "", ""];
 
 		// @:prependContent
 		final prependContent = classType.getCombinedStringContentOfMeta(Meta.PrependContent);
@@ -141,6 +141,14 @@ class Compiler_Classes extends SubCompiler {
 		// So we delay this until later.
 
 		headerContent[2] += " {\n";
+
+		// @:headerClassCode
+		if(classType.hasMeta(Meta.HeaderClassCode)) {
+			final code = classType.meta.extractStringFromFirstMeta(Meta.HeaderClassCode);
+			if(code != null) {
+				headerContent[3] += code + "\n";
+			}
+		}
 
 		// Instance vars
 		for(v in varFields) {
