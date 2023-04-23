@@ -1,6 +1,7 @@
 package;
 
 @:headerCode("#define SOME_API_THING")
+@:headerClassCode("// Inside the class")
 @:classNamePrefix("SOME_API_THING")
 @:prependContent("// This class was generated from Haxe.\n")
 @:appendContent("\n// End of Main class")
