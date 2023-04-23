@@ -156,6 +156,12 @@ enum abstract Meta(String) from String to String {
 	// this module type is generated in (or would be generated in).
 	var CppFileCode = ":cppFileCode";
 
+	// @:headerClassCode(code: String)
+	//
+	// Generates additional C++ code to be used inside the class
+	// declaration.
+	var HeaderClassCode = ":headerClassCode";
+
 	// @:cppTypedef
 	//
 	// If used on a typedef, it will be generated as a C++ "typedef"
