@@ -444,20 +444,31 @@ class Compiler_Exprs extends SubCompiler {
 			}
 		}
 
+		// Store the result when possible
 		var result = null;
+
+		// Unwraps Null<T> (std::optional) if converting from optional -> not optional
+		function convertCppNull(cpp: String): String {
+			if(!allowNull && nullToValue && !expr.isNullExpr()) {
+				return ensureSafeToAccess(cpp) + ".value()";
+			}
+			return cpp;
+		}
 
 		// Convert between two shared pointers
 		if(cmmt == SharedPtr && tmmt == SharedPtr && targetType != null) {
-			if(expr.t.isChildOf(targetType) || expr.t.implementsType(targetType)) {
+			if(expr.t.isDescendantOf(targetType)) {
 				var cpp = internal_compileExpressionForType(expr, targetType, false);
 				if(cpp != null) {
 					IComp.addInclude("memory", compilingInHeader, true);
+					cpp = convertCppNull(cpp);
 					result = "std::static_pointer_cast<" + TComp.compileType(targetType, expr.pos, true) + ">(" + cpp + ")";
 				}
 			}
 		}
-
-		if(cmmt != tmmt || nullToValue) {
+		
+		// Convert between two different memory management types (or nullable -> not nullable)
+		else if(cmmt != tmmt || nullToValue) {
 			switch(expr.expr) {
 				case TConst(TThis) if(thisOverride == null && tmmt == SharedPtr): {
 					IComp.setExtraFlag(ExtraFlag.SharedFromThis);
@@ -472,9 +483,7 @@ class Compiler_Exprs extends SubCompiler {
 				case _: {
 					var cpp = internal_compileExpressionForType(expr, targetType, true);
 					if(cpp != null) {
-						if(!allowNull && nullToValue && !expr.isNullExpr()) {
-							cpp = ensureSafeToAccess(cpp) + ".value()";
-						}
+						cpp = convertCppNull(cpp);
 						result = applyMMConversion(cpp, expr.pos, Main.getExprType(expr), cmmt, tmmt);
 					}
 				}
