@@ -10,7 +10,7 @@ package unboundcompiler.subcompilers;
 
 #if (macro || ucpp_runtime)
 
-import reflaxe.helpers.RContext; // Use like haxe.macro.Context
+import reflaxe.helpers.Context; // Use like haxe.macro.Context
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
@@ -37,7 +37,7 @@ class Compiler_Types extends SubCompiler {
 		}
 		final result = maybeCompileType(t, pos, asValue, dependent);
 		if(result == null) {
-			RContext.error("Could not compile type: " + t, pos);
+			Context.error("Could not compile type: " + t, pos);
 		}
 		return result.trustMe();
 	}
@@ -187,7 +187,7 @@ class Compiler_Types extends SubCompiler {
 				compileDefName(defRef, pos, params, true, asValue);
 			}
 			case TType(defRef, params) if(t.isMultitype()): {
-				compileType(RContext.follow(t), pos, asValue, dependent);
+				compileType(Context.follow(t), pos, asValue, dependent);
 			}
 			case TType(defRef, params): {
 				if(t.isRef()) {

@@ -9,7 +9,7 @@ package unboundcompiler;
 
 #if (macro || ucpp_runtime)
 
-import reflaxe.helpers.RContext; // Use like haxe.macro.Context
+import reflaxe.helpers.Context; // Use like haxe.macro.Context
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
@@ -172,7 +172,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 		if(addToHeader) {
 			addDep(t);
-			addDep(RContext.followWithAbstracts(t));
+			addDep(Context.followWithAbstracts(t));
 		}
 
 		final mt = t.toModuleType();
@@ -193,7 +193,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 		switch(t) {
 			case TType(_, _) | TAbstract(_, _): {
-				final followed = RContext.follow(t);
+				final followed = Context.follow(t);
 				switch(followed) {
 					case TAbstract(absRef, _): {
 						final inner = getAbstractInner(followed);
@@ -287,7 +287,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	var nullType: Null<Ref<AbstractType>> = null;
 	public function getNullType(): Ref<AbstractType> {
 		if(nullType == null) {
-			switch(RContext.getModule("Null")[0]) {
+			switch(Context.getModule("Null")[0]) {
 				case TAbstract(abRef, _): {
 					nullType = abRef;
 				}
@@ -302,7 +302,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	var valType: Null<Ref<AbstractType>> = null;
 	public function getValueType(): Ref<AbstractType> {
 		if(valType == null) {
-			switch(RContext.getModule("ucpp.Value")[0]) {
+			switch(Context.getModule("ucpp.Value")[0]) {
 				case TAbstract(abRef, _): {
 					valType = abRef;
 				}
@@ -317,7 +317,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	var ptrType: Null<Ref<AbstractType>> = null;
 	public function getPtrType(): Ref<AbstractType> {
 		if(ptrType == null) {
-			switch(RContext.getModule("ucpp.Ptr")[0]) {
+			switch(Context.getModule("ucpp.Ptr")[0]) {
 				case TAbstract(abRef, _): {
 					ptrType = abRef;
 				}
@@ -761,7 +761,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
 				if(abs.hasMeta(":multiType")) {
-					RContext.followWithAbstracts(t, true);
+					Context.followWithAbstracts(t, true);
 				} else {
 					abs.type;
 				}
