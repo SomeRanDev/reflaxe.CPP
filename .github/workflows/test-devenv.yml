@@ -1,0 +1,34 @@
+on:
+  push:
+    branches:
+      - development
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  build_ubuntu:
+    runs-on: ubuntu-latest
+    name: Test Dev Environment & Null Safety
+    steps:
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: latest
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup GCC
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: latest
+          platform: x64
+
+      - name: Install & Check Haxe
+        run: haxe -version
+
+      - name: Install Reflaxe
+        run: haxelib git reflaxe https://github.com/RobertBorghese/reflaxe.git
+
+      - name: Test Dev. Environment
+        run: haxe DevEnv.hxml
