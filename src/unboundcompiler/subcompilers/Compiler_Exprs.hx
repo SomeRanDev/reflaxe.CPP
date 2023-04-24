@@ -448,7 +448,7 @@ class Compiler_Exprs extends SubCompiler {
 		var result = null;
 
 		// Unwraps Null<T> (std::optional) if converting from optional -> not optional
-		function convertCppNull(cpp: String): String {
+		inline function convertCppNull(cpp: String): String {
 			if(!allowNull && nullToValue && !expr.isNullExpr()) {
 				return ensureSafeToAccess(cpp) + ".value()";
 			}
