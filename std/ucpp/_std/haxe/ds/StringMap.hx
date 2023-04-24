@@ -3,10 +3,10 @@ package haxe.ds;
 @:ucppStd
 @:coreApi
 class StringMap<T> implements haxe.Constraints.IMap<String, T> {
-	var m: ucpp.std.Map<String, T>;
+	var m: ucpp.StdMap<String, T>;
 
 	public function new(): Void {
-		m = new ucpp.std.Map<String, T>();
+		m = new ucpp.StdMap<String, T>();
 	}
 
 	public function set(key: String, value: T): Void {
