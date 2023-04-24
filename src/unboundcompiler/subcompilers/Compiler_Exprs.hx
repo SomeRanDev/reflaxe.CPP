@@ -468,7 +468,7 @@ class Compiler_Exprs extends SubCompiler {
 		}
 		
 		// Convert between two different memory management types (or nullable -> not nullable)
-		else if(cmmt != tmmt || nullToValue) {
+		if((cmmt != tmmt || nullToValue) && result == null) {
 			switch(expr.expr) {
 				case TConst(TThis) if(thisOverride == null && tmmt == SharedPtr): {
 					IComp.setExtraFlag(ExtraFlag.SharedFromThis);
