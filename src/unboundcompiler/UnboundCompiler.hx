@@ -21,6 +21,7 @@ using reflaxe.helpers.BaseTypeHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
+using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypedExprHelper;
 using reflaxe.helpers.TypeHelper;
@@ -106,13 +107,16 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	public function new() {
 		super();
-		CComp = new Compiler_Classes(this);
-		EComp = new Compiler_Enums(this);
-		AComp = new Compiler_Anon(this);
-		IComp = new Compiler_Includes(this);
-		RComp = new Compiler_Reflection(this);
-		TComp = new Compiler_Types(this);
-		XComp = new Compiler_Exprs(this);
+
+		@:nullSafety(Off) final self = this;
+
+		CComp = new Compiler_Classes(self);
+		EComp = new Compiler_Enums(self);
+		AComp = new Compiler_Anon(self);
+		IComp = new Compiler_Includes(self);
+		RComp = new Compiler_Reflection(self);
+		TComp = new Compiler_Types(self);
+		XComp = new Compiler_Exprs(self);
 
 		function setup(c: SubCompiler) c.setSubCompilers(CComp, EComp, AComp, IComp, RComp, TComp, XComp);
 		setup(CComp);
@@ -168,7 +172,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 		if(addToHeader) {
 			addDep(t);
-			addDep(Context.followWithAbstracts(t));
+			#if macro addDep(Context.followWithAbstracts(t)); #end
 		}
 
 		final mt = t.toModuleType();
@@ -189,7 +193,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 		switch(t) {
 			case TType(_, _) | TAbstract(_, _): {
-				final followed = Context.follow(t);
+				final followed = #if macro Context.follow(t) #else t #end;
 				switch(followed) {
 					case TAbstract(absRef, _): {
 						final inner = getAbstractInner(followed);
@@ -216,7 +220,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	public function getTVarType(tvar: TVar): Type {
 		if(tvarTypeOverrides.exists(tvar.id)) {
-			return tvarTypeOverrides.get(tvar.id);
+			return tvarTypeOverrides.get(tvar.id).trustMe();
 		}
 		return tvar.t;
 	}
@@ -283,6 +287,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	var nullType: Null<Ref<AbstractType>> = null;
 	public function getNullType(): Ref<AbstractType> {
 		if(nullType == null) {
+			#if macro 
 			switch(Context.getModule("Null")[0]) {
 				case TAbstract(abRef, _): {
 					nullType = abRef;
@@ -291,13 +296,15 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 					throw "`Null` does not refer to an abstract type.";
 				}
 			}
+			#end
 		}
-		return nullType;
+		return nullType.trustMe();
 	}
 
 	var valType: Null<Ref<AbstractType>> = null;
 	public function getValueType(): Ref<AbstractType> {
 		if(valType == null) {
+			#if macro 
 			switch(Context.getModule("ucpp.Value")[0]) {
 				case TAbstract(abRef, _): {
 					valType = abRef;
@@ -306,13 +313,15 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 					throw "`ucpp.Value` does not refer to an abstract type.";
 				}
 			}
+			#end
 		}
-		return valType;
+		return valType.trustMe();
 	}
 
 	var ptrType: Null<Ref<AbstractType>> = null;
 	public function getPtrType(): Ref<AbstractType> {
 		if(ptrType == null) {
+			#if macro 
 			switch(Context.getModule("ucpp.Ptr")[0]) {
 				case TAbstract(abRef, _): {
 					ptrType = abRef;
@@ -321,8 +330,9 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 					throw "`ucpp.Ptr` does not refer to an abstract type.";
 				}
 			}
+			#end
 		}
-		return ptrType;
+		return ptrType.trustMe();
 	}
 
 	// ----------------------------
@@ -336,7 +346,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		if(!reflectionCpp.exists(filename)) {
 			reflectionCpp.set(filename, []);
 		}
-		reflectionCpp.get(filename).push(cpp);
+		reflectionCpp.get(filename).trustMe().push(cpp);
 	}
 
 	// Called on compilation end to add the
@@ -429,6 +439,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	// Copies files configured to be added
 	// to the output using `ucpp.Compiler`.
 	function copyAdditionalFiles() {
+		#if macro
 		for(file in ucpp.Compiler.findAllExtraFiles()) {
 			final fp = file.path;
 			if(sys.FileSystem.exists(fp)) {
@@ -438,6 +449,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 				setExtraFile(outPath, content);
 			}
 		}
+		#end
 	}
 
 	// ----------------------------
@@ -449,8 +461,8 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 			// Compile the expressions before compiling the
 			// includes so they are all found.
-			final cpp = compileExpression(mainExpr);
-			final prependsCpp = prependExpressions.map(compileExpression);
+			final cpp = compileExpressionOrError(mainExpr);
+			final prependsCpp = prependExpressions.map(compileExpressionOrError);
 
 			var content = IComp.compileCppIncludes() + "\n\n";
 			content += "int main(int argc, const char* argv[]) {\n";
@@ -496,7 +508,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 	function getFileNameFromModuleData(md: BaseType): String {
 		return if(md.hasMeta(Meta.Filename)) {
-			md.meta.extractStringFromFirstMeta(Meta.Filename);
+			md.meta.extractStringFromFirstMeta(Meta.Filename) ?? md.moduleId();
 		} else {
 			md.moduleId();
 		}
@@ -576,6 +588,8 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	public override function compileTypedef(defType: DefType): Null<String> {
 		final filename = getFileNameFromModuleData(defType);
 		final mt = getCurrentModule();
+
+		if(mt == null) throw "No current module";
 
 		typedefs.push({
 			defType: defType,
@@ -752,9 +766,9 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		return switch(t) {
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
-				if(abs.hasMeta(":multiType")) {
+				#if macro if(abs.hasMeta(":multiType")) {
 					Context.followWithAbstracts(t, true);
-				} else {
+				} else #end {
 					abs.type;
 				}
 			}

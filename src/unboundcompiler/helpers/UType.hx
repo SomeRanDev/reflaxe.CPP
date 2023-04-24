@@ -21,8 +21,10 @@ class UType {
 	// they have different memory management overrides.
 	public static function valueTypesEqual(t: Type, other: Type, followTypes: Bool = false) {
 		if(followTypes) {
+			#if macro
 			t = Context.followWithAbstracts(t);
 			other = Context.followWithAbstracts(other);
+			#end
 		}
 		return getInternalType(t).equals(getInternalType(other));
 	}
@@ -39,8 +41,8 @@ class UType {
 			return true;
 		}
 
-		final inner = Context.follow(getInternalType(t));
-		final innerOther = Context.follow(getInternalType(other));
+		final inner = #if macro Context.follow #end(getInternalType(t));
+		final innerOther = #if macro Context.follow #end(getInternalType(other));
 
 		// If converting from non-anon to anon, no conversion should be applied.
 		if(!inner.isAnonStruct() && innerOther.isAnonStruct()) {
@@ -69,7 +71,7 @@ class UType {
 			case _:
 		}
 
-		return Context.unify(t, other);
+		return #if macro Context.unify(t, other) #else false #end;
 	}
 
 	// ----------------------------
@@ -115,7 +117,7 @@ class UType {
 		if(it.isAnonStruct()) {
 			return true;
 		}
-		return Context.follow(it).isAnonStruct();
+		return #if macro Context.follow(it).isAnonStruct() #else false #end;
 	}
 
 	// ----------------------------

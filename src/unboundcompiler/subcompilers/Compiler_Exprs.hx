@@ -23,6 +23,7 @@ using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.OperatorHelper;
 using reflaxe.helpers.NameMetaHelper;
+using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypedExprHelper;
@@ -50,7 +51,7 @@ class Compiler_Exprs extends SubCompiler {
 	public function setExplicitNull(newVal: Null<Bool>, cond: Bool = true): Null<Bool> {
 		if(!cond) return null;
 		final old = explicitNull;
-		explicitNull = newVal;
+		explicitNull = newVal ?? false;
 		return old;
 	}
 
@@ -146,7 +147,7 @@ class Compiler_Exprs extends SubCompiler {
 				final d = "std::deque<" + t + ">";
 				result = "std::make_shared<" + d + ">(" + d + ({
 					if(el.length > 0) {
-						final cppList = el.map(e -> compileExpressionForType(e, arrayType));
+						final cppList: Array<String> = el.map(e -> compileExpressionForType(e, arrayType).trustMe());
 						var newLines = false;
 						for(cpp in cppList) {
 							if(cpp.length > 5) {
@@ -312,7 +313,7 @@ class Compiler_Exprs extends SubCompiler {
 				result = compileCast(e, expr, maybeModuleType);
 			}
 			case TMeta(metadataEntry, nextExpr): {
-				final unwrappedInfo = unwrapMetaExpr(expr);
+				final unwrappedInfo = unwrapMetaExpr(expr).trustMe();
 				final cpp = compileExprWithMultipleMeta(unwrappedInfo.meta, expr, unwrappedInfo.internalExpr);
 				result = cpp ?? Main.compileExpression(unwrappedInfo.internalExpr);
 			}
@@ -386,7 +387,7 @@ class Compiler_Exprs extends SubCompiler {
 					// In an earlier version, all expressions were converted to `Value`.
 					// Here's the code needed to achieve that in case required in the future:
 					// `compileMMConversion(expr, Right(Value));`
-					final exprCpp = Main.compileExpression(expr);
+					final exprCpp = Main.compileExpressionOrError(expr);
 					cpp = applyMMConversion(exprCpp, expr.pos, targetType, Value, SharedPtr);
 				}
 			}
@@ -418,11 +419,11 @@ class Compiler_Exprs extends SubCompiler {
 	// If the memory management type of the target type (or target memory management type)
 	// is different from the provided expression, compile the expression and with additional
 	// conversions in the generated code.
-	function compileMMConversion(expr: TypedExpr, target: Either<Null<Type>, MemoryManagementType>, allowNull: Bool = false): String {
+	function compileMMConversion(expr: TypedExpr, target: Either<Type, MemoryManagementType>, allowNull: Bool = false): String {
 		final cmmt = TComp.getMemoryManagementTypeFromType(Main.getExprType(expr));
 
 		var tmmt;
-		var targetType;
+		var targetType: Null<Type>;
 		var nullToValue;
 		switch(target) {
 			case Left(tt): {
@@ -466,7 +467,7 @@ class Compiler_Exprs extends SubCompiler {
 			result = internal_compileExpressionForType(expr, targetType, false);
 		}
 
-		return result;
+		return result.trustMe();
 	}
 
 	// ----------------------------
@@ -534,7 +535,7 @@ class Compiler_Exprs extends SubCompiler {
 			}
 			case _: {
 				final cpp = Main.compileExpression(e);
-				cpp == null ? null : cpp.tab() + ";";
+				cpp == null ? "" : cpp.tab() + ";";
 			}
 		}
 	}
@@ -719,12 +720,12 @@ class Compiler_Exprs extends SubCompiler {
 					var useArrow = isThisExpr(e) || isArrowAccessType(Main.getExprType(e));
 
 					final nullType = Main.getExprType(e).unwrapNullType();
-					final gdExpr = if(nullType != null) {
-						compileExpressionForType(e, nullType);
+					final cppExpr = if(nullType != null) {
+						compileExpressionForType(e, nullType).trustMe();
 					} else {
 						Main.compileExpressionOrError(e);
 					}
-					gdExpr + (useArrow ? "->" : ".") + name;
+					cppExpr + (useArrow ? "->" : ".") + name;
 				}
 			}
 
@@ -847,7 +848,7 @@ class Compiler_Exprs extends SubCompiler {
 					typeDefRef.get().meta;
 				}
 				case _: {
-					expr.getDeclarationMeta().meta;
+					expr.getDeclarationMeta()?.meta;
 				}
 			}
 			final native = { name: "", meta: meta }.getNameOrNative();
@@ -861,7 +862,7 @@ class Compiler_Exprs extends SubCompiler {
 						final clsField = c.get();
 						switch(clsField.type) {
 							case TFun(args, ret): {
-								args.map(a -> haxe.macro.TypeTools.applyTypeParameters(a.t, cls.params, params));
+								#if macro args.map(a -> haxe.macro.TypeTools.applyTypeParameters(a.t, cls.params, params)) #else null #end;
 							}
 							case _: null;
 						}
@@ -892,7 +893,7 @@ class Compiler_Exprs extends SubCompiler {
 					type.getParams() ?? [];
 				};
 				final typeParams = params.map(p -> TComp.compileType(p, expr.pos)).join(", ");
-				final cd = type.toModuleType().getCommonData();
+				final cd = type.toModuleType().trustMe().getCommonData();
 
 				// If the expression's type is different, this may be the result of an unsafe cast.
 				// If so, let's use the memory management type from the cast.
@@ -936,7 +937,7 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	// Compiles if statement (TIf).
-	function compileIf(econd: TypedExpr, ifExpr: TypedExpr, elseExpr: TypedExpr, constexpr: Bool = false): String {
+	function compileIf(econd: TypedExpr, ifExpr: TypedExpr, elseExpr: Null<TypedExpr>, constexpr: Bool = false): String {
 		var result = "if" + (constexpr ? " constexpr" : "") + "(" + Main.compileExpressionOrError(econd.unwrapParenthesis()) + ") {\n";
 		result += toIndentedScope(ifExpr);
 		if(elseExpr != null) {
@@ -1020,7 +1021,7 @@ class Compiler_Exprs extends SubCompiler {
 		// If no meta that modify how the original expression are found,
 		// just compile the expression like normal.
 		if(result == null) {
-			result = Main.compileExpression(internalExpr);
+			result = Main.compileExpressionOrError(internalExpr);
 		}
 
 		// Now we check the metadata again for any "wrapper" metadata.
@@ -1125,8 +1126,8 @@ class Compiler_Exprs extends SubCompiler {
 					final piCpp = Main.compileExpressionOrError(el[1]);
 					final accessCpp = 'temp${isArrowAccessType(e1Type) ? "->" : "."}';
 					intro = "auto temp = " + (isNull ? {
-						final line = haxe.macro.PositionTools.toLocation(callExpr.pos).range.start.line;
-						final file = Context.getPosInfos(callExpr.pos).file;
+						final line = #if macro haxe.macro.PositionTools.toLocation(callExpr.pos).range.start.line #else 0 #end;
+						final file = #if macro Context.getPosInfos(callExpr.pos).file #else "" #end;
 						final clsConstruct = {
 							final clsName = TComp.compileType(e1InternalType, callExpr.pos, true);
 							final tmmt = TComp.getMemoryManagementTypeFromType(e1InternalType);

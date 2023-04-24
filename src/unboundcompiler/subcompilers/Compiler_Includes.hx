@@ -41,15 +41,15 @@ enum abstract ExtraFlag(String) from String to String {
 class Compiler_Includes extends SubCompiler {
 	// ----------------------------
 	// Store list of includes.
-	var headerIncludes: Array<String>;
-	var cppIncludes: Array<String>;
+	var headerIncludes: Array<String> = [];
+	var cppIncludes: Array<String> = [];
 
 	// ----------------------------
 	// Store list of "using namespace" uses.
 	//
 	// Using "using namespace" in header files is bad practice,
 	// so only usings for cpp files are tracked.
-	var cppUsings: Array<String>;
+	var cppUsings: Array<String> = [];
 
 	// ----------------------------
 	// A list of arbitrary flags that may be used.
@@ -58,11 +58,11 @@ class Compiler_Includes extends SubCompiler {
 	// based on an expression or pattern detected.
 	//
 	// Cleared at the start of module compilation like includes.
-	var extraFlags: Map<String, Bool>;
+	var extraFlags: Map<String, Bool> = [];
 
 	// ----------------------------
 	// List of headers to ignore.
-	var ignoreIncludes: Array<String>;
+	var ignoreIncludes: Array<String> = [];
 
 	// ----------------------------
 	// If the Haxe utility header was included
@@ -156,7 +156,7 @@ class Compiler_Includes extends SubCompiler {
 		final result = switch(mt) {
 			case TAbstract(absRef): {
 				if(unwrapAbstract) {
-					final newMt = Context.followWithAbstracts(TypeHelper.fromModuleType(mt)).toModuleType();
+					final newMt = #if macro Context.followWithAbstracts(TypeHelper.fromModuleType(mt)).toModuleType() #else mt #end;
 					if(newMt != null) {
 						isNoIncludeType(newMt, false);
 					} else {
@@ -251,9 +251,9 @@ class Compiler_Includes extends SubCompiler {
 	}
 
 	function addIncludeFromModuleType(mt: Null<ModuleType>, header: Bool) {
-		if(isNoIncludeType(mt)) return;
-
 		if(mt != null) {
+			if(isNoIncludeType(mt)) return;
+
 			// Add our "main" include if @:noInclude is absent.
 			// First look for and use @:include, otherwise, use default header include.
 			final cd = mt.getCommonData();
@@ -300,7 +300,7 @@ class Compiler_Includes extends SubCompiler {
 
 		if(!metaAccess.maybeHas(Meta.NoInclude)) {
 			final includeOverride = metaAccess.extractParamsFromFirstMeta(Meta.Include);
-			if(!addMetaEntryInc(includeOverride, header)) {
+			if(includeOverride != null && !addMetaEntryInc(includeOverride, header)) {
 				defaultOverrided = true;
 			}
 		}

@@ -16,6 +16,7 @@ import haxe.macro.Type;
 
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
+using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
@@ -36,9 +37,11 @@ class Compiler_Types extends SubCompiler {
 		}
 		final result = maybeCompileType(t, pos, asValue, dependent);
 		if(result == null) {
+			#if macro
 			Context.error("Could not compile type: " + t, pos);
+			#end
 		}
-		return result;
+		return result.trustMe();
 	}
 
 	// ----------------------------
@@ -171,7 +174,7 @@ class Compiler_Types extends SubCompiler {
 						}
 						case _: {
 							final inner = Main.getAbstractInner(t);
-							final newType = haxe.macro.TypeTools.applyTypeParameters(inner, abs.params, params);
+							final newType = #if macro haxe.macro.TypeTools.applyTypeParameters(inner, abs.params, params) #else inner #end;
 
 							if(t.equals(newType)) {
 								compileModuleTypeName(abs, pos, params, true, asValue ? Value : null);
@@ -202,6 +205,7 @@ class Compiler_Types extends SubCompiler {
 	// Compiles the type based on the @:nativeTypeCode meta
 	// if it exists on the type's declaration.
 	function compileNativeTypeCode(t: Null<Type>, pos: Position, asValue: Bool): Null<String> {
+		if(t == null) return null;
 		final meta = t.getMeta();
 		return if(meta.maybeHas(Meta.NativeTypeCode)) {
 			final params = t.getParams();
@@ -251,7 +255,7 @@ class Compiler_Types extends SubCompiler {
 
 	// ----------------------------
 	// Compiles type params.
-	function compileTypeNameWithParams(name: String, pos: Position, params: Null<Array<Type>> = null): Null<String> {
+	function compileTypeNameWithParams(name: String, pos: Position, params: Null<Array<Type>> = null): String {
 		if(params == null || params.length == 0) {
 			return name;
 		}
@@ -447,7 +451,7 @@ class Compiler_Types extends SubCompiler {
 	// of all the new "template type names" created.
 	function disableDynamicToTemplate(): Array<String> {
 		return if(templateState.length > 0) {
-			templateState.pop().dynamicTemplates;
+			templateState.pop().trustMe().dynamicTemplates;
 		} else {
 			[];
 		}

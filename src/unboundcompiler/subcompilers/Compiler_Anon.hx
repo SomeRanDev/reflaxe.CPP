@@ -12,6 +12,7 @@ package unboundcompiler.subcompilers;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
+using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.PositionHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
@@ -62,7 +63,7 @@ class Compiler_Anon extends SubCompiler {
 			as = findAnonStruct(anonFields);
 		}
 
-		final el = [];
+		final el: Array<TypedExpr> = [];
 		final elType = [];
 		for(field in as.constructorOrder) {
 			final e = anonMap.get(field.name);
@@ -85,10 +86,13 @@ class Compiler_Anon extends SubCompiler {
 		}
 
 		IComp.addAnonTypeInclude(compilingInHeader);
-		final cppArgs = [];
+		final cppArgs: Array<String> = [];
 		for(i in 0...el.length) {
-			cppArgs.push(XComp.compileExpressionForType(el[i], elType[i]));
+			final _cpp = XComp.compileExpressionForType(el[i], elType[i]);
+			if(_cpp == null) throw "Expected expr";
+			cppArgs.push(_cpp);
 		}
+		if(internalType == null) throw "Expected type";
 		final tmmt = TComp.getMemoryManagementTypeFromType(internalType);
 		return applyAnonMMConversion(name, cppArgs, tmmt);
 	}
@@ -191,7 +195,7 @@ class Compiler_Anon extends SubCompiler {
 		TComp.enableDynamicToTemplate([]);
 
 		for(f in anonFields) {
-			final t = TComp.compileType(f.type, f.pos);
+			final t = TComp.compileType(f.type, f.pos.trustMe());
 			final v = t + " " + f.name;
 			fields.push(v);
 			constructorParams.push(v + (f.optional ? " = std::nullopt" : ""));
@@ -221,7 +225,7 @@ class Compiler_Anon extends SubCompiler {
 
 		var decl = "";
 
-		decl += "// { " + anonFields.map(f -> f.name + ": " + haxe.macro.TypeTools.toString(f.type)).join(", ") + " }\n";
+		decl += "// { " + anonFields.map(f -> f.name + ": " + #if macro haxe.macro.TypeTools.toString(f.type) #else null #end).join(", ") + " }\n";
 
 		if(templates.length > 0) {
 			decl += "template<" + templates.map(t -> "typename " + t).join(", ") + ">\n";
@@ -307,7 +311,7 @@ class Compiler_Anon extends SubCompiler {
 				cpp: decl.cpp
 			});
 		}
-		return anonStructs.get(key);
+		return anonStructs.get(key).trustMe();
 	}
 
 	function makeAnonStructKey(anonFields: Array<AnonField>): String {
