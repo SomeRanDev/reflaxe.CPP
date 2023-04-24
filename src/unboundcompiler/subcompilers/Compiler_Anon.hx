@@ -195,7 +195,7 @@ class Compiler_Anon extends SubCompiler {
 		TComp.enableDynamicToTemplate([]);
 
 		for(f in anonFields) {
-			final t = TComp.compileType(f.type, f.pos.trustMe());
+			final t = TComp.compileType(f.type, f.pos ?? reflaxe.helpers.PositionHelper.unknownPos());
 			final v = t + " " + f.name;
 			fields.push(v);
 			constructorParams.push(v + (f.optional ? " = std::nullopt" : ""));
