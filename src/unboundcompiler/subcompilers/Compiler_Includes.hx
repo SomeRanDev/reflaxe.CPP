@@ -283,7 +283,7 @@ class Compiler_Includes extends SubCompiler {
 
 	// Add include from extracted metadata entry parameters.
 	// Returns true if successful.
-	function addMetaEntryInc(params: Array<Dynamic>, header: Bool): Bool {
+	function addMetaEntryInc(params: Null<Array<Dynamic>>, header: Bool): Bool {
 		if(params != null && params.length > 0 && params[0].isString()) {
 			addInclude(params[0], header, params[1] == true);
 			return true;
@@ -300,7 +300,7 @@ class Compiler_Includes extends SubCompiler {
 
 		if(!metaAccess.maybeHas(Meta.NoInclude)) {
 			final includeOverride = metaAccess.extractParamsFromFirstMeta(Meta.Include);
-			if(includeOverride != null && !addMetaEntryInc(includeOverride, header)) {
+			if(!addMetaEntryInc(includeOverride, header)) {
 				defaultOverrided = true;
 			}
 		}
