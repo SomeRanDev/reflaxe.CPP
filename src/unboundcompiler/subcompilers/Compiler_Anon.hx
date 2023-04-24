@@ -225,7 +225,7 @@ class Compiler_Anon extends SubCompiler {
 
 		var decl = "";
 
-		decl += "// { " + anonFields.map(f -> f.name + ": " + #if macro haxe.macro.TypeTools.toString(f.type) #else null #end).join(", ") + " }\n";
+		decl += "// { " + anonFields.map(f -> f.name + ": " + (#if macro haxe.macro.TypeTools.toString(f.type) #else "" #end)).join(", ") + " }\n";
 
 		if(templates.length > 0) {
 			decl += "template<" + templates.map(t -> "typename " + t).join(", ") + ">\n";
