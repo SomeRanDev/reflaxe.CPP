@@ -69,6 +69,14 @@ class Main {
 		assert(intMap2.toString() == "[]");
 		assert(intMap2[1] == null);
 
+		// Test covariance
+		final _intmap: haxe.ds.IntMap<String> = [1 => "test"];
+		final _map: Map<Int, String> = _intmap.copy();
+		assert(_map.get(1) == "test");
+
+		final _map2: haxe.Constraints.IMap<Int, String> = _intmap.copy();
+		assert(_map2.get(1) == "test");
+
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
 		}
