@@ -40,6 +40,10 @@ class UnboundCompilerInit {
 	static function applyMods() {
 		// Provide StringTools.isEof implementation for this target.
 		ClassModifier.mod("StringTools", "isEof", macro return c == 0);
+
+		#if macro
+		haxe.macro.Compiler.addMetadata("@:keep", "haxe.IMap");
+		#end
 	}
 
 	static function reservedNames() {
