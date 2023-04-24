@@ -445,6 +445,18 @@ class Compiler_Exprs extends SubCompiler {
 		}
 
 		var result = null;
+
+		// Convert between two shared pointers
+		if(cmmt == SharedPtr && tmmt == SharedPtr && targetType != null) {
+			if(expr.t.isChildOf(targetType) || expr.t.implementsType(targetType)) {
+				var cpp = internal_compileExpressionForType(expr, targetType, false);
+				if(cpp != null) {
+					IComp.addInclude("memory", compilingInHeader, true);
+					result = "std::static_pointer_cast<" + TComp.compileType(targetType, expr.pos, true) + ">(" + cpp + ")";
+				}
+			}
+		}
+
 		if(cmmt != tmmt || nullToValue) {
 			switch(expr.expr) {
 				case TConst(TThis) if(thisOverride == null && tmmt == SharedPtr): {
