@@ -13,13 +13,13 @@ import unboundcompiler.UnboundCompiler;
 class SubCompiler {
 	var Main: UnboundCompiler;
 
-	var CComp: Compiler_Classes;
-	var EComp: Compiler_Enums;
-	var AComp: Compiler_Anon;
-	var IComp: Compiler_Includes;
-	var RComp: Compiler_Reflection;
-	var TComp: Compiler_Types;
-	var XComp: Compiler_Exprs;
+	@:nullSafety(Off) var CComp: Compiler_Classes;
+	@:nullSafety(Off) var EComp: Compiler_Enums;
+	@:nullSafety(Off) var AComp: Compiler_Anon;
+	@:nullSafety(Off) var IComp: Compiler_Includes;
+	@:nullSafety(Off) var RComp: Compiler_Reflection;
+	@:nullSafety(Off) var TComp: Compiler_Types;
+	@:nullSafety(Off) var XComp: Compiler_Exprs;
 
 	public function new(compiler: UnboundCompiler) {
 		Main = compiler;

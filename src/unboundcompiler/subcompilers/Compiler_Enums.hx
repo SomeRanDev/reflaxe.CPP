@@ -13,6 +13,7 @@ import haxe.macro.Type;
 
 import reflaxe.BaseCompiler;
 
+using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
@@ -187,7 +188,7 @@ class Compiler_Enums extends SubCompiler {
 		Main.appendToExtraFile(headerFilePath, content + "\n", 2);
 
 		// Let the reflection compiler know this enum was compiled.
-		RComp.addCompiledModuleType(Main.getCurrentModule());
+		RComp.addCompiledModuleType(Main.getCurrentModule().trustMe());
 
 		return null;
 	}

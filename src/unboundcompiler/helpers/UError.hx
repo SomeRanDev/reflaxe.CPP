@@ -93,7 +93,7 @@ class UError {
 				"Unknown error.";
 			}
 		}
-		return Context.error(msg, pos);
+		return #if macro Context.error(msg, pos) #else null #end;
 	}
 }
 

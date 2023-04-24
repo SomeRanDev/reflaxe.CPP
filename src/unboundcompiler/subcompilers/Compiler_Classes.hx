@@ -20,6 +20,7 @@ import reflaxe.input.ClassHierarchyTracker;
 using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
+using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
@@ -34,7 +35,7 @@ using unboundcompiler.helpers.UMeta;
 @:access(unboundcompiler.subcompilers.Compiler_Includes)
 @:access(unboundcompiler.subcompilers.Compiler_Types)
 class Compiler_Classes extends SubCompiler {
-	var classType: ClassType;
+	@:nullSafety(Off) var classType: ClassType;
 
 	var variables: Map<String, Array<String>> = [];
 	var functions: Map<String, Array<String>> = [];
@@ -43,14 +44,14 @@ class Compiler_Classes extends SubCompiler {
 		if(!variables.exists(access)) {
 			variables.set(access, []);
 		}
-		variables.get(access).push(funcOutput);
+		variables.get(access).trustMe().push(funcOutput);
 	}
 
 	function addFunction(funcOutput: String, access: String = "public") {
 		if(!functions.exists(access)) {
 			functions.set(access, []);
 		}
-		functions.get(access).push(funcOutput);
+		functions.get(access).trustMe().push(funcOutput);
 	}
 
 	var topLevelFunctions: Array<String> = [];
@@ -104,7 +105,7 @@ class Compiler_Classes extends SubCompiler {
 
 		// Meta
 		final clsMeta = Main.compileMetadata(classType.meta, MetadataTarget.Class);
-		headerContent[0] += clsMeta;
+		headerContent[0] += clsMeta.trustMe();
 
 		// Template generics
 		if(classType.params.length > 0) {
@@ -165,7 +166,7 @@ class Compiler_Classes extends SubCompiler {
 		generateOutput();
 
 		// Let the reflection compiler know this class was compiled.
-		RComp.addCompiledModuleType(Main.getCurrentModule());
+		RComp.addCompiledModuleType(Main.getCurrentModule().trustMe());
 
 		// Clear the dependency tracker.
 		Main.clearDep();
@@ -219,16 +220,17 @@ class Compiler_Classes extends SubCompiler {
 		final isStatic = v.isStatic;
 		final addToCpp = !headerOnly && isStatic;
 		final varName = Main.compileVarName(field.name, null, field);
-		final cppVal = if(field.expr() != null) {
+		final e = field.expr();
+		final cppVal = if(e != null) {
 			XComp.compilingInHeader = headerOnly;
 			XComp.compilingForTopLevel = addToCpp;
 
 			// Note to self: should I be using: `Main.compileClassVarExpr(field.expr())`?
-			final result = XComp.compileExpressionForType(field.expr(), field.type, true);
+			final result = XComp.compileExpressionForType(e, field.type, true);
 
 			XComp.compilingForTopLevel = false;
 
-			result == null ? "" : result;
+			result ?? "";
 		} else {
 			"";
 		}
@@ -238,7 +240,7 @@ class Compiler_Classes extends SubCompiler {
 		final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
 		final assign = (cppVal.length == 0 ? "" : (" = " + cppVal));
 		final type = TComp.compileType(field.type, field.pos, false, true);
-		var decl = meta + (isStatic ? "static " : "") + type + " " + varName;
+		var decl = (meta ?? "") + (isStatic ? "static " : "") + type + " " + varName;
 		if(!addToCpp) {
 			decl += assign;
 		}
@@ -391,7 +393,7 @@ class Compiler_Classes extends SubCompiler {
 			final dynAddToCpp = !headerOnly && isStatic;
 			XComp.compilingInHeader = !dynAddToCpp;
 			XComp.compilingForTopLevel = true;
-			final callable = Main.compileClassVarExpr(field.expr());
+			final callable = Main.compileClassVarExpr(field.expr().trustMe());
 			XComp.compilingForTopLevel = false;
 
 			// -----------------
@@ -400,7 +402,7 @@ class Compiler_Classes extends SubCompiler {
 			final type = "std::function<" + ret + "(" + data.args.map(a -> {
 				return TComp.compileType(a.t, field.pos, false, true);
 			}).join(", ") + ")>";
-			var decl = meta + prefix + type + " " + name;
+			var decl = (meta ?? "") + prefix + type + " " + name;
 			if(!dynAddToCpp) {
 				decl += assign;
 			}
@@ -454,7 +456,7 @@ class Compiler_Classes extends SubCompiler {
 			// -----------------
 			// Compile the function content
 			XComp.pushReturnType(data.ret);
-			final funcDeclaration = meta + (topLevel ? "" : prefix) + retDecl + name + argDecl;
+			final funcDeclaration = (meta ?? "") + (topLevel ? "" : prefix) + retDecl + name + argDecl;
 			var content = if(data.expr != null) {
 				XComp.compilingInHeader = !addToCpp;
 
@@ -578,14 +580,20 @@ class Compiler_Classes extends SubCompiler {
 			result += key + ":\n";
 
 			var varsExist = false;
-			if(variables.exists(key) && variables.get(key).length > 0) {
-				result += variables.get(key).join("\n\n").tab() + "\n";
-				varsExist = true;
+			if(variables.exists(key)) {
+				final v = variables.get(key).trustMe();
+				if(v.length > 0) {
+					result += v.join("\n\n").tab() + "\n";
+					varsExist = true;
+				}
 			}
 
-			if(functions.exists(key) && functions.get(key).length > 0) {
-				result += (varsExist ? "\n" : "");
-				result += functions.get(key).join("\n\n").tab() + "\n";
+			if(functions.exists(key)) {
+				final f = functions.get(key).trustMe();
+				if(f.length > 0) {
+					result += (varsExist ? "\n" : "");
+					result += f.join("\n\n").tab() + "\n";
+				}
 			}
 		}
 
@@ -610,7 +618,7 @@ class Compiler_Classes extends SubCompiler {
 			Main.appendToExtraFile(headerFilename, result + "\n", currentDep != null ? currentDep.getPriority() : DependencyTracker.minimum);
 		});
 
-		Main.addReflectionCpp(headerFilename, RComp.compileClassReflection(classTypeRef));
+		Main.addReflectionCpp(headerFilename, RComp.compileClassReflection(classTypeRef.trustMe()));
 	}
 }
 

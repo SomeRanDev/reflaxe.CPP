@@ -15,6 +15,7 @@ package unboundcompiler.other;
 import haxe.macro.Type;
 
 using reflaxe.helpers.ModuleTypeHelper;
+using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.TypeHelper;
 
 class DependencyTracker {
@@ -34,7 +35,7 @@ class DependencyTracker {
 			allDependencies.set(id, dt);
 			dt;
 		} else {
-			allDependencies.get(id);
+			allDependencies.get(id).trustMe();
 		}
 
 		tracker.setFilename(filename);
