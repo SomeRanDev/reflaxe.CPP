@@ -9,7 +9,7 @@ package unboundcompiler;
 
 #if (macro || ucpp_runtime)
 
-import haxe.macro.Context;
+import reflaxe.helpers.RContext; // Use like haxe.macro.Context
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
@@ -172,7 +172,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 		if(addToHeader) {
 			addDep(t);
-			#if macro addDep(Context.followWithAbstracts(t)); #end
+			addDep(RContext.followWithAbstracts(t));
 		}
 
 		final mt = t.toModuleType();
@@ -193,7 +193,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 
 		switch(t) {
 			case TType(_, _) | TAbstract(_, _): {
-				final followed = #if macro Context.follow(t) #else t #end;
+				final followed = RContext.follow(t);
 				switch(followed) {
 					case TAbstract(absRef, _): {
 						final inner = getAbstractInner(followed);
@@ -287,8 +287,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	var nullType: Null<Ref<AbstractType>> = null;
 	public function getNullType(): Ref<AbstractType> {
 		if(nullType == null) {
-			#if macro 
-			switch(Context.getModule("Null")[0]) {
+			switch(RContext.getModule("Null")[0]) {
 				case TAbstract(abRef, _): {
 					nullType = abRef;
 				}
@@ -296,7 +295,6 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 					throw "`Null` does not refer to an abstract type.";
 				}
 			}
-			#end
 		}
 		return nullType.trustMe();
 	}
@@ -304,8 +302,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	var valType: Null<Ref<AbstractType>> = null;
 	public function getValueType(): Ref<AbstractType> {
 		if(valType == null) {
-			#if macro 
-			switch(Context.getModule("ucpp.Value")[0]) {
+			switch(RContext.getModule("ucpp.Value")[0]) {
 				case TAbstract(abRef, _): {
 					valType = abRef;
 				}
@@ -313,7 +310,6 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 					throw "`ucpp.Value` does not refer to an abstract type.";
 				}
 			}
-			#end
 		}
 		return valType.trustMe();
 	}
@@ -321,8 +317,7 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 	var ptrType: Null<Ref<AbstractType>> = null;
 	public function getPtrType(): Ref<AbstractType> {
 		if(ptrType == null) {
-			#if macro 
-			switch(Context.getModule("ucpp.Ptr")[0]) {
+			switch(RContext.getModule("ucpp.Ptr")[0]) {
 				case TAbstract(abRef, _): {
 					ptrType = abRef;
 				}
@@ -330,7 +325,6 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 					throw "`ucpp.Ptr` does not refer to an abstract type.";
 				}
 			}
-			#end
 		}
 		return ptrType.trustMe();
 	}
@@ -766,9 +760,9 @@ class UnboundCompiler extends reflaxe.PluginCompiler<UnboundCompiler> {
 		return switch(t) {
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
-				#if macro if(abs.hasMeta(":multiType")) {
-					Context.followWithAbstracts(t, true);
-				} else #end {
+				if(abs.hasMeta(":multiType")) {
+					RContext.followWithAbstracts(t, true);
+				} else {
 					abs.type;
 				}
 			}
