@@ -3,10 +3,10 @@ package haxe.ds;
 @:ucppStd
 @:coreApi
 class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
-	var m: ucpp.std.Map<K, V>;
+	var m: ucpp.StdMap<K, V>;
 
 	public function new(): Void {
-		m = new ucpp.std.Map<K, V>();
+		m = new ucpp.StdMap<K, V>();
 	}
 
 	public function set(key: K, value: V): Void {

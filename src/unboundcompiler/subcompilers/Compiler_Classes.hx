@@ -267,7 +267,7 @@ class Compiler_Classes extends SubCompiler {
 		final isConstructor = isInstanceFunc && field.name == "new";
 		final isDestructor = isInstanceFunc && field.name == "destructor";
 		final useReturnType = !isConstructor && !isDestructor;
-		final name = if(isConstructor) {
+		var name = if(isConstructor) {
 			hasConstructor = true;
 			className;
 		} else if(isDestructor) {
@@ -293,6 +293,13 @@ class Compiler_Classes extends SubCompiler {
 		final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
 
 		// -----------------
+		// Track covariance
+		var isCovariant = false;
+		var covariantOGName = "";
+		var covariantOGRet = "";
+		var covariantOGRetVal = "";
+
+		// -----------------
 		// Compile return type
 		final ret = if(data.ret == null) {
 			"void";
@@ -301,10 +308,13 @@ class Compiler_Classes extends SubCompiler {
 		} else {
 			final covariant = ClassHierarchyTracker.funcGetCovariantBaseType(classType, field, isStatic);
 			if(covariant != null) {
-				TComp.compileType(covariant, field.pos, false, true);
-			} else {
-				TComp.compileType(data.ret, field.pos, false, true);
+				isCovariant = true;
+				covariantOGName = name;
+				name += "OG";
+				covariantOGRet = TComp.compileType(covariant, field.pos, false, true);
+				covariantOGRetVal = TComp.compileType(covariant, field.pos, true, true);
 			}
+			TComp.compileType(data.ret, field.pos, false, true);
 		}
 
 		// -----------------
@@ -429,10 +439,6 @@ class Compiler_Classes extends SubCompiler {
 			}
 
 			// -----------------
-			// Add single space padding after return type
-			final retDecl = (useReturnType ? (ret + " ") : "");
-
-			// -----------------
 			// Compile the function arguments
 			TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
 
@@ -451,12 +457,15 @@ class Compiler_Classes extends SubCompiler {
 				"template<" + templateTypes.map(t -> "typename " + t).join(", ") + ">\n";
 			} else {
 				"";
-			}
+			};
+
+			// We reuse this for covariant
+			final genFuncDecl = (name: String, ret: String) -> (meta ?? "") + (topLevel ? "" : prefix) + (useReturnType ? (ret + " ") : "") + name + argDecl;
 
 			// -----------------
 			// Compile the function content
 			XComp.pushReturnType(data.ret);
-			final funcDeclaration = (meta ?? "") + (topLevel ? "" : prefix) + retDecl + name + argDecl;
+			final funcDeclaration = genFuncDecl(name, ret);
 			var content = if(data.expr != null) {
 				XComp.compilingInHeader = !addToCpp;
 
@@ -473,6 +482,15 @@ class Compiler_Classes extends SubCompiler {
 			}
 			XComp.popReturnType();
 
+			final covariantContent = () -> {
+				final argNames = if(data.tfunc != null) {
+					data.tfunc.args.map(a -> a.v.name);
+				} else {
+					data.args.map(a -> a.name);
+				}
+				return suffixSpecifiers.join(" ") + " {\n\treturn std::static_pointer_cast<" + covariantOGRetVal + ">(" + name + "(" + argNames.join(", ") + "));\n}";
+			}
+
 			// -----------------
 			// Add to output
 			if(addToCpp) {
@@ -481,6 +499,9 @@ class Compiler_Classes extends SubCompiler {
 					topLevelFunctions.push(headerContent);
 				} else {
 					addFunction(headerContent, section);
+					if(isCovariant) {
+						addFunction(prependFieldContent + genFuncDecl(covariantOGName, covariantOGRet) + ";" + appendFieldContent, section);
+					}
 				}
 
 				final argCpp = if(data.tfunc != null) {
@@ -489,10 +510,17 @@ class Compiler_Classes extends SubCompiler {
 					data.args.map(a -> Main.compileFunctionArgumentData(a, null, field.pos, true));
 				}
 				final cppArgDecl = "(" + argCpp.join(", ") + ")";
-				cppFunctions.push(retDecl + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
+				cppFunctions.push((useReturnType ? (ret + " ") : "") + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
+				if(isCovariant) {
+					cppFunctions.push(covariantOGRet + (topLevel ? "" : classNameNS) + covariantOGName + cppArgDecl + covariantContent());
+				}
 			} else {
 				final content = prependFieldContent + templateDecl + funcDeclaration + (isAbstract ? " = 0;" : content) + appendFieldContent;
 				addFunction(content, section);
+				if(isCovariant) {
+					final covarContent = prependFieldContent + templateDecl + genFuncDecl(covariantOGName, covariantOGRet) + (isAbstract ? " = 0;" : covariantContent()) + appendFieldContent;
+					addFunction(covarContent, section);
+				}
 			}
 
 			if(!topLevel) {

@@ -15,10 +15,13 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
+import reflaxe.input.ClassHierarchyTracker;
 import reflaxe.compiler.EverythingIsExprSanitizer;
 
 import unboundcompiler.subcompilers.Compiler_Includes.ExtraFlag;
 
+using reflaxe.helpers.BaseTypeHelper;
+using reflaxe.helpers.ClassFieldHelper;
 using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.OperatorHelper;
@@ -406,6 +409,9 @@ class Compiler_Exprs extends SubCompiler {
 			case TObjectDecl(fields) if(targetType != null): {
 				AComp.compileObjectDecl(targetType, fields, expr, compilingInHeader);
 			}
+			case TField(e, fa): {
+				fieldAccessToCpp(e, fa, expr, targetType);
+			}
 			case _: {
 				final old = setExplicitNull(true, targetType != null && targetType.isAmbiguousNullable());
 				final result = allowNullReturn ? Main.compileExpression(expr) : Main.compileExpressionOrError(expr);
@@ -439,6 +445,18 @@ class Compiler_Exprs extends SubCompiler {
 		}
 
 		var result = null;
+
+		// Convert between two shared pointers
+		if(cmmt == SharedPtr && tmmt == SharedPtr && targetType != null) {
+			if(expr.t.isChildOf(targetType) || expr.t.implementsType(targetType)) {
+				var cpp = internal_compileExpressionForType(expr, targetType, false);
+				if(cpp != null) {
+					IComp.addInclude("memory", compilingInHeader, true);
+					result = "std::static_pointer_cast<" + TComp.compileType(targetType, expr.pos, true) + ">(" + cpp + ")";
+				}
+			}
+		}
+
 		if(cmmt != tmmt || nullToValue) {
 			switch(expr.expr) {
 				case TConst(TThis) if(thisOverride == null && tmmt == SharedPtr): {
@@ -668,7 +686,7 @@ class Compiler_Exprs extends SubCompiler {
 		return mmt != Value;
 	}
 
-	function fieldAccessToCpp(e: TypedExpr, fa: FieldAccess, accessExpr: TypedExpr): String {
+	function fieldAccessToCpp(e: TypedExpr, fa: FieldAccess, accessExpr: TypedExpr, targetType: Null<Type> = null): String {
 		final nameMeta: NameAndMeta = switch(fa) {
 			case FInstance(_, _, classFieldRef): classFieldRef.get();
 			case FStatic(_, classFieldRef): classFieldRef.get();
@@ -684,7 +702,25 @@ class Compiler_Exprs extends SubCompiler {
 			// @:native
 			nameMeta.getNameOrNative();
 		} else {
-			final name = Main.compileVarName(nameMeta.getNameOrNativeName());
+			var name = Main.compileVarName(nameMeta.getNameOrNativeName());
+
+			// If the field is covariant, but returning the child variant type,
+			// call the class-specific implementation.
+			switch(fa) {
+				case FInstance(clsRef, _, cfRef): {
+					final cf = cfRef.get();
+					final fdata = cf.findFuncData();
+					if(fdata != null) {
+						final baseCovariant = ClassHierarchyTracker.funcGetCovariantBaseType(clsRef.get(), cfRef.get(), false);
+						if(baseCovariant != null) {
+							if(targetType == null || fdata.ret.equals(targetType)) {
+								name += "OG";
+							}
+						}
+					}
+				}
+				case _:
+			}
 
 			// Check if this is a static variable,
 			// and if so use singleton.

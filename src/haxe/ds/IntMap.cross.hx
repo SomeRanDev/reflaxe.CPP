@@ -3,10 +3,10 @@ package haxe.ds;
 @:ucppStd
 @:coreApi
 class IntMap<T> implements haxe.Constraints.IMap<Int, T> {
-	var m: ucpp.std.Map<Int, T>;
+	var m: ucpp.StdMap<Int, T>;
 
 	public function new(): Void {
-		m = new ucpp.std.Map<Int, T>();
+		m = new ucpp.StdMap<Int, T>();
 	}
 
 	public function set(key: Int, value: T): Void {
