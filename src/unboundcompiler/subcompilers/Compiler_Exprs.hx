@@ -11,7 +11,7 @@ package unboundcompiler.subcompilers;
 
 import haxe.ds.Either;
 
-import reflaxe.helpers.RContext; // Use like haxe.macro.Context
+import reflaxe.helpers.Context; // Use like haxe.macro.Context
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
@@ -448,7 +448,7 @@ class Compiler_Exprs extends SubCompiler {
 		var result = null;
 
 		// Unwraps Null<T> (std::optional) if converting from optional -> not optional
-		function convertCppNull(cpp: String): String {
+		inline function convertCppNull(cpp: String): String {
 			if(!allowNull && nullToValue && !expr.isNullExpr()) {
 				return ensureSafeToAccess(cpp) + ".value()";
 			}
@@ -468,7 +468,7 @@ class Compiler_Exprs extends SubCompiler {
 		}
 		
 		// Convert between two different memory management types (or nullable -> not nullable)
-		else if(cmmt != tmmt || nullToValue) {
+		if((cmmt != tmmt || nullToValue) && result == null) {
 			switch(expr.expr) {
 				case TConst(TThis) if(thisOverride == null && tmmt == SharedPtr): {
 					IComp.setExtraFlag(ExtraFlag.SharedFromThis);
@@ -1172,7 +1172,7 @@ class Compiler_Exprs extends SubCompiler {
 					final accessCpp = 'temp${isArrowAccessType(e1Type) ? "->" : "."}';
 					intro = "auto temp = " + (isNull ? {
 						final line = #if macro haxe.macro.PositionTools.toLocation(callExpr.pos).range.start.line #else 0 #end;
-						final file = RContext.getPosInfos(callExpr.pos).file;
+						final file = Context.getPosInfos(callExpr.pos).file;
 						final clsConstruct = {
 							final clsName = TComp.compileType(e1InternalType, callExpr.pos, true);
 							final tmmt = TComp.getMemoryManagementTypeFromType(e1InternalType);
