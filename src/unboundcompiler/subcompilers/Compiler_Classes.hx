@@ -9,7 +9,7 @@ package unboundcompiler.subcompilers;
 
 #if (macro || ucpp_runtime)
 
-import haxe.macro.Context;
+import reflaxe.helpers.RContext; // Use like haxe.macro.Context
 import haxe.macro.Type;
 
 import haxe.display.Display.MetadataTarget;
@@ -361,8 +361,8 @@ class Compiler_Classes extends SubCompiler {
 			} else {
 				// -----------------
 				// Convert this static function information into a TypedExpr.
-				#if eval
-				final clsComplex = haxe.macro.ComplexTypeTools.toString(Context.toComplexType(TInst(classTypeRef, []))).split(".");
+				final ct = RContext.toComplexType(TInst(classTypeRef.trustMe(), [])).trustMe();
+				final clsComplex = haxe.macro.ComplexTypeTools.toString(ct).split(".");
 				final untypedExpr = if(data.args.length == 0) {
 					macro $p{clsComplex}.$name();
 				} else {
@@ -371,8 +371,8 @@ class Compiler_Classes extends SubCompiler {
 					// Next check that the first two arguments match the required types.
 					if(
 						data.args.map(a -> !a.opt).length <= 2 &&
-						Context.unify(data.args[0].t, Context.getType("Int")) &&
-						Context.unify(data.args[1].t, Context.getType("ucpp.CArray"))
+						RContext.unify(data.args[0].t, RContext.getType("Int")) &&
+						RContext.unify(data.args[1].t, RContext.getType("ucpp.CArray"))
 					) {
 						macro $p{clsComplex}.$name(untyped argc, untyped argv);
 					} else {
@@ -380,9 +380,8 @@ class Compiler_Classes extends SubCompiler {
 					}
 				}
 
-				final typedExpr = Context.typeExpr(untypedExpr);
+				final typedExpr = RContext.typeExpr(untypedExpr);
 				Main.addMainPrependFunction(typedExpr);
-				#end
 			}
 		}
 

@@ -17,7 +17,7 @@ package unboundcompiler.subcompilers;
 
 #if (macro || ucpp_runtime)
 
-import haxe.macro.Context;
+import reflaxe.helpers.RContext; // Use like haxe.macro.Context
 import haxe.macro.Type;
 
 using reflaxe.helpers.DynamicHelper;
@@ -156,7 +156,7 @@ class Compiler_Includes extends SubCompiler {
 		final result = switch(mt) {
 			case TAbstract(absRef): {
 				if(unwrapAbstract) {
-					final newMt = #if macro Context.followWithAbstracts(TypeHelper.fromModuleType(mt)).toModuleType() #else mt #end;
+					final newMt = RContext.followWithAbstracts(TypeHelper.fromModuleType(mt)).toModuleType();
 					if(newMt != null) {
 						isNoIncludeType(newMt, false);
 					} else {
