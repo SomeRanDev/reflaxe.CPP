@@ -11,4 +11,5 @@ include/_AnonUtils.h
 include/_AnonStructs.h
 include/StdTypes.h
 include/Std.h
+include/Map.h
 include/Main.h

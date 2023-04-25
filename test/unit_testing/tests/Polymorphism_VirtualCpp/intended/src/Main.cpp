@@ -6,7 +6,7 @@
 void _Main::Main_Fields_::main() {
 	std::shared_ptr<Base> b = std::make_shared<Base>();
 	std::shared_ptr<Child> c = std::make_shared<Child>();
-	std::shared_ptr<Base> b2 = c;
+	std::shared_ptr<Base> b2 = std::static_pointer_cast<Base>(c);
 	
 	if(b->getVal() != 1) {
 		exit(1);

@@ -76,7 +76,7 @@ public:
 		return std::make_shared<KeyValueIterator<int, T>>(std::make_shared<haxe::iterators::MapKeyValueIterator<int, T>>(this->weak_from_this().expired() ? std::make_shared<haxe::ds::IntMap<T>>(*this) : this->shared_from_this()));
 	}
 	
-	std::shared_ptr<haxe::IMap<int, T>> copy() {
+	std::shared_ptr<haxe::ds::IntMap<T>> copyOG() {
 		std::shared_ptr<haxe::ds::IntMap<T>> result = std::make_shared<haxe::ds::IntMap<T>>();
 		std::shared_ptr<Iterator<int>> k = this->keys();
 		
@@ -86,6 +86,10 @@ public:
 		};
 		
 		return result;
+	}
+	
+	std::shared_ptr<haxe::IMap<int, T>> copy() {
+		return std::static_pointer_cast<haxe::IMap<int, T>>(copyOG());
 	}
 	
 	std::string toString() {

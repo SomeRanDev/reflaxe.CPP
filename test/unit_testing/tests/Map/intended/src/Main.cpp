@@ -7,6 +7,7 @@
 #include "_AnonStructs.h"
 #include "haxe_Constraints.h"
 #include "haxe_ds_IntMap.h"
+#include "Map.h"
 #include "StdTypes.h"
 
 using namespace std::string_literals;
@@ -33,7 +34,7 @@ void Main::main() {
 	};
 	
 	std::shared_ptr<haxe::ds::IntMap<int>> intMap = tempMap;
-	std::shared_ptr<haxe::ds::IntMap<int>> intMap2 = intMap->copy();
+	std::shared_ptr<haxe::ds::IntMap<int>> intMap2 = intMap->copyOG();
 	
 	intMap->set(2, 222);
 	Main::assert(intMap->get(1) == 123, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 22, "main"s));
@@ -67,34 +68,36 @@ void Main::main() {
 	Main::assert(sum == 123 + 222, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 45, "main"s));
 	
 	int index = 0;
-	std::shared_ptr<haxe::IMap<int, int>> map = intMap;
-	std::shared_ptr<haxe::IMap<int, int>> test_map = map;
-	std::shared_ptr<Iterator<int>> test_keys = map->keys();
 	
-	while(test_keys->hasNext()) {
-		int test_value;
-		int test_key;
-		int key = test_keys->next();
-		test_value = test_map->get(key).value();
-		test_key = key;
-		{
-			int _g = index++;
-			switch(_g) {
-			
-				case 0: {
-					Main::assert(test_key == 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 51, "main"s));
-					Main::assert(test_value == 123, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 52, "main"s));
-					break;
-				}
-				case 1: {
-					Main::assert(test_key == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 55, "main"s));
-					Main::assert(test_value == 222, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 56, "main"s));
-					break;
-				}
-				default: {
-					Main::assert(false, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 58, "main"s));
-					break;
-				}
+	{
+		std::shared_ptr<haxe::IMap<int, int>> map = std::static_pointer_cast<haxe::IMap<int, int>>(intMap);
+		std::shared_ptr<haxe::IMap<int, int>> test_map = map;
+		std::shared_ptr<Iterator<int>> test_keys = map->keys();
+		while(test_keys->hasNext()) {
+			int test_value;
+			int test_key;
+			int key = test_keys->next();
+			test_value = test_map->get(key).value();
+			test_key = key;
+			{
+				int _g = index++;
+				switch(_g) {
+				
+					case 0: {
+						Main::assert(test_key == 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 51, "main"s));
+						Main::assert(test_value == 123, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 52, "main"s));
+						break;
+					}
+					case 1: {
+						Main::assert(test_key == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 55, "main"s));
+						Main::assert(test_value == 222, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 56, "main"s));
+						break;
+					}
+					default: {
+						Main::assert(false, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 58, "main"s));
+						break;
+					}
+				};
 			};
 		};
 	};
@@ -105,6 +108,30 @@ void Main::main() {
 	intMap2->clear();
 	Main::assert(intMap2->toString() == "[]"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 69, "main"s));
 	Main::assert(!intMap2->get(1).has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 70, "main"s));
+	
+	std::shared_ptr<haxe::ds::IntMap<std::string>> tempMap1;
+	
+	{
+		std::shared_ptr<haxe::ds::IntMap<std::string>> _g = std::make_shared<haxe::ds::IntMap<std::string>>();
+		_g->set(1, "test"s);
+		tempMap1 = _g;
+	};
+	
+	std::shared_ptr<haxe::ds::IntMap<std::string>> _intmap = tempMap1;
+	std::shared_ptr<haxe::ds::IntMap<std::string>> tempMap2;
+	
+	{
+		std::shared_ptr<haxe::ds::IntMap<std::string>> map = _intmap->copyOG();
+		tempMap2 = map;
+	};
+	
+	std::shared_ptr<haxe::ds::IntMap<std::string>> _map = tempMap2;
+	
+	Main::assert(_map->get(1) == "test"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 75, "main"s));
+	
+	std::shared_ptr<haxe::IMap<int, std::string>> _map2 = std::static_pointer_cast<haxe::IMap<int, std::string>>(_intmap->copyOG());
+	
+	Main::assert(_map2->get(1) == "test"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 78, "main"s));
 	
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
