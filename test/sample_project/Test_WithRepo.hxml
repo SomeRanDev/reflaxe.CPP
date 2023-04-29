@@ -2,7 +2,7 @@
 # haxe test/sample_project/Test_WithRepo.hxml
 
 -cp std
--cp std/ucpp/_std
+-cp std/cxx/_std
 -cp src
 
 -lib reflaxe

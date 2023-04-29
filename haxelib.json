@@ -1,13 +1,14 @@
 {
-  "name": "ucpp",
+  "name": "reflaxe.cpp",
   "version": "0.1.0",
   "description": "An alternative C++ target for Haxe that generates dependent-less, GC-less C++17 code.",
-  "url": "https://github.com/RobertBorghese/Haxe-to-UnboundCPP",
+  "url": "https://github.com/RobertBorghese/reflaxe.CPP",
   "license": "MIT",
   "tags": [
     "custom-target",
     "cpp",
     "modern-cpp",
+    "reflaxe",
     "macro",
     "compiler",
     "target",

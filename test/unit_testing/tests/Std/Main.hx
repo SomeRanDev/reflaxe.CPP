@@ -65,15 +65,15 @@ class Main {
 		assert(Std.string(another) == "another class as string");
 		assert(Std.string(another) == another.toString());
 
-		final anotherVal: ucpp.Value<AnotherClass> = new AnotherClass();
+		final anotherVal: cxx.Value<AnotherClass> = new AnotherClass();
 		assert(Std.string(anotherVal) == anotherVal.toString());
 
 		assert(StringTools.startsWith(Std.string(base), "<unknown(address:"));
 
-		final baseVal: ucpp.Value<BaseClass> = new BaseClass();
+		final baseVal: cxx.Value<BaseClass> = new BaseClass();
 		assert(StringTools.startsWith(Std.string(baseVal), "<unknown(address:"));
 
-		final numVal: ucpp.Value<ClassWInt> = new ClassWInt();
+		final numVal: cxx.Value<ClassWInt> = new ClassWInt();
 		assert(StringTools.startsWith(Std.string(numVal), "<unknown(address:"));
 
 		// Std.int

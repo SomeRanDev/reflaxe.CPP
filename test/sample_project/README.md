@@ -1,4 +1,4 @@
-# Haxe to Unbound C++ Sample Project
+# Reflaxe/C++ Sample Project
 
 Just a simple sample to help you get started.
 

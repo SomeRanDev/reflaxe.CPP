@@ -1,9 +1,9 @@
 # The following are added automatically:
-# -lib unbound
+# -lib reflaxe.cpp
 # -D cpp-output=out
 
 # -dce no
--D ucpp_runtime
+-D cxx_runtime
 
 -D mainClass=Main
 -main Main

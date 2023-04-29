@@ -1,5 +1,5 @@
 [package]
-name = "haxe-ucpp-fast-test"
+name = "haxe-cxx-fast-test"
 authors = ["RoBBoR"]
 version = "1.0.0"
 edition = "2021"

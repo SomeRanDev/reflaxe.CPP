@@ -1,8 +1,8 @@
 //====================================================================
-// * Haxe to (Unbound) C++ Submit Script
+// * Reflaxe/C++ Submit Script
 //
 // Haxelib is dumb and only allows for one class path, so this
-// script merges all the class paths (`src`, `std`, `std/ucpp/_std`)
+// script merges all the class paths (`src`, `std`, `std/cxx/_std`)
 // into a single folder to help with haxelib submission.
 //====================================================================
 
@@ -20,8 +20,8 @@ class Submit {
 		makeDirIfNonExist(destFolder);
 
 		copyDirContent("src", destFolder + "/src");
-		copyDirContent("std", destFolder + "/src", "std/ucpp/_std");
-		copyDirContent("std/ucpp/_std", destFolder + "/src", "", ".cross.hx");
+		copyDirContent("std", destFolder + "/src", "std/cxx/_std");
+		copyDirContent("std/cxx/_std", destFolder + "/src", "", ".cross.hx");
 
 		for(file in ["haxelib.json", "extraParams.hxml", "LICENSE", "README.md"]) {
 			File.copy(file, destFolder + "/" + file);

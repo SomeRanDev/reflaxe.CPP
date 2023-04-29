@@ -154,8 +154,8 @@ class Main {
 			Sys.exit(returnCode);
 		}
 
-		// ucpp.num
-		final float32: ucpp.num.Float32 = 12.32;
+		// cxx.num
+		final float32: cxx.num.Float32 = 12.32;
 		assert(float32 == 12.32);
 	}
 }

@@ -1,5 +1,5 @@
 // ==========================================
-// * Haxe UCPP Target "Fast Test"
+// * Reflaxe/C++ Target "Fast Test"
 //
 // Runs `haxe Test.hxml test=TestName` for every test.
 // Does it with threads, so happens super fast.
@@ -17,11 +17,11 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use clap::Parser;
 
-/// A simple wrapper for "Haxe to Unbound C++" Test.hxml to help run tests faster.
+/// A simple wrapper for "Reflaxe/C++" Test.hxml to help run tests faster.
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    /// The relative or absolute path to "Haxe to Unbound C++" repo base directory.
+    /// The relative or absolute path to "Reflaxe/C++" repo base directory.
     #[arg(short, long, default_value_t = ("../../..".to_string()) )]
     ucpp_repo_path: String,
 

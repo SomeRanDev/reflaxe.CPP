@@ -14,10 +14,10 @@ class ValueClass {
 }
 
 typedef ValueClassDef = ValueClass;
-typedef ValueClassPtr = ucpp.Ptr<ValueClass>;
-typedef ValueClassPtr2 = ucpp.Ptr<ValueClassPtr>;
-typedef ValueClassPtr2Value = ucpp.Value<ValueClassPtr2>;
-typedef ValueClassPtr2ValueSharedPtr = ucpp.SharedPtr<ValueClassPtr2Value>;
+typedef ValueClassPtr = cxx.Ptr<ValueClass>;
+typedef ValueClassPtr2 = cxx.Ptr<ValueClassPtr>;
+typedef ValueClassPtr2Value = cxx.Value<ValueClassPtr2>;
+typedef ValueClassPtr2ValueSharedPtr = cxx.SharedPtr<ValueClassPtr2Value>;
 
 // Normal class
 class NormalClass {
@@ -56,7 +56,7 @@ function main() {
 
 	assert(a == cast e);
 
-	final f: ucpp.Value<NormalClass> = new NormalClass();
+	final f: cxx.Value<NormalClass> = new NormalClass();
 	assert(f == f);
 
 	if(exitCode != 0) {

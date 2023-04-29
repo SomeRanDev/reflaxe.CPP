@@ -10,7 +10,7 @@
 
 namespace haxe {
 
-// { className: String, fileName: String, lineNumber: Int, methodName: String, customParams: Null<Array<ucpp.DynamicToString>> }
+// { className: String, fileName: String, lineNumber: Int, methodName: String, customParams: Null<Array<cxx.DynamicToString>> }
 struct PosInfos {
 
 	// default constructor

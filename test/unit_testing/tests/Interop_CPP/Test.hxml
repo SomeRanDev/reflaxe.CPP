@@ -1,10 +1,10 @@
 # The following are added automatically:
-# -lib unbound
+# -lib reflaxe.cpp
 # -D cpp-output=out
 
 # Adds the testing directory as a non-recursive source of additional C++ source files.
 # Any C++ files in this directory will be copied to the output folder.
---macro ucpp.Compiler.addCppDirectory("test/unit_testing/tests/Interop_CPP", false)
+--macro cxx.Compiler.addCppDirectory("test/unit_testing/tests/Interop_CPP", false)
 
 -D mainClass=Main
 -main Main

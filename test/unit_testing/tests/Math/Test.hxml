@@ -1,5 +1,5 @@
 # The following are added automatically:
-# -lib unbound
+# -lib reflaxe.cpp
 # -D cpp-output=out
 
 -D mainClass=Main
