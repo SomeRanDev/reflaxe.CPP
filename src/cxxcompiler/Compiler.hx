@@ -546,11 +546,11 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// Compile standard function-argument syntax
 	// for C++ from a TVar and TypedExpr.
 	function compileFunctionArgument(arg: { v: TVar, value: Null<TypedExpr> }, pos: Position, noDefaultValue: Bool = false, compilingInCpp: Bool = false, dependent: Bool = false) {
-		return compileFunctionArgumentData({ t: arg.v.t, name: arg.v.name }, arg.value, pos, noDefaultValue, compilingInCpp, dependent);
+		return compileFunctionArgumentData(arg.v.t, arg.v.name, arg.value, pos, noDefaultValue, compilingInCpp, dependent);
 	}
 
-	function compileFunctionArgumentData(data: { t: Type, name: String }, expr: Null<TypedExpr>, pos: Position, noDefaultValue: Bool = false, compilingInCpp: Bool = false, dependent: Bool = false) {
-		var result = TComp.compileType(data.t, pos, false, dependent) + " " + compileVarName(data.name);
+	function compileFunctionArgumentData(t: Type, name: String, expr: Null<TypedExpr>, pos: Position, noDefaultValue: Bool = false, compilingInCpp: Bool = false, dependent: Bool = false) {
+		var result = TComp.compileType(t, pos, false, dependent) + " " + compileVarName(name);
 		if(!noDefaultValue && expr != null) {
 			XComp.compilingInHeader = !compilingInCpp;
 			result += " = " + compileExpressionOrError(expr);
