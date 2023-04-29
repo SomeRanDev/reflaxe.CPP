@@ -441,11 +441,7 @@ class Classes extends SubCompiler {
 			// Compile the function arguments
 			TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
 
-			final argCpp = if(data.tfunc != null) {
-				data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, false, false, true));
-			} else {
-				data.args.map(a -> Main.compileFunctionArgumentData(a, null, field.pos, false, false, true));
-			}
+			final argCpp = data.args.map(a -> Main.compileFunctionArgumentData(a.t, a.name, a.expr, field.pos, false, false, true));
 			final argDecl = "(" + argCpp.join(", ") + ")";
 
 			// -----------------
@@ -503,11 +499,7 @@ class Classes extends SubCompiler {
 					}
 				}
 
-				final argCpp = if(data.tfunc != null) {
-					data.tfunc.args.map(a -> Main.compileFunctionArgument(a, field.pos, true));
-				} else {
-					data.args.map(a -> Main.compileFunctionArgumentData(a, null, field.pos, true));
-				}
+				final argCpp = data.args.map(a -> Main.compileFunctionArgumentData(a.t, a.name, a.expr, field.pos, true));
 				final cppArgDecl = "(" + argCpp.join(", ") + ")";
 				cppFunctions.push((useReturnType ? (ret + " ") : "") + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
 				if(isCovariant) {
