@@ -1,6 +1,6 @@
 package;
 
-@:ucppStd
+@:cxxStd
 @:native("std::regex")
 @:include("regex", true)
 @:valueType
@@ -11,7 +11,7 @@ extern enum abstract SyntaxOptionType(Int) to Int {
 	var ECMAScript;
 }
 
-@:ucppStd
+@:cxxStd
 @:native("std::regex")
 @:include("regex", true)
 @:valueType
@@ -19,7 +19,7 @@ extern class StdRegex {
 	public function new(r: String, options: Int);
 }
 
-@:ucppStd
+@:cxxStd
 @:valueType
 @:native("std::smatch")
 extern class StringMatch {
@@ -32,7 +32,7 @@ extern class StringMatch {
 	public function size(): Int;
 }
 
-@:ucppStd
+@:cxxStd
 @:coreApi
 @:valueType
 class EReg {
@@ -71,7 +71,7 @@ class EReg {
 	}
 
 	public function match(s: String): Bool {
-		final result: Bool = untyped __ucpp__("std::regex_search({}, {}, {})", s, smatch, regex);
+		final result: Bool = untyped __cpp__("std::regex_search({}, {}, {})", s, smatch, regex);
 
 		// Note: std::regex_search and smatch use references to the original string.
 		//

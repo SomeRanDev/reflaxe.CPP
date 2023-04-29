@@ -1,6 +1,6 @@
 import haxe.iterators.ArrayKeyValueIterator;
 
-@:ucppStd
+@:cxxStd
 @:pseudoCoreApi
 @:filename("HxArray")
 class HxArray {
@@ -47,7 +47,7 @@ class HxArray {
 		return result;
 	}
 
-	public static function splice<T>(a: ucpp.Ref<Array<T>>, pos: Int, len: Int): Array<T> {
+	public static function splice<T>(a: cxx.Ref<Array<T>>, pos: Int, len: Int): Array<T> {
 		// if pos is negative, its value is calculated from the end of the array
 		if(pos < 0) pos += a.length;
 
@@ -58,9 +58,9 @@ class HxArray {
 		// if pos + len exceeds the length of the array, affect all elements after pos
 		if(pos + len > a.length) len = a.length - pos;
 
-		final beginIt: ucpp.Auto = untyped a.begin();
-		final startIt: ucpp.Auto = beginIt + pos;
-		final endIt: ucpp.Auto = beginIt + pos + len;
+		final beginIt: cxx.Auto = untyped a.begin();
+		final startIt: cxx.Auto = beginIt + pos;
+		final endIt: cxx.Auto = beginIt + pos + len;
 
 		final result = new Array<T>();
 		for(i in pos...(pos + len)) {
@@ -74,18 +74,18 @@ class HxArray {
 		return result;
 	}
 
-	public static function insert<T>(a: ucpp.Ref<Array<T>>, pos: Int, x: T) {
+	public static function insert<T>(a: cxx.Ref<Array<T>>, pos: Int, x: T) {
 		if(pos < 0) {
-			final it: ucpp.Auto = untyped a.end() + pos + 1;
+			final it: cxx.Auto = untyped a.end() + pos + 1;
 			untyped a.cppInsert(it, x);
 		} else {
-			final it: ucpp.Auto = untyped a.begin() + pos;
+			final it: cxx.Auto = untyped a.begin() + pos;
 			untyped a.cppInsert(it, x);
 		}
 	}
 
 	public static function indexOf<T>(a: Array<T>, x: T, fromIndex: Int  = 0): Int {
-		final it: ucpp.Auto = untyped __ucpp__("std::find({}, {}, {})", a.begin(), a.end(), x);
+		final it: cxx.Auto = untyped __cpp__("std::find({}, {}, {})", a.begin(), a.end(), x);
 		return if(untyped it != a.end()) {
 			untyped it - a.begin();
 		} else {
@@ -110,7 +110,7 @@ class HxArray {
 	}
 }
 
-@:ucppStd
+@:cxxStd
 @:pseudoCoreApi
 @:nativeName("std::deque")
 @:include("deque", true)
@@ -154,7 +154,7 @@ extern class Array<T> {
 
 	@:runtime public inline function reverse(): Void {
 		untyped __include__("algorithm", true);
-		untyped __ucpp__("std::reverse({}, {})", this.begin(), this.end());
+		untyped __cpp__("std::reverse({}, {})", this.begin(), this.end());
 	}
 
 	@:runtime public inline function shift(): Null<T>  {
@@ -165,7 +165,7 @@ extern class Array<T> {
 
 	@:runtime public inline function sort(f: (T, T) -> Int): Void {
 		untyped __include__("algorithm", true);
-		untyped __ucpp__("std::sort({}, {}, {})", this.begin(), this.end(), function(a, b) {
+		untyped __cpp__("std::sort({}, {}, {})", this.begin(), this.end(), function(a, b) {
 			return f(a, b) < 0;
 		});
 	}
@@ -181,7 +181,7 @@ extern class Array<T> {
 
 	@:runtime @:pure public inline function contains(x: T) : Bool {
 		untyped __include__("algorithm", true);
-		return untyped __ucpp__("(std::find({}, {}, {}) != {})", this.begin(), this.end(), x, this.end());
+		return untyped __cpp__("(std::find({}, {}, {}) != {})", this.begin(), this.end(), x, this.end());
 	}
 
 	@:runtime public inline function copy(): Array<T> {

@@ -1,6 +1,6 @@
 package;
 
-@:ucppStd
+@:cxxStd
 @:pseudoCoreApi
 @:pure
 extern class Math {
@@ -95,7 +95,7 @@ extern class Math {
 
 	@:include("cstdlib", true)
 	public extern inline static function random(): Float {
-		return untyped __ucpp__("(((float)rand()) / RAND_MAX)");
+		return untyped __cpp__("(((float)rand()) / RAND_MAX)");
 	}
 
 	public extern inline static function ffloor(v:Float): Float return floor(v);

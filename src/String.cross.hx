@@ -1,6 +1,6 @@
 package;
 
-@:ucppStd
+@:cxxStd
 @:pseudoCoreApi
 @:headerInclude("algorithm", true)
 @:headerInclude("cctype", true)
@@ -8,14 +8,14 @@ package;
 @:headerOnly
 class HxString {
 	public static function toLowerCase(s: String): String {
-		untyped __ucpp__("std::string temp = {}", s);
-		untyped __ucpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::tolower(c);\n})");
+		untyped __cpp__("std::string temp = {}", s);
+		untyped __cpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::tolower(c);\n})");
 		return untyped temp;
 	}
 
 	public static function toUpperCase(s: String): String {
-		untyped __ucpp__("std::string temp = {}", s);
-		untyped __ucpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::toupper(c);\n})");
+		untyped __cpp__("std::string temp = {}", s);
+		untyped __cpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::toupper(c);\n})");
 		return untyped temp;
 	}
 
@@ -113,8 +113,8 @@ extern class String {
 
 	// ----------
 	// Native string functions
-	private function c_str(): ucpp.ConstCharPtr;
-	private function data(): ucpp.Ptr<ucpp.Char>;
+	private function c_str(): cxx.ConstCharPtr;
+	private function data(): cxx.Ptr<cxx.Char>;
 	private function at(index: Int): Int;
 
 	// ----------

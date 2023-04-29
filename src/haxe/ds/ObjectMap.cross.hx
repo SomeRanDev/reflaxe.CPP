@@ -1,16 +1,16 @@
 package haxe.ds;
 
-@:ucppStd
+@:cxxStd
 @:coreApi
 class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
-	var m: ucpp.StdMap<K, V>;
+	var m: cxx.StdMap<K, V>;
 
 	public function new(): Void {
-		m = new ucpp.StdMap<K, V>();
+		m = new cxx.StdMap<K, V>();
 	}
 
 	public function set(key: K, value: V): Void {
-		m.insert(new ucpp.std.Pair<K, V>(key, value));
+		m.insert(new cxx.std.Pair<K, V>(key, value));
 	}
 
 	public function get(key: K): Null<V> {
@@ -33,7 +33,7 @@ class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
 		final keys = new Array<K>();
 		var it = m.begin();
 		var end = m.end();
-		ucpp.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+		cxx.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
 			keys.push(it.first);
 		});
 		return keys.iterator();
@@ -43,7 +43,7 @@ class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
 		final values = new Array<V>();
 		var it = m.begin();
 		var end = m.end();
-		ucpp.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+		cxx.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
 			values.push(it.second);
 		});
 		return values.iterator();

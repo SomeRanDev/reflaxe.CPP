@@ -1,9 +1,9 @@
 package haxe;
 
-@:ucppStd
+@:cxxStd
 @:coreApi
 @:valueType
-class Exception extends ucpp.std.Exception {
+class Exception extends cxx.std.Exception {
 	public var message(get, never): String;
 	private function get_message(): String {
 		return "";

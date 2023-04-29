@@ -4,12 +4,12 @@ package;
 #error "Please don't add haxe/std to your classpath, instead set HAXE_STD_PATH env var"
 #end
 
-@:ucppStd
+@:cxxStd
 @:includeTypeUtils
 @:pseudoCoreApi
 class StdImpl {
 	public static function isOfType<_Value, _Type>(v: _Value, t: _Type): Bool {
-		untyped __ucpp__("if constexpr(!haxe::_unwrap_class<_Type>::iscls) {
+		untyped __cpp__("if constexpr(!haxe::_unwrap_class<_Type>::iscls) {
 	return false;
 } else if constexpr(std::is_base_of<typename haxe::_unwrap_class<_Type>::inner, typename haxe::_unwrap_mm<_Value>::inner>::value) {
 	return true;
@@ -18,7 +18,7 @@ class StdImpl {
 	}
 }
 
-@:ucppStd
+@:cxxStd
 @:pseudoCoreApi
 @:headerOnly
 @:headerInclude("string", true)
@@ -39,21 +39,21 @@ class Std {
 		return null;
 	}
 
-	public static function string(s: ucpp.DynamicToString): String {
+	public static function string(s: cxx.DynamicToString): String {
 		return s;
 	}
 
 	public extern inline static function int(x: Float): Int {
-		return untyped __ucpp__("((int)({}))", x);
+		return untyped __cpp__("((int)({}))", x);
 	}
 
 	public static function parseInt(x: String): Null<Int> {
-		untyped __ucpp__("try { return std::stoi({}); } catch(...) {}", x);
+		untyped __cpp__("try { return std::stoi({}); } catch(...) {}", x);
 		return null;
 	}
 
 	public static function parseFloat(x: String): Float {
-		untyped __ucpp__("try { return std::stof({}); } catch(...) {}", x);
+		untyped __cpp__("try { return std::stof({}); } catch(...) {}", x);
 		return Math.NaN;
 	}
 

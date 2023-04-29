@@ -1,6 +1,6 @@
 package;
 
-@:ucppStd
+@:cxxStd
 @:nativeName("std::any")
 @:include("any", true)
 @:forward.variance
@@ -24,7 +24,7 @@ extern abstract Any(Dynamic) {
 		return "<Any(" + type().name() + ")>";
 	}
 
-	extern inline function type(): ucpp.std.TypeInfo {
+	extern inline function type(): cxx.std.TypeInfo {
 		return this.type();
 	}
 }

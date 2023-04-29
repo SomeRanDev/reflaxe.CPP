@@ -1,6 +1,6 @@
 package haxe;
 
-@:ucppStd
+@:cxxStd
 @:pseudoCoreApi
 @:headerInclude("iostream", true)
 class Log {
@@ -21,7 +21,7 @@ class Log {
 		return pstr + ": " + v + extra;
 	}
 
-	public static dynamic function trace(v: ucpp.DynamicToString, infos: Null<PosInfos> = null): Void {
+	public static dynamic function trace(v: cxx.DynamicToString, infos: Null<PosInfos> = null): Void {
 		var str = formatOutput(v, infos);
 		Sys.println(str);
 	}

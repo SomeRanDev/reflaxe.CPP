@@ -1,6 +1,6 @@
-<img src="https://raw.githubusercontent.com/RobertBorghese/Haxe-to-UnboundCPP/main/.github/Logo.png" alt="I made a *checks notes* haxe 2 unbound cpp logo thingy look at it LOOK AT IT" width="900"/>
+<img src="https://raw.githubusercontent.com/RobertBorghese/reflaxe.CPP/main/.github/Logo.png" alt="I made a *checks notes* reflaxe/cpp logo thingy look at it LOOK AT IT" width="900"/>
 
-[![Test Workflow](https://github.com/RobertBorghese/Haxe-to-UnboundCPP/actions/workflows/main.yml/badge.svg)](https://github.com/RobertBorghese/Haxe-to-UnBoundCPP/actions)
+[![Test Workflow](https://github.com/RobertBorghese/reflaxe.CPP/actions/workflows/main.yml/badge.svg)](https://github.com/RobertBorghese/reflaxe.CPP/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <a href="https://discord.com/channels/162395145352904705/1052688097592225904"><img src="https://discordapp.com/api/guilds/162395145352904705/widget.png?style=shield" alt="Reflaxe Thread"/></a>
 
@@ -16,7 +16,7 @@ function main() {
 }
 ```
 
-**Haxe to Unbound C++ Output**
+**Reflaxe/C++ Output**
 
 ```cpp
 #include "Main.h"
@@ -32,17 +32,17 @@ void _Main::Main_Fields_::main() {
 
 # Table of Contents
 
-| Topic                                                                                             | Description                                        |
-| ------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| [Installation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#installation)                 | How to install and use this project.               |
-| [Nightly Installation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#nightly-installation) | How to install the development/nightly version.    |
-| [Explanation](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#explanation)                   | A long winded explanation of this project's goals. |
-| [Compiler Examples](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compiler-examples)       | Where to find examples.                            |
-| [Memory Management](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#memory-management)       | How the memory management system works.            |
-| [Includes](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#includes)                         | Features for configuring `#include`s.              |
-| [Destructors](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#destructors)                   | How to use destructors.                            |
-| [Top Level Meta](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#top-level-meta)             | Add top-level functions in C++.                    |
-| [Plugin System](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#compilation-hooks-plugins)   | How to write plugins for the compiler.             |
+| Topic                                                                                      | Description                                        |
+| ------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| [Installation](https://github.com/RobertBorghese/reflaxe.CPP#installation)                 | How to install and use this project.               |
+| [Nightly Installation](https://github.com/RobertBorghese/reflaxe.CPP#nightly-installation) | How to install the development/nightly version.    |
+| [Explanation](https://github.com/RobertBorghese/reflaxe.CPP#explanation)                   | A long winded explanation of this project's goals. |
+| [Compiler Examples](https://github.com/RobertBorghese/reflaxe.CPP#compiler-examples)       | Where to find examples.                            |
+| [Memory Management](https://github.com/RobertBorghese/reflaxe.CPP#memory-management)       | How the memory management system works.            |
+| [Includes](https://github.com/RobertBorghese/reflaxe.CPP#includes)                         | Features for configuring `#include`s.              |
+| [Destructors](https://github.com/RobertBorghese/reflaxe.CPP#destructors)                   | How to use destructors.                            |
+| [Top Level Meta](https://github.com/RobertBorghese/reflaxe.CPP#top-level-meta)             | Add top-level functions in C++.                    |
+| [Plugin System](https://github.com/RobertBorghese/reflaxe.CPP#compilation-hooks-plugins)   | How to write plugins for the compiler.             |
 
 &nbsp;
 
@@ -52,8 +52,8 @@ This project is currently in development, but once posted on haxelib, this is no
 
 | #   | What to do                                           | What to write                            |
 | --- | ---------------------------------------------------- | ---------------------------------------- |
-| 1   | Install via haxelib.                                 | <pre>haxelib install ucpp</pre>          |
-| 2   | Add the lib to your `.hxml` file or compile command. | <pre lang="hxml">-lib ucpp</pre>         |
+| 1   | Install via haxelib.                                 | <pre>haxelib install cxx</pre>           |
+| 2   | Add the lib to your `.hxml` file or compile command. | <pre lang="hxml">-lib cxx</pre>          |
 | 3   | Set the output folder for the compiled C++.          | <pre lang="hxml">-D cpp-output=out</pre> |
 
 Now your `.hxml` should be ready to go! Simply run with Haxe and the output will be generated just like any other Haxe target.
@@ -65,7 +65,7 @@ Now your `.hxml` should be ready to go! Simply run with Haxe and the output will
 If this project isn't on haxelib yet, or you'd like to use the development version, use `haxelib git` on the nightly branch.
 
 ```sh
-haxelib git ucpp https://github.com/RobertBorghese/Haxe-to-UnboundCPP nightly
+haxelib git reflaxe.cpp https://github.com/RobertBorghese/reflaxe.CPP nightly
 ```
 
 Here's a simple `.hxml` template to get you started!
@@ -74,7 +74,7 @@ Here's a simple `.hxml` template to get you started!
 -cp src
 -main Main
 
--lib ucpp
+-lib reflaxe.cpp
 -D cpp-output=out
 ```
 
@@ -90,7 +90,7 @@ Haxe's normal C++ target uses a garbage collection system and requires compiling
 
 Now, normally this isn't a problem as Haxe automatically compiles the C++, and most Haxe users can work with frameworks and libraries that have already done the heavy lifting. However, not every project has such a luxury. If you're looking to target C++ exclusively with your Haxe project and want a bit more ease in using/creating C++ code, this might be the project for you.
 
-**Haxe to "Unbound C++"** attempts to resolve the aformentioned issues by converting Haxe to C++ in the simpliest way possible. _Instead of garbage collection,_ modern smart pointers are used. _Instead of nullability,_ the `optional<T>` type is used. C++ templates are used to translate anonymous structures and dynamic types. In general, modern C++ types are used to translate Haxe code to how it would be written if it were written in C++ to begin with.
+**Reflaxe/cxx** attempts to resolve the aformentioned issues by converting Haxe to C++ in the simpliest way possible. _Instead of garbage collection,_ modern smart pointers are used. _Instead of nullability,_ the `optional<T>` type is used. C++ templates are used to translate anonymous structures and dynamic types. In general, modern C++ types are used to translate Haxe code to how it would be written if it were written in C++ to begin with.
 
 ## What are the benefits?
 
@@ -98,13 +98,13 @@ For starters, garbage collection is no longer a major issue. While GC works wond
 
 This leads into another important aspect of this project: the different forms of memory management. While the original Haxe/C++ target allows classes to be treated like value-types, it requires a lot of boilerplate and forces the class to always use value management.
 
-On the other hand, **Haxe to "Unbound C++"** gives memory types first-class treatment. A single metadata is used to default a class to using value, pointer, or smart pointer management, and `Value<T>`, `Ptr<T>`, and `SharedPtr<T>` can be used to override this default at any time. But the best part is conversions between these types are accounted for during typing, preventing invalid or unsafe assignments from being generated. Visit the [Memory Management](https://github.com/RobertBorghese/Haxe-to-UnboundCPP#memory-management) section for more info.
+On the other hand, **Reflaxe/cxx"** gives memory types first-class treatment. A single metadata is used to default a class to using value, pointer, or smart pointer management, and `Value<T>`, `Ptr<T>`, and `SharedPtr<T>` can be used to override this default at any time. But the best part is conversions between these types are accounted for during typing, preventing invalid or unsafe assignments from being generated. Visit the [Memory Management](https://github.com/RobertBorghese/reflaxe.CPP#memory-management) section for more info.
 
 &nbsp;
 
 # Examples
 
-Visit the [test/unit_testing/tests directory](https://github.com/RobertBorghese/Haxe-to-UnboundCPP/tree/main/test/unit_testing/tests) for a bunch of samples and tests. Note the "intended" folder contains the expected C++ output that would be generated from the Haxe project in that folder. To run one of the examples, run the following command at the top level of the repository (replace "HelloWorld" with the test name).
+Visit the [test/unit_testing/tests directory](https://github.com/RobertBorghese/reflaxe.CPP/tree/main/test/unit_testing/tests) for a bunch of samples and tests. Note the "intended" folder contains the expected C++ output that would be generated from the Haxe project in that folder. To run one of the examples, run the following command at the top level of the repository (replace "HelloWorld" with the test name).
 
 ```
 haxe Test.hxml test=HelloWorld
@@ -117,7 +117,7 @@ cd test/unit_testing/fast_test
 cargo run --release
 ```
 
-Visit the [Unit Test README](https://github.com/RobertBorghese/Haxe-to-UnboundCPP/blob/main/test/unit_testing/README.md) for more info!
+Visit the [Unit Test README](https://github.com/RobertBorghese/reflaxe.CPP/blob/main/test/unit_testing/README.md) for more info!
 
 &nbsp;
 
@@ -272,19 +272,19 @@ int main() {
 
 # Compilation Hooks (Plugins)
 
-This compiler also contains hooks to customize the C++ compilation. In an initialization macro, pass `UnboundCompiler.onCompileBegin` a function to access an instance of the `UnboundCompiler` once compiling begins. Then `addHook` can be used on any of the hooks contained within it.
+This compiler also contains hooks to customize the C++ compilation. In an initialization macro, pass `Compiler.onCompileBegin` a function to access an instance of the `Compiler` once compiling begins. Then `addHook` can be used on any of the hooks contained within it.
 
 Here is an example where all `Int` literals that are exactly `123` are compiled as `(100 + 20 + 3)`. Note the first parameter ("defaultOutput" in this case) is the output that would be generated normally; return it to prevent any changes to the compiler's normal behavior.
 
 ```haxe
 // In some initialization macro...
-UnboundCompiler.onCompileBegin(function(compiler) {
+Compiler.onCompileBegin(function(compiler) {
   compiler.compileExpressionHook.addHook(myHookFunc);
 });
 
 // Called whenever an expression is compiled.
 function myHookFunc(defaultOutput: Null<String>,
-                    compiler: UnboundCompiler,
+                    compiler: Compiler,
 		    typedExpr: TypedExpr): Null<String>
 {
   return switch(typedExpr.expr) {
@@ -301,21 +301,21 @@ Now Haxe code will be compiled like this:
 var a = 123;
 ```
 
-Here is a list of all the available `UnboundCompiler` hooks.
+Here is a list of all the available `Compiler` hooks.
 
 ```haxe
 var compileExpressionHook;
-function addHook(cb: (Null<String>, UnboundCompiler, TypedExpr) -> Null<String>);
+function addHook(cb: (Null<String>, Compiler, TypedExpr) -> Null<String>);
 
 var compileClassHook;
-function addHook(cb: (Null<String>, UnboundCompiler, ClassType, ClassFieldVars, ClassFieldFuncs) -> Null<String>);
+function addHook(cb: (Null<String>, Compiler, ClassType, ClassFieldVars, ClassFieldFuncs) -> Null<String>);
 
 var compileEnumHook;
-function addHook(cb: (Null<String>, UnboundCompiler, EnumType, EnumOptions) -> Null<String>);
+function addHook(cb: (Null<String>, Compiler, EnumType, EnumOptions) -> Null<String>);
 
 var compileTypedefHook;
-function addHook(cb: (Null<String>, UnboundCompiler, DefType) -> Null<String>);
+function addHook(cb: (Null<String>, Compiler, DefType) -> Null<String>);
 
 var compileAbstractHook;
-function addHook(cb: (Null<String>, UnboundCompiler, AbstractType) -> Null<String>);
+function addHook(cb: (Null<String>, Compiler, AbstractType) -> Null<String>);
 ```

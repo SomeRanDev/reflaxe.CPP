@@ -1,16 +1,16 @@
 package haxe.ds;
 
-@:ucppStd
+@:cxxStd
 @:coreApi
 class IntMap<T> implements haxe.Constraints.IMap<Int, T> {
-	var m: ucpp.StdMap<Int, T>;
+	var m: cxx.StdMap<Int, T>;
 
 	public function new(): Void {
-		m = new ucpp.StdMap<Int, T>();
+		m = new cxx.StdMap<Int, T>();
 	}
 
 	public function set(key: Int, value: T): Void {
-		m.insert(new ucpp.std.Pair<Int, T>(key, value));
+		m.insert(new cxx.std.Pair<Int, T>(key, value));
 	}
 
 	public function get(key: Int): Null<T> {
@@ -33,7 +33,7 @@ class IntMap<T> implements haxe.Constraints.IMap<Int, T> {
 		final keys = new Array<Int>();
 		var it = m.begin();
 		var end = m.end();
-		ucpp.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+		cxx.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
 			keys.push(it.first);
 		});
 		return keys.iterator();
@@ -43,7 +43,7 @@ class IntMap<T> implements haxe.Constraints.IMap<Int, T> {
 		final values = new Array<T>();
 		var it = m.begin();
 		var end = m.end();
-		ucpp.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+		cxx.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
 			values.push(it.second);
 		});
 		return values.iterator();
