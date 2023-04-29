@@ -243,15 +243,15 @@ class Compiler_Exprs extends SubCompiler {
 				result = compileIf(econd, ifExpr, elseExpr);
 			}
 			case TWhile(econd, blockExpr, normalWhile): {
-				final gdCond = Main.compileExpressionOrError(econd.unwrapParenthesis());
+				final cppCond = Main.compileExpressionOrError(econd.unwrapParenthesis());
 				if(normalWhile) {
-					result = "while(" + gdCond + ") {\n";
+					result = "while(" + cppCond + ") {\n";
 					result += toIndentedScope(blockExpr);
 					result += "\n}";
 				} else {
 					result = "do {\n";
 					result += toIndentedScope(blockExpr);
-					result += "\n} while(" + gdCond + ")";
+					result += "\n} while(" + cppCond + ")";
 				}
 			}
 			case TSwitch(e, cases, edef): {
@@ -620,7 +620,7 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
-		var gdExpr1 = if(op.isAssignDirect()) {
+		var cppExpr1 = if(op.isAssignDirect()) {
 			Main.compileExpressionOrError(e1);
 		} else if(op.isEqualityCheck()) {
 			compileForEqualityBinop(e1);
@@ -628,7 +628,7 @@ class Compiler_Exprs extends SubCompiler {
 			compileExpressionNotNullAsValue(e1);
 		}
 
-		var gdExpr2 = if(op.isAssign()) {
+		var cppExpr2 = if(op.isAssign()) {
 			compileExpressionForType(e2, Main.getExprType(e1));
 		} else if(op.isEqualityCheck()) {
 			compileForEqualityBinop(e2);
@@ -639,9 +639,9 @@ class Compiler_Exprs extends SubCompiler {
 		// TODO: Is unsigned shift right is only generated for Int?
 		final isUShrAssign = op.isAssignOp(OpUShr);
 		if(isUShrAssign || op.isUnsignedShiftRight()) {
-			var cpp = "static_cast<unsigned int>(" + gdExpr1 + ") >> " + gdExpr2;
+			var cpp = "static_cast<unsigned int>(" + cppExpr1 + ") >> " + cppExpr2;
 			if(isUShrAssign) {
-				cpp = gdExpr1 + " = " + cpp;
+				cpp = cppExpr1 + " = " + cpp;
 			}
 			return cpp;
 		}
@@ -650,11 +650,11 @@ class Compiler_Exprs extends SubCompiler {
 
 		// Wrap primitives with std::to_string(...) when added with String
 		if(op.isAddition()) {
-			if(checkForPrimitiveStringAddition(e1, e2)) gdExpr2 = "std::to_string(" + gdExpr2 + ")";
-			if(checkForPrimitiveStringAddition(e2, e1)) gdExpr1 = "std::to_string(" + gdExpr1 + ")";
+			if(checkForPrimitiveStringAddition(e1, e2)) cppExpr2 = "std::to_string(" + cppExpr2 + ")";
+			if(checkForPrimitiveStringAddition(e2, e1)) cppExpr1 = "std::to_string(" + cppExpr1 + ")";
 		}
 
-		return gdExpr1 + " " + operatorStr + " " + gdExpr2;
+		return cppExpr1 + " " + operatorStr + " " + cppExpr2;
 	}
 
 	inline function compileForEqualityBinop(e: TypedExpr) {
@@ -670,9 +670,9 @@ class Compiler_Exprs extends SubCompiler {
 	}
 
 	function unopToCpp(op: Unop, e: TypedExpr, isPostfix: Bool): String {
-		final gdExpr = compileExpressionNotNull(e);
+		final cppExpr = compileExpressionNotNull(e);
 		final operatorStr = OperatorHelper.unopToString(op);
-		return isPostfix ? (gdExpr + operatorStr) : (operatorStr + gdExpr);
+		return isPostfix ? (cppExpr + operatorStr) : (operatorStr + cppExpr);
 	}
 
 	function isThisExpr(te: TypedExpr): Bool {
