@@ -12,6 +12,7 @@ package cxxcompiler.subcompilers;
 import haxe.macro.Type;
 
 import reflaxe.BaseCompiler;
+import reflaxe.data.EnumOptionData;
 
 using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.SyntaxHelper;
@@ -27,7 +28,7 @@ using cxxcompiler.helpers.Sort;
 @:access(cxxcompiler.subcompilers.Includes)
 @:access(cxxcompiler.subcompilers.Types)
 class Enums extends SubCompiler {
-	public function compileEnum(enumType: EnumType, options: EnumOptions): Null<String> {
+	public function compileEnum(enumType: EnumType, options: Array<EnumOptionData>): Null<String> {
 		final filename = Main.getFileNameFromModuleData(enumType);
 		final headerFilename = filename + Compiler.HeaderExt;
 
@@ -42,7 +43,7 @@ class Enums extends SubCompiler {
 		if(isValueType) {
 			for(o in options) {
 				for(a in o.args) {
-					if(Main.isSameAsCurrentModule(a.t)) {
+					if(Main.isSameAsCurrentModule(a.type)) {
 						o.field.pos.makeError(ValueSelfRef);
 					}
 				}
@@ -84,10 +85,10 @@ class Enums extends SubCompiler {
 		for(o in sortedOptions) {
 			var index = o.field.index;
 			final hasArgs = o.args.length > 0;
-			final args = o.args.map(opt -> [TComp.compileType(opt.t, o.field.pos), opt.name]);
+			final args = o.args.map(opt -> [TComp.compileType(opt.type, o.field.pos), opt.name]);
 
 			for(a in o.args) {
-				Main.onTypeEncountered(a.t, true);
+				Main.onTypeEncountered(a.type, true);
 			}
 
 			final structName = "d" + o.name + "Impl";
