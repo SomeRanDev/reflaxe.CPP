@@ -32,6 +32,9 @@ Shows this output.
 * nocompile
 The C++ compiling/run tests do not occur.
 
+* compile-only
+Recompiles the C++ without compiling the Haxe code.
+
 * always-compile
 The C++ compiling/run tests will occur no matter what, even if the initial output comparison tests fail.
 
@@ -105,17 +108,22 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 		});
 	}
 
+	final compileOnly = args.contains("compile-only");
 	var failures = 0;
-	for(t in tests) {
-		if(!processTest(t)) {
-			failures++;
+	if(!compileOnly) {
+		for(t in tests) {
+			if(!processTest(t)) {
+				failures++;
+			}
 		}
 	}
 
 	final testCount = tests.length;
 	final success = testCount - failures;
-	Sys.println("");
-	Sys.println(success + " / " + testCount + " tests passed.");
+	if(!compileOnly) {
+		Sys.println("");
+		Sys.println(success + " / " + testCount + " tests passed.");
+	}
 
 	if(failures > 0 && !alwaysCompile) {
 		Sys.exit(1);
