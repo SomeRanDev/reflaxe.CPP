@@ -371,9 +371,9 @@ class Classes extends SubCompiler {
 					// First check that there are no more than two required arguments.
 					// Next check that the first two arguments match the required types.
 					if(
-						data.args.map(a -> !a.opt).length <= 2 &&
-						Context.unify(data.args[0].t, Context.getType("Int")) &&
-						Context.unify(data.args[1].t, Context.getType("cxx.CArray"))
+						f.args.map(a -> !a.opt).length <= 2 &&
+						Context.unify(f.args[0].type, Context.getType("Int")) &&
+						Context.unify(f.args[1].type, Context.getType("cxx.CArray"))
 					) {
 						macro $p{clsComplex}.$name(untyped argc, untyped argv);
 					} else {
@@ -442,7 +442,21 @@ class Classes extends SubCompiler {
 			// Compile the function arguments
 			TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
 
-			final argCpp = data.args.map(a -> Main.compileFunctionArgumentData(a.t, a.name, a.expr, field.pos, false, false, true));
+			final argCpp = [];
+			for(arg in f.args) {
+				var type = arg.type;
+
+				// If the argument is a front optional, and has conflicing
+				// default value, make sure `null` can be passed to it.
+				// (Wrap type in Null<T>).
+				if(arg.isFrontOptional() && arg.hasConflicingDefaultValue() && arg.tvar != null && !arg.tvar.t.isNull()) {
+					type = arg.tvar.t.wrapWithNull();
+					Main.setTVarType(arg.tvar, type);
+				}
+
+				argCpp.push(Main.compileFunctionArgumentData(type, arg.name, arg.expr, field.pos, arg.isFrontOptional(), false, true));
+			}
+
 			final argDecl = "(" + argCpp.join(", ") + ")";
 
 			// -----------------
@@ -460,9 +474,9 @@ class Classes extends SubCompiler {
 
 			// -----------------
 			// Compile the function content
-			XComp.pushReturnType(data.ret);
+			XComp.pushReturnType(f.ret);
 			final funcDeclaration = genFuncDecl(name, ret);
-			var content = if(data.expr != null) {
+			var content = if(f.expr != null) {
 				XComp.compilingInHeader = !addToCpp;
 
 				// Use initialization list to set _order_id in constructor.
@@ -472,18 +486,30 @@ class Classes extends SubCompiler {
 					"";
 				}
 
-				constructorInitFields + suffixSpecifiers.join(" ") + " {\n" + Main.compileClassFuncExpr(data.expr).tab() + "\n}";
+				// Optional arguments in front need to be given
+				// their default value if they are passed `null`.
+				final frontOptionalAssigns = [];
+				for(arg in f.args) {
+					if(arg.expr != null && arg.isFrontOptional() && arg.hasConflicingDefaultValue()) {
+						final t = arg.tvar != null ? Main.getTVarType(arg.tvar) : arg.type;
+						frontOptionalAssigns.push('if(!${arg.name}) ${arg.name} = ${XComp.compileExpressionForType(arg.expr, t)};');
+					}
+				}
+				
+				// Store every section of code to be added to the function
+				final code = [];
+				if(frontOptionalAssigns.length > 0) code.push(frontOptionalAssigns.join("\n"));
+				code.push(Main.compileClassFuncExpr(f.expr));
+
+				// Put everything together
+				constructorInitFields + suffixSpecifiers.join(" ") + " {\n" + code.join("\n\n").tab() + "\n}";
 			} else {
 				"";
 			}
 			XComp.popReturnType();
 
 			final covariantContent = () -> {
-				final argNames = if(data.tfunc != null) {
-					data.tfunc.args.map(a -> a.v.name);
-				} else {
-					data.args.map(a -> a.name);
-				}
+				final argNames = f.args.map(a -> a.name);
 				return suffixSpecifiers.join(" ") + " {\n\treturn std::static_pointer_cast<" + covariantOGRetVal + ">(" + name + "(" + argNames.join(", ") + "));\n}";
 			}
 
@@ -500,7 +526,12 @@ class Classes extends SubCompiler {
 					}
 				}
 
-				final argCpp = data.args.map(a -> Main.compileFunctionArgumentData(a.t, a.name, a.expr, field.pos, true));
+				final argCpp = f.args.map(a -> {
+					// If the type was changed (ex: made to Null<T> if front optional),
+					// we need to get the modified version from tvar if possible.
+					final type = a.tvar != null ? Main.getTVarType(a.tvar) : a.type;
+					return Main.compileFunctionArgumentData(type, a.name, a.expr, field.pos, true);
+				});
 				final cppArgDecl = "(" + argCpp.join(", ") + ")";
 				cppFunctions.push((useReturnType ? (ret + " ") : "") + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
 				if(isCovariant) {

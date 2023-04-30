@@ -718,7 +718,7 @@ class Expressions extends SubCompiler {
 			switch(fa) {
 				case FInstance(clsRef, _, cfRef): {
 					final cf = cfRef.get();
-					final fdata = cf.findFuncData();
+					final fdata = cf.findFuncData(clsRef.get());
 					if(fdata != null) {
 						final baseCovariant = ClassHierarchyTracker.funcGetCovariantBaseType(clsRef.get(), cfRef.get(), false);
 						if(baseCovariant != null) {
@@ -814,16 +814,27 @@ class Expressions extends SubCompiler {
 
 			nfc;
 		} else {
-			final isOverload = switch(callExpr.expr) {
-				case TField(e, fa): {
+			var isOverload = false;
+			
+			switch(callExpr.expr) {
+				case TField(_, fa): {
+					// isOverload
 					switch(fa) {
-						case FInstance(clsRef, _, cf): {
-							cf.get().overloads.get().length > 0;
+						case FInstance(clsRef, _, cfRef): {
+							isOverload = cfRef.get().overloads.get().length > 0;
 						}
-						case _: false;
+						case _:
+					}
+
+					// replace null pads with defaults
+					switch(fa) {
+						case FInstance(clsRef, _, cfRef) | FStatic(clsRef, cfRef): {
+							el = cfRef.get().findFuncData(clsRef.get()).replacePadNullsWithDefaults(el);
+						}
+						case _:
 					}
 				}
-				case _: false;
+				case _:
 			}
 
 			// Get list of function argument types
