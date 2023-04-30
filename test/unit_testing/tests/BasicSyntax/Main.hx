@@ -150,12 +150,12 @@ class Main {
 		anotherNum2 = anotherNum += 10;
 		assert(anotherNum == anotherNum2);
 
+		// cxx.num
+		final float32: cxx.num.Float32 = 12.32;
+		assert(Math.abs(float32 - 12.32) < 0.0001);
+
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
 		}
-
-		// cxx.num
-		final float32: cxx.num.Float32 = 12.32;
-		assert(float32 == 12.32);
 	}
 }
