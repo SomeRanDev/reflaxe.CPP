@@ -16,6 +16,8 @@ import haxe.macro.Type;
 import reflaxe.BaseCompiler;
 import reflaxe.PluginCompiler;
 import reflaxe.ReflectCompiler;
+import reflaxe.data.ClassFuncData;
+import reflaxe.data.ClassVarData;
 
 using reflaxe.helpers.BaseTypeHelper;
 using reflaxe.helpers.ModuleTypeHelper;
@@ -566,7 +568,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 	// ----------------------------
 	// Compiles a class into C++.
-	public function compileClassImpl(classType: ClassType, varFields: ClassFieldVars, funcFields: ClassFieldFuncs): Null<String> {
+	public function compileClassImpl(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>): Null<String> {
 		return CComp.compileClass(classType, varFields, funcFields);
 	}
 

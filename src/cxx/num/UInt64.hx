@@ -1,6 +1,7 @@
 package cxx.num;
 
 @:cxxStd
-@:native("unsigned int")
-extern abstract UInt64(Int) from Int to Int {
-}
+@:native("unsigned long")
+@:noInclude
+@:extern
+typedef UInt64 = Int;

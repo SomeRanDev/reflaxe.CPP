@@ -15,6 +15,8 @@ import haxe.macro.Type;
 import haxe.display.Display.MetadataTarget;
 
 import reflaxe.BaseCompiler;
+import reflaxe.data.ClassFuncData;
+import reflaxe.data.ClassVarData;
 import reflaxe.input.ClassHierarchyTracker;
 
 using reflaxe.helpers.DynamicHelper;
@@ -79,7 +81,7 @@ class Classes extends SubCompiler {
 
 	var headerContent: Array<String> = [];
 
-	public function compileClass(classType: ClassType, varFields: ClassFieldVars, funcFields: ClassFieldFuncs): Null<String> {
+	public function compileClass(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>): Null<String> {
 		// Init variables
 		initFields(classType);
 
@@ -215,7 +217,7 @@ class Classes extends SubCompiler {
 	}
 
 	// Compile class var
-	function compileVar(v: { isStatic: Bool, read: VarAccess, write: VarAccess, field: ClassField }) {
+	function compileVar(v: ClassVarData) {
 		final field = v.field;
 		final isStatic = v.isStatic;
 		final addToCpp = !headerOnly && isStatic;
@@ -255,9 +257,8 @@ class Classes extends SubCompiler {
 	}
 
 	// Compile class function
-	function compileFunction(f: { isStatic: Bool, kind: MethodKind, data: ClassFuncData, field: ClassField }) {
+	function compileFunction(f: ClassFuncData) {
 		final field = f.field;
-		final data = f.data;
 
 		final isStatic = f.isStatic;
 		final isDynamic = f.kind == MethDynamic;
@@ -283,11 +284,11 @@ class Classes extends SubCompiler {
 
 		// -----------------
 		// Type encounters
-		if(data.ret != null) {
-			Main.onTypeEncountered(data.ret, true);
+		if(f.ret != null) {
+			Main.onTypeEncountered(f.ret, true);
 		}
-		for(a in data.args) {
-			Main.onTypeEncountered(a.t, true);
+		for(a in f.args) {
+			Main.onTypeEncountered(a.type, true);
 		}
 
 		final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
@@ -301,9 +302,9 @@ class Classes extends SubCompiler {
 
 		// -----------------
 		// Compile return type
-		final ret = if(data.ret == null) {
+		final ret = if(f.ret == null) {
 			"void";
-		} else if(data.ret.isDynamic()) {
+		} else if(f.ret.isDynamic()) {
 			"auto";
 		} else {
 			final covariant = ClassHierarchyTracker.funcGetCovariantBaseType(classType, field, isStatic);
@@ -314,7 +315,7 @@ class Classes extends SubCompiler {
 				covariantOGRet = TComp.compileType(covariant, field.pos, false, true);
 				covariantOGRetVal = TComp.compileType(covariant, field.pos, true, true);
 			}
-			TComp.compileType(data.ret, field.pos, false, true);
+			TComp.compileType(f.ret, field.pos, false, true);
 		}
 
 		// -----------------
@@ -363,16 +364,16 @@ class Classes extends SubCompiler {
 				// Convert this static function information into a TypedExpr.
 				final ct = Context.toComplexType(TInst(classTypeRef.trustMe(), [])).trustMe();
 				final clsComplex = haxe.macro.ComplexTypeTools.toString(ct).split(".");
-				final untypedExpr = if(data.args.length == 0) {
+				final untypedExpr = if(f.args.length == 0) {
 					macro $p{clsComplex}.$name();
 				} else {
 					// Check that the arguments match (Int, cxx.CArray)
 					// First check that there are no more than two required arguments.
 					// Next check that the first two arguments match the required types.
 					if(
-						data.args.map(a -> !a.opt).length <= 2 &&
-						Context.unify(data.args[0].t, Context.getType("Int")) &&
-						Context.unify(data.args[1].t, Context.getType("cxx.CArray"))
+						f.args.map(a -> !a.opt).length <= 2 &&
+						Context.unify(f.args[0].type, Context.getType("Int")) &&
+						Context.unify(f.args[1].type, Context.getType("cxx.CArray"))
 					) {
 						macro $p{clsComplex}.$name(untyped argc, untyped argv);
 					} else {
@@ -408,8 +409,8 @@ class Classes extends SubCompiler {
 			// -----------------
 			// Compile declaration
 			final assign = " = " + callable;
-			final type = "std::function<" + ret + "(" + data.args.map(a -> {
-				return TComp.compileType(a.t, field.pos, false, true);
+			final type = "std::function<" + ret + "(" + f.args.map(a -> {
+				return TComp.compileType(a.type, field.pos, false, true);
 			}).join(", ") + ")>";
 			var decl = (meta ?? "") + prefix + type + " " + name;
 			if(!dynAddToCpp) {
@@ -441,7 +442,21 @@ class Classes extends SubCompiler {
 			// Compile the function arguments
 			TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
 
-			final argCpp = data.args.map(a -> Main.compileFunctionArgumentData(a.t, a.name, a.expr, field.pos, false, false, true));
+			final argCpp = [];
+			for(arg in f.args) {
+				var type = arg.type;
+
+				// If the argument is a front optional, and has conflicing
+				// default value, make sure `null` can be passed to it.
+				// (Wrap type in Null<T>).
+				if(arg.isFrontOptional() && arg.hasConflicingDefaultValue() && arg.tvar != null && !arg.tvar.t.isNull()) {
+					type = arg.tvar.t.wrapWithNull();
+					Main.setTVarType(arg.tvar, type);
+				}
+
+				argCpp.push(Main.compileFunctionArgumentData(type, arg.name, arg.expr, field.pos, arg.isFrontOptional(), false, true));
+			}
+
 			final argDecl = "(" + argCpp.join(", ") + ")";
 
 			// -----------------
@@ -459,9 +474,9 @@ class Classes extends SubCompiler {
 
 			// -----------------
 			// Compile the function content
-			XComp.pushReturnType(data.ret);
+			XComp.pushReturnType(f.ret);
 			final funcDeclaration = genFuncDecl(name, ret);
-			var content = if(data.expr != null) {
+			var content = if(f.expr != null) {
 				XComp.compilingInHeader = !addToCpp;
 
 				// Use initialization list to set _order_id in constructor.
@@ -471,18 +486,30 @@ class Classes extends SubCompiler {
 					"";
 				}
 
-				constructorInitFields + suffixSpecifiers.join(" ") + " {\n" + Main.compileClassFuncExpr(data.expr).tab() + "\n}";
+				// Optional arguments in front need to be given
+				// their default value if they are passed `null`.
+				final frontOptionalAssigns = [];
+				for(arg in f.args) {
+					if(arg.expr != null && arg.isFrontOptional() && arg.hasConflicingDefaultValue()) {
+						final t = arg.tvar != null ? Main.getTVarType(arg.tvar) : arg.type;
+						frontOptionalAssigns.push('if(!${arg.name}) ${arg.name} = ${XComp.compileExpressionForType(arg.expr, t)};');
+					}
+				}
+				
+				// Store every section of code to be added to the function
+				final code = [];
+				if(frontOptionalAssigns.length > 0) code.push(frontOptionalAssigns.join("\n"));
+				code.push(Main.compileClassFuncExpr(f.expr));
+
+				// Put everything together
+				constructorInitFields + suffixSpecifiers.join(" ") + " {\n" + code.join("\n\n").tab() + "\n}";
 			} else {
 				"";
 			}
 			XComp.popReturnType();
 
 			final covariantContent = () -> {
-				final argNames = if(data.tfunc != null) {
-					data.tfunc.args.map(a -> a.v.name);
-				} else {
-					data.args.map(a -> a.name);
-				}
+				final argNames = f.args.map(a -> a.name);
 				return suffixSpecifiers.join(" ") + " {\n\treturn std::static_pointer_cast<" + covariantOGRetVal + ">(" + name + "(" + argNames.join(", ") + "));\n}";
 			}
 
@@ -499,7 +526,12 @@ class Classes extends SubCompiler {
 					}
 				}
 
-				final argCpp = data.args.map(a -> Main.compileFunctionArgumentData(a.t, a.name, a.expr, field.pos, true));
+				final argCpp = f.args.map(a -> {
+					// If the type was changed (ex: made to Null<T> if front optional),
+					// we need to get the modified version from tvar if possible.
+					final type = a.tvar != null ? Main.getTVarType(a.tvar) : a.type;
+					return Main.compileFunctionArgumentData(type, a.name, a.expr, field.pos, true);
+				});
 				final cppArgDecl = "(" + argCpp.join(", ") + ")";
 				cppFunctions.push((useReturnType ? (ret + " ") : "") + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
 				if(isCovariant) {
