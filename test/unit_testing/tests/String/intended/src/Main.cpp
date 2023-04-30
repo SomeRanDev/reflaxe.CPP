@@ -86,18 +86,18 @@ void Main::main() {
 	};
 	
 	Main::assert(tempLeft2 == -1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 52, "main"s));
-	Main::assert(StringTools::hex(0) == "0"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 54, "main"s));
-	Main::assert(StringTools::hex(12) == "C"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 55, "main"s));
-	Main::assert(StringTools::hex(-24) == "FFFFFFE8"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 56, "main"s));
+	Main::assert(StringTools::hex(0, std::nullopt) == "0"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 54, "main"s));
+	Main::assert(StringTools::hex(12, std::nullopt) == "C"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 55, "main"s));
+	Main::assert(StringTools::hex(-24, std::nullopt) == "FFFFFFE8"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 56, "main"s));
 	Main::assert(StringTools::hex(12, 4) == "000C"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 57, "main"s));
 	Main::assert(StringTools::hex(100, 4) == "0064"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 58, "main"s));
 	
 	std::string html = "<button onclick=\"doThing()\">My Button ✨</button>"s;
 	
-	Main::assert(StringTools::htmlEscape(html) == "&lt;button onclick=\"doThing()\"&gt;My Button ✨&lt;/button&gt;"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 61, "main"s));
+	Main::assert(StringTools::htmlEscape(html, std::nullopt) == "&lt;button onclick=\"doThing()\"&gt;My Button ✨&lt;/button&gt;"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 61, "main"s));
 	Main::assert(StringTools::htmlEscape(html, true) == "&lt;button onclick=&quot;doThing()&quot;&gt;My Button ✨&lt;/button&gt;"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 62, "main"s));
 	Main::assert(StringTools::htmlUnescape("&amp;"s) == "&"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 64, "main"s));
-	Main::assert(StringTools::htmlUnescape(StringTools::htmlEscape(html)) == html, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 65, "main"s));
+	Main::assert(StringTools::htmlUnescape(StringTools::htmlEscape(html, std::nullopt)) == html, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 65, "main"s));
 	Main::assert(StringTools::startsWith(toolsStr, "Hello"s), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 67, "main"s));
 	Main::assert(0 == 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 69, "main"s));
 	Main::assert(!(65 == 0), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 70, "main"s));

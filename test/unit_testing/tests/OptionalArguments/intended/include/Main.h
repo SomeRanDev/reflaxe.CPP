@@ -1,26 +1,45 @@
 #pragma once
 
-#include <any>
+#include "_HaxeUtils.h"
+#include "haxe_PosInfos.h"
 #include <memory>
 #include <optional>
 #include <string>
-#include "_HaxeUtils.h"
-#include "haxe_PosInfos.h"
+
+class Base {
+public:
+	Base();
+	
+	virtual void doThing(int num, std::string other);
+	
+	virtual void doThing2(std::optional<int> num, std::string other);
+	
+	HX_COMPARISON_OPERATORS(Base)
+};
+
+
+
+class Child: public Base {
+public:
+	Child();
+	
+	void doThing(int num, std::string other);
+	
+	void doThing2(std::optional<int> num, std::string other);
+	
+	HX_COMPARISON_OPERATORS(Child)
+};
+
+
 
 class Main {
 public:
-	int testField;
-	
 	static int returnCode;
 
-	Main();
-	
 	static void assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt);
 	
-	static void assertStringEq(std::string first, std::string second, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt);
+	static void testFrontOpt(int first, std::string second);
 	
 	static void main();
-	
-	HX_COMPARISON_OPERATORS(Main)
 };
 

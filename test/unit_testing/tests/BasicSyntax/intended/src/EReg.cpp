@@ -102,7 +102,7 @@ std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
 	int index = 0;
 	
 	while(true) {
-		if(this->matchSub(s, index)) {
+		if(this->matchSub(s, index, -1)) {
 			std::shared_ptr<haxe::AnonStruct0> pos = this->matchedPos();
 			std::string tempString;
 			{
@@ -230,7 +230,7 @@ std::string EReg::map(std::string s, std::function<std::string(EReg)> f) {
 	do {
 		if(offset >= static_cast<int>(s.size())) {
 			break;
-		} else if(!this->matchSub(s, offset)) {
+		} else if(!this->matchSub(s, offset, -1)) {
 			{
 				std::string x = s.substr(offset);
 				buf_b += Std::string(x);

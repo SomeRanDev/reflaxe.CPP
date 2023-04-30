@@ -37,7 +37,7 @@ void Main::main() {
 	
 	EReg reg2 = EReg("abc"s, ""s);
 	
-	Main::assert(reg2.matchSub("abcabc"s, 1), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 33, "main"s));
+	Main::assert(reg2.matchSub("abcabc"s, 1, -1), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/EReg/Main.hx"s, 33, "main"s));
 	
 	std::shared_ptr<haxe::AnonStruct0> pos2 = reg2.matchedPos();
 	
