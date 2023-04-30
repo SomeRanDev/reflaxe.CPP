@@ -2,5 +2,6 @@ package cxx.num;
 
 @:cxxStd
 @:native("char")
-extern abstract Int8(Int) from Int to Int {
-}
+@:noInclude
+@:extern
+typedef Int8 = Int;
