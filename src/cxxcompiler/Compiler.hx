@@ -18,6 +18,7 @@ import reflaxe.PluginCompiler;
 import reflaxe.ReflectCompiler;
 import reflaxe.data.ClassFuncData;
 import reflaxe.data.ClassVarData;
+import reflaxe.data.EnumOptionData;
 
 using reflaxe.helpers.BaseTypeHelper;
 using reflaxe.helpers.ModuleTypeHelper;
@@ -574,7 +575,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 	// ----------------------------
 	// Compiles an enum into C++.
-	public function compileEnumImpl(enumType: EnumType, options: EnumOptions): Null<String> {
+	public function compileEnumImpl(enumType: EnumType, options: Array<EnumOptionData>): Null<String> {
 		return EComp.compileEnum(enumType, options);
 	}
 
