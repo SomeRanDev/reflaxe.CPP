@@ -15,6 +15,8 @@ import haxe.macro.Type;
 import haxe.display.Display.MetadataTarget;
 
 import reflaxe.BaseCompiler;
+import reflaxe.data.ClassFuncData;
+import reflaxe.data.ClassVarData;
 import reflaxe.input.ClassHierarchyTracker;
 
 using reflaxe.helpers.DynamicHelper;
@@ -79,7 +81,7 @@ class Classes extends SubCompiler {
 
 	var headerContent: Array<String> = [];
 
-	public function compileClass(classType: ClassType, varFields: ClassFieldVars, funcFields: ClassFieldFuncs): Null<String> {
+	public function compileClass(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>): Null<String> {
 		// Init variables
 		initFields(classType);
 
@@ -215,7 +217,7 @@ class Classes extends SubCompiler {
 	}
 
 	// Compile class var
-	function compileVar(v: { isStatic: Bool, read: VarAccess, write: VarAccess, field: ClassField }) {
+	function compileVar(v: ClassVarData) {
 		final field = v.field;
 		final isStatic = v.isStatic;
 		final addToCpp = !headerOnly && isStatic;
@@ -255,9 +257,8 @@ class Classes extends SubCompiler {
 	}
 
 	// Compile class function
-	function compileFunction(f: { isStatic: Bool, kind: MethodKind, data: ClassFuncData, field: ClassField }) {
+	function compileFunction(f: ClassFuncData) {
 		final field = f.field;
-		final data = f.data;
 
 		final isStatic = f.isStatic;
 		final isDynamic = f.kind == MethDynamic;
@@ -283,11 +284,11 @@ class Classes extends SubCompiler {
 
 		// -----------------
 		// Type encounters
-		if(data.ret != null) {
-			Main.onTypeEncountered(data.ret, true);
+		if(f.ret != null) {
+			Main.onTypeEncountered(f.ret, true);
 		}
-		for(a in data.args) {
-			Main.onTypeEncountered(a.t, true);
+		for(a in f.args) {
+			Main.onTypeEncountered(a.type, true);
 		}
 
 		final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
@@ -301,9 +302,9 @@ class Classes extends SubCompiler {
 
 		// -----------------
 		// Compile return type
-		final ret = if(data.ret == null) {
+		final ret = if(f.ret == null) {
 			"void";
-		} else if(data.ret.isDynamic()) {
+		} else if(f.ret.isDynamic()) {
 			"auto";
 		} else {
 			final covariant = ClassHierarchyTracker.funcGetCovariantBaseType(classType, field, isStatic);
@@ -314,7 +315,7 @@ class Classes extends SubCompiler {
 				covariantOGRet = TComp.compileType(covariant, field.pos, false, true);
 				covariantOGRetVal = TComp.compileType(covariant, field.pos, true, true);
 			}
-			TComp.compileType(data.ret, field.pos, false, true);
+			TComp.compileType(f.ret, field.pos, false, true);
 		}
 
 		// -----------------
@@ -363,7 +364,7 @@ class Classes extends SubCompiler {
 				// Convert this static function information into a TypedExpr.
 				final ct = Context.toComplexType(TInst(classTypeRef.trustMe(), [])).trustMe();
 				final clsComplex = haxe.macro.ComplexTypeTools.toString(ct).split(".");
-				final untypedExpr = if(data.args.length == 0) {
+				final untypedExpr = if(f.args.length == 0) {
 					macro $p{clsComplex}.$name();
 				} else {
 					// Check that the arguments match (Int, cxx.CArray)
@@ -408,8 +409,8 @@ class Classes extends SubCompiler {
 			// -----------------
 			// Compile declaration
 			final assign = " = " + callable;
-			final type = "std::function<" + ret + "(" + data.args.map(a -> {
-				return TComp.compileType(a.t, field.pos, false, true);
+			final type = "std::function<" + ret + "(" + f.args.map(a -> {
+				return TComp.compileType(a.type, field.pos, false, true);
 			}).join(", ") + ")>";
 			var decl = (meta ?? "") + prefix + type + " " + name;
 			if(!dynAddToCpp) {

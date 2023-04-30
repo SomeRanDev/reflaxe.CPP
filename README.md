@@ -308,7 +308,7 @@ var compileExpressionHook;
 function addHook(cb: (Null<String>, Compiler, TypedExpr) -> Null<String>);
 
 var compileClassHook;
-function addHook(cb: (Null<String>, Compiler, ClassType, ClassFieldVars, ClassFieldFuncs) -> Null<String>);
+function addHook(cb: (Null<String>, Compiler, ClassType, Array<ClassVarData>, Array<ClassFuncData>) -> Null<String>);
 
 var compileEnumHook;
 function addHook(cb: (Null<String>, Compiler, EnumType, EnumOptions) -> Null<String>);
