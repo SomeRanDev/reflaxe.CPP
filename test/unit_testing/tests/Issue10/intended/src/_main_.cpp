@@ -2,6 +2,6 @@
 #include "Main.h"
 
 int main(int argc, const char* argv[]) {
-	_Main::Main_Fields_::main();
+	Main::main();
 	return 0;
 }
