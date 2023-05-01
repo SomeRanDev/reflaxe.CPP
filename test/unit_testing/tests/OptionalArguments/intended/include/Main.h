@@ -38,7 +38,13 @@ public:
 
 	static void assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt);
 	
+	static void testBackOpt(int first, std::string second = std::string("test"));
+	
 	static void testFrontOpt(int first, std::string second);
+	
+	static void testQuestionOpt(std::optional<int> maybeInt = std::nullopt, std::optional<std::string> maybeString = std::nullopt);
+	
+	static void testMixedOpt(int first, std::string second, bool third, int fourth);
 	
 	static void main();
 };
