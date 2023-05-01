@@ -11,15 +11,52 @@ class Main {
 		}
 	}
 
+	static function testBackOpt(first: Int, second: String = "test") {
+		assert(first < 0);
+		assert(StringTools.startsWith(second, "test"));
+	}
+
 	static function testFrontOpt(first: Int = 123, second: String) {
 		assert(first > 100);
 		assert(second == "test");
 	}
 
+	static function testQuestionOpt(?maybeInt: Int, ?maybeString: String) {
+		if(maybeInt == null) assert(maybeInt == null);
+		else assert(maybeInt == 111);
+
+		if(maybeString == null) assert(maybeString == null);
+		else assert(maybeString == "111");
+	}
+
+	static function testMixedOpt(first: Int = 100, second: String, third: Bool = true, fourth: Int) {
+		assert(first >= 100);
+		assert(StringTools.startsWith(second, "test"));
+		assert(third);
+		assert(fourth < 0);
+	}
+
 	public static function main() {
+		// test optional argument
+		testBackOpt(-1);
+		testBackOpt(-100, "testthing");
+
 		// front optional argument
 		testFrontOpt(101, "test");
 		testFrontOpt("test");
+
+		// test ?arg
+		testQuestionOpt(111);
+		testQuestionOpt("111");
+		testQuestionOpt();
+		testQuestionOpt(null, "111");
+		testQuestionOpt(111, null);
+
+		// test mixed
+		testMixedOpt("test", -1);
+		testMixedOpt(101, "test", -1);
+		testMixedOpt("test", true, -1);
+		testMixedOpt(102, "test", true, -1);
 
 		final a: Base = new Child();
 		a.doThing("other");
