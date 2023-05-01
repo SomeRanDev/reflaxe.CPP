@@ -839,7 +839,7 @@ class Expressions extends SubCompiler {
 
 			// Get list of function argument types
 			var funcArgs = switch(Main.getExprType(callExpr)) {
-				case TFun(args, ret): {
+				case TFun(args, _): {
 					args.map(a -> a.t);
 				}
 				case _: null;
