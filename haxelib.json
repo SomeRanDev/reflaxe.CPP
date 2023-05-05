@@ -22,5 +22,10 @@
   },
   "classPath": "src/",
   "releasenote": "Initial release.",
-  "contributors": ["RobertBorghese"]
+  "contributors": ["RobertBorghese"],
+  "reflaxe": {
+    "name": "C++",
+    "abbv": "cxx",
+    "stdPaths": ["std", "std/cxx/_std"]
+  }
 }
