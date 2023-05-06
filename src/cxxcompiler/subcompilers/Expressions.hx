@@ -820,7 +820,7 @@ class Expressions extends SubCompiler {
 				case TField(_, fa): {
 					// isOverload
 					switch(fa) {
-						case FInstance(clsRef, _, cfRef): {
+						case FInstance(_, _, cfRef): {
 							isOverload = cfRef.get().overloads.get().length > 0;
 						}
 						case _:
@@ -829,7 +829,10 @@ class Expressions extends SubCompiler {
 					// replace null pads with defaults
 					switch(fa) {
 						case FInstance(clsRef, _, cfRef) | FStatic(clsRef, cfRef): {
-							el = cfRef.get().findFuncData(clsRef.get()).replacePadNullsWithDefaults(el);
+							final funcData = cfRef.get().findFuncData(clsRef.get());
+							if(funcData != null) {
+								el = funcData.replacePadNullsWithDefaults(el);
+							}
 						}
 						case _:
 					}
