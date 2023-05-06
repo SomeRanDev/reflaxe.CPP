@@ -85,7 +85,7 @@ class HxArray {
 	}
 
 	public static function indexOf<T>(a: Array<T>, x: T, fromIndex: Int  = 0): Int {
-		final it: cxx.Auto = untyped __cpp__("std::find({}, {}, {})", a.begin(), a.end(), x);
+		final it: cxx.Auto = untyped __cpp__("std::find({0}, {1}, {2})", a.begin(), a.end(), x);
 		return if(untyped it != a.end()) {
 			untyped it - a.begin();
 		} else {
@@ -154,7 +154,7 @@ extern class Array<T> {
 
 	@:runtime public inline function reverse(): Void {
 		untyped __include__("algorithm", true);
-		untyped __cpp__("std::reverse({}, {})", this.begin(), this.end());
+		untyped __cpp__("std::reverse({0}, {1})", this.begin(), this.end());
 	}
 
 	@:runtime public inline function shift(): Null<T>  {
@@ -165,7 +165,7 @@ extern class Array<T> {
 
 	@:runtime public inline function sort(f: (T, T) -> Int): Void {
 		untyped __include__("algorithm", true);
-		untyped __cpp__("std::sort({}, {}, {})", this.begin(), this.end(), function(a, b) {
+		untyped __cpp__("std::sort({0}, {1}, {2})", this.begin(), this.end(), function(a, b) {
 			return f(a, b) < 0;
 		});
 	}
@@ -181,7 +181,7 @@ extern class Array<T> {
 
 	@:runtime @:pure public inline function contains(x: T) : Bool {
 		untyped __include__("algorithm", true);
-		return untyped __cpp__("(std::find({}, {}, {}) != {})", this.begin(), this.end(), x, this.end());
+		return untyped __cpp__("(std::find({0}, {1}, {2}) != {3})", this.begin(), this.end(), x, this.end());
 	}
 
 	@:runtime public inline function copy(): Array<T> {

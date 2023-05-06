@@ -8,13 +8,13 @@ package;
 @:headerOnly
 class HxString {
 	public static function toLowerCase(s: String): String {
-		untyped __cpp__("std::string temp = {}", s);
+		untyped __cpp__("std::string temp = {0}", s);
 		untyped __cpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::tolower(c);\n})");
 		return untyped temp;
 	}
 
 	public static function toUpperCase(s: String): String {
-		untyped __cpp__("std::string temp = {}", s);
+		untyped __cpp__("std::string temp = {0}", s);
 		untyped __cpp__("std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c){\n\treturn std::toupper(c);\n})");
 		return untyped temp;
 	}

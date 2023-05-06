@@ -44,16 +44,16 @@ class Std {
 	}
 
 	public extern inline static function int(x: Float): Int {
-		return untyped __cpp__("((int)({}))", x);
+		return untyped __cpp__("((int)({0}))", x);
 	}
 
 	public static function parseInt(x: String): Null<Int> {
-		untyped __cpp__("try { return std::stoi({}); } catch(...) {}", x);
+		untyped __cpp__("try { return std::stoi({0}); } catch(...) {}", x);
 		return null;
 	}
 
 	public static function parseFloat(x: String): Float {
-		untyped __cpp__("try { return std::stof({}); } catch(...) {}", x);
+		untyped __cpp__("try { return std::stof({0}); } catch(...) {}", x);
 		return Math.NaN;
 	}
 

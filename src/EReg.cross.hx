@@ -71,7 +71,7 @@ class EReg {
 	}
 
 	public function match(s: String): Bool {
-		final result: Bool = untyped __cpp__("std::regex_search({}, {}, {})", s, smatch, regex);
+		final result: Bool = untyped __cpp__("std::regex_search({0}, {1}, {2})", s, smatch, regex);
 
 		// Note: std::regex_search and smatch use references to the original string.
 		//
