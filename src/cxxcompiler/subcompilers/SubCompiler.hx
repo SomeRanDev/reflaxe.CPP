@@ -18,6 +18,7 @@ class SubCompiler {
 	@:nullSafety(Off) var AComp: Anon;
 	@:nullSafety(Off) var IComp: Includes;
 	@:nullSafety(Off) var RComp: Reflection;
+	@:nullSafety(Off) var DComp: Dynamic.Dynamic_;
 	@:nullSafety(Off) var TComp: Types;
 	@:nullSafety(Off) var XComp: Expressions;
 
@@ -28,7 +29,7 @@ class SubCompiler {
 	public function setSubCompilers(
 		c: Classes, e: Enums,
 		a: Anon, i: Includes,
-		r: Reflection,
+		r: Reflection, d: Dynamic.Dynamic_,
 		t: Types, x: Expressions
 	) {
 		CComp = c;
@@ -36,6 +37,7 @@ class SubCompiler {
 		AComp = a;
 		IComp = i;
 		RComp = r;
+		DComp = d;
 		TComp = t;
 		XComp = x;
 	}

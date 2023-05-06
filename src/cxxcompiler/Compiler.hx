@@ -36,6 +36,7 @@ import cxxcompiler.subcompilers.Anon;
 import cxxcompiler.subcompilers.Expressions;
 import cxxcompiler.subcompilers.Includes;
 import cxxcompiler.subcompilers.Reflection;
+import cxxcompiler.subcompilers.Dynamic.Dynamic_;
 import cxxcompiler.subcompilers.Types;
 
 import cxxcompiler.other.DependencyTracker;
@@ -105,6 +106,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	var AComp: Anon;
 	var IComp: Includes;
 	var RComp: Reflection;
+	var DComp: Dynamic_;
 	var TComp: Types;
 	var XComp: Expressions;
 
@@ -118,15 +120,17 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		AComp = new Anon(self);
 		IComp = new Includes(self);
 		RComp = new Reflection(self);
+		DComp = new Dynamic_(self);
 		TComp = new Types(self);
 		XComp = new Expressions(self);
 
-		function setup(c: SubCompiler) c.setSubCompilers(CComp, EComp, AComp, IComp, RComp, TComp, XComp);
+		function setup(c: SubCompiler) c.setSubCompilers(CComp, EComp, AComp, IComp, RComp, DComp, TComp, XComp);
 		setup(CComp);
 		setup(EComp);
 		setup(AComp);
 		setup(IComp);
 		setup(RComp);
+		setup(DComp);
 		setup(TComp);
 		setup(XComp);
 	}
