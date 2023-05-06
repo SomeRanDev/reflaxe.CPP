@@ -125,7 +125,9 @@ class Types extends SubCompiler {
 						addDynamicTemplate(result);
 						result;
 					} else {
-						pos.makeError(DynamicUnsupported);
+						// pos.makeError(DynamicUnsupported);
+						DComp.enableDynamic();
+						DComp.compileDynamicTypeName();
 					}
 				} else {
 					compileType(t3, pos, asValue);
