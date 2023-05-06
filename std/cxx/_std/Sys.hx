@@ -17,7 +17,7 @@ final class Sys_Environment {
 	env = environ;
 #endif
 	for (; *env; ++env) {
-		{}(*env);
+		{0}(*env);
 	}", strings.push_back);
 
 		final result: Map<String, String> = [];
@@ -111,11 +111,11 @@ final class Sys_CpuTime {
 @:require(sys)
 extern class Sys {
 	public static extern inline function print(v: Dynamic): Void {
-		untyped __cpp__("std::cout << {}", Std.string(v));
+		untyped __cpp__("std::cout << {0}", Std.string(v));
 	}
 
 	public static extern inline function println(v: Dynamic): Void {
-		untyped __cpp__("std::cout << {} << std::endl", Std.string(v));
+		untyped __cpp__("std::cout << {0} << std::endl", Std.string(v));
 	}
 
 	public static extern inline function args(): Array<String> {
