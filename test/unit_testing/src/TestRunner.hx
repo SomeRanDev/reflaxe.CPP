@@ -290,9 +290,24 @@ function compareOutputFolders(testDir: String): Bool {
 	final files = getAllFiles(intendedFolder);
 	final errors = [];
 	for(f in files) {
-		final err = compareFiles(haxe.io.Path.join([intendedFolder, f]), haxe.io.Path.join([outFolder, f]));
+		final intendedPath = haxe.io.Path.join([intendedFolder, f]);
+		final outPath = haxe.io.Path.join([outFolder, f]);
+		final err = compareFiles(intendedPath, outPath);
 		if(err != null) {
-			errors.push(err);
+			// If updating the intended folder, copy changes to the out/ as well.
+			if(UpdateIntended) {
+				if(!sys.FileSystem.exists(intendedPath)) {
+					sys.FileSystem.deleteFile(outPath);
+				} else {
+					final dir = haxe.io.Path.directory(outPath);
+					if(!sys.FileSystem.exists(dir)) {
+						sys.FileSystem.createDirectory(dir);
+					}
+					sys.io.File.saveContent(outPath, sys.io.File.getContent(intendedPath));
+				}
+			} else {
+				errors.push(err);
+			}
 		}
 	}
 	return if(errors.length > 0) {
