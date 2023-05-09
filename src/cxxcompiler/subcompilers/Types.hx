@@ -127,6 +127,8 @@ class Types extends SubCompiler {
 					} else {
 						// pos.makeError(DynamicUnsupported);
 						DComp.enableDynamic();
+						IComp.addTypeUtilHeader(true);
+						IComp.addInclude("dynamic/Dynamic.h", true, true);
 						DComp.compileDynamicTypeName();
 					}
 				} else {
