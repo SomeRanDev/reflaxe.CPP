@@ -24,7 +24,6 @@ extern abstract Any(Dynamic) {
 		return "<Any(" + type().name() + ")>";
 	}
 
-	extern inline function type(): cxx.std.TypeInfo {
-		return this.type();
-	}
+	@:nativeFunctionCode("{this}.type()")
+	extern function type(): cxx.std.TypeInfo;
 }
