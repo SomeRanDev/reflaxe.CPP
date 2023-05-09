@@ -24,6 +24,7 @@ struct _class_data {
 	const char* name = "<unknown>";
 	const std::array<const char*, sf_size> static_fields;
 	const std::array<const char*, if_size> instance_fields;
+	bool has_dyn = false;
 };
 
 #define DEFINE_CLASS_TOSTRING\

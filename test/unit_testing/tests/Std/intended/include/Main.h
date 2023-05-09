@@ -64,22 +64,22 @@ public:
 namespace haxe {
 	template<> struct _class<Main> {
 		DEFINE_CLASS_TOSTRING
-		constexpr static _class_data<0, 4> data {"Main", {}, { "returnCode", "assert", "assertFloat", "main" }};
+		constexpr static _class_data<0, 4> data {"Main", {}, { "returnCode", "assert", "assertFloat", "main" }, true};
 	};
 	template<> struct _class<BaseClass> {
 		DEFINE_CLASS_TOSTRING
-		constexpr static _class_data<0, 0> data {"BaseClass", {}, {}};
+		constexpr static _class_data<0, 0> data {"BaseClass", {}, {}, true};
 	};
 	template<> struct _class<ChildClass> {
 		DEFINE_CLASS_TOSTRING
-		constexpr static _class_data<0, 0> data {"ChildClass", {}, {}};
+		constexpr static _class_data<0, 0> data {"ChildClass", {}, {}, true};
 	};
 	template<> struct _class<AnotherClass> {
 		DEFINE_CLASS_TOSTRING
-		constexpr static _class_data<1, 0> data {"AnotherClass", { "toString" }, {}};
+		constexpr static _class_data<1, 0> data {"AnotherClass", { "toString" }, {}, true};
 	};
 	template<> struct _class<ClassWInt> {
 		DEFINE_CLASS_TOSTRING
-		constexpr static _class_data<1, 0> data {"ClassWInt", { "number" }, {}};
+		constexpr static _class_data<1, 0> data {"ClassWInt", { "number" }, {}, true};
 	};
 }
