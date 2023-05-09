@@ -147,15 +147,20 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 		return;
 	}
 
+	final failedTests = [];
 	for(t in tests) {
 		if(!processCppCompile(t, systemName, originalCwd)) {
 			failures++;
+			failedTests.push(t);
 		}
 	}
 
 	final success = testCount - failures;
 	Sys.println("");
 	Sys.println(success + " / " + testCount + " successfully compiled in C++.");
+	if(failures > 0) {
+		Sys.println("The following failed: " + failedTests);
+	}
 
 	if(failures > 0) {
 		Sys.exit(1);
