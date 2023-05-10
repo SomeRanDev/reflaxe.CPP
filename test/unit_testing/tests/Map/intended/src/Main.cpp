@@ -52,6 +52,7 @@ void Main::main() {
 	
 	while(k->hasNext()) {
 		int k2 = k->next();
+		
 		sum += k2;
 	};
 	
@@ -77,8 +78,10 @@ void Main::main() {
 			int test_value;
 			int test_key;
 			int key = test_keys->next();
+			
 			test_value = test_map->get(key).value();
 			test_key = key;
+			
 			{
 				int _g = index++;
 				switch(_g) {

@@ -34,6 +34,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 			std::shared_ptr<std::deque<int>> _g1 = numbers;
 			while(_g < _g1->size()) {
 				int obj = (*_g1)[_g];
+				
 				++_g;
 				result->push_back(obj);
 			};
@@ -53,6 +54,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 			std::shared_ptr<std::deque<int>> _g1 = numbers;
 			while(_g < _g1->size()) {
 				int obj = (*_g1)[_g];
+				
 				++_g;
 				result->push_back(obj);
 			};
@@ -73,8 +75,11 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 		int tempNumber;
 		std::shared_ptr<haxe::_Rest::NativeRest<int>> this1 = _g_args;
 		int index = _g_current++;
+		
 		tempNumber = (*this1)[index];
+		
 		int a = tempNumber;
+		
 		Main::assert(a == i, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 29, "oneTwoThree"s));
 		i++;
 	};
@@ -89,6 +94,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 			std::shared_ptr<std::deque<int>> _g1 = this1;
 			while(_g < _g1->size()) {
 				int obj = (*_g1)[_g];
+				
 				++_g;
 				result->push_back(obj);
 			};
@@ -108,6 +114,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 			std::shared_ptr<std::deque<int>> _g1 = this1;
 			while(_g < _g1->size()) {
 				int obj = (*_g1)[_g];
+				
 				++_g;
 				result->push_back(obj);
 			};
@@ -127,6 +134,7 @@ void Main::testRest(std::shared_ptr<haxe::_Rest::NativeRest<std::string>> string
 		std::shared_ptr<std::deque<std::string>> _g1 = strings;
 		while(_g < _g1->size()) {
 			std::string obj = (*_g1)[_g];
+			
 			++_g;
 			result->push_back(obj);
 		};

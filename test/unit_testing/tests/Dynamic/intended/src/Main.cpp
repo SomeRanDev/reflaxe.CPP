@@ -1,7 +1,6 @@
 #include "Main.h"
 
 #include "_AnonStructs.h"
-#include "dynamic/Dynamic.h"
 #include "haxe_Log.h"
 #include <iostream>
 #include <memory>
@@ -9,7 +8,7 @@
 using namespace std::string_literals;
 
 void _Main::Main_Fields_::main() {
-	haxe::Dynamic d = (std::make_shared<Test>());
+	haxe::Dynamic d = std::make_shared<Test>();
 	
 	d.getProp("test")();
 	haxe::Log::trace(d, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 14, "main"s));

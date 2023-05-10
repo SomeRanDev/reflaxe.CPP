@@ -82,6 +82,7 @@ public:
 		
 		while(k->hasNext()) {
 			int k2 = k->next();
+			
 			result->set(k2, this->get(k2).value());
 		};
 		
@@ -102,17 +103,22 @@ public:
 			T _g_value;
 			int _g_key;
 			int key = _g_keys->next();
+			
 			_g_value = _g_map->get(key).value();
 			_g_key = key;
+			
 			int key2 = _g_key;
 			T value = _g_value;
 			std::string tempLeft;
+			
 			if(first) {
 				tempLeft = std::string("");
 			} else {
 				tempLeft = std::string(", ");
 			};
+			
 			result += tempLeft + (Std::string(key2) + std::string(" => ") + Std::string(value));
+			
 			if(first) {
 				first = false;
 			};

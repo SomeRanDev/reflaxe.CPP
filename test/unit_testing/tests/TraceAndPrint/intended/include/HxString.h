@@ -32,10 +32,13 @@ public:
 			int pos = 0;
 			int _g = 0;
 			int _g1 = static_cast<int>(s.size());
+			
 			while(_g < _g1) {
 				int i = _g++;
+				
 				result->push_back(s.substr(pos++, 1));
 			};
+			
 			return result;
 		};
 		
@@ -44,25 +47,32 @@ public:
 		
 		while(true) {
 			int newPos = s.find(delimiter, pos);
+			
 			if(newPos == -1) {
 				std::string tempString;
 				int endIndex = -1;
+				
 				if(endIndex < 0) {
 					tempString = s.substr(pos);
 				} else {
 					tempString = s.substr(pos, endIndex - pos);
 				};
+				
 				result->push_back(tempString);
+				
 				break;
 			} else {
 				std::string tempString1;
+				
 				if(newPos < 0) {
 					tempString1 = s.substr(pos);
 				} else {
 					tempString1 = s.substr(pos, newPos - pos);
 				};
+				
 				result->push_back(tempString1);
 			};
+			
 			pos = newPos + static_cast<int>(delimiter.size());
 		};
 		

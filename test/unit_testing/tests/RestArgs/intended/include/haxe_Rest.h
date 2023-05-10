@@ -25,6 +25,7 @@ public:
 				std::shared_ptr<std::deque<T>> _g1 = this1;
 				while(_g < _g1->size()) {
 					T obj = (*_g1)[_g];
+					
 					++_g;
 					result->push_back(obj);
 				};
@@ -53,6 +54,7 @@ public:
 				std::shared_ptr<std::deque<T>> _g1 = this1;
 				while(_g < _g1->size()) {
 					T obj = (*_g1)[_g];
+					
 					++_g;
 					result->push_back(obj);
 				};

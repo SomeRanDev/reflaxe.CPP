@@ -39,10 +39,13 @@ bool EReg::match(std::string s) {
 		this->matchPos = this->smatch.position();
 		this->matchLen = this->smatch.length();
 		this->matches = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
+		
 		int _g = 0;
 		int _g1 = this->smatch.size();
+		
 		while(_g < _g1) {
 			int i = _g++;
+			
 			this->matches.value()->push_back(this->smatch.str(i));
 		};
 	};
@@ -105,6 +108,7 @@ std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
 		if(this->matchSub(s, index, -1)) {
 			std::shared_ptr<haxe::AnonStruct0> pos = this->matchedPos();
 			std::string tempString;
+			
 			{
 				int endIndex = pos->pos;
 				if(endIndex < 0) {
@@ -113,16 +117,21 @@ std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
 					tempString = s.substr(index, endIndex - index);
 				};
 			};
+			
 			result->push_back(tempString);
+			
 			if(pos->pos + pos->len <= index) {
 				break;
 			};
+			
 			index = pos->pos + pos->len;
+			
 			if(index >= static_cast<int>(s.size())) {
 				break;
 			};
 		} else {
 			std::string tempString1;
+			
 			{
 				int endIndex = -1;
 				if(endIndex < 0) {
@@ -131,7 +140,9 @@ std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
 					tempString1 = s.substr(index, endIndex - index);
 				};
 			};
+			
 			result->push_back(tempString1);
+			
 			break;
 		};
 	};
@@ -150,67 +161,90 @@ std::string EReg::replace(std::string s, std::string by) {
 		if(!this->matchSub(s, pos, len)) {
 			break;
 		};
+		
 		std::shared_ptr<haxe::AnonStruct0> p = this->matchedPos();
+		
 		if(p->len == 0 && !first) {
 			if(p->pos == static_cast<int>(s.size())) {
 				break;
 			};
+			
 			p->pos += 1;
 		};
+		
 		std::optional<int> len1 = p->pos - pos;
 		std::string tempRight;
+		
 		if(!len1.has_value()) {
 			tempRight = s.substr(pos);
 		} else {
 			tempRight = s.substr(pos, len1.value());
 		};
+		
 		b_b += tempRight;
+		
 		if(a->size() > 0) {
 			b_b += Std::string((*a)[0]);
 		};
+		
 		int i = 1;
+		
 		while(i < a->size()) {
 			std::string k = (*a)[i];
 			std::optional<int> c = k[0];
+			
 			if(c.value() >= 49 && c.value() <= 57) {
 				std::optional<std::string> tempMaybeString;
 				int tempLeft;
 				double x = c.value();
+				
 				tempLeft = ((int)(x));
+				
 				int matchIndex = tempLeft - 48;
+				
 				if(this->matches.has_value() && matchIndex < this->matches.value()->size()) {
 					tempMaybeString = (*this->matches.value())[matchIndex];
 				} else {
 					tempMaybeString = std::nullopt;
 				};
+				
 				std::optional<std::optional<std::string>> matchReplace = tempMaybeString;
+				
 				if(!matchReplace.has_value()) {
 					b_b += Std::string("$"s);
 					b_b += Std::string(k);
 				} else {
 					b_b += Std::string(matchReplace);
+					
 					std::optional<int> len2 = static_cast<int>(k.size()) - 1;
 					std::string tempRight1;
+					
 					if(!len2.has_value()) {
 						tempRight1 = k.substr(1);
 					} else {
 						tempRight1 = k.substr(1, len2.value());
 					};
+					
 					b_b += tempRight1;
 				};
 			} else if(!c.has_value()) {
 				b_b += Std::string("$"s);
 				i++;
+				
 				std::string k2 = (*a)[i];
+				
 				if(true && static_cast<int>(k2.size()) > 0) {
 					b_b += Std::string(k2);
 				};
 			} else {
 				b_b += Std::string("$"s + k);
 			};
+			
 			i++;
 		};
+		
 		int tot = p->pos + p->len - pos;
+		
 		pos += tot;
 		len -= tot;
 		first = false;
@@ -235,9 +269,12 @@ std::string EReg::map(std::string s, std::function<std::string(EReg)> f) {
 				std::string x = s.substr(offset);
 				buf_b += Std::string(x);
 			};
+			
 			break;
 		};
+		
 		std::shared_ptr<haxe::AnonStruct0> p = this->matchedPos();
+		
 		{
 			std::string x = s.substr(offset, p->pos - offset);
 			buf_b += Std::string(x);
@@ -246,11 +283,13 @@ std::string EReg::map(std::string s, std::function<std::string(EReg)> f) {
 			std::string x = f((*this));
 			buf_b += Std::string(x);
 		};
+		
 		if(p->len == 0) {
 			{
 				std::string x = s.substr(p->pos, 1);
 				buf_b += Std::string(x);
 			};
+			
 			offset = p->pos + 1;
 		} else {
 			offset = p->pos + p->len;
@@ -259,6 +298,7 @@ std::string EReg::map(std::string s, std::function<std::string(EReg)> f) {
 	
 	if(!this->isGlobal && offset > 0 && offset < static_cast<int>(s.size())) {
 		std::string x = s.substr(offset);
+		
 		buf_b += Std::string(x);
 	};
 	

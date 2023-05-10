@@ -113,6 +113,7 @@ void Main::main() {
 		std::string result = ""s;
 		while(it_offset < static_cast<int>(it_s.size())) {
 			int tempRight;
+			
 			{
 				std::string s = it_s;
 				int index = it_offset++;
@@ -122,6 +123,7 @@ void Main::main() {
 					tempRight = s.at(index);
 				};
 			};
+			
 			result += tempRight;
 		};
 		Main::assert(result == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 84, "main"s));
@@ -134,8 +136,11 @@ void Main::main() {
 		while(it_offset < static_cast<int>(it_s.size())) {
 			int n_value;
 			int n_key;
+			
 			n_key = it_offset;
+			
 			int tempRight1;
+			
 			{
 				std::string s = it_s;
 				int index = it_offset++;
@@ -145,6 +150,7 @@ void Main::main() {
 					tempRight1 = s.at(index);
 				};
 			};
+			
 			n_value = tempRight1;
 			count += n_key;
 			result += n_value;

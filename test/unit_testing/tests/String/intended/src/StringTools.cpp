@@ -16,6 +16,7 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 	
 	while(_g_offset < static_cast<int>(_g_s.size())) {
 		int tempNumber;
+		
 		{
 			int tempNumber1;
 			{
@@ -30,6 +31,7 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 				int c = tempNumber2;
 				if(c >= 55296 && c <= 56319) {
 					int tempLeft;
+					
 					{
 						int index2 = index + 1;
 						if(index2 < 0 || index2 >= static_cast<int>(s2.size())) {
@@ -38,6 +40,7 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 							tempLeft = s2.at(index2);
 						};
 					};
+					
 					c = c - 55232 << 10 | tempLeft & 1023;
 				};
 				tempNumber1 = c;
@@ -48,7 +51,9 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 			};
 			tempNumber = c;
 		};
+		
 		int code = tempNumber;
+		
 		switch(code) {
 		
 			case 34: {

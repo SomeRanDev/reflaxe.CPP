@@ -87,12 +87,15 @@ void Main::main() {
 	while(_g < 1000) {
 		int i = _g++;
 		int tempNumber;
+		
 		if(10 <= 1) {
 			tempNumber = 0;
 		} else {
 			tempNumber = floor((((float)rand()) / RAND_MAX) * 10);
 		};
+		
 		int v = tempNumber;
+		
 		Main::assert(v >= 0 && v < 10, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 103, "main"s));
 	};
 	

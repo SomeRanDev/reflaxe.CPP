@@ -33,6 +33,7 @@ void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) 
 void Main::assertStringEq(std::string first, std::string second, std::optional<std::shared_ptr<haxe::PosInfos>> infos) {
 	if(first != second) {
 		std::string msg = "Assert failed, \""s + first + "\" does not equal \""s + second + "\"."s;
+		
 		haxe::Log::trace(msg, infos);
 		Main::returnCode = 1;
 	};
@@ -59,6 +60,7 @@ void Main::main() {
 	
 	if(str != "Goodbye World!"s) {
 		int num = 3;
+		
 		Main::assert(num > 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 52, "main"s));
 		Main::assert(num >= 3 && num >= 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 53, "main"s));
 		Main::assert(num == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 54, "main"s));
@@ -146,11 +148,14 @@ void Main::main() {
 	
 	while(true) {
 		int tempRight;
+		
 		Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 138, "main"s));
 		tempRight = 6;
+		
 		if(!(j < tempRight)) {
 			break;
 		};
+		
 		Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 141, "main"s));
 		j++;
 	};

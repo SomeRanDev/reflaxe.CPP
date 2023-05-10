@@ -63,6 +63,7 @@ void Main::main() {
 			std::shared_ptr<std::deque<int>> _g1 = arr2;
 			while(_g < _g1->size()) {
 				int obj = (*_g1)[_g];
+				
 				++_g;
 				result->push_back(obj);
 			};
@@ -115,6 +116,7 @@ void Main::main() {
 	while(kvit_current < kvit_array->size()) {
 		int o_value;
 		int o_key;
+		
 		o_value = (*kvit_array)[kvit_current];
 		o_key = kvit_current++;
 		keyTotal += o_key;
@@ -234,6 +236,7 @@ void Main::main() {
 		int _g = 0;
 		while(_g < itArr->size()) {
 			int a = (*itArr)[_g];
+			
 			++_g;
 			itArrSum += a;
 		};
@@ -259,10 +262,13 @@ void Main::main() {
 	while(_g_current < _g_array->size()) {
 		int _g_value;
 		int _g_key;
+		
 		_g_value = (*_g_array)[_g_current];
 		_g_key = _g_current++;
+		
 		int index = _g_key;
 		int value = _g_value;
+		
 		Main::assert((index + 1) * 2 == value, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 157, "main"s));
 	};
 	
@@ -272,6 +278,7 @@ void Main::main() {
 	while(doubleArrIt_current < doubleArrIt_array->size()) {
 		int temp_value;
 		int temp_key;
+		
 		temp_value = (*doubleArrIt_array)[doubleArrIt_current];
 		temp_key = doubleArrIt_current++;
 		Main::assert((temp_key + 1) * 2 == temp_value, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 163, "main"s));

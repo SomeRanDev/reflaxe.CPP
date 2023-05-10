@@ -20,6 +20,7 @@ public:
 				std::shared_ptr<std::deque<T>> _g1 = a;
 				while(_g < _g1->size()) {
 					T obj = (*_g1)[_g];
+					
 					++_g;
 					result->push_back(obj);
 				};
@@ -33,6 +34,7 @@ public:
 			int _g = 0;
 			while(_g < other->size()) {
 				T o = (*other)[_g];
+				
 				++_g;
 				result->push_back(o);
 			};
@@ -49,9 +51,11 @@ public:
 		
 		while(_g < _g1) {
 			int i = _g++;
+			
 			if(i > 0) {
 				result += sep;
 			};
+			
 			result += Std::string((*a)[i]);
 		};
 		
@@ -83,6 +87,7 @@ public:
 		
 		while(_g < _g1.value()) {
 			int i = _g++;
+			
 			if(i >= 0 && i < a->size()) {
 				result->push_back((*a)[i]);
 			};
@@ -115,6 +120,7 @@ public:
 		
 		while(_g < _g1) {
 			int i = _g++;
+			
 			if(i >= 0 && i < a->size()) {
 				result->push_back((*a)[i]);
 			};
@@ -129,9 +135,11 @@ public:
 	static void insert(std::shared_ptr<std::deque<T>>& a, int pos, T x) {
 		if(pos < 0) {
 			auto it = a->end() + pos + 1;
+			
 			a->insert(it, x);
 		} else {
 			auto it = a->begin() + pos;
+			
 			a->insert(it, x);
 		};
 	}
@@ -157,6 +165,7 @@ public:
 		
 		while(_g1 < a->size()) {
 			T v = (*a)[_g1];
+			
 			++_g1;
 			_g->push_back(f(v));
 		};
@@ -173,7 +182,9 @@ public:
 		
 		while(_g1 < a->size()) {
 			T v = (*a)[_g1];
+			
 			++_g1;
+			
 			if(f(v)) {
 				_g->push_back(v);
 			};
@@ -193,11 +204,13 @@ public:
 		while(_g < _g1) {
 			int i = _g++;
 			std::string tempLeft;
+			
 			if(i != 0) {
 				tempLeft = std::string(", ");
 			} else {
 				tempLeft = std::string("");
 			};
+			
 			result += tempLeft + Std::string((*a)[i]);
 		};
 		

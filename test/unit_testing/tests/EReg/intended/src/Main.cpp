@@ -71,6 +71,7 @@ void Main::main() {
 	
 	std::string newStr = reg.map("123abc"s, [&](EReg ereg) mutable {
 		std::shared_ptr<haxe::AnonStruct0> p = ereg.matchedPos();
+		
 		return ereg.matched(0) + "_data:("s + std::to_string(p->len) + ", "s + std::to_string(p->pos) + ")"s;
 	});
 	
