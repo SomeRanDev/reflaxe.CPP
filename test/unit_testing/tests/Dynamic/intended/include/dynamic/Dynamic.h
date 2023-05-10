@@ -8,47 +8,40 @@
 #include <string>
 #include <typeindex>
 
-#include <iostream>
-
 namespace haxe {
 
+// Forward declare just in case
+template<typename T> class _class;
+
+// The different types of Dynamic values
 enum DynamicType {
 	Empty, Null, Function, Value, Pointer, Reference, UniquePtr, SharedPtr
 };
 
+// ---
+
+// A helper class for extracting certain info from types
 template<typename T>
-struct _mm_type {
-	using inner = T;
-	constexpr static DynamicType type = Value;
-};
+struct _mm_type { using inner = T; constexpr static DynamicType type = Value; };
 
 template<typename T>
-struct _mm_type<T*> {
-	using inner = T;
-	constexpr static DynamicType type = Pointer;
-};
+struct _mm_type<T*> { using inner = T; constexpr static DynamicType type = Pointer; };
+
+template<typename T>
+struct _mm_type<std::shared_ptr<T>> { using inner = T; constexpr static DynamicType type = SharedPtr; };
 
 // Unwrap references as they're incompatible with `std::any`.
 template<typename T>
-struct _mm_type<T&> {
-	using inner = typename _mm_type<T>::inner;
-	constexpr static DynamicType type = _mm_type<T>::type;
-};
+struct _mm_type<T&> { using inner = typename _mm_type<T>::inner; constexpr static DynamicType type = _mm_type<T>::type; };
 
-// Due to their nature, `unique_ptr` cannot be stored.
+// Due to their nature, `unique_ptr` cannot be stored in `Dynamic`.
 // But let's track anyway for error reporting.
 template<typename T>
-struct _mm_type<std::unique_ptr<T>> {
-	using inner = T;
-	constexpr static DynamicType type = UniquePtr;
-};
+struct _mm_type<std::unique_ptr<T>> { using inner = T; constexpr static DynamicType type = UniquePtr; };
 
-template<typename T>
-struct _mm_type<std::shared_ptr<T>> {
-	using inner = T;
-	constexpr static DynamicType type = SharedPtr;
-};
+// ---
 
+// The class used for Haxe's `Dynamic` type.
 class Dynamic {
 public:
 	DynamicType _dynType;
@@ -65,8 +58,10 @@ public:
 
 	template<typename T>
 	Dynamic(T obj) {
+		using inner = typename _mm_type<T>::inner;
+
 		_anyObj = obj;
-		_innerType = std::type_index(typeid(_mm_type<T>::inner));
+		_innerType = std::type_index(typeid(inner));
 		_dynType = _mm_type<T>::type;
 
 		// We cannot copy or move `std::unique_ptr`s
@@ -76,8 +71,8 @@ public:
 
 		// Supply properties if possible.
 		// Otherwise, Dynamic works as a simple `std::any` wrapper.
-		if constexpr(_class<_mm_type<T>::inner>::data.has_dyn) {
-			using Dyn = typename _class<_mm_type<T>::inner>::Dyn;
+		if constexpr(haxe::_class<inner>::data.has_dyn) {
+			using Dyn = typename haxe::_class<inner>::Dyn;
 			getFunc = [](Dynamic& d, std::string name) { return Dyn::getProp(d, name); };
 			setFunc = [](Dynamic& d, std::string name, Dynamic value) { return Dyn::setProp(d, name, value); };
 		}
@@ -135,6 +130,7 @@ public:
 				// case UniquePtr: return *std::any_cast<std::unique_ptr<T>>(_anyObj);
 
 				case SharedPtr: return *std::any_cast<std::shared_ptr<T>>(_anyObj);
+				default: break;
 			}
 		} else if constexpr(_mm_type<T>::type == Pointer) {
 			switch(_dynType) {
@@ -144,6 +140,7 @@ public:
 				// case 3: return std::any_cast<std::unique_ptr<In>>(_anyObj).get();
 
 				case SharedPtr: return std::any_cast<std::shared_ptr<In>>(_anyObj).get();
+				default: break;
 			}
 		} else if constexpr(_mm_type<T>::type == Reference) {
 			throw "Cannot cast Dynamic to reference (&)";
@@ -172,6 +169,7 @@ public:
 			case Empty: return std::string("Dynamic(Undefined)");
 			case Null: return std::string("Dynamic(null)");
 			case Function: return std::string("Dynamic(Function)");
+			default: break;
 		}
 		if(isInt()) {
 			return std::to_string(asType<int>());
