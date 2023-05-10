@@ -311,7 +311,13 @@ class Expressions extends SubCompiler {
 				result = "continue";
 			}
 			case TThrow(expr): {
-				result = "throw " + Main.compileExpressionOrError(expr);
+				final e = Main.compileExpressionOrError(expr);
+				result = if(expr.t.isString()) {
+					IComp.addInclude("haxe_Exception.h", compilingInHeader);
+					"throw haxe::Exception(" + e + ")";
+				} else {
+					"throw " + e;
+				}
 			}
 			case TCast(e, maybeModuleType): {
 				result = compileCast(e, expr, maybeModuleType);
