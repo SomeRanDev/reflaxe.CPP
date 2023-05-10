@@ -6,7 +6,7 @@ package haxe;
 class Exception extends cxx.std.Exception {
 	public var message(get, never): String;
 	private function get_message(): String {
-		return "";
+		return _message;
 	}
 
 	public var stack(get, never): CallStack;
@@ -16,7 +16,7 @@ class Exception extends cxx.std.Exception {
 
 	public var previous(get, never): Null<Exception>;
 	private function get_previous(): Null<Exception> {
-		return null;
+		return _previous;
 	}
 
 	public var native(get, never): Any;
@@ -24,16 +24,26 @@ class Exception extends cxx.std.Exception {
 		return 0;
 	}
 
+	// ---
+
 	static private function caught(value: Any): Exception {
-		return new Exception("Unimplemented.");
+		return new Exception(Std.string(value));
 	}
 
 	static private function thrown(value: Any): Any {
 		return 0;
 	}
 
+	// ---
+
+	var _message: String;
+	var _previous: Null<cxx.SharedPtr<Exception>>;
+
 	public function new(message: String, ?previous: Exception, ?native: Any): Void {
 		super();
+
+		_message = message;
+		_previous = previous != null ? cxx.SharedPtr.make((previous : Exception)) : null;
 	}
 
 	private function unwrap(): Any {
@@ -41,10 +51,10 @@ class Exception extends cxx.std.Exception {
 	}
 
 	public function toString(): String {
-		return "";
+		return 'Error: $message';
 	}
 
 	public function details(): String {
-		return "";
+		return toString() + "\n" + haxe.CallStack.toString(stack);
 	}
 }

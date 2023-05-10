@@ -311,7 +311,13 @@ class Expressions extends SubCompiler {
 				result = "continue";
 			}
 			case TThrow(expr): {
-				result = "throw " + Main.compileExpressionOrError(expr);
+				final e = Main.compileExpressionOrError(expr);
+				result = if(expr.t.isString()) {
+					IComp.addInclude("haxe_Exception.h", compilingInHeader);
+					"throw haxe::Exception(" + e + ")";
+				} else {
+					"throw " + e;
+				}
 			}
 			case TCast(e, maybeModuleType): {
 				result = compileCast(e, expr, maybeModuleType);
@@ -377,11 +383,6 @@ class Expressions extends SubCompiler {
 	public function compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool = false): Null<String> {
 		var cpp = null;
 
-		if(targetType.isDynamic()) {
-			IComp.addInclude("dynamic/Dynamic.h", compilingInHeader);
-			return "(" + internal_compileExpressionForType(expr, targetType, allowNullReturn) + ")";
-		}
-
 		if(targetType != null) {
 			expr = expr.unwrapUnsafeCasts();
 			if(Main.getExprType(expr).shouldConvertMM(targetType)) {
@@ -437,26 +438,39 @@ class Expressions extends SubCompiler {
 
 		var tmmt;
 		var targetType: Null<Type>;
+		var exprIsNullable = Main.getExprType(expr).isNull();
 		var nullToValue;
 		switch(target) {
 			case Left(tt): {
 				tmmt = TComp.getMemoryManagementTypeFromType(tt);
 				targetType = tt;
-				nullToValue = allowNull ? false : Main.getExprType(expr).isNullOfType(tt);
+				allowNull = tt.isNull();
+
+				// TODO:
+				// Only allow `null` conversion if the exact same type??
+				// Currently testing without checking if types equal.
+				// final sameValueType = Main.getExprType(expr).unwrapNullTypeOrSelf().valueTypesEqual(tt.unwrapNullTypeOrSelf());
+				nullToValue = allowNull ? false : exprIsNullable; // (sameValueType ? exprIsNullable : false);
 			}
 			case Right(mmt): {
 				tmmt = mmt;
 				targetType = null;
-				nullToValue = allowNull ? false : Main.getExprType(expr).isNull();
+				nullToValue = allowNull ? false : exprIsNullable;
 			}
 		}
+
+		// If converting between memory management types AND both are nullable,
+		// the source expression must still be unwrapped for proper conversion.
+		final nullMMConvert = cmmt != tmmt && allowNull && exprIsNullable;
 
 		// Store the result when possible
 		var result = null;
 
 		// Unwraps Null<T> (std::optional) if converting from optional -> not optional
 		inline function convertCppNull(cpp: String): String {
-			if(!allowNull && nullToValue && !expr.isNullExpr()) {
+			// This is true if `null` is not allowed, but the source expression is nullable.
+			final nullToNotNull = !allowNull && nullToValue && !expr.isNullExpr();
+			if(nullMMConvert || nullToNotNull) {
 				return ensureSafeToAccess(cpp) + ".value()";
 			}
 			return cpp;
@@ -490,8 +504,26 @@ class Expressions extends SubCompiler {
 				case _: {
 					var cpp = internal_compileExpressionForType(expr, targetType, true);
 					if(cpp != null) {
-						cpp = convertCppNull(cpp);
-						result = applyMMConversion(cpp, expr.pos, Main.getExprType(expr), cmmt, tmmt);
+						// If we converting between two different memory types that are both nullable,
+						// let's create an alias (new variable) before checking whether a value exists.
+						final hasAlias = nullMMConvert ? addPrefixExpression("auto v = " + cpp) : false;
+						final code = hasAlias ? "v" : cpp;
+
+						// Apply memory management conversion
+						final newCpp = convertCppNull(code);
+						result = applyMMConversion(newCpp, expr.pos, Main.getExprType(expr), cmmt, tmmt);
+
+						// If we converting between two different memory types that are both nullable,
+						// lets first check that the source expression HAS a value.
+						//
+						// If it does, we use the conversion code. Otherwise we return `std::nullopt`.
+						if(nullMMConvert) {
+							// If we can successfully add the prefix expression, use `v`.
+							// Otherwise, we have to repeat the `cpp` code when checking for value.
+							final condVar = hasAlias ? "v" : cpp;
+							final tCpp = TComp.compileType(targetType ?? Main.getExprType(expr), expr.pos, true);
+							result = '${condVar}.has_value() ? (${tCpp})${result} : std::nullopt';
+						}
 					}
 				}
 			}
@@ -562,16 +594,16 @@ class Expressions extends SubCompiler {
 	function toIndentedScope(e: TypedExpr): String {
 		return switch(e.expr) {
 			case TBlock(el): {
-				el.map(e -> {
-					final cpp = Main.compileExpression(e);
-					return cpp == null ? null : (cpp.tab() + ";");
-				}).filter(s -> s != null).join("\n");
+				Main.compileExpressionsIntoLines(el).tab();
 			}
 			case _: {
-				final cpp = Main.compileExpression(e);
-				cpp == null ? "" : cpp.tab() + ";";
+				Main.compileExpressionsIntoLines([e]).tab();
 			}
 		}
+	}
+
+	function addPrefixExpression(cpp: String): Bool {
+		return Main.injectExpressionPrefixContent(cpp);
 	}
 
 	function constantToCpp(constant: TConstant, originalExpr: TypedExpr): String {

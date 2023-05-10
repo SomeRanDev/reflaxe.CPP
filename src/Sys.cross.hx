@@ -111,10 +111,12 @@ final class Sys_CpuTime {
 @:require(sys)
 extern class Sys {
 	public static extern inline function print(v: Dynamic): Void {
+		untyped __include__("iostream", true);
 		untyped __cpp__("std::cout << {0}", Std.string(v));
 	}
 
 	public static extern inline function println(v: Dynamic): Void {
+		untyped __include__("iostream", true);
 		untyped __cpp__("std::cout << {0} << std::endl", Std.string(v));
 	}
 
