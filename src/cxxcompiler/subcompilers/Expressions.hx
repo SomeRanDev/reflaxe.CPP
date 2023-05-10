@@ -278,9 +278,15 @@ class Expressions extends SubCompiler {
 				if(tryContent != null) {
 					result = "try {\n" + tryContent;
 					for(c in catches) {
+						// Get catch type
 						final errType = Main.getTVarType(c.v);
 						Main.onTypeEncountered(errType, compilingInHeader);
-						result += "\n} catch(" + TComp.compileType(errType, expr.pos) + " " + c.v.name + ") {\n";
+
+						// Compile as reference
+						final refType = TType(Main.getRefType(), [errType]);
+						result += "\n} catch(" + TComp.compileType(refType, expr.pos) + " " + c.v.name + ") {\n";
+
+						// Compile catch expression content
 						if(c.expr != null) {
 							final cpp = toIndentedScope(c.expr);
 							if(cpp != null) result += cpp;

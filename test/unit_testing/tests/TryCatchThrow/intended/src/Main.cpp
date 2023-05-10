@@ -23,18 +23,18 @@ void _Main::Main_Fields_::main() {
 	
 	try {
 		throw haxe::Exception(msg);
-	} catch(haxe::Exception e) {
+	} catch(haxe::Exception& e) {
 		assert(e.get_message() == msg);
 	};
 	try {
 		throw haxe::Exception(msg);
-	} catch(haxe::Exception e) {
+	} catch(haxe::Exception& e) {
 		assert(e.get_message() == msg);
 	};
 	try {
 		
 		throw std::runtime_error("test");
-	} catch(std::exception e) {
+	} catch(std::exception& e) {
 		assert(std::string(e.what()) == "test"s);
 	};
 }
