@@ -338,6 +338,21 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		return ptrType.trustMe();
 	}
 
+	var refType: Null<Ref<DefType>> = null;
+	public function getRefType(): Ref<DefType> {
+		if(refType == null) {
+			switch(Context.getModule("cxx.Ref")[0]) {
+				case TType(defRef, _): {
+					refType = defRef;
+				}
+				case _: {
+					throw "`cxx.Ref` does not refer to an abstract type.";
+				}
+			}
+		}
+		return refType.trustMe();
+	}
+
 	// ----------------------------
 	// Stores reflection information for Class<T>.
 	// But only generates if necessary.
