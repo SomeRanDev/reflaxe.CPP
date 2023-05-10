@@ -52,8 +52,8 @@ This project is currently in development, but once posted on haxelib, this is no
 
 | #   | What to do                                           | What to write                            |
 | --- | ---------------------------------------------------- | ---------------------------------------- |
-| 1   | Install via haxelib.                                 | <pre>haxelib install cxx</pre>           |
-| 2   | Add the lib to your `.hxml` file or compile command. | <pre lang="hxml">-lib cxx</pre>          |
+| 1   | Install via haxelib.                                 | <pre>haxelib install reflaxe.cpp</pre>   |
+| 2   | Add the lib to your `.hxml` file or compile command. | <pre lang="hxml">-lib reflaxe.cpp</pre>  |
 | 3   | Set the output folder for the compiled C++.          | <pre lang="hxml">-D cpp-output=out</pre> |
 
 Now your `.hxml` should be ready to go! Simply run with Haxe and the output will be generated just like any other Haxe target.
@@ -86,11 +86,11 @@ Just to be clear, this project is not intended to be a drop-in replacement for t
 
 ## Why does this exist?
 
-Haxe's normal C++ target uses a garbage collection system and requires compiling with the [hxcpp](https://github.com/HaxeFoundation/hxcpp) library. While this works great for projects expecting consistent behavior across multiple compilation targets, difficulties can arise trying to bind or work with existing C++ framworks containing custom compilation and/or memory management systems. Not to mention... Haxe generated C++ is bloated, confusing, and heavily reliant on hxcpp-exclusive structures.
+Haxe's normal C++ target uses a garbage collection system and requires compiling with the [hxcpp](https://github.com/HaxeFoundation/hxcpp) library. While this works great for projects expecting consistent behavior across multiple compilation targets, difficulties can arise trying to bind or work with existing C++ frameworks containing custom compilation and/or memory management systems. Not to mention... Haxe generated C++ is bloated, confusing, and heavily reliant on hxcpp-exclusive structures.
 
 Now, normally this isn't a problem as Haxe automatically compiles the C++, and most Haxe users can work with frameworks and libraries that have already done the heavy lifting. However, not every project has such a luxury. If you're looking to target C++ exclusively with your Haxe project and want a bit more ease in using/creating C++ code, this might be the project for you.
 
-**Reflaxe/cxx** attempts to resolve the aformentioned issues by converting Haxe to C++ in the simpliest way possible. _Instead of garbage collection,_ modern smart pointers are used. _Instead of nullability,_ the `optional<T>` type is used. C++ templates are used to translate anonymous structures and dynamic types. In general, modern C++ types are used to translate Haxe code to how it would be written if it were written in C++ to begin with.
+Reflaxe/C++ attempts to resolve the aforementioned issues by converting Haxe to C++ in the simplest way possible. _Instead of garbage collection,_ modern smart pointers are used. _Instead of nullability,_ the `optional<T>` type is used. C++ templates are used to translate anonymous structures and dynamic types. In general, modern C++ types are used to translate Haxe code to how it would be written if it were written in C++ to begin with.
 
 ## What are the benefits?
 
@@ -98,7 +98,7 @@ For starters, garbage collection is no longer a major issue. While GC works wond
 
 This leads into another important aspect of this project: the different forms of memory management. While the original Haxe/C++ target allows classes to be treated like value-types, it requires a lot of boilerplate and forces the class to always use value management.
 
-On the other hand, **Reflaxe/cxx"** gives memory types first-class treatment. A single metadata is used to default a class to using value, pointer, or smart pointer management, and `Value<T>`, `Ptr<T>`, and `SharedPtr<T>` can be used to override this default at any time. But the best part is conversions between these types are accounted for during typing, preventing invalid or unsafe assignments from being generated. Visit the [Memory Management](https://github.com/RobertBorghese/reflaxe.CPP#memory-management) section for more info.
+On the other hand, Reflaxe/C++ gives memory types first-class treatment. A single metadata is used to default a class to using value, pointer, or smart pointer management, and `Value<T>`, `Ptr<T>`, and `SharedPtr<T>` can be used to override this default at any time. But the best part is conversions between these types are accounted for during typing, preventing invalid or unsafe assignments from being generated. Visit the [Memory Management](https://github.com/RobertBorghese/reflaxe.CPP#memory-management) section for more info.
 
 &nbsp;
 
