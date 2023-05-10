@@ -27,11 +27,15 @@ std::shared_ptr<haxe::ds::StringMap<std::string>> Sys_Environment::environment()
 	
 	while(_g < strings->size()) {
 		std::string en = (*strings)[_g];
+		
 		++_g;
+		
 		int index = en.find("="s);
+		
 		if(index >= 0) {
 			std::string key = en.substr(0, index);
 			std::string value = en.substr(index + 1);
+			
 			result->set(key, value);
 		};
 	};
@@ -46,6 +50,7 @@ void Sys_Args::setupArgs(int argCount, const char** args) {
 	
 	while(_g < _g1) {
 		int i = _g++;
+		
 		Sys_Args::_args.push_back(std::string(args[i]));
 	};
 }
