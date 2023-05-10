@@ -27,6 +27,7 @@ using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
 import cxxcompiler.subcompilers.Includes.ExtraFlag;
+import cxxcompiler.config.Meta;
 import cxxcompiler.other.DependencyTracker;
 
 using cxxcompiler.helpers.Error;
@@ -196,8 +197,10 @@ class Classes extends SubCompiler {
 			case _: throw "Impossible";
 		}
 		className = TComp.compileClassName(classTypeRef, classType.pos, null, false, true);
-		classNameNS = TComp.compileClassName(classTypeRef, classType.pos, null, true, true);
-		if(classNameNS.length > 0) classNameNS += "::";
+		final fullClassPath = TComp.compileClassName(classTypeRef, classType.pos, null, true, true);
+		classNameNS = fullClassPath.length > 0 ? (fullClassPath + "::") : fullClassPath;
+
+		DComp.reset(fullClassPath);
 
 		classNameWParams = className + if(classType.params.length > 0) {
 			"<" + classType.params.map(p -> p.name).join(", ") + ">";
@@ -252,6 +255,8 @@ class Classes extends SubCompiler {
 		if(addToCpp) {
 			cppVariables.push(type + " " + classNameNS + varName + assign + ";");
 		}
+
+		DComp.addVar(v, type, varName);
 
 		fieldsCompiled++;
 	}
@@ -443,6 +448,7 @@ class Classes extends SubCompiler {
 			TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
 
 			final argCpp = [];
+			final argTypes = [];
 			for(arg in f.args) {
 				var type = arg.type;
 
@@ -455,7 +461,10 @@ class Classes extends SubCompiler {
 				}
 
 				argCpp.push(Main.compileFunctionArgumentData(type, arg.name, arg.expr, field.pos, arg.isFrontOptional(), false, true));
+				argTypes.push(TComp.compileType(type, field.pos, false, true));
 			}
+
+			DComp.addFunc(f, argTypes, name);
 
 			final argDecl = "(" + argCpp.join(", ") + ")";
 
@@ -669,7 +678,17 @@ class Classes extends SubCompiler {
 			Main.appendToExtraFile(headerFilename, result + "\n", currentDep != null ? currentDep.getPriority() : DependencyTracker.minimum);
 		});
 
-		Main.addReflectionCpp(headerFilename, RComp.compileClassReflection(classTypeRef.trustMe()));
+		final content = DComp.getDynamicContent();
+		final dynFilename = "dynamic/Dynamic_" + filename + Compiler.HeaderExt;
+		Main.addCompileEndCallback(function() {
+			if(DComp.enabled) {
+				Main.setExtraFileIfEmpty(Compiler.HeaderFolder + "/" + dynFilename, "#pragma once\n\n#include \"Dynamic.h\"");
+				Main.appendToExtraFile(Compiler.HeaderFolder + "/" + dynFilename,  content);
+				Main.appendToExtraFile(headerFilename, "#include \"" + dynFilename + "\"\n", 9999999);
+			}
+		});
+
+		Main.addReflectionCpp(headerFilename, classTypeRef.trustMe());
 	}
 }
 

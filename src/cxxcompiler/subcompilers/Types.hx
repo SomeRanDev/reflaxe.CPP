@@ -14,6 +14,8 @@ import reflaxe.helpers.Context; // Use like haxe.macro.Context
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
+import cxxcompiler.config.Meta;
+
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.NullHelper;
@@ -127,6 +129,8 @@ class Types extends SubCompiler {
 					} else {
 						// pos.makeError(DynamicUnsupported);
 						DComp.enableDynamic();
+						IComp.addTypeUtilHeader(true);
+						IComp.addInclude("dynamic/Dynamic.h", true, true);
 						DComp.compileDynamicTypeName();
 					}
 				} else {

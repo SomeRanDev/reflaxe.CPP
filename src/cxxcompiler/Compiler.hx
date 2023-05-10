@@ -39,6 +39,7 @@ import cxxcompiler.subcompilers.Reflection;
 import cxxcompiler.subcompilers.Dynamic.Dynamic_;
 import cxxcompiler.subcompilers.Types;
 
+import cxxcompiler.config.Meta;
 import cxxcompiler.other.DependencyTracker;
 
 using cxxcompiler.helpers.MetaHelper;
@@ -158,6 +159,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		generateAnonStructHeader();
 		generateTypeUtilsHeader();
 		generateHaxeUtilsHeader();
+		generateDynamicHeader();
 		copyAdditionalFiles();
 	}
 
@@ -339,26 +341,26 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// ----------------------------
 	// Stores reflection information for Class<T>.
 	// But only generates if necessary.
-	var reflectionCpp: Map<String, Array<String>> = [];
+	var reflectionClasses: Map<String, Array<Ref<ClassType>>> = [];
 
 	// Used in sub-compilers to add reflection code
 	// that is only added to the output if necessary.
-	public function addReflectionCpp(filename: String, cpp: String) {
-		if(!reflectionCpp.exists(filename)) {
-			reflectionCpp.set(filename, []);
+	public function addReflectionCpp(filename: String, clsRef: Ref<ClassType>) {
+		if(!reflectionClasses.exists(filename)) {
+			reflectionClasses.set(filename, []);
 		}
-		reflectionCpp.get(filename).trustMe().push(cpp);
+		reflectionClasses.get(filename).trustMe().push(clsRef);
 	}
 
 	// Called on compilation end to add the
 	// reflection code to the output files.
 	function generateReflectionInfo() {
 		if(IComp.typeUtilHeaderRequired) {
-			for(filename => reflectionCppList in reflectionCpp) {
+			for(filename => clsRefList in reflectionClasses) {
 				var content = "// Reflection info\n";
 				content += "#include \"" + TypeUtilsHeaderFile + HeaderExt + "\"\n";
 				content += "namespace haxe {\n";
-				content += reflectionCppList.map(s -> s.tab()).join("\n");
+				content += clsRefList.map(clsRef -> RComp.compileClassReflection(clsRef)).map(s -> s.tab()).join("\n");
 				content += "\n}\n";
 
 				addCompileEndCallback(function() {
@@ -434,6 +436,12 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	static unsigned long generate_order_id() { static unsigned long i = 0; return i++; }\\
 	bool operator==(const __VA_ARGS__& other) const { return _order_id == other._order_id; }\\
 	bool operator<(const __VA_ARGS__& other) const { return _order_id < other._order_id; }";
+	}
+
+	function generateDynamicHeader() {
+		if(DComp.enabled) {
+			setExtraFile(HeaderFolder + "/dynamic/Dynamic" + HeaderExt, DComp.dynamicTypeContent());
+		}
 	}
 
 	// ----------------------------

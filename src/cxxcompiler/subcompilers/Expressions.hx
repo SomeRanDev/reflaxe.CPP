@@ -19,6 +19,7 @@ import reflaxe.input.ClassHierarchyTracker;
 import reflaxe.compiler.EverythingIsExprSanitizer;
 
 import cxxcompiler.subcompilers.Includes.ExtraFlag;
+import cxxcompiler.config.Meta;
 
 using reflaxe.helpers.BaseTypeHelper;
 using reflaxe.helpers.ClassFieldHelper;
@@ -375,6 +376,12 @@ class Expressions extends SubCompiler {
 	// and apply additional conversions in the compiled code.
 	public function compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool = false): Null<String> {
 		var cpp = null;
+
+		if(targetType.isDynamic()) {
+			IComp.addInclude("dynamic/Dynamic.h", compilingInHeader);
+			return "(" + internal_compileExpressionForType(expr, targetType, allowNullReturn) + ")";
+		}
+
 		if(targetType != null) {
 			expr = expr.unwrapUnsafeCasts();
 			if(Main.getExprType(expr).shouldConvertMM(targetType)) {
@@ -618,8 +625,15 @@ class Expressions extends SubCompiler {
 
 		return result;
 	}
-
 	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
+		// Check for Dynamic property assignment
+		if(op.isAssignDirect()) {
+			final dynSetCpp = checkDynamicSet(e1, e2);
+			if(dynSetCpp != null) {
+				return dynSetCpp;
+			}
+		}
+
 		var cppExpr1 = if(op.isAssignDirect()) {
 			Main.compileExpressionOrError(e1);
 		} else if(op.isEqualityCheck()) {
@@ -655,6 +669,26 @@ class Expressions extends SubCompiler {
 		}
 
 		return cppExpr1 + " " + operatorStr + " " + cppExpr2;
+	}
+
+	/**
+		Assuming there is a direct assignment between `e1` and `e2`,
+		check if this is a `Dynamic` property assignment.
+
+		Return the compiled C++ content if so; otherwise, return `null`.
+	**/
+	inline function checkDynamicSet(e1: TypedExpr, e2: TypedExpr): Null<String> {
+		return switch(e1.unwrapParenthesis().expr) {
+			case TField(dynExpr, fa) if(dynExpr.t.isDynamic()): {
+				switch(fa) {
+					case FDynamic(s):
+						'${Main.compileExpressionOrError(dynExpr)}.setProp("$s", ${Main.compileExpressionOrError(e2)})';
+					case _:
+						null;
+				}
+			}
+			case _: null;
+		}
 	}
 
 	inline function compileForEqualityBinop(e: TypedExpr) {
@@ -702,7 +736,14 @@ class Expressions extends SubCompiler {
 			case FAnon(classFieldRef): classFieldRef.get();
 			case FClosure(_, classFieldRef): classFieldRef.get();
 			case FEnum(_, enumField): enumField;
-			case FDynamic(s): { name: s, meta: null };
+			case FDynamic(s): {
+				if(e.t.isDynamic()) {
+					final e = Main.compileExpressionOrError(e);
+					final name = s;
+					return '$e.getProp("$name")';
+				}
+				{ name: s, meta: null };
+			}
 		}
 
 		IComp.addIncludeFromMetaAccess(nameMeta.meta, compilingInHeader);

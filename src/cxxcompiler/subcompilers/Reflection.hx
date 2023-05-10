@@ -46,6 +46,7 @@ class Reflection extends SubCompiler {
 		final cls = clsRef.get();
 
 		var cpp = TComp.compileClassName(clsRef, PositionHelper.unknownPos(), null, true, true);
+		final clsName = cpp;
 		if(cls.params.length > 0) {
 			cpp += "<" + cls.params.map(p -> p.name).join(", ") + ">";
 		}
@@ -60,7 +61,7 @@ class Reflection extends SubCompiler {
 		final ifCpp = ic == 0 ? "{}" : "{ " + instanceFields.map(f -> "\"" + f + "\"").join(", ") + " }";
 		final sfCpp = sc == 0 ? "{}" : "{ " + staticFields.map(f -> "\"" + f + "\"").join(", ") + " }";
 
-		final fields = ['\"${cls.name}\"', ifCpp, sfCpp];
+		final fields = ['\"${cls.name}\"', ifCpp, sfCpp, "true"];
 
 		// If the total number of fields is less than 10,
 		// place everything on a single line.
@@ -70,8 +71,10 @@ class Reflection extends SubCompiler {
 			fields.join(", ");
 		}
 
+		final DynClass = DComp.enabled ? '\nusing Dyn = haxe::Dynamic_${StringTools.replace(clsName, "::", "_")};' : "";
+
 		return 'template<${paramsCpp}> struct _class<${cpp}> {
-	DEFINE_CLASS_TOSTRING
+	DEFINE_CLASS_TOSTRING${DynClass}
 	constexpr static _class_data<${ic}, ${sc}> data {${fieldsCpp}};
 };';
 	}
@@ -100,6 +103,7 @@ struct _class_data {
 	const char* name = \"<unknown>\";
 	const std::array<const char*, sf_size> static_fields;
 	const std::array<const char*, if_size> instance_fields;
+	bool has_dyn = false;
 };
 
 #define DEFINE_CLASS_TOSTRING\\
