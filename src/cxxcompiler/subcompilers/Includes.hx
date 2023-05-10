@@ -20,6 +20,8 @@ package cxxcompiler.subcompilers;
 import reflaxe.helpers.Context; // Use like haxe.macro.Context
 import haxe.macro.Type;
 
+import cxxcompiler.config.Meta;
+
 using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;

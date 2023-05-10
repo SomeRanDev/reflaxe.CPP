@@ -39,6 +39,7 @@ import cxxcompiler.subcompilers.Reflection;
 import cxxcompiler.subcompilers.Dynamic.Dynamic_;
 import cxxcompiler.subcompilers.Types;
 
+import cxxcompiler.config.Meta;
 import cxxcompiler.other.DependencyTracker;
 
 using cxxcompiler.helpers.MetaHelper;

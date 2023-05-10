@@ -19,6 +19,7 @@ import reflaxe.input.ClassHierarchyTracker;
 import reflaxe.compiler.EverythingIsExprSanitizer;
 
 import cxxcompiler.subcompilers.Includes.ExtraFlag;
+import cxxcompiler.config.Meta;
 
 using reflaxe.helpers.BaseTypeHelper;
 using reflaxe.helpers.ClassFieldHelper;

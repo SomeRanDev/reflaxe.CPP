@@ -27,6 +27,7 @@ using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
 import cxxcompiler.subcompilers.Includes.ExtraFlag;
+import cxxcompiler.config.Meta;
 import cxxcompiler.other.DependencyTracker;
 
 using cxxcompiler.helpers.Error;
