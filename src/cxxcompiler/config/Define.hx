@@ -2,10 +2,11 @@ package cxxcompiler.config;
 
 enum abstract Define(String) from String to String {
 	/**
-		-D native-throw
+		-D haxe-callstack
 
-		If defined, Reflaxe/C++ will generate "throw" statements
-		in C++ from "throw" statements in Haxe.
+		If defined, Reflaxe/C++ will generate content to track
+		the Haxe callstack in C++ code. This define is required
+		to use the `haxe.CallStack` class.
 	**/
-	var NativeThrow = "native-throw";
+	var Callstack = "haxe-callstack";
 }
