@@ -10,7 +10,6 @@ var UpdateIntended = false;
 var UpdateIntendedSys = false;
 var OSExclusive = false;
 var NoDetails = false;
-var PrintCommand = false;
 
 function printlnErr(msg: String) {
 	Sys.stderr().writeString(msg + "\n", haxe.io.Encoding.UTF8);
@@ -53,9 +52,6 @@ The list of C++ output lines that do not match the tests are ommitted from the o
 * dev-mode
 Enables `always-compile`, `show-all-output`, and `no-details`.
 
-* print-command
-Prints the Haxe commands instead of running them.
-
 * test=TestName
 Makes it so only this test is ran. This option can be added multiple times to perform multiple tests.");
 
@@ -67,7 +63,6 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 	UpdateIntendedSys = args.contains("update-intended-sys");
 	OSExclusive = args.contains("os-exclusive");
 	NoDetails = args.contains("no-details");
-	PrintCommand = args.contains("print-command");
 
 	var alwaysCompile = args.contains("always-compile");
 
@@ -213,10 +208,8 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"\"" + absPath + "\""
 		];
 
-		if(PrintCommand) {
-			Sys.println("Command:\nhaxe " + args.join(" "));
-			return true;
-		}
+		Sys.println("haxe " + args.join(" "));
+		Sys.println("");
 
 		final process = new sys.io.Process("haxe " + args.join(" "));
 		final _out = process.stdout.readAll();
@@ -396,15 +389,22 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 		sys.FileSystem.createDirectory(testDir);
 	}
 
+	Sys.println("cd " + testDir);
 	Sys.setCwd(testDir);
 
 	final compileCommand = if(systemName == "Windows") {
+		// /W3 /WX /EHsc
 		"cl ../" + OUT_DIR + "/src/*.cpp /I ../" + OUT_DIR + "/include /std:c++17 /Fe:test_out.exe";
 	} else if(systemName == "Linux") {
+		// -W3 -Werror
 		"g++ -std=c++17 ../" + OUT_DIR + "/src/*.cpp -I ../" + OUT_DIR + "/include -o test_out";
 	} else {
 		throw "Unsupported system";
 	}
+
+	Sys.println(compileCommand);
+	Sys.println("");
+
 	final compileProcess = new sys.io.Process(compileCommand);
 	final stdoutContent = compileProcess.stdout.readAll().toString();
 	final stderrContent = compileProcess.stderr.readAll().toString();
