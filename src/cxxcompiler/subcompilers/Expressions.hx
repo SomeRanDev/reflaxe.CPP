@@ -563,16 +563,16 @@ class Expressions extends SubCompiler {
 	function toIndentedScope(e: TypedExpr): String {
 		return switch(e.expr) {
 			case TBlock(el): {
-				el.map(e -> {
-					final cpp = Main.compileExpression(e);
-					return cpp == null ? null : (cpp.tab() + ";");
-				}).filter(s -> s != null).join("\n");
+				Main.compileExpressionsIntoLines(el).tab();
 			}
 			case _: {
-				final cpp = Main.compileExpression(e);
-				cpp == null ? "" : cpp.tab() + ";";
+				Main.compileExpressionsIntoLines([e]).tab();
 			}
 		}
+	}
+
+	function addPrefixExpression(cpp: String): Bool {
+		return Main.injectExpressionPrefixContent(cpp);
 	}
 
 	function constantToCpp(constant: TConstant, originalExpr: TypedExpr): String {
