@@ -383,11 +383,6 @@ class Expressions extends SubCompiler {
 	public function compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool = false): Null<String> {
 		var cpp = null;
 
-		if(targetType.isDynamic()) {
-			IComp.addInclude("dynamic/Dynamic.h", compilingInHeader);
-			return "(" + internal_compileExpressionForType(expr, targetType, allowNullReturn) + ")";
-		}
-
 		if(targetType != null) {
 			expr = expr.unwrapUnsafeCasts();
 			if(Main.getExprType(expr).shouldConvertMM(targetType)) {
