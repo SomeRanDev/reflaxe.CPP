@@ -442,9 +442,10 @@ class Expressions extends SubCompiler {
 		}
 
 		if(targetType != null) {
-			final sourceType = Main.getExprType(expr);
-			if(targetType.isCppNumberType() && sourceType.isCppNumberType() && sourceType.shouldCastNumber(targetType)) {
-				result = '(${TComp.compileType(targetType, expr.pos)})($result)';
+			final st = Main.getExprType(expr).unwrapNullTypeOrSelf();
+			final tt = targetType.unwrapNullTypeOrSelf();
+			if(tt.isCppNumberType() && st.isCppNumberType() && st.shouldCastNumber(tt)) {
+				result = '(${TComp.compileType(tt, expr.pos)})($result)';
 			}
 		}
 
