@@ -710,8 +710,8 @@ class Expressions extends SubCompiler {
 				case _: false;
 			}
 
-			final t1 = Main.getExprType(e1);
-			final t2 = Main.getExprType(e2);
+			final t1 = Main.getExprType(e1).unwrapNullTypeOrSelf();
+			final t2 = Main.getExprType(e2).unwrapNullTypeOrSelf();
 
 			if(comparisonOp && t1.isCppNumberType() && t2.isCppNumberType()) {
 				// If `true`, cast t2 to t1.
