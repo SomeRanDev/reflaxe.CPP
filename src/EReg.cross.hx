@@ -24,12 +24,12 @@ extern class StdRegex {
 @:native("std::smatch")
 extern class StringMatch {
 	public function new();
-	public function str(n: Int): String;
+	public function str(n: cxx.num.SizeT): String;
 	public function prefix(): String;
 	public function suffix(): String;
-	public function length(): Int;
-	public function position(): Int;
-	public function size(): Int;
+	public function length(): cxx.num.UInt64;
+	public function position(): cxx.num.UInt64;
+	public function size(): cxx.num.SizeT;
 }
 
 @:cxxStd
