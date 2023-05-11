@@ -218,7 +218,7 @@ class Expressions extends SubCompiler {
 				result += "\n}";
 			}
 			case TVar(tvar, maybeExpr) if(tvar.meta.maybeHas("-reflaxe.unused")): {
-				if(maybeExpr != null) {
+				if(maybeExpr != null && maybeExpr.isMutator()) {
 					result = Main.compileExpression(maybeExpr);
 				} else {
 					result = null;
@@ -628,13 +628,15 @@ class Expressions extends SubCompiler {
 	// ----------------------------
 	// Compile and indent the TypedExpr.
 	function toIndentedScope(e: TypedExpr): String {
-		return switch(e.expr) {
-			case TBlock(el): {
-				Main.compileExpressionsIntoLines(el).tab();
-			}
-			case _: {
-				Main.compileExpressionsIntoLines([e]).tab();
-			}
+		var el = switch(e.expr) {
+			case TBlock(el): el;
+			case _: [e];
+		}
+		el = el.filter(TypedExprHelper.isMutator);
+		return if(el.length == 0) {
+			"";
+		} else {
+			Main.compileExpressionsIntoLines(el).tab();
 		}
 	}
 
