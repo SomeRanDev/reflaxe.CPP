@@ -150,7 +150,7 @@ public:
 		int tempResult;
 		
 		if(it != a->end()) {
-			tempResult = it - a->begin();
+			tempResult = ((int)(it - a->begin()));
 		} else {
 			tempResult = -1;
 		};

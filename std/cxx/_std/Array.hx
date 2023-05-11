@@ -87,7 +87,7 @@ class HxArray {
 	public static function indexOf<T>(a: Array<T>, x: T, fromIndex: Int  = 0): Int {
 		final it: cxx.Auto = untyped __cpp__("std::find({0}, {1}, {2})", a.begin(), a.end(), x);
 		return if(untyped it != a.end()) {
-			untyped it - a.begin();
+			cxx.Stdlib.ccast(untyped it - a.begin());
 		} else {
 			-1;
 		}
