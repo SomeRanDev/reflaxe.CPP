@@ -667,6 +667,10 @@ class Expressions extends SubCompiler {
 
 		return result;
 	}
+
+	/**
+		Generates the C++ code for a Haxe infix operator expression.
+	**/
 	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
 		// Check for Dynamic property assignment
 		if(op.isAssignDirect()) {
@@ -749,6 +753,38 @@ class Expressions extends SubCompiler {
 			if(checkForPrimitiveStringAddition(e2, e1)) cppExpr1 = "std::to_string(" + cppExpr1 + ")";
 		}
 
+		// Check if we need parenthesis. Used to fix some C++ warnings.
+		// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-3-c4554
+		{
+			// Returns `true` if a Binop that should be wrapped with parenthesis.
+			function isWrapOp(op: Null<Binop>) return switch(op) {
+				case OpShl | OpShr | OpUShr: true;
+				case _: false;
+			}
+
+			// Set to `true` if the corresponding expression should be wrapped.
+			var parenthesis1 = false;
+			var parenthesis2 = false;
+
+			final binop1 = switch(e1.expr) { case TBinop(op, _, _): op; case _: null; }
+			final binop2 = switch(e2.expr) { case TBinop(op, _, _): op; case _: null; }
+			if(isWrapOp(op)) {
+				parenthesis1 = binop1 != null;
+				parenthesis2 = binop2 != null;
+			} else if(isWrapOp(binop1)) {
+				parenthesis1 = true;
+			} else if(isWrapOp(binop2)) {
+				parenthesis2 = true;
+			}
+
+			// Wrap expressions
+			if(parenthesis1)
+				cppExpr1 = '($cppExpr1)';
+			if(parenthesis2)
+				cppExpr2 = '($cppExpr2)';
+		}
+
+		// Generate final C++ code!
 		return cppExpr1 + " " + operatorStr + " " + cppExpr2;
 	}
 
