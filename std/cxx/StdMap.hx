@@ -12,14 +12,14 @@ extern class StdMap<T, U> {
 	public function end(): StdMapIterator<T, U>;
 
 	@:const @:noExcept public function empty(): Bool;
-	@:const @:noExcept public function size(): cxx.SizeT;
-	@:nativeName("max_size") @:const @:noExcept public function maxSize(): cxx.SizeT;
+	@:const @:noExcept public function size(): cxx.num.SizeT;
+	@:nativeName("max_size") @:const @:noExcept public function maxSize(): cxx.num.SizeT;
 	public function at(key: T): U;
 	public function insert(values: cxx.std.Pair<T, U>): Void;
-	public function erase(key: T): cxx.SizeT;
+	public function erase(key: T): cxx.num.SizeT;
 	@:noExcept public function clear(): Void;
 	public function find(key: T): StdMapIterator<T, U>;
-	@:const public function count(key: T): cxx.SizeT;
+	@:const public function count(key: T): cxx.num.SizeT;
 }
 
 @:cxxStd

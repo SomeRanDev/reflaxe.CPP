@@ -1,4 +1,4 @@
-package cxx;
+package cxx.num;
 
 @:cxxStd
 @:include("cstddef", true)
