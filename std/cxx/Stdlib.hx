@@ -2,6 +2,9 @@ package cxx;
 
 @:cxxStd
 extern class Stdlib {
+	@:nativeFunctionCode("(({type1})({arg0}))")
+	public static extern function ccast<T, U>(input: T): U;
+
 	@:native("malloc")
 	@:include("stdlib.h", true)
 	public static extern function malloc(size: Int): Ptr<Void>;
