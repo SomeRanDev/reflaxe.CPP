@@ -43,7 +43,7 @@ std::shared_ptr<haxe::ds::StringMap<std::string>> Sys_Environment::environment()
 		
 		++_g;
 		
-		int index = en.find("="s);
+		int index = (int)(en.find("="s));
 		
 		if(index >= 0) {
 			std::string key = en.substr(0, index);
