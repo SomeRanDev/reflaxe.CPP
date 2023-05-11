@@ -168,11 +168,11 @@ void Main::main() {
 	anotherNum2 = anotherNum;
 	Main::assert(anotherNum == anotherNum2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 151, "main"s));
 	
-	float single = 12.32;
+	float single = 12.32f;
 	
 	Main::assert(abs(single - 12.32) < 0.0001, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 155, "main"s));
 	
-	float float32 = 12.32;
+	float float32 = 12.32f;
 	
 	Main::assert(abs(float32 - 12.32) < 0.0001, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 159, "main"s));
 	

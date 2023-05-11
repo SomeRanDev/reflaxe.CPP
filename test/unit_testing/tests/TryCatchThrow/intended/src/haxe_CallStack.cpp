@@ -13,7 +13,7 @@ std::string haxe::_CallStack::CallStack_Impl_::toString(std::shared_ptr<std::deq
 	int _g = 0;
 	std::shared_ptr<std::deque<std::shared_ptr<haxe::StackItem>>> _g1 = stack;
 	
-	while(_g < _g1->size()) {
+	while((unsigned int)(_g) < _g1->size()) {
 		std::shared_ptr<haxe::StackItem> s = (*_g1)[_g];
 		
 		++_g;

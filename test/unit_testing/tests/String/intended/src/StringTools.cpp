@@ -14,7 +14,7 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 	int _g_offset = 0;
 	std::string _g_s = s;
 	
-	while(_g_offset < static_cast<int>(_g_s.size())) {
+	while((unsigned int)(_g_offset) < _g_s.size()) {
 		int tempNumber;
 		
 		{
@@ -23,7 +23,7 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 				std::string s2 = _g_s;
 				int index = _g_offset++;
 				int tempNumber2;
-				if(index < 0 || index >= static_cast<int>(s2.size())) {
+				if(index < 0 || (unsigned int)(index) >= s2.size()) {
 					tempNumber2 = -1;
 				} else {
 					tempNumber2 = s2.at(index);
@@ -34,7 +34,7 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 					
 					{
 						int index2 = index + 1;
-						if(index2 < 0 || index2 >= static_cast<int>(s2.size())) {
+						if(index2 < 0 || (unsigned int)(index2) >= s2.size()) {
 							tempLeft = -1;
 						} else {
 							tempLeft = s2.at(index2);
@@ -146,12 +146,12 @@ std::string StringTools::htmlUnescape(std::string s) {
 }
 
 bool StringTools::startsWith(std::string s, std::string start) {
-	return static_cast<int>(s.size()) >= static_cast<int>(start.size()) && s.rfind(start, 0) == 0;
+	return s.size() >= start.size() && s.rfind(start, 0) == 0;
 }
 
 bool StringTools::endsWith(std::string s, std::string end) {
-	int elen = static_cast<int>(end.size());
-	int slen = static_cast<int>(s.size());
+	int elen = end.size();
+	int slen = s.size();
 	
 	return slen >= elen && s.find(end, slen - elen) == slen - elen;
 }
@@ -163,7 +163,7 @@ bool StringTools::isSpace(std::string s, int pos) {
 }
 
 std::string StringTools::ltrim(std::string s) {
-	int l = static_cast<int>(s.size());
+	int l = s.size();
 	int r = 0;
 	
 	while(r < l && StringTools::isSpace(s, r)) {
@@ -178,7 +178,7 @@ std::string StringTools::ltrim(std::string s) {
 }
 
 std::string StringTools::rtrim(std::string s) {
-	int l = static_cast<int>(s.size());
+	int l = s.size();
 	int r = 0;
 	
 	while(r < l && StringTools::isSpace(s, l - r - 1)) {
@@ -193,15 +193,15 @@ std::string StringTools::rtrim(std::string s) {
 }
 
 std::string StringTools::lpad(std::string s, std::string c, int l) {
-	if(static_cast<int>(c.size()) <= 0) {
+	if(c.size() <= (unsigned int)(0)) {
 		return s;
 	};
 	
 	std::string buf_b = ""s;
 	
-	l -= static_cast<int>(s.size());
+	l -= s.size();
 	
-	while(static_cast<int>(buf_b.size()) < l) {
+	while(buf_b.size() < (unsigned int)(l)) {
 		buf_b += Std::string(c);
 	};
 	
@@ -211,7 +211,7 @@ std::string StringTools::lpad(std::string s, std::string c, int l) {
 }
 
 std::string StringTools::rpad(std::string s, std::string c, int l) {
-	if(static_cast<int>(c.size()) <= 0) {
+	if(c.size() <= (unsigned int)(0)) {
 		return s;
 	};
 	
@@ -219,7 +219,7 @@ std::string StringTools::rpad(std::string s, std::string c, int l) {
 	
 	buf_b += Std::string(s);
 	
-	while(static_cast<int>(buf_b.size()) < l) {
+	while(buf_b.size() < (unsigned int)(l)) {
 		buf_b += Std::string(c);
 	};
 	
@@ -243,7 +243,7 @@ std::string StringTools::hex(int n, std::optional<int> digits) {
 	} while(n > 0);
 	
 	if(digits.has_value()) {
-		while(static_cast<int>(s.size()) < digits.value()) {
+		while(s.size() < digits.value()) {
 			s = "0"s + s;
 		};
 	};

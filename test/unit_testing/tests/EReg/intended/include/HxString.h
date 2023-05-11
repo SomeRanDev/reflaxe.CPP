@@ -27,11 +27,11 @@ public:
 	}
 	
 	static std::shared_ptr<std::deque<std::string>> split(std::string s, std::string delimiter) {
-		if(static_cast<int>(delimiter.size()) <= 0) {
+		if(delimiter.size() <= (unsigned int)(0)) {
 			std::shared_ptr<std::deque<std::string>> result = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 			int pos = 0;
 			int _g = 0;
-			int _g1 = static_cast<int>(s.size());
+			int _g1 = s.size();
 			
 			while(_g < _g1) {
 				int i = _g++;
@@ -73,7 +73,7 @@ public:
 				result->push_back(tempString1);
 			};
 			
-			pos = newPos + static_cast<int>(delimiter.size());
+			pos = newPos + delimiter.size();
 		};
 		
 		return result;

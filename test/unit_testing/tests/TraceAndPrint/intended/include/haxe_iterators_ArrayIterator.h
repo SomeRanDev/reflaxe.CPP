@@ -19,7 +19,7 @@ public:
 	}
 	
 	bool hasNext() {
-		return this->current < this->array->size();
+		return (unsigned int)(this->current) < this->array->size();
 	}
 	
 	T next() {

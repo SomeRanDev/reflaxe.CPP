@@ -28,7 +28,7 @@ std::string haxe::Log::formatOutput(std::string v, std::optional<std::shared_ptr
 		int _g = 0;
 		std::optional<std::shared_ptr<std::deque<haxe::DynamicToString>>> _g1 = infos.value()->customParams;
 		
-		while(_g < _g1.value()->size()) {
+		while((unsigned int)(_g) < _g1.value()->size()) {
 			haxe::DynamicToString v2 = (*_g1.value())[_g];
 			
 			++_g;

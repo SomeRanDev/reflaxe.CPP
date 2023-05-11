@@ -25,7 +25,7 @@ std::shared_ptr<haxe::ds::StringMap<std::string>> Sys_Environment::environment()
 	std::shared_ptr<haxe::ds::StringMap<std::string>> result = std::make_shared<haxe::ds::StringMap<std::string>>();
 	int _g = 0;
 	
-	while(_g < strings->size()) {
+	while((unsigned int)(_g) < strings->size()) {
 		std::string en = (*strings)[_g];
 		
 		++_g;
