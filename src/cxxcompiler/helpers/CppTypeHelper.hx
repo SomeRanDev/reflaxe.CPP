@@ -200,6 +200,7 @@ class CppTypeHelper {
 				switch(a.name) {
 					case "Single": a.module == "StdTypes" || a.module == "Single";
 					case "Float": a.module == "StdTypes";
+					case "Float32" | "Float64": isCxxNum(a);
 					case _: false;
 				}
 			}
@@ -252,44 +253,42 @@ class CppTypeHelper {
 		Returns `-1` if the type is not a number type.
 	**/
 	public static function getNumberTypeSize(t: Type): Int {
-		return switch(t) {
-			case TAbstract(abRef, []): {
-				final a = abRef.get();
-				if(a.module == "StdTypes")
-					switch(a.name) {
-						case "Int": 32;
-						case "Single": 32;
-						case "Float": 64;
-						case _: -1;
-					}
-				else if(a.module == "Single" && a.name == "Single") 32;
-				else if(a.module == "UInt" && a.name == "UInt") 32;
-				else -1;
+		final baseType = switch(t) {
+			case TAbstract(abRef, []): abRef.get();
+			case TType(defRef, []): defRef.get();
+			case _: return -1;
+		}
+
+		return if(isCxxNum(baseType)) {
+			switch(baseType.name) {
+				case "Int8": 8;
+				case "Int16": 16;
+				case "Int32": 32;
+				case "Int64": 64;
+
+				case "UInt8": 8;
+				case "UInt16": 16;
+				case "UInt32": 32;
+				case "UInt64": 64;
+
+				case "Float32": 32;
+				case "Float64": 64;
+
+				case _: -1;
 			}
-			case TType(defRef, []): {
-				final d = defRef.get();
-				if(isCxxNum(d)) {
-					switch(d.name) {
-						case "Int8": 8;
-						case "Int16": 16;
-						case "Int32": 32;
-						case "Int64": 64;
-
-						case "UInt8": 8;
-						case "UInt16": 16;
-						case "UInt32": 32;
-						case "UInt64": 64;
-
-						case "Float32": 32;
-						case "Float64": 64;
-
-						case _: -1;
-					}
-				} else {
-					-1;
-				}
+		} else if(baseType.module == "StdTypes") {
+			switch(baseType.name) {
+				case "Int": 32;
+				case "Single": 32;
+				case "Float": 64;
+				case _: -1;
 			}
-			case _: -1;
+		} else {
+			switch(baseType) {
+				case { module: "Single", name: "Single" }: 32;
+				case { module: "UInt", name: "UInt" }: 32;
+				case _: -1;
+			}
 		}
 	}
 }

@@ -1,7 +1,7 @@
 package cxx.num;
 
 @:cxxStd
-@:nativeName("double")
+@:native("double")
 @:coreType
 @:notNull
 @:runtimeValue
