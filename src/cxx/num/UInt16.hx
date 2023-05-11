@@ -1,7 +1,7 @@
 package cxx.num;
 
 @:cxxStd
-@:nativeName("unsigned short")
+@:native("unsigned short")
 @:coreType
 @:notNull
 @:runtimeValue

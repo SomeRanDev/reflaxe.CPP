@@ -1,7 +1,7 @@
 package cxx.num;
 
 @:cxxStd
-@:nativeName("int")
+@:native("int")
 @:coreType
 @:notNull
 @:runtimeValue
