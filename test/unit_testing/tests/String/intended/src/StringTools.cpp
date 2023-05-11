@@ -146,14 +146,14 @@ std::string StringTools::htmlUnescape(std::string s) {
 }
 
 bool StringTools::startsWith(std::string s, std::string start) {
-	return s.size() >= start.size() && s.rfind(start, (std::size_t)(0)) == 0;
+	return s.size() >= start.size() && (int)(s.rfind(start, (std::size_t)(0))) == 0;
 }
 
 bool StringTools::endsWith(std::string s, std::string end) {
 	int elen = (int)(end.size());
 	int slen = (int)(s.size());
 	
-	return slen >= elen && s.find(end, (std::size_t)(slen - elen)) == slen - elen;
+	return slen >= elen && (int)(s.find(end, (std::size_t)(slen - elen))) == slen - elen;
 }
 
 bool StringTools::isSpace(std::string s, int pos) {

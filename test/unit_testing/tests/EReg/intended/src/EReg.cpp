@@ -23,7 +23,7 @@ EReg::EReg(std::string r, std::string opt): _order_id(generate_order_id()) {
 	this->right = std::nullopt;
 	this->matchPos = 0;
 	this->matchLen = 0;
-	this->isGlobal = opt.find("g"s) != -1;
+	this->isGlobal = (int)(opt.find("g"s)) != -1;
 }
 
 std::string EReg::toString() {

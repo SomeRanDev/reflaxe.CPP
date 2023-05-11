@@ -46,7 +46,7 @@ public:
 		int pos = 0;
 		
 		while(true) {
-			int newPos = s.find(delimiter, (std::size_t)(pos));
+			int newPos = (int)(s.find(delimiter, (std::size_t)(pos)));
 			
 			if(newPos == -1) {
 				std::string tempString;

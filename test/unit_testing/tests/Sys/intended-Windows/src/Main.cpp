@@ -96,7 +96,7 @@ void Main::main() {
 	std::shared_ptr<std::deque<std::string>> args = Sys_Args::args();
 	
 	Main::assert((int)(args->size()) == 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 33, "main"s));
-	Main::assert((*args)[0].find("test_out"s) >= 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 34, "main"s));
+	Main::assert((int)((*args)[0].find("test_out"s)) >= 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 34, "main"s));
 	haxe::Log::trace(std::filesystem::current_path().string(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 38, "main"s));
 	std::filesystem::current_path("C:/"s);
 	Main::assert(std::filesystem::current_path().string() == "C:\\"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 42, "main"s));
