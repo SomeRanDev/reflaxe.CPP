@@ -11,7 +11,7 @@
 namespace haxe {
 
 // Forward declare just in case
-template<typename T> class _class;
+template<typename T> struct _class;
 
 // The different types of Dynamic values
 enum DynamicType {
