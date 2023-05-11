@@ -32,7 +32,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 		{
 			int _g = 0;
 			std::shared_ptr<std::deque<int>> _g1 = numbers;
-			while((unsigned int)(_g) < _g1->size()) {
+			while(_g < (int)(_g1->size())) {
 				int obj = (*_g1)[_g];
 				
 				++_g;
@@ -52,7 +52,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 		{
 			int _g = 0;
 			std::shared_ptr<std::deque<int>> _g1 = numbers;
-			while((unsigned int)(_g) < _g1->size()) {
+			while(_g < (int)(_g1->size())) {
 				int obj = (*_g1)[_g];
 				
 				++_g;
@@ -71,7 +71,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 	int _g_current = 0;
 	std::shared_ptr<haxe::_Rest::NativeRest<int>> _g_args = std::any_cast<std::shared_ptr<haxe::_Rest::NativeRest<int>>>(numbers);
 	
-	while((unsigned int)(_g_current) < _g_args->size()) {
+	while(_g_current < (int)(_g_args->size())) {
 		int tempNumber;
 		std::shared_ptr<haxe::_Rest::NativeRest<int>> this1 = _g_args;
 		int index = _g_current++;
@@ -92,7 +92,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 		{
 			int _g = 0;
 			std::shared_ptr<std::deque<int>> _g1 = this1;
-			while((unsigned int)(_g) < _g1->size()) {
+			while(_g < (int)(_g1->size())) {
 				int obj = (*_g1)[_g];
 				
 				++_g;
@@ -112,7 +112,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 		{
 			int _g = 0;
 			std::shared_ptr<std::deque<int>> _g1 = this1;
-			while((unsigned int)(_g) < _g1->size()) {
+			while(_g < (int)(_g1->size())) {
 				int obj = (*_g1)[_g];
 				
 				++_g;
@@ -132,7 +132,7 @@ void Main::testRest(std::shared_ptr<haxe::_Rest::NativeRest<std::string>> string
 		std::shared_ptr<std::deque<std::string>> result = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 		int _g = 0;
 		std::shared_ptr<std::deque<std::string>> _g1 = strings;
-		while((unsigned int)(_g) < _g1->size()) {
+		while(_g < (int)(_g1->size())) {
 			std::string obj = (*_g1)[_g];
 			
 			++_g;

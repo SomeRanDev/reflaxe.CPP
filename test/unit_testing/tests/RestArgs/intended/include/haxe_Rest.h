@@ -23,7 +23,7 @@ public:
 			{
 				int _g = 0;
 				std::shared_ptr<std::deque<T>> _g1 = this1;
-				while((unsigned int)(_g) < _g1->size()) {
+				while(_g < (int)(_g1->size())) {
 					T obj = (*_g1)[_g];
 					
 					++_g;
@@ -52,7 +52,7 @@ public:
 			{
 				int _g = 0;
 				std::shared_ptr<std::deque<T>> _g1 = this1;
-				while((unsigned int)(_g) < _g1->size()) {
+				while(_g < (int)(_g1->size())) {
 					T obj = (*_g1)[_g];
 					
 					++_g;

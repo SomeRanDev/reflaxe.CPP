@@ -57,7 +57,7 @@ std::string EReg::matched(int n) {
 	if(!this->matches.has_value()) {
 		return ""s;
 	};
-	if(n < 0 || (unsigned int)(n) >= this->matches.value()->size()) {
+	if(n < 0 || n >= (int)(this->matches.value()->size())) {
 		return ""s;
 	};
 	
@@ -97,7 +97,7 @@ bool EReg::matchSub(std::string s, int pos, int len) {
 }
 
 std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
-	if(s.size() <= (unsigned int)(0)) {
+	if((int)(s.size()) <= 0) {
 		return std::make_shared<std::deque<std::string>>(std::deque<std::string>{ s });
 	};
 	
@@ -126,7 +126,7 @@ std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
 			
 			index = pos->pos + pos->len;
 			
-			if((unsigned int)(index) >= s.size()) {
+			if(index >= (int)(s.size())) {
 				break;
 			};
 		} else {
@@ -165,7 +165,7 @@ std::string EReg::replace(std::string s, std::string by) {
 		std::shared_ptr<haxe::AnonStruct0> p = this->matchedPos();
 		
 		if(p->len == 0 && !first) {
-			if((unsigned int)(p->pos) == s.size()) {
+			if(p->pos == (int)(s.size())) {
 				break;
 			};
 			
@@ -183,13 +183,13 @@ std::string EReg::replace(std::string s, std::string by) {
 		
 		b_b += tempRight;
 		
-		if(a->size() > (unsigned int)(0)) {
+		if((int)(a->size()) > 0) {
 			b_b += Std::string((*a)[0]);
 		};
 		
 		int i = 1;
 		
-		while((unsigned int)(i) < a->size()) {
+		while(i < (int)(a->size())) {
 			std::string k = (*a)[i];
 			std::optional<int> c = k[0];
 			
@@ -202,7 +202,7 @@ std::string EReg::replace(std::string s, std::string by) {
 				
 				int matchIndex = tempLeft - 48;
 				
-				if(this->matches.has_value() && (unsigned int)(matchIndex) < this->matches.value()->size()) {
+				if(this->matches.has_value() && matchIndex < (int)(this->matches.value()->size())) {
 					tempMaybeString = (*this->matches.value())[matchIndex];
 				} else {
 					tempMaybeString = std::nullopt;
@@ -233,7 +233,7 @@ std::string EReg::replace(std::string s, std::string by) {
 				
 				std::string k2 = (*a)[i];
 				
-				if(true && k2.size() > (unsigned int)(0)) {
+				if(true && (int)(k2.size()) > 0) {
 					b_b += Std::string(k2);
 				};
 			} else {
@@ -262,7 +262,7 @@ std::string EReg::map(std::string s, std::function<std::string(EReg)> f) {
 	std::string buf_b = ""s;
 	
 	do {
-		if((unsigned int)(offset) >= s.size()) {
+		if(offset >= (int)(s.size())) {
 			break;
 		} else if(!this->matchSub(s, offset, -1)) {
 			{
@@ -296,7 +296,7 @@ std::string EReg::map(std::string s, std::function<std::string(EReg)> f) {
 		};
 	} while(this->isGlobal);
 	
-	if(!this->isGlobal && offset > 0 && (unsigned int)(offset) < s.size()) {
+	if(!this->isGlobal && offset > 0 && offset < (int)(s.size())) {
 		std::string x = s.substr(offset);
 		
 		buf_b += Std::string(x);

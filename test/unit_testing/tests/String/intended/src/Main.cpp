@@ -26,7 +26,7 @@ void Main::main() {
 	std::string str = "Test"s;
 	
 	Main::assert(str == "Test"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 17, "main"s));
-	Main::assert(str.size() == (unsigned int)(4), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 18, "main"s));
+	Main::assert((int)(str.size()) == 4, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 18, "main"s));
 	Main::assert(str == "Test"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 19, "main"s));
 	Main::assert(std::string(1, 65) == "A"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 21, "main"s));
 	Main::assert(std::string(1, 70) == "F"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 22, "main"s));
@@ -36,7 +36,7 @@ void Main::main() {
 	Main::assert(str.find("Te"s, 2) == -1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 28, "main"s));
 	Main::assert(str.rfind("Te"s) == 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 30, "main"s));
 	Main::assert((*HxString::split(str, "s"s))[0] == "Te"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 32, "main"s));
-	Main::assert(HxString::split(str, "e"s)->size() == (unsigned int)(2), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 33, "main"s));
+	Main::assert((int)(HxString::split(str, "e"s)->size()) == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 33, "main"s));
 	Main::assert((*HxString::split("Hello"s, ""s)) == (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{ "H"s, "e"s, "l"s, "l"s, "o"s })), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 34, "main"s));
 	Main::assert((*HxString::split(""s, ""s)) == (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{})), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 35, "main"s));
 	Main::assert((*HxString::split("Hello BLAworld BLA how areBLAyou?"s, "BLA"s)) == (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{
@@ -69,7 +69,7 @@ void Main::main() {
 	
 	int tempLeft1;
 	
-	if(0 < 0 || (unsigned int)(0) >= toolsStr.size()) {
+	if(0 < 0 || 0 >= (int)(toolsStr.size())) {
 		tempLeft1 = -1;
 	} else {
 		tempLeft1 = toolsStr.at(0);
@@ -79,7 +79,7 @@ void Main::main() {
 	
 	int tempLeft2;
 	
-	if(99 < 0 || (unsigned int)(99) >= toolsStr.size()) {
+	if(99 < 0 || 99 >= (int)(toolsStr.size())) {
 		tempLeft2 = -1;
 	} else {
 		tempLeft2 = toolsStr.at(99);
@@ -111,13 +111,13 @@ void Main::main() {
 		int it_offset = 0;
 		std::string it_s = "Hello"s;
 		std::string result = ""s;
-		while((unsigned int)(it_offset) < it_s.size()) {
+		while(it_offset < (int)(it_s.size())) {
 			int tempRight;
 			
 			{
 				std::string s = it_s;
 				int index = it_offset++;
-				if(index < 0 || (unsigned int)(index) >= s.size()) {
+				if(index < 0 || index >= (int)(s.size())) {
 					tempRight = -1;
 				} else {
 					tempRight = s.at(index);
@@ -133,7 +133,7 @@ void Main::main() {
 		std::string it_s = "Hello"s;
 		int count = 0;
 		std::string result = ""s;
-		while((unsigned int)(it_offset) < it_s.size()) {
+		while(it_offset < (int)(it_s.size())) {
 			int n_value;
 			int n_key;
 			
@@ -144,7 +144,7 @@ void Main::main() {
 			{
 				std::string s = it_s;
 				int index = it_offset++;
-				if(index < 0 || (unsigned int)(index) >= s.size()) {
+				if(index < 0 || index >= (int)(s.size())) {
 					tempRight1 = -1;
 				} else {
 					tempRight1 = s.at(index);

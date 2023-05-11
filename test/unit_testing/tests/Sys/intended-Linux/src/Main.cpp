@@ -57,7 +57,7 @@ void Main::main() {
 	
 	Main::assert(!tempLeft.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 22, "main"s));
 	
-	if(false || static_cast<int>(val.size()) == 0) {
+	if(false || (int)(val.size()) == 0) {
 		unsetenv(key.c_str());
 	} else {
 		setenv(key.c_str(), val.c_str(), 1);
@@ -76,7 +76,7 @@ void Main::main() {
 	
 	Main::assert(tempLeft1 == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 24, "main"s));
 	
-	if(false || static_cast<int>(""s.size()) == 0) {
+	if(false || (int)(""s.size()) == 0) {
 		unsetenv(key.c_str());
 	} else {
 		setenv(key.c_str(), ""s.c_str(), 1);
@@ -97,7 +97,7 @@ void Main::main() {
 	
 	std::string s = key + "env_map"s;
 	
-	if(false || static_cast<int>("123"s.size()) == 0) {
+	if(false || (int)("123"s.size()) == 0) {
 		unsetenv(s.c_str());
 	} else {
 		setenv(s.c_str(), "123"s.c_str(), 1);
@@ -110,7 +110,7 @@ void Main::main() {
 	
 	std::shared_ptr<std::deque<std::string>> args = Sys_Args::args();
 	
-	Main::assert(args->size() == 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 33, "main"s));
+	Main::assert((int)(args->size()) == 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 33, "main"s));
 	Main::assert((*args)[0].find("test_out"s) >= 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 34, "main"s));
 	haxe::Log::trace(std::filesystem::current_path().string(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 38, "main"s));
 	haxe::Log::trace(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() / 1000.0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 46, "main"s));

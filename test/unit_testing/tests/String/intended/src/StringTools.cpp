@@ -14,7 +14,7 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 	int _g_offset = 0;
 	std::string _g_s = s;
 	
-	while((unsigned int)(_g_offset) < _g_s.size()) {
+	while(_g_offset < (int)(_g_s.size())) {
 		int tempNumber;
 		
 		{
@@ -23,7 +23,7 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 				std::string s2 = _g_s;
 				int index = _g_offset++;
 				int tempNumber2;
-				if(index < 0 || (unsigned int)(index) >= s2.size()) {
+				if(index < 0 || index >= (int)(s2.size())) {
 					tempNumber2 = -1;
 				} else {
 					tempNumber2 = s2.at(index);
@@ -34,7 +34,7 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 					
 					{
 						int index2 = index + 1;
-						if(index2 < 0 || (unsigned int)(index2) >= s2.size()) {
+						if(index2 < 0 || index2 >= (int)(s2.size())) {
 							tempLeft = -1;
 						} else {
 							tempLeft = s2.at(index2);
@@ -193,7 +193,7 @@ std::string StringTools::rtrim(std::string s) {
 }
 
 std::string StringTools::lpad(std::string s, std::string c, int l) {
-	if(c.size() <= (unsigned int)(0)) {
+	if((int)(c.size()) <= 0) {
 		return s;
 	};
 	
@@ -201,7 +201,7 @@ std::string StringTools::lpad(std::string s, std::string c, int l) {
 	
 	l -= s.size();
 	
-	while(buf_b.size() < (unsigned int)(l)) {
+	while((int)(buf_b.size()) < l) {
 		buf_b += Std::string(c);
 	};
 	
@@ -211,7 +211,7 @@ std::string StringTools::lpad(std::string s, std::string c, int l) {
 }
 
 std::string StringTools::rpad(std::string s, std::string c, int l) {
-	if(c.size() <= (unsigned int)(0)) {
+	if((int)(c.size()) <= 0) {
 		return s;
 	};
 	
@@ -219,7 +219,7 @@ std::string StringTools::rpad(std::string s, std::string c, int l) {
 	
 	buf_b += Std::string(s);
 	
-	while(buf_b.size() < (unsigned int)(l)) {
+	while((int)(buf_b.size()) < l) {
 		buf_b += Std::string(c);
 	};
 	

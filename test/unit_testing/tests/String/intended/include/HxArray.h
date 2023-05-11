@@ -18,7 +18,7 @@ public:
 			{
 				int _g = 0;
 				std::shared_ptr<std::deque<T>> _g1 = a;
-				while((unsigned int)(_g) < _g1->size()) {
+				while(_g < (int)(_g1->size())) {
 					T obj = (*_g1)[_g];
 					
 					++_g;
@@ -32,7 +32,7 @@ public:
 		
 		{
 			int _g = 0;
-			while((unsigned int)(_g) < other->size()) {
+			while(_g < (int)(other->size())) {
 				T o = (*other)[_g];
 				
 				++_g;
@@ -67,7 +67,7 @@ public:
 		if(pos < 0) {
 			pos += a->size();
 		};
-		if(pos < 0 || (unsigned int)(pos) >= a->size()) {
+		if(pos < 0 || pos >= (int)(a->size())) {
 			return std::make_shared<std::deque<T>>(std::deque<T>{});
 		};
 		if(!end.has_value() || end.value() > a->size()) {
@@ -88,7 +88,7 @@ public:
 		while(_g < _g1.value()) {
 			int i = _g++;
 			
-			if(i >= 0 && (unsigned int)(i) < a->size()) {
+			if(i >= 0 && i < (int)(a->size())) {
 				result->push_back((*a)[i]);
 			};
 		};
@@ -101,13 +101,13 @@ public:
 		if(pos < 0) {
 			pos += a->size();
 		};
-		if(pos < 0 || (unsigned int)(pos) > a->size()) {
+		if(pos < 0 || pos > (int)(a->size())) {
 			return std::make_shared<std::deque<T>>(std::deque<T>{});
 		};
 		if(len < 0) {
 			return std::make_shared<std::deque<T>>(std::deque<T>{});
 		};
-		if((unsigned int)(pos + len) > a->size()) {
+		if(pos + len > (int)(a->size())) {
 			len = a->size() - pos;
 		};
 		
@@ -121,7 +121,7 @@ public:
 		while(_g < _g1) {
 			int i = _g++;
 			
-			if(i >= 0 && (unsigned int)(i) < a->size()) {
+			if(i >= 0 && i < (int)(a->size())) {
 				result->push_back((*a)[i]);
 			};
 		};
@@ -163,7 +163,7 @@ public:
 		std::shared_ptr<std::deque<S>> _g = std::make_shared<std::deque<S>>(std::deque<S>{});
 		int _g1 = 0;
 		
-		while((unsigned int)(_g1) < a->size()) {
+		while(_g1 < (int)(a->size())) {
 			T v = (*a)[_g1];
 			
 			++_g1;
@@ -180,7 +180,7 @@ public:
 		std::shared_ptr<std::deque<T>> _g = std::make_shared<std::deque<T>>(std::deque<T>{});
 		int _g1 = 0;
 		
-		while((unsigned int)(_g1) < a->size()) {
+		while(_g1 < (int)(a->size())) {
 			T v = (*a)[_g1];
 			
 			++_g1;

@@ -27,12 +27,12 @@ void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) 
 void Main::main() {
 	std::shared_ptr<std::deque<int>> arr = std::make_shared<std::deque<int>>();
 	
-	Main::assert(arr->size() == (unsigned int)(0), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 20, "main"s));
+	Main::assert((int)(arr->size()) == 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 20, "main"s));
 	arr->push_back(0 + 1);
 	arr->push_back(1 + 1);
 	arr->push_back(2 + 1);
-	Main::assert(arr->size() == (unsigned int)(3), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 24, "main"s));
-	Main::assert(HxArray::concat<int>(arr, std::make_shared<std::deque<int>>(std::deque<int>{ 4, 5, 6 }))->size() == (unsigned int)(6), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 27, "main"s));
+	Main::assert((int)(arr->size()) == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 24, "main"s));
+	Main::assert((int)(HxArray::concat<int>(arr, std::make_shared<std::deque<int>>(std::deque<int>{ 4, 5, 6 }))->size()) == 6, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 27, "main"s));
 	
 	bool tempBool;
 	
@@ -61,7 +61,7 @@ void Main::main() {
 		{
 			int _g = 0;
 			std::shared_ptr<std::deque<int>> _g1 = arr2;
-			while((unsigned int)(_g) < _g1->size()) {
+			while(_g < (int)(_g1->size())) {
 				int obj = (*_g1)[_g];
 				
 				++_g;
@@ -72,9 +72,9 @@ void Main::main() {
 	};
 	
 	Main::assert((*arr) == (*tempRight), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 36, "main"s));
-	Main::assert(HxArray::filter<int>(arr, [&](int i) mutable {
+	Main::assert((int)(HxArray::filter<int>(arr, [&](int i) mutable {
 		return i != 1;
-	})->size() == (unsigned int)(2), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 39, "main"s));
+	})->size()) == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 39, "main"s));
 	
 	std::shared_ptr<std::deque<int>> arr3 = std::make_shared<std::deque<int>>(std::deque<int>{ 1, 2, 3, 4, 5 });
 	int tempLeft;
@@ -86,11 +86,11 @@ void Main::main() {
 	
 	Main::assert(tempLeft == 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 43, "main"s));
 	HxArray::insert<int>(arr, 0, 0);
-	Main::assert(arr->size() == (unsigned int)(4), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 47, "main"s));
+	Main::assert((int)(arr->size()) == 4, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 47, "main"s));
 	Main::assert((*arr)[0] == 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 48, "main"s));
 	Main::assert((*arr)[2] == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 49, "main"s));
 	HxArray::insert<int>(arr, -1, 4);
-	Main::assert(arr->size() == (unsigned int)(5), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 52, "main"s));
+	Main::assert((int)(arr->size()) == 5, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 52, "main"s));
 	Main::assert((*arr)[4] == 4, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 53, "main"s));
 	Main::assert((*arr)[2] == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 54, "main"s));
 	
@@ -98,7 +98,7 @@ void Main::main() {
 	int it_current = 0;
 	std::shared_ptr<std::deque<int>> it_array = arr;
 	
-	while((unsigned int)(it_current) < it_array->size()) {
+	while(it_current < (int)(it_array->size())) {
 		total += (*it_array)[it_current++];
 	};
 	
@@ -113,7 +113,7 @@ void Main::main() {
 	int kvit_current = 0;
 	std::shared_ptr<std::deque<int>> kvit_array = doubleArr;
 	
-	while((unsigned int)(kvit_current) < kvit_array->size()) {
+	while(kvit_current < (int)(kvit_array->size())) {
 		int o_value;
 		int o_key;
 		
@@ -136,7 +136,7 @@ void Main::main() {
 	};
 	
 	Main::assert(tempMaybeNumber == 655, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 84, "main"s));
-	Main::assert(stack->size() == (unsigned int)(2), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 85, "main"s));
+	Main::assert((int)(stack->size()) == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 85, "main"s));
 	stack->push_back(333);
 	Main::assert((*stack)[2] == 333, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 87, "main"s));
 	
@@ -158,7 +158,7 @@ void Main::main() {
 	};
 	
 	if(tempCond) {
-		Main::assert(stack->size() == (unsigned int)(2), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 91, "main"s));
+		Main::assert((int)(stack->size()) == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 91, "main"s));
 		Main::assert((*stack)[0] == 29, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 92, "main"s));
 	} else {
 		Main::assert(false, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 94, "main"s));
@@ -234,7 +234,7 @@ void Main::main() {
 	
 	{
 		int _g = 0;
-		while((unsigned int)(_g) < itArr->size()) {
+		while(_g < (int)(itArr->size())) {
 			int a = (*itArr)[_g];
 			
 			++_g;
@@ -249,7 +249,7 @@ void Main::main() {
 	
 	itArrSum = 0;
 	
-	while((unsigned int)(itArrIt_current) < itArrIt_array->size()) {
+	while(itArrIt_current < (int)(itArrIt_array->size())) {
 		itArrSum += (*itArrIt_array)[itArrIt_current++];
 	};
 	
@@ -259,7 +259,7 @@ void Main::main() {
 	int _g_current = 0;
 	std::shared_ptr<std::deque<int>> _g_array = doubleArr2;
 	
-	while((unsigned int)(_g_current) < _g_array->size()) {
+	while(_g_current < (int)(_g_array->size())) {
 		int _g_value;
 		int _g_key;
 		
@@ -275,7 +275,7 @@ void Main::main() {
 	int doubleArrIt_current = 0;
 	std::shared_ptr<std::deque<int>> doubleArrIt_array = doubleArr2;
 	
-	while((unsigned int)(doubleArrIt_current) < doubleArrIt_array->size()) {
+	while(doubleArrIt_current < (int)(doubleArrIt_array->size())) {
 		int temp_value;
 		int temp_key;
 		

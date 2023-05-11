@@ -27,7 +27,7 @@ public:
 	}
 	
 	static std::shared_ptr<std::deque<std::string>> split(std::string s, std::string delimiter) {
-		if(delimiter.size() <= (unsigned int)(0)) {
+		if((int)(delimiter.size()) <= 0) {
 			std::shared_ptr<std::deque<std::string>> result = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 			int pos = 0;
 			int _g = 0;

@@ -19,7 +19,7 @@ public:
 	}
 	
 	bool hasNext() {
-		return this->current < this->array->size();
+		return this->current < (int)(this->array->size());
 	}
 	
 	T next() {
