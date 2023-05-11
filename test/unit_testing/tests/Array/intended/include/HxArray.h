@@ -108,7 +108,7 @@ public:
 			return std::make_shared<std::deque<T>>(std::deque<T>{});
 		};
 		if(pos + len > (int)(a->size())) {
-			len = a->size() - pos;
+			len = (int)(a->size() - pos);
 		};
 		
 		auto beginIt = a->begin();

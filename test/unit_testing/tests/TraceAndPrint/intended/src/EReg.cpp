@@ -216,7 +216,7 @@ std::string EReg::replace(std::string s, std::string by) {
 				} else {
 					b_b += Std::string(matchReplace);
 					
-					std::optional<int> len2 = k.size() - 1;
+					std::optional<int> len2 = (int)(k.size() - 1);
 					std::string tempRight1;
 					
 					if(!len2.has_value()) {

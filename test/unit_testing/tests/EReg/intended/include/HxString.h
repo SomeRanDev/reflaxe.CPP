@@ -73,7 +73,7 @@ public:
 				result->push_back(tempString1);
 			};
 			
-			pos = newPos + delimiter.size();
+			pos = (int)(newPos + delimiter.size());
 		};
 		
 		return result;
