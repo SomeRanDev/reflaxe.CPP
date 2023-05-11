@@ -411,7 +411,7 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 		"cl ../" + OUT_DIR + "/src/*.cpp /I ../" + OUT_DIR + "/include /std:c++17 /Fe:test_out.exe /W3 /WX /EHsc";
 	} else if(systemName == "Linux") {
 		// -W3 -Werror
-		"g++ -std=c++17 ../" + OUT_DIR + "/src/*.cpp -I ../" + OUT_DIR + "/include -o test_out";
+		"g++ -std=c++17 ../" + OUT_DIR + "/src/*.cpp -I ../" + OUT_DIR + "/include -o test_out -Wall -Werror -Wnon-virtual-dtor";
 	} else {
 		throw "Unsupported system";
 	}
