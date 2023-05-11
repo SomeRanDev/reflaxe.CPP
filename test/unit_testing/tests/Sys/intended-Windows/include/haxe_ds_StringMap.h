@@ -41,11 +41,11 @@ public:
 	}
 	
 	bool exists(std::string key) {
-		return this->m.count(key) > 0;
+		return (int)(this->m.count(key)) > 0;
 	}
 	
 	bool remove(std::string key) {
-		return this->m.erase(key) > 0;
+		return (int)(this->m.erase(key)) > 0;
 	}
 	
 	std::shared_ptr<Iterator<std::string>> keys() {

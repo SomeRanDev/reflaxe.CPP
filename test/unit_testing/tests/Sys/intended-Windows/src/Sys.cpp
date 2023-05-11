@@ -15,7 +15,7 @@ std::optional<std::string> Sys_GetEnv::getEnv(std::string s) {
 	
 	getenv_s(&requiredSize, nullptr, 0, s.c_str());
 	
-	if(requiredSize == 0) {
+	if((int)(requiredSize) == 0) {
 		return std::nullopt;
 	};
 	
