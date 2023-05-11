@@ -177,6 +177,20 @@ class CppTypeHelper {
 	}
 
 	/**
+		If `true`, that means `other` is a different enough
+		number type it should be explicitly casted in C++
+		to prevent warnings.
+	**/
+	public static function shouldCastNumber(t: Type, other: Type): Bool {
+		if(!isCppNumberType(t) || !isCppNumberType(other)) return false;
+		return (
+			isFloatType(t) != isFloatType(other) ||
+			isUnsignedType(t) != isUnsignedType(other) ||
+			getNumberTypeSize(t) > getNumberTypeSize(other)
+		);
+	}
+
+	/**
 		Returns `true` if the provided `BaseType` is in
 		the `cxx.num` package.
 	**/

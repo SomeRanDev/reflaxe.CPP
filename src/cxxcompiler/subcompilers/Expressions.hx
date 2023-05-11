@@ -423,7 +423,7 @@ class Expressions extends SubCompiler {
 	// Internally compiles the expression for a type.
 	// Used in multiple places where the special cases for the target type do not apply.
 	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool): Null<String> {
-		return switch(expr.expr) {
+		var result = switch(expr.expr) {
 			case TConst(TFloat(fStr)) if(targetType != null && targetType.getNumberTypeSize() == 32): {
 				constantToCpp(TFloat(fStr), expr) + "f";
 			}
@@ -440,6 +440,15 @@ class Expressions extends SubCompiler {
 				result;
 			}
 		}
+
+		if(targetType != null) {
+			final sourceType = Main.getExprType(expr);
+			if(targetType.isCppNumberType() && sourceType.isCppNumberType() && sourceType.shouldCastNumber(targetType)) {
+				result = '(${TComp.compileType(targetType, expr.pos)})($result)';
+			}
+		}
+
+		return result;
 	}
 
 	// ----------------------------
