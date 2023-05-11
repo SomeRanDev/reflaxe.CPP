@@ -40,22 +40,12 @@ void Main::main() {
 	if(10 <= 1) {
 		tempRight = 0;
 	} else {
-		tempRight = floor((((float)rand()) / RAND_MAX) * 10);
+		tempRight = static_cast<int>(floor((((float)rand()) / RAND_MAX) * 10));
 	};
 	
 	std::string val = "test-value="s + std::to_string(tempRight);
-	std::optional<std::string> tempLeft;
 	
-	{
-		char* result = std::getenv(key.c_str());
-		if(result == nullptr) {
-			tempLeft = std::nullopt;
-		} else {
-			tempLeft = std::string(result);
-		};
-	};
-	
-	Main::assert(!tempLeft.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 22, "main"s));
+	Main::assert(!Sys_GetEnv::getEnv(key).has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 22, "main"s));
 	
 	if(false || (int)(val.size()) == 0) {
 		unsetenv(key.c_str());
@@ -63,18 +53,7 @@ void Main::main() {
 		setenv(key.c_str(), val.c_str(), 1);
 	};
 	
-	std::optional<std::string> tempLeft1;
-	
-	{
-		char* result = std::getenv("Haxe2UC++ Test Value"s.c_str());
-		if(result == nullptr) {
-			tempLeft1 = std::nullopt;
-		} else {
-			tempLeft1 = std::string(result);
-		};
-	};
-	
-	Main::assert(tempLeft1 == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 24, "main"s));
+	Main::assert(Sys_GetEnv::getEnv("Haxe2UC++ Test Value"s) == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 24, "main"s));
 	
 	if(false || (int)(""s.size()) == 0) {
 		unsetenv(key.c_str());
@@ -82,18 +61,7 @@ void Main::main() {
 		setenv(key.c_str(), ""s.c_str(), 1);
 	};
 	
-	std::optional<std::string> tempLeft2;
-	
-	{
-		char* result = std::getenv(key.c_str());
-		if(result == nullptr) {
-			tempLeft2 = std::nullopt;
-		} else {
-			tempLeft2 = std::string(result);
-		};
-	};
-	
-	Main::assert(!tempLeft2.has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 26, "main"s));
+	Main::assert(!Sys_GetEnv::getEnv(key).has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 26, "main"s));
 	
 	std::string s = key + "env_map"s;
 	
@@ -104,9 +72,9 @@ void Main::main() {
 	};
 	
 	std::shared_ptr<haxe::IMap<std::string, std::string>> this1 = Sys_Environment::environment();
-	std::optional<std::string> tempLeft3 = this1->get(key + "env_map"s);
+	std::optional<std::string> tempLeft = this1->get(key + "env_map"s);
 	
-	Main::assert(tempLeft3 == "123"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 30, "main"s));
+	Main::assert(tempLeft == "123"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 30, "main"s));
 	
 	std::shared_ptr<std::deque<std::string>> args = Sys_Args::args();
 	

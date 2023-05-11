@@ -3,11 +3,24 @@
 #include "haxe_ds_StringMap.h"
 #include "Map.h"
 #include <chrono>
+#include <cstdlib>
 #include <deque>
 #include <memory>
 #include <string>
 using namespace std::string_literals;
 
+std::optional<std::string> Sys_GetEnv::getEnv(std::string s) {
+	char* result = std::getenv(s.c_str());
+	std::optional<std::string> tempResult;
+	
+	if(result == nullptr) {
+		tempResult = std::nullopt;
+	} else {
+		tempResult = std::string(result);
+	};
+	
+	return tempResult;
+}
 std::shared_ptr<haxe::ds::StringMap<std::string>> Sys_Environment::environment() {
 	std::shared_ptr<std::deque<std::string>> strings = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 	
