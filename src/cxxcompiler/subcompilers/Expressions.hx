@@ -420,6 +420,9 @@ class Expressions extends SubCompiler {
 	// Used in multiple places where the special cases for the target type do not apply.
 	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool): Null<String> {
 		return switch(expr.expr) {
+			case TConst(TFloat(fStr)) if(targetType != null && targetType.getNumberTypeSize() == 32): {
+				constantToCpp(TFloat(fStr), expr) + "f";
+			}
 			case TObjectDecl(fields) if(targetType != null): {
 				AComp.compileObjectDecl(targetType, fields, expr, compilingInHeader);
 			}
