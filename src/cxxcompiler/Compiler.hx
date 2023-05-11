@@ -263,6 +263,21 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				}
 			}
 
+			// Implements @:redirectType behavior for function return
+			case TCall(calledExpr, _): {
+				switch(calledExpr.expr) {
+					case TField(_, fa): {
+						switch(fa) {
+							case FInstance(_, _, cfRef) if(cfRef.get().hasMeta(Meta.RedirectType)): {
+								getExprType(calledExpr).getTFunReturn() ?? e.t;
+							}
+							case _: e.t;
+						}
+					}
+					case _: e.t;
+				}
+			}
+
 			case TField(_, fa): {
 				// Implements @:redirectType behavior
 				switch(fa) {
