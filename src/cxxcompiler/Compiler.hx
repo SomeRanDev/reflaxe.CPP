@@ -238,7 +238,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		tvarTypeOverrides.set(tvar.id, t);
 	}
 
-	public function getExprType(e: TypedExpr): Type {
+	public function getExprType(e: TypedExpr, ignoreCast: Bool = true): Type {
 		return switch(e.expr) {
 			// Get "this" type"
 			case TConst(TThis): {
@@ -255,7 +255,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 			case TLocal(tvar): getTVarType(tvar);
 
 			// Get the internal type for a cast
-			case TCast(castExpr, mt): {
+			case TCast(castExpr, mt) if(ignoreCast): {
 				if(mt == null) {
 					getExprType(castExpr);
 				} else {

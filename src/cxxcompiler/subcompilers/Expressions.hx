@@ -322,7 +322,7 @@ class Expressions extends SubCompiler {
 			}
 			case TThrow(expr): {
 				final e = Main.compileExpressionOrError(expr);
-				result = if(expr.t.isString()) {
+				result = if(Main.getExprType(expr).isString()) {
 					IComp.addInclude("haxe_Exception.h", compilingInHeader);
 					"throw haxe::Exception(" + e + ")";
 				} else {
@@ -423,7 +423,7 @@ class Expressions extends SubCompiler {
 	// Internally compiles the expression for a type.
 	// Used in multiple places where the special cases for the target type do not apply.
 	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool): Null<String> {
-		return switch(expr.expr) {
+		var result = switch(expr.expr) {
 			case TConst(TFloat(fStr)) if(targetType != null && targetType.getNumberTypeSize() == 32): {
 				constantToCpp(TFloat(fStr), expr) + "f";
 			}
@@ -440,6 +440,15 @@ class Expressions extends SubCompiler {
 				result;
 			}
 		}
+
+		if(targetType != null) {
+			final sourceType = Main.getExprType(expr);
+			if(targetType.isCppNumberType() && sourceType.isCppNumberType() && sourceType.shouldCastNumber(targetType)) {
+				result = '(${TComp.compileType(targetType, expr.pos)})($result)';
+			}
+		}
+
+		return result;
 	}
 
 	// ----------------------------
@@ -491,7 +500,7 @@ class Expressions extends SubCompiler {
 
 		// Convert between two shared pointers
 		if(cmmt == SharedPtr && tmmt == SharedPtr && targetType != null) {
-			if(expr.t.isDescendantOf(targetType)) {
+			if(Main.getExprType(expr).isDescendantOf(targetType)) {
 				var cpp = internal_compileExpressionForType(expr, targetType, false);
 				if(cpp != null) {
 					IComp.addInclude("memory", compilingInHeader, true);
@@ -506,7 +515,7 @@ class Expressions extends SubCompiler {
 			switch(expr.expr) {
 				case TConst(TThis) if(thisOverride == null && tmmt == SharedPtr): {
 					IComp.setExtraFlag(ExtraFlag.SharedFromThis);
-					result = "this->weak_from_this().expired() ? std::make_shared<" + TComp.compileType(expr.t, expr.pos, true) + ">(*this) : this->shared_from_this()";
+					result = "this->weak_from_this().expired() ? std::make_shared<" + TComp.compileType(Main.getExprType(expr), expr.pos, true) + ">(*this) : this->shared_from_this()";
 				}
 				case TConst(TThis) if(thisOverride == null && tmmt == UniquePtr): {
 					expr.pos.makeError(ThisToUnique);
@@ -626,7 +635,7 @@ class Expressions extends SubCompiler {
 			case TString(s): stringToCpp(s);
 			case TBool(b): b ? "true" : "false";
 			case TNull: {
-				final cppType = TComp.maybeCompileType(originalExpr.t, originalExpr.pos);
+				final cppType = TComp.maybeCompileType(Main.getExprType(originalExpr), originalExpr.pos);
 				if(explicitNull && cppType != null) {
 					"static_cast<" + cppType + ">(std::nullopt)";
 				} else {
@@ -799,7 +808,7 @@ class Expressions extends SubCompiler {
 	**/
 	inline function checkDynamicSet(e1: TypedExpr, e2: TypedExpr): Null<String> {
 		return switch(e1.unwrapParenthesis().expr) {
-			case TField(dynExpr, fa) if(dynExpr.t.isDynamic()): {
+			case TField(dynExpr, fa) if(Main.getExprType(dynExpr).isDynamic()): {
 				switch(fa) {
 					case FDynamic(s):
 						'${Main.compileExpressionOrError(dynExpr)}.setProp("$s", ${Main.compileExpressionOrError(e2)})';
@@ -857,7 +866,7 @@ class Expressions extends SubCompiler {
 			case FClosure(_, classFieldRef): classFieldRef.get();
 			case FEnum(_, enumField): enumField;
 			case FDynamic(s): {
-				if(e.t.isDynamic()) {
+				if(Main.getExprType(e).isDynamic()) {
 					final e = Main.compileExpressionOrError(e);
 					final name = s;
 					return '$e.getProp("$name")';
@@ -965,7 +974,7 @@ class Expressions extends SubCompiler {
 		final inlineTrace = checkForInlinableTrace(callExpr, el);
 		if(inlineTrace != null) return inlineTrace;
 
-		final nfc = checkNativeCodeMeta(callExpr, el, callExpr.getFunctionTypeParams(originalExpr.t));
+		final nfc = checkNativeCodeMeta(callExpr, el, callExpr.getFunctionTypeParams(Main.getExprType(originalExpr)));
 		return if(nfc != null) {
 			// Ensure we use potential #include
 			final declaration = callExpr.getDeclarationMeta();
@@ -1031,7 +1040,7 @@ class Expressions extends SubCompiler {
 			var typeParamCpp = "";
 			final cf = callExpr.getClassField();
 			if(cf != null && cf.params.length > 0) {
-				final resolvedParams = callExpr.t.findResolvedTypeParams(cf);
+				final resolvedParams = Main.getExprType(callExpr).findResolvedTypeParams(cf);
 				if(resolvedParams != null) {
 					var compileSuccess = true;
 					final compiledParams = resolvedParams.map(t -> {
@@ -1181,7 +1190,7 @@ class Expressions extends SubCompiler {
 		var result = null;
 
 		// If casting from Null<T> to <T>
-		if(maybeModuleType == null && castedExpr.t.isNullOfType(originalExpr.t)) {
+		if(maybeModuleType == null && Main.getExprType(castedExpr, false).isNullOfType(Main.getExprType(originalExpr, false))) {
 			result = compileExpressionNotNull(castedExpr);
 		} else {
 			// Otherwise...
@@ -1189,7 +1198,7 @@ class Expressions extends SubCompiler {
 			if(result != null) {
 				if(maybeModuleType != null) {
 					final mCpp = moduleNameToCpp(maybeModuleType, originalExpr.pos);
-					switch(castedExpr.t) {
+					switch(Main.getExprType(castedExpr)) {
 						// If casting from Any
 						case TAbstract(aRef, []) if(aRef.get().name == "Any" && aRef.get().module == "Any"): {
 							IComp.addInclude("any", compilingInHeader, true);
