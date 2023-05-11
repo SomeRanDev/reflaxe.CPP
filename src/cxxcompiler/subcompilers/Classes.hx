@@ -63,6 +63,9 @@ class Classes extends SubCompiler {
 
 	var extendedFrom: Array<String> = [];
 
+	var destructorField: Null<ClassFuncData> = null;
+	var hadVirtual: Bool = false;
+
 	var fieldsCompiled = 0;
 
 	var classTypeRef: Null<Ref<ClassType>> = null;
@@ -164,6 +167,11 @@ class Classes extends SubCompiler {
 			compileFunction(f);
 		}
 
+		// Destructor
+		if(destructorField != null) {
+			compileFunction(destructorField);
+		}
+
 		XComp.compilingInHeader = false;
 
 		generateOutput();
@@ -189,6 +197,9 @@ class Classes extends SubCompiler {
 		cppFunctions = [];
 
 		extendedFrom = [];
+
+		destructorField = null;
+		hadVirtual = false;
 
 		fieldsCompiled = 0;
 
@@ -272,6 +283,14 @@ class Classes extends SubCompiler {
 
 		final isConstructor = isInstanceFunc && field.name == "new";
 		final isDestructor = isInstanceFunc && field.name == "destructor";
+
+		// If destructor is found for first time, save for later.
+		// Need to check for all virtuals before compiling destructor.
+		if(isDestructor && destructorField == null) {
+			destructorField = f;
+			return;
+		}
+
 		final useReturnType = !isConstructor && !isDestructor;
 		var name = if(isConstructor) {
 			hasConstructor = true;
@@ -336,8 +355,9 @@ class Classes extends SubCompiler {
 		if(field.hasMeta(Meta.CppInline)) {
 			specifiers.push("inline");
 		}
-		if(isAbstract || field.hasMeta(Meta.Virtual) || ClassHierarchyTracker.funcHasChildOverride(classType, field, isStatic)) {
+		if(isAbstract || (isDestructor && hadVirtual) || field.hasMeta(Meta.Virtual) || ClassHierarchyTracker.funcHasChildOverride(classType, field, isStatic)) {
 			specifiers.push("virtual");
+			hadVirtual = true;
 		}
 
 		final customSpecifiers = field.meta.extractPrimtiveFromAllMeta(Meta.Specifier);
@@ -573,6 +593,10 @@ class Classes extends SubCompiler {
 
 		if(extendedFrom.length > 0) {
 			headerContent[1] += ": " + extendedFrom.map(e -> "public " + e).join(", ");
+		}
+
+		if(destructorField == null && hadVirtual) {
+			addVariable('virtual ~$className() {}');
 		}
 
 		generateSourceFile();
