@@ -111,7 +111,7 @@ class HxArray {
 }
 
 @:cxxStd
-@:pseudoCoreApi
+@:coreApi
 @:nativeName("std::deque")
 @:include("deque", true)
 @:valueEquality
@@ -129,7 +129,8 @@ extern class Array<T> {
 	// ----------
 	// @:nativeName
 	@:nativeName("size()")
-	var length(default, null):Int;
+	@:redirectType("length_type")
+	var length(default, null): Int;
 
 	@:nativeName("push_back")
 	public function push(x: T): Int;
@@ -138,7 +139,7 @@ extern class Array<T> {
 	public function unshift(x: T): Void;
 
 	@:nativeName("insert")
-	public function cppInsert(pos: Int, x: T): Void;
+	private function cppInsert(pos: Int, x: T): Void;
 
 	public function resize(len: Int): Void;
 
@@ -237,4 +238,10 @@ extern class Array<T> {
 	@:runtime public inline function filter(f: (T) -> Bool): Array<T> {
 		return HxArray.filter(this, f);
 	}
+
+	// ----------
+	// Redirects
+	@:unusable
+	@:noCompletion
+	private var length_type: cxx.num.UInt32;
 }

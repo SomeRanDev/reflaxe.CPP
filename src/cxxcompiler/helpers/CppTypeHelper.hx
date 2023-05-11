@@ -162,6 +162,136 @@ class CppTypeHelper {
 			case _: false;
 		}
 	}
+
+	/**
+		Returns `true` if the type is `Int`, `Float`,
+		`UInt`, `Single` or in the `cxx.num` package.
+	**/
+	public static function isCppNumberType(t: Type): Bool {
+		return if(t.isNumberType()) true;
+		else switch(t) {
+			case TType(isCxxNum(_.get()) => true, []): true;
+			case TAbstract(isCxxNum(_.get()) => true, []): true;
+			case _: false;
+		}
+	}
+
+	/**
+		Returns `true` if the provided `BaseType` is in
+		the `cxx.num` package.
+	**/
+	public static function isCxxNum(b: BaseType): Bool {
+		return b.pack.length == 2 && b.pack[0] == "cxx" && b.pack[1] == "num";
+	}
+
+	/**
+		Returns `true` if the type is a number type that
+		can store decimal values. This includes:
+			- `Float`
+			- `Single`
+			- `cxx.num.Float32`
+			- `cxx.num.Float64`
+	**/
+	public static function isFloatType(t: Type): Bool {
+		return if(!isCppNumberType(t)) false;
+		else switch(t) {
+			case TAbstract(abRef, []): {
+				final a = abRef.get();
+				switch(a.name) {
+					case "Single": a.module == "StdTypes" || a.module == "Single";
+					case "Float": a.module == "StdTypes";
+					case _: false;
+				}
+			}
+			case TType(defRef, []): {
+				final d = defRef.get();
+				switch(d.name) {
+					case "Float32" | "Float64": isCxxNum(d);
+					case _: false;
+				}
+			}
+			case _: false;
+		}
+	}
+
+	/**
+		Returns `true` if the type is a number type that's unsigned.
+		This includes `UInt` and all the `cxx.num.UInt--` types.
+	**/
+	public static function isUnsignedType(t: Type): Bool {
+		return if(!isCppNumberType(t)) false;
+		else switch(t) {
+			case TAbstract(abRef, []): {
+				final a = abRef.get();
+				switch(a.name) {
+					case "UInt8" | "UInt16" | "UInt32" | "UInt64": isCxxNum(a);
+					case "UInt": a.module == "UInt";
+					case _: false;
+				}
+			}
+			case TType(defRef, []): {
+				final d = defRef.get();
+				switch(d.name) {
+					case "UInt8" | "UInt16" | "UInt32" | "UInt64": isCxxNum(d);
+					case _: false;
+				}
+			}
+			case _: false;
+		}
+	}
+
+	/**
+		Returns an estimate of the number type's size in C++.
+
+		These are not meant to be perfectly accurate as the exact
+		size of number types varies for each platform/compiler.
+
+		Instead these are used to check if one number type is
+		larger than the other to help with better C++ generation.
+
+		Returns `-1` if the type is not a number type.
+	**/
+	public static function getNumberTypeSize(t: Type): Int {
+		return switch(t) {
+			case TAbstract(abRef, []): {
+				final a = abRef.get();
+				if(a.module == "StdTypes")
+					switch(a.name) {
+						case "Int": 32;
+						case "Single": 32;
+						case "Float": 64;
+						case _: -1;
+					}
+				else if(a.module == "Single" && a.name == "Single") 32;
+				else if(a.module == "UInt" && a.name == "UInt") 32;
+				else -1;
+			}
+			case TType(defRef, []): {
+				final d = defRef.get();
+				if(isCxxNum(d)) {
+					switch(d.name) {
+						case "Int8": 8;
+						case "Int16": 16;
+						case "Int32": 32;
+						case "Int64": 64;
+
+						case "UInt8": 8;
+						case "UInt16": 16;
+						case "UInt32": 32;
+						case "UInt64": 64;
+
+						case "Float32": 32;
+						case "Float64": 64;
+
+						case _: -1;
+					}
+				} else {
+					-1;
+				}
+			}
+			case _: -1;
+		}
+	}
 }
 
 #end

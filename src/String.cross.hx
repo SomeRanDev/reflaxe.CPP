@@ -63,7 +63,7 @@ extern class String {
 	// ----------
 	// @:nativeName
 	@:nativeName("size()")
-	@:nativeVariableCode("static_cast<int>({var})")
+	@:redirectType("length_type")
 	public var length(default, null): Int;
 
 	@:nativeName("find")
@@ -123,4 +123,10 @@ extern class String {
 		return if(index < 0 || index >= length) -1;
 		else at(index);
 	}
+
+	// ----------
+	// Redirects
+	@:unusable
+	@:noCompletion
+	private var length_type: cxx.num.UInt32;
 }

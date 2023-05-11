@@ -1,7 +1,8 @@
 package cxx.num;
 
 @:cxxStd
-@:native("double")
-@:noInclude
-@:extern
-typedef Float64 = Float;
+@:nativeName("double")
+@:coreType
+@:notNull
+@:runtimeValue
+extern abstract Float64 to Float from Float {}

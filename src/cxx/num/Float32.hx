@@ -1,7 +1,8 @@
 package cxx.num;
 
 @:cxxStd
-@:native("float")
-@:noInclude
-@:extern
-typedef Float32 = Float;
+@:nativeName("float")
+@:coreType
+@:notNull
+@:runtimeValue
+extern abstract Float32 to Float from Float {}
