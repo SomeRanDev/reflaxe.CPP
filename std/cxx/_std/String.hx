@@ -134,9 +134,9 @@ extern class String {
 
 	@:unusable
 	@:noCompletion
-	private function indexOf_type(str: String, startIndex: cxx.num.SizeT = 0): Int;
+	private function indexOf_type(str: String, startIndex: cxx.num.SizeT = 0): cxx.num.SizeT;
 
 	@:unusable
 	@:noCompletion
-	private function lastIndexOf_type(str: String, startIndex: cxx.num.SizeT = -1): Int;
+	private function lastIndexOf_type(str: String, startIndex: cxx.num.SizeT = -1): cxx.num.SizeT;
 }
