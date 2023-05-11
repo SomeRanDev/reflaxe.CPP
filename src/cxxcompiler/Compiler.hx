@@ -263,11 +263,27 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				}
 			}
 
-			// For some reason, `e.t` is inaccurate when typing a TField expression.
-			//
-			// This ensures the type attached to the field declaration is used,
-			// rather than the possibly incorrect  type Haxe decided to give it.
 			case TField(_, fa): {
+				// Implements @:redirectType behavior
+				switch(fa) {
+					case FInstance(clsRef, _, cfRef): {
+						final cf = cfRef.get();
+						if(cf.hasMeta(Meta.RedirectType)) {
+							final fieldName = cf.meta.extractStringFromFirstMeta(Meta.RedirectType);
+							final cls = clsRef.get();
+							for(f in cls.fields.get()) {
+								if(f.name == fieldName)
+									return f.type;
+							}
+						}
+					}
+					case _:
+				}
+
+				// For some reason, `e.t` is inaccurate when typing a TField expression.
+				//
+				// This ensures the type attached to the field declaration is used,
+				// rather than the possibly incorrect  type Haxe decided to give it.
 				final t: Null<{ type: Type, params: Array<TypeParameter> }> = switch(fa) {
 					case FInstance(_, _, cfr): cfr.get();
 					case FStatic(_, cfr): cfr.get();

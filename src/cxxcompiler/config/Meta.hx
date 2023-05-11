@@ -286,4 +286,10 @@ enum abstract Meta(String) from String to String {
 	// Whenever this type's type parameters are passed type parameter
 	// from elsewhere, it will be generated with the "typename" prefix.
 	var TypenamePrefixIfDependentScope = ":typenamePrefixIfDependentScope";
+
+	// @:redirectType(fieldName: String)
+	//
+	// When processing this field using its type, the type of the field
+	// provided by this meta is used instead. Use carefully.
+	var RedirectType = ":redirectType";
 }
