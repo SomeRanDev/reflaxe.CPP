@@ -217,6 +217,13 @@ class Expressions extends SubCompiler {
 				
 				result += "\n}";
 			}
+			case TVar(tvar, maybeExpr) if(tvar.meta.has("-reflaxe.unused")): {
+				if(maybeExpr != null) {
+					result = Main.compileExpression(maybeExpr);
+				} else {
+					result = null;
+				}
+			}
 			case TVar(tvar, maybeExpr): {
 				final t = Main.getTVarType(tvar);
 				Main.onTypeEncountered(t, compilingInHeader);
