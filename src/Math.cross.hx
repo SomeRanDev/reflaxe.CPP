@@ -82,15 +82,15 @@ extern class Math {
 	public extern static function sqrt(v:Float):Float;
 
 	@:include("cmath", true)
-	@:native("round")
+	@:nativeFunctionCode("static_cast<int>(round({arg0}))")
 	public extern static function round(v:Float):Int;
 
 	@:include("cmath", true)
-	@:native("floor")
+	@:nativeFunctionCode("static_cast<int>(floor({arg0}))")
 	public extern static function floor(v:Float):Int;
 
 	@:include("cmath", true)
-	@:native("ceil")
+	@:nativeFunctionCode("static_cast<int>(ceil({arg0}))")
 	public extern static function ceil(v:Float):Int;
 
 	@:include("cstdlib", true)
@@ -98,9 +98,17 @@ extern class Math {
 		return untyped __cpp__("(((float)rand()) / RAND_MAX)");
 	}
 
-	public extern inline static function ffloor(v:Float): Float return floor(v);
-	public extern inline static function fceil(v:Float): Float return ceil(v);
-	public extern inline static function fround(v:Float): Float return round(v);
+	@:include("cmath", true)
+	@:native("floor")
+	public extern static function ffloor(v:Float): Float;
+
+	@:include("cmath", true)
+	@:native("ceil")
+	public extern static function fceil(v:Float): Float;
+
+	@:include("cmath", true)
+	@:native("round")
+	public extern static function fround(v:Float): Float;
 
 	@:include("cmath", true)
 	@:native("std::isfinite")
