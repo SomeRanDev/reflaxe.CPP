@@ -7,11 +7,11 @@ extern class Stdlib {
 
 	@:native("malloc")
 	@:include("stdlib.h", true)
-	public static extern function malloc(size: Int): Ptr<Void>;
+	public static extern function malloc(size: Int): cxx.VoidPtr;
 
 	@:native("free")
 	@:include("stdlib.h", true)
-	public static extern function free(p: Ptr<Void>): Void;
+	public static extern function free(p: cxx.VoidPtr): Void;
 
 	@:native("sizeof")
 	public static extern function sizeof(a: Dynamic): Int;
