@@ -153,7 +153,7 @@ std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
 std::string EReg::replace(std::string s, std::string by) {
 	std::string b_b = ""s;
 	int pos = 0;
-	int len = s.size();
+	int len = (int)(s.size());
 	std::shared_ptr<std::deque<std::string>> a = HxString::split(by, "$"s);
 	bool first = true;
 	

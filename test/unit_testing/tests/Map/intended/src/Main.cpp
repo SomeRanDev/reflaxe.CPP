@@ -71,7 +71,7 @@ void Main::main() {
 	int index = 0;
 	
 	{
-		std::shared_ptr<haxe::IMap<int, int>> map = std::static_pointer_cast<haxe::IMap<int, int>>(intMap);
+		std::shared_ptr<haxe::IMap<int, int>> map = intMap;
 		std::shared_ptr<haxe::IMap<int, int>> test_map = map;
 		std::shared_ptr<Iterator<int>> test_keys = map->keys();
 		while(test_keys->hasNext()) {

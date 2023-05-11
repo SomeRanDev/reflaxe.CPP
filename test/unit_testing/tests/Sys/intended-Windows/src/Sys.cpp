@@ -11,15 +11,15 @@
 using namespace std::string_literals;
 
 std::optional<std::string> Sys_GetEnv::getEnv(std::string s) {
-	std::size_t requiredSize = 0;
+	std::size_t requiredSize = (std::size_t)(0);
 	
-	getenv_s(&requiredSize, nullptr, 0, s.c_str());
+	getenv_s(&requiredSize, nullptr, (std::size_t)(0), s.c_str());
 	
 	if((int)(requiredSize) == 0) {
 		return std::nullopt;
 	};
 	
-	char* libvar = ((char*)(malloc(requiredSize * sizeof(char))));
+	char* libvar = ((char*)(malloc((int)(requiredSize * sizeof(char)))));
 	
 	getenv_s(&requiredSize, libvar, requiredSize, s.c_str());
 	

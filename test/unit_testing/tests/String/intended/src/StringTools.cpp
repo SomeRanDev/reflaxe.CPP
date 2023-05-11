@@ -150,8 +150,8 @@ bool StringTools::startsWith(std::string s, std::string start) {
 }
 
 bool StringTools::endsWith(std::string s, std::string end) {
-	int elen = end.size();
-	int slen = s.size();
+	int elen = (int)(end.size());
+	int slen = (int)(s.size());
 	
 	return slen >= elen && s.find(end, slen - elen) == slen - elen;
 }
@@ -163,7 +163,7 @@ bool StringTools::isSpace(std::string s, int pos) {
 }
 
 std::string StringTools::ltrim(std::string s) {
-	int l = s.size();
+	int l = (int)(s.size());
 	int r = 0;
 	
 	while(r < l && StringTools::isSpace(s, r)) {
@@ -178,7 +178,7 @@ std::string StringTools::ltrim(std::string s) {
 }
 
 std::string StringTools::rtrim(std::string s) {
-	int l = s.size();
+	int l = (int)(s.size());
 	int r = 0;
 	
 	while(r < l && StringTools::isSpace(s, l - r - 1)) {
@@ -199,7 +199,7 @@ std::string StringTools::lpad(std::string s, std::string c, int l) {
 	
 	std::string buf_b = ""s;
 	
-	l -= s.size();
+	l -= (int)(s.size());
 	
 	while((int)(buf_b.size()) < l) {
 		buf_b += Std::string(c);

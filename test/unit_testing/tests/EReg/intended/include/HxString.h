@@ -31,7 +31,7 @@ public:
 			std::shared_ptr<std::deque<std::string>> result = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 			int pos = 0;
 			int _g = 0;
-			int _g1 = s.size();
+			int _g1 = (int)(s.size());
 			
 			while(_g < _g1) {
 				int i = _g++;

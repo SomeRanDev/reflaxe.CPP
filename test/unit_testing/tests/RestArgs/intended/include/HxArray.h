@@ -47,7 +47,7 @@ public:
 	static std::string join(std::shared_ptr<std::deque<T>> a, std::string sep) {
 		std::string result = std::string("");
 		int _g = 0;
-		int _g1 = a->size();
+		int _g1 = (int)(a->size());
 		
 		while(_g < _g1) {
 			int i = _g++;
@@ -65,7 +65,7 @@ public:
 	template<typename T>
 	static std::shared_ptr<std::deque<T>> slice(std::shared_ptr<std::deque<T>> a, int pos, std::optional<int> end = std::nullopt) {
 		if(pos < 0) {
-			pos += a->size();
+			pos += (int)(a->size());
 		};
 		if(pos < 0 || pos >= (int)(a->size())) {
 			return std::make_shared<std::deque<T>>(std::deque<T>{});
@@ -99,7 +99,7 @@ public:
 	template<typename T>
 	static std::shared_ptr<std::deque<T>> splice(std::shared_ptr<std::deque<T>>& a, int pos, int len) {
 		if(pos < 0) {
-			pos += a->size();
+			pos += (int)(a->size());
 		};
 		if(pos < 0 || pos > (int)(a->size())) {
 			return std::make_shared<std::deque<T>>(std::deque<T>{});
@@ -199,7 +199,7 @@ public:
 	static std::string toString(std::shared_ptr<std::deque<T>> a) {
 		std::string result = std::string("[");
 		int _g = 0;
-		int _g1 = a->size();
+		int _g1 = (int)(a->size());
 		
 		while(_g < _g1) {
 			int i = _g++;
