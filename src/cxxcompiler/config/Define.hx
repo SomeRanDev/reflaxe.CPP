@@ -9,4 +9,12 @@ enum abstract Define(String) from String to String {
 		to use the `haxe.CallStack` class.
 	**/
 	var Callstack = "haxe-callstack";
+
+	/**
+		-D dont-cast-numeric-comparisons
+
+		If defined, number comparisons will not be casted to 
+		the same type.
+	**/
+	var DontCastNumComp = "dont-cast-numeric-comparisons";
 }

@@ -19,6 +19,7 @@ import reflaxe.input.ClassHierarchyTracker;
 import reflaxe.compiler.EverythingIsExprSanitizer;
 
 import cxxcompiler.subcompilers.Includes.ExtraFlag;
+import cxxcompiler.config.Define;
 import cxxcompiler.config.Meta;
 
 using reflaxe.helpers.BaseTypeHelper;
@@ -699,6 +700,45 @@ class Expressions extends SubCompiler {
 				cpp = cppExpr1 + " = " + cpp;
 			}
 			return cpp;
+		}
+
+		// Check if one of the numbers should be casted.
+		// Certain C++ warnings require both numbers to be the same.
+		if(!Context.defined(Define.DontCastNumComp)) {
+			final comparisonOp = switch(op) {
+				case OpEq | OpNotEq | OpGt | OpGte | OpLt | OpLte: true;
+				case _: false;
+			}
+
+			final t1 = Main.getExprType(e1);
+			final t2 = Main.getExprType(e2);
+
+			if(comparisonOp && t1.isCppNumberType() && t2.isCppNumberType()) {
+				// If `true`, cast t2 to t1.
+				// If `false`, cast t1 to t2.
+				// If `null`, don't cast anything.
+				final castBothToT1: Null<Bool> = {
+					if(t1.equals(t2)) null;
+					// Cast to type that is "float".
+					else if(t1.isFloatType() != t2.isFloatType())
+						t1.isFloatType();
+					// Cast to type that is larger.
+					else if(t1.getNumberTypeSize() != t2.getNumberTypeSize())
+						t1.getNumberTypeSize() > t2.getNumberTypeSize();
+					// Cast to type that is unsigned.
+					else if(t1.isUnsignedType() != t2.isUnsignedType())
+						t1.isUnsignedType();
+					else null;
+				}
+
+				if(castBothToT1 != null) {
+					if(castBothToT1 == true) {
+						cppExpr2 = '(${TComp.compileType(t1, e2.pos)})($cppExpr2)';
+					} else if(castBothToT1 == false) {
+						cppExpr1 = '(${TComp.compileType(t2, e2.pos)})($cppExpr1)';
+					}
+				}
+			}
 		}
 
 		final operatorStr = OperatorHelper.binopToString(op);
