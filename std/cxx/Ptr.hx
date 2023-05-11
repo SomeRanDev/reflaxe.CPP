@@ -6,6 +6,10 @@ package cxx;
 @:unsafePtrType
 @:forward
 extern abstract Ptr<T>(T) from T to T {
+	@:nativeFunctionCode("std::string({this})")
+	@:include("string", true)
+	public function toString(): String;
+
 	@:nativeFunctionCode("{this} == nullptr")
 	public function isNull(): Bool;
 
