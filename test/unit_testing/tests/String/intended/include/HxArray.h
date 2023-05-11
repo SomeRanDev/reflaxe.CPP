@@ -71,10 +71,10 @@ public:
 			return std::make_shared<std::deque<T>>(std::deque<T>{});
 		};
 		if(!end.has_value() || end.value() > (int)(a->size())) {
-			end = a->size();
+			end = (int)(a->size());
 		} else {
 			if(end.value() < 0) {
-				end.value() += a->size();
+				end.value() += (int)(a->size());
 			};
 			if(end.value() <= pos) {
 				return std::make_shared<std::deque<T>>(std::deque<T>{});

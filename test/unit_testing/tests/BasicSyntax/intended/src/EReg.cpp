@@ -196,7 +196,7 @@ std::string EReg::replace(std::string s, std::string by) {
 			if(c.value() >= 49 && c.value() <= 57) {
 				std::optional<std::string> tempMaybeString;
 				int tempLeft;
-				double x = c.value();
+				double x = (double)(c).value();
 				
 				tempLeft = ((int)(x));
 				
