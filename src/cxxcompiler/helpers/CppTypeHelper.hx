@@ -177,6 +177,40 @@ class CppTypeHelper {
 	}
 
 	/**
+		Given two number types, find which one takes
+		priority in C++ in a binary operation.
+
+		This is not guaranteed to be perfect and is generally
+		used to detect if number casting should occur.
+	**/
+	public static function findPriorityNumberType(t1: Type, t2: Type): Null<Type> {
+		if(t1.equals(t2)) return t1;
+		if(!isCppNumberType(t1) || !isCppNumberType(t2)) return null;
+
+		// The floating type takes priority
+		final isFloat1 = isFloatType(t1);
+		if(isFloat1 != isFloatType(t2)) {
+			return isFloat1 ? t1 : t2;
+		}
+
+		// The unsigned number type takes priority
+		final isUnsigned1 = isUnsignedType(t1);
+		if(isUnsigned1 != isUnsignedType(t2)) {
+			return isUnsigned1 ? t1 : t2;
+		}
+
+		// The larger number type takes priority
+		final size1 = getNumberTypeSize(t1);
+		final size2 = getNumberTypeSize(t2);
+		if(size1 != size2) {
+			return size1 > size2 ? t1 : t2;
+		}
+
+		// They are identical, so let Haxe decide.
+		return null;
+	}
+
+	/**
 		If `true`, that means `other` is a different enough
 		number type it should be explicitly casted in C++
 		to prevent warnings.

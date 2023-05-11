@@ -263,6 +263,16 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				}
 			}
 
+			case TBinop(OpSub | OpAdd, e1, e2): {
+				final t1 = getExprType(e1);
+				final t2 = getExprType(e2);
+				return if(t1.isCppNumberType() || t2.isCppNumberType()) {
+					CppTypeHelper.findPriorityNumberType(t1, t2) ?? e.t;
+				} else {
+					e.t;
+				}
+			}
+
 			// Implements @:redirectType behavior for function return
 			case TCall(calledExpr, _): {
 				switch(calledExpr.expr) {
