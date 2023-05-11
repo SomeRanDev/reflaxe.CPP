@@ -33,7 +33,7 @@ class StringMap<T> implements haxe.Constraints.IMap<String, T> {
 		final keys = new Array<String>();
 		var it = m.begin();
 		var end = m.end();
-		cxx.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+		cxx.Syntax.classicFor(untyped _, it != end, untyped it.increment(), untyped {
 			keys.push(it.first);
 		});
 		return keys.iterator();
@@ -43,7 +43,7 @@ class StringMap<T> implements haxe.Constraints.IMap<String, T> {
 		final values = new Array<T>();
 		var it = m.begin();
 		var end = m.end();
-		cxx.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+		cxx.Syntax.classicFor(untyped _, it != end, untyped it.increment(), untyped {
 			values.push(it.second);
 		});
 		return values.iterator();

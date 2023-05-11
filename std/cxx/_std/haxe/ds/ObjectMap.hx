@@ -33,7 +33,7 @@ class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
 		final keys = new Array<K>();
 		var it = m.begin();
 		var end = m.end();
-		cxx.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+		cxx.Syntax.classicFor(untyped _, it != end, untyped it.increment(), untyped {
 			keys.push(it.first);
 		});
 		return keys.iterator();
@@ -43,7 +43,7 @@ class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
 		final values = new Array<V>();
 		var it = m.begin();
 		var end = m.end();
-		cxx.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+		cxx.Syntax.classicFor(untyped _, it != end, untyped it.increment(), untyped {
 			values.push(it.second);
 		});
 		return values.iterator();

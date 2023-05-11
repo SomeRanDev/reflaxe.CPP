@@ -33,7 +33,7 @@ class IntMap<T> implements haxe.Constraints.IMap<Int, T> {
 		final keys = new Array<Int>();
 		var it = m.begin();
 		var end = m.end();
-		cxx.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+		cxx.Syntax.classicFor(untyped _, it != end, untyped it.increment(), untyped {
 			keys.push(it.first);
 		});
 		return keys.iterator();
@@ -43,7 +43,7 @@ class IntMap<T> implements haxe.Constraints.IMap<Int, T> {
 		final values = new Array<T>();
 		var it = m.begin();
 		var end = m.end();
-		cxx.Syntax.classicFor(0, it != end, untyped it.increment(), untyped {
+		cxx.Syntax.classicFor(untyped _, it != end, untyped it.increment(), untyped {
 			values.push(it.second);
 		});
 		return values.iterator();

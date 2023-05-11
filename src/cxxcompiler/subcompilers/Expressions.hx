@@ -87,7 +87,13 @@ class Expressions extends SubCompiler {
 		// cxx.Stynax.classicFor
 		final classicForArgs = expr.isStaticCall("cxx.Syntax", "classicFor");
 		if(classicForArgs != null) {
-			function arg(i: Int) Main.compileExpression(classicForArgs[i]);
+			function arg(i: Int) {
+				final e = classicForArgs[i];
+				return switch(e.expr) {
+					case TIdent("_"): "";
+					case _: Main.compileExpression(e);
+				}
+			}
 			return 'for(${arg(0)}; ${arg(1)}; ${arg(2)}) {\n${toIndentedScope(classicForArgs[3])}\n}';
 		}
 
