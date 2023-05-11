@@ -107,7 +107,7 @@ class Main {
 		assert(newArr.slice(1) == [44, 66, 88]);
 		assert(newArr.slice(2, 3) == [66]);
 		assert(newArr.slice(-1) == [88]);
-		assert(newArr.slice(-2, -1) == [66, 88]);
+		assert(newArr.slice(-2, -1) == [66]);
 		assert(newArr.slice(0, 999999) == [22, 44, 66, 88]);
 		assert(newArr.slice(999999, 0) == []);
 

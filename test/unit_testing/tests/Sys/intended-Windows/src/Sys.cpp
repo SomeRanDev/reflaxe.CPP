@@ -3,11 +3,32 @@
 #include "haxe_ds_StringMap.h"
 #include "Map.h"
 #include <chrono>
+#include <cstddef>
 #include <deque>
 #include <memory>
+#include <stdlib.h>
 #include <string>
 using namespace std::string_literals;
 
+std::optional<std::string> Sys_GetEnv::getEnv(std::string s) {
+	std::size_t requiredSize = 0;
+	
+	getenv_s(&requiredSize, nullptr, 0, s.c_str());
+	
+	if(requiredSize == 0) {
+		return std::nullopt;
+	};
+	
+	char* libvar = ((char*)(malloc(requiredSize * sizeof(char))));
+	
+	getenv_s(&requiredSize, libvar, requiredSize, s.c_str());
+	
+	std::string str = std::string(libvar);
+	
+	free(libvar);
+	
+	return str;
+}
 std::shared_ptr<haxe::ds::StringMap<std::string>> Sys_Environment::environment() {
 	std::shared_ptr<std::deque<std::string>> strings = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 	
@@ -25,7 +46,7 @@ std::shared_ptr<haxe::ds::StringMap<std::string>> Sys_Environment::environment()
 	std::shared_ptr<haxe::ds::StringMap<std::string>> result = std::make_shared<haxe::ds::StringMap<std::string>>();
 	int _g = 0;
 	
-	while((unsigned int)(_g) < strings->size()) {
+	while(_g < (int)(strings->size())) {
 		std::string en = (*strings)[_g];
 		
 		++_g;

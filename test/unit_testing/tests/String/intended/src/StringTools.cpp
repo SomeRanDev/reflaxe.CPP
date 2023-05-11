@@ -41,7 +41,7 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 						};
 					};
 					
-					c = c - 55232 << 10 | tempLeft & 1023;
+					c = ((c - 55232) << 10) | tempLeft & 1023;
 				};
 				tempNumber1 = c;
 			};
@@ -243,7 +243,7 @@ std::string StringTools::hex(int n, std::optional<int> digits) {
 	} while(n > 0);
 	
 	if(digits.has_value()) {
-		while(s.size() < digits.value()) {
+		while((int)(s.size()) < digits.value()) {
 			s = "0"s + s;
 		};
 	};

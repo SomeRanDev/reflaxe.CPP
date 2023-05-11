@@ -198,7 +198,7 @@ void Main::main() {
 	};
 	
 	Main::assert((*tempLeft2) == (*std::make_shared<std::deque<int>>(std::deque<int>{ 88 })), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 109, "main"s));
-	Main::assert((*HxArray::slice<int>(newArr, -2, -1)) == (*std::make_shared<std::deque<int>>(std::deque<int>{ 66, 88 })), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 110, "main"s));
+	Main::assert((*HxArray::slice<int>(newArr, -2, -1)) == (*std::make_shared<std::deque<int>>(std::deque<int>{ 66 })), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 110, "main"s));
 	Main::assert((*HxArray::slice<int>(newArr, 0, 999999)) == (*std::make_shared<std::deque<int>>(std::deque<int>{ 22, 44, 66, 88 })), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 111, "main"s));
 	Main::assert((*HxArray::slice<int>(newArr, 999999, 0)) == (*std::make_shared<std::deque<int>>(std::deque<int>{})), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 112, "main"s));
 	

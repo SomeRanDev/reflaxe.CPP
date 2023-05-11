@@ -33,13 +33,13 @@ void Main::assertFloat(double a, double b, std::optional<std::shared_ptr<haxe::P
 }
 
 void Main::main() {
-	Main::assert(ceil(2 * pow(3.14159265358979323846, 2)) == 20, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 23, "main"s));
+	Main::assert(static_cast<int>(ceil(2 * pow(3.14159265358979323846, 2))) == 20, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 23, "main"s));
 	Main::assert(abs(-3) == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 25, "main"s));
-	Main::assert(ceil(2.1) == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 27, "main"s));
-	Main::assert(ceil(0.9) == 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 28, "main"s));
-	Main::assert(ceil(exp(1.0)) == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 30, "main"s));
-	Main::assert(floor(exp(1.0)) == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 31, "main"s));
-	Main::assert(floor(99.9) == 99, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 33, "main"s));
+	Main::assert(static_cast<int>(ceil(2.1)) == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 27, "main"s));
+	Main::assert(static_cast<int>(ceil(0.9)) == 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 28, "main"s));
+	Main::assert(static_cast<int>(ceil(exp(1.0))) == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 30, "main"s));
+	Main::assert(static_cast<int>(floor(exp(1.0))) == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 31, "main"s));
+	Main::assert(static_cast<int>(floor(99.9)) == 99, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 33, "main"s));
 	Main::assert(std::isfinite((double)12), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 35, "main"s));
 	Main::assert(std::isnan(std::numeric_limits<double>::quiet_NaN()), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 36, "main"s));
 	Main::assert(!std::isfinite(std::numeric_limits<double>::infinity()), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 37, "main"s));

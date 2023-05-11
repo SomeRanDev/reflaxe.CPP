@@ -49,7 +49,8 @@ struct DynamicToString: public std::string {
 			return ToString(*s);
 		} else if constexpr(is_deque<T>::value) {
 			std::string result = "[";
-			for(int i = 0; i < s.size(); i++) {
+			auto len = s.size();
+			for(decltype(len) i = 0; i < len; i++) {
 				result += (i > 0 ? ", " : "") + ToString(s[i]);
 			}
 			return result + "]";

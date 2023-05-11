@@ -5,7 +5,15 @@
 #include <chrono>
 #include <deque>
 #include <memory>
+#include <optional>
 #include <string>
+
+class Sys_GetEnv {
+public:
+	static std::optional<std::string> getEnv(std::string s);
+};
+
+
 
 class Sys_Args {
 public:

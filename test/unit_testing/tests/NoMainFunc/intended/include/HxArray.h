@@ -70,7 +70,7 @@ public:
 		if(pos < 0 || pos >= (int)(a->size())) {
 			return std::make_shared<std::deque<T>>(std::deque<T>{});
 		};
-		if(!end.has_value() || end.value() > a->size()) {
+		if(!end.has_value() || end.value() > (int)(a->size())) {
 			end = a->size();
 		} else {
 			if(end.value() < 0) {

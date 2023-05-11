@@ -91,7 +91,7 @@ void Main::main() {
 		if(10 <= 1) {
 			tempNumber = 0;
 		} else {
-			tempNumber = floor((((float)rand()) / RAND_MAX) * 10);
+			tempNumber = static_cast<int>(floor((((float)rand()) / RAND_MAX) * 10));
 		};
 		
 		int v = tempNumber;

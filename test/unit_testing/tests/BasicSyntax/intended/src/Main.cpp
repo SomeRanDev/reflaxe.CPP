@@ -172,7 +172,7 @@ void Main::main() {
 	
 	Main::assert(abs(single - 12.32) < 0.0001, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 155, "main"s));
 	
-	cxx::num::float float32 = 12.32;
+	float float32 = 12.32f;
 	
 	Main::assert(abs(float32 - 12.32) < 0.0001, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 159, "main"s));
 	
