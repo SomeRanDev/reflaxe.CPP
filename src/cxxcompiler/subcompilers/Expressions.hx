@@ -107,6 +107,9 @@ class Expressions extends SubCompiler {
 			case TArray(e1, e2): {
 				result = compileExpressionNotNullAsValue(e1) + "[" + compileExpressionNotNull(e2) + "]";
 			}
+			// TODO
+			// TODO
+			// TODO: make sure this cannot occur on types that are not nullable
 			case TBinop(op, { expr: TConst(TNull) }, nullCompExpr) |
 			     TBinop(op, nullCompExpr, { expr: TConst(TNull) })
 				 if(op == OpEq || op == OpNotEq): {
