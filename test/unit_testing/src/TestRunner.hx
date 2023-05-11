@@ -308,6 +308,20 @@ function compareOutputFolders(testDir: String): Bool {
 			}
 		}
 	}
+
+	// If updating the intended folder, delete any out/ files that don't match.
+	if(UpdateIntended) {
+		final outputFiles = getAllFiles(outFolder);
+		for(f in outputFiles) {
+			if(!files.contains(f)) {
+				final path = haxe.io.Path.join([outFolder, f]);
+				if(sys.FileSystem.exists(path)) {
+					sys.FileSystem.deleteFile(path);
+				}
+			}
+		}
+	}
+
 	return if(errors.length > 0) {
 		var result = "\nOUTPUT DOES NOT MATCH\n------------------------------------\n";
 		result += errors.join("\n");
