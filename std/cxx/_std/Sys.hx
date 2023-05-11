@@ -81,6 +81,45 @@ final class Sys_Args {
 }
 
 /**
+	A class containing the implementation for `Sys.getEnv`.
+**/
+@:cxxStd
+final class Sys_GetEnv {
+	/**
+		Unfortunately, the windows implementation of this function is massive.
+	**/
+	public static function getEnv(s: String): Null<String> {
+		#if windows
+		// Based on:
+		// https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getenv-s-wgetenv-s?view=msvc-170#example
+
+		// Make variables
+		var libvar: cxx.Ptr<cxx.Char> = cast 0;
+		var requiredSize: cxx.SizeT = 0;
+
+		// Check if exists
+		cxx.Stdlib.getEnv(requiredSize, untyped __cpp__("nullptr"), 0, @:privateAccess s.c_str());
+		if(requiredSize == 0) return null;
+
+		// If it does, `requiredSize` contains the allocation size.
+		// Allocate a `char*` of size `requiredSize`.
+		libvar = cxx.Stdlib.ccast(cxx.Stdlib.malloc(requiredSize * cxx.Stdlib.sizeof(untyped __cpp__("char"))));
+
+		// Get the variable
+		cxx.Stdlib.getEnv(requiredSize, libvar, requiredSize, @:privateAccess s.c_str());
+
+		// Convert the `char*` to `std::string`, free it, then return the string.
+		final str: String = libvar.toString();
+		cxx.Stdlib.free(libvar);
+		return str;
+		#else
+		final result = cxx.Stdlib.getEnv(@:privateAccess s.c_str());
+		return result.isNull() ? null : result.toString();
+		#end
+	}
+}
+
+/**
 	A class containing the implementation for `Sys.cpuTime`.
 
 	Records the time the program starts to calculate the program time later.
@@ -125,14 +164,12 @@ extern class Sys {
 	}
 
 	public static extern inline function getEnv(s: String): Null<String> {
-		final result = cxx.Stdlib.getEnv(@:privateAccess s.c_str());
-		return result.isNull() ? null : result.toString();
+		return Sys_GetEnv.getEnv(s);
 	}
 
 	public static extern inline function putEnv(s: String, v: Null<String>): Void {
 		#if windows
-		final inputAssign = (s + "=" + (v ?? ""));
-		cxx.Stdlib.putEnv(@:privateAccess inputAssign.data());
+		cxx.Stdlib.putEnv(@:privateAccess s.c_str(), @:privateAccess (v ?? "").c_str());
 		#elseif (mac || linux)
 		if(v == null || v.length == 0) {
 			cxx.Stdlib.unsetEnv(@:privateAccess s.c_str());
