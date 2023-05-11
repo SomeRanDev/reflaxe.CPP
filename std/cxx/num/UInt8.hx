@@ -1,7 +1,8 @@
 package cxx.num;
 
 @:cxxStd
-@:native("unsigned char")
-@:noInclude
-@:extern
-typedef UInt8 = Int;
+@:nativeName("unsigned char")
+@:coreType
+@:notNull
+@:runtimeValue
+extern abstract UInt8 to Int from Int {}

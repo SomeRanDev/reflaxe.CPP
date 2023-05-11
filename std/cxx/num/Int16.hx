@@ -1,7 +1,8 @@
 package cxx.num;
 
 @:cxxStd
-@:native("short")
-@:noInclude
-@:extern
-typedef Int16 = Int;
+@:nativeName("short")
+@:coreType
+@:notNull
+@:runtimeValue
+extern abstract Int16 to Int from Int {}

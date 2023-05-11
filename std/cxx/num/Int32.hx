@@ -1,7 +1,8 @@
 package cxx.num;
 
 @:cxxStd
-@:native("int")
-@:noInclude
-@:extern
-typedef Int32 = Int;
+@:nativeName("int")
+@:coreType
+@:notNull
+@:runtimeValue
+extern abstract Int32 to Int from Int {}

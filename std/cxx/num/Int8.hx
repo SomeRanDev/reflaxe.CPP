@@ -1,7 +1,8 @@
 package cxx.num;
 
 @:cxxStd
-@:native("char")
-@:noInclude
-@:extern
-typedef Int8 = Int;
+@:nativeName("char")
+@:coreType
+@:notNull
+@:runtimeValue
+extern abstract Int8 to Int from Int {}

@@ -1,8 +1,8 @@
 package cxx.num;
 
 @:cxxStd
-@:native("long")
-@:noInclude
-@:extern
-typedef Int64 = Int;
-
+@:nativeName("long")
+@:coreType
+@:notNull
+@:runtimeValue
+extern abstract Int64 to Int from Int {}
