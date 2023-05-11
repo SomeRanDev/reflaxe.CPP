@@ -782,25 +782,20 @@ class Expressions extends SubCompiler {
 		// Check if we need parenthesis. Used to fix some C++ warnings.
 		// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-3-c4554
 		{
-			// Returns `true` if a Binop that should be wrapped with parenthesis.
-			function isWrapOp(op: Null<Binop>) return switch(op) {
-				case OpShl | OpShr | OpUShr: true;
-				case _: false;
-			}
-
-			// Set to `true` if the corresponding expression should be wrapped.
 			var parenthesis1 = false;
 			var parenthesis2 = false;
 
-			final binop1 = switch(e1.expr) { case TBinop(op, _, _): op; case _: null; }
-			final binop2 = switch(e2.expr) { case TBinop(op, _, _): op; case _: null; }
-			if(isWrapOp(op)) {
-				parenthesis1 = binop1 != null;
-				parenthesis2 = binop2 != null;
-			} else if(isWrapOp(binop1)) {
-				parenthesis1 = true;
-			} else if(isWrapOp(binop2)) {
-				parenthesis2 = true;
+			final opCombos = [
+				[OpShl, OpShr, OpUShr],
+				[OpBoolAnd, OpBoolOr],
+				[OpAnd, OpOr, OpXor]
+			];
+
+			for(combo in opCombos) {
+				final temp = checkIfBinopWrapNeeded(combo, op, e1, e2);
+				if(temp.p1) parenthesis1 = true;
+				if(temp.p2) parenthesis2 = true;
+				if(parenthesis1 && parenthesis2) break;
 			}
 
 			// Wrap expressions
@@ -812,6 +807,31 @@ class Expressions extends SubCompiler {
 
 		// Generate final C++ code!
 		return cppExpr1 + " " + operatorStr + " " + cppExpr2;
+	}
+
+	/**
+		Quick helper to determine if parenthesis are needed for one
+		or multiple infix operators. Used to avoid certain C++ warnings.
+	**/
+	function checkIfBinopWrapNeeded(operators: Array<Binop>, op: Binop, e1: TypedExpr, e2: TypedExpr): { p1: Bool, p2: Bool } {
+		// Returns `true` if a Binop that should be wrapped with parenthesis.
+		function isWrapOp(op: Null<Binop>)
+			return operators.contains(op);
+
+		final result = { p1: false, p2: false };
+
+		final binop1 = switch(e1.expr) { case TBinop(op, _, _): op; case _: null; }
+		final binop2 = switch(e2.expr) { case TBinop(op, _, _): op; case _: null; }
+		if(isWrapOp(op)) {
+			result.p1 = binop1 != null;
+			result.p2 = binop2 != null;
+		} else if(isWrapOp(binop1)) {
+			result.p1 = true;
+		} else if(isWrapOp(binop2)) {
+			result.p2 = true;
+		}
+
+		return result;
 	}
 
 	/**
