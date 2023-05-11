@@ -36,17 +36,17 @@ bool EReg::match(std::string s) {
 	if(result) {
 		this->left = this->smatch.prefix();
 		this->right = this->smatch.suffix();
-		this->matchPos = this->smatch.position();
-		this->matchLen = this->smatch.length();
+		this->matchPos = (int)(this->smatch.position());
+		this->matchLen = (int)(this->smatch.length());
 		this->matches = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 		
 		int _g = 0;
-		int _g1 = this->smatch.size();
+		int _g1 = (int)(this->smatch.size());
 		
 		while(_g < _g1) {
 			int i = _g++;
 			
-			this->matches.value()->push_back(this->smatch.str(i));
+			this->matches.value()->push_back(this->smatch.str((std::size_t)(i)));
 		};
 	};
 	
