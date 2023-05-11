@@ -725,9 +725,9 @@ class Expressions extends SubCompiler {
 					// Cast to type that is larger.
 					else if(t1.getNumberTypeSize() != t2.getNumberTypeSize())
 						t1.getNumberTypeSize() > t2.getNumberTypeSize();
-					// Cast to type that is unsigned.
+					// Cast to type that is signed.
 					else if(t1.isUnsignedType() != t2.isUnsignedType())
-						t1.isUnsignedType();
+						!t1.isUnsignedType();
 					else null;
 				}
 
