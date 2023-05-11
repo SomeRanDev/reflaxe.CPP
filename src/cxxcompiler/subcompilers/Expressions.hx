@@ -217,7 +217,7 @@ class Expressions extends SubCompiler {
 				
 				result += "\n}";
 			}
-			case TVar(tvar, maybeExpr) if(tvar.meta.has("-reflaxe.unused")): {
+			case TVar(tvar, maybeExpr) if(tvar.meta.maybeHas("-reflaxe.unused")): {
 				if(maybeExpr != null) {
 					result = Main.compileExpression(maybeExpr);
 				} else {
