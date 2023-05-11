@@ -394,7 +394,7 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 
 	final compileCommand = if(systemName == "Windows") {
 		// /W3 /WX /EHsc
-		"cl ../" + OUT_DIR + "/src/*.cpp /I ../" + OUT_DIR + "/include /std:c++17 /Fe:test_out.exe";
+		"cl ../" + OUT_DIR + "/src/*.cpp /I ../" + OUT_DIR + "/include /std:c++17 /Fe:test_out.exe /W3 /WX /EHsc";
 	} else if(systemName == "Linux") {
 		// -W3 -Werror
 		"g++ -std=c++17 ../" + OUT_DIR + "/src/*.cpp -I ../" + OUT_DIR + "/include -o test_out";
