@@ -95,7 +95,7 @@ final class Sys_GetEnv {
 
 		// Make variables
 		var libvar: cxx.Ptr<cxx.Char> = cast 0;
-		var requiredSize: cxx.SizeT = 0;
+		var requiredSize: cxx.num.SizeT = 0;
 
 		// Check if exists
 		cxx.Stdlib.getEnv(requiredSize, untyped __cpp__("nullptr"), 0, @:privateAccess s.c_str());

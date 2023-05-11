@@ -24,7 +24,7 @@ extern class Stdlib {
 
 	@:native("getenv_s")
 	@:include("stdlib.h", true)
-	public static extern function getEnv(pReturnValue: cxx.Ptr<cxx.SizeT>, buffer: cxx.Ptr<cxx.Char>, numberOfElements: cxx.SizeT, varname: cxx.ConstCharPtr): Void;
+	public static extern function getEnv(pReturnValue: cxx.Ptr<cxx.num.SizeT>, buffer: cxx.Ptr<cxx.Char>, numberOfElements: cxx.num.SizeT, varname: cxx.ConstCharPtr): Void;
 
 	@:native("_putenv_s")
 	@:include("stdlib.h", true)

@@ -225,7 +225,7 @@ class CppTypeHelper {
 			case TAbstract(abRef, []): {
 				final a = abRef.get();
 				switch(a.name) {
-					case "UInt8" | "UInt16" | "UInt32" | "UInt64": isCxxNum(a);
+					case "UInt8" | "UInt16" | "UInt32" | "UInt64" | "SizeT": isCxxNum(a);
 					case "UInt": a.module == "UInt";
 					case _: false;
 				}
@@ -233,7 +233,7 @@ class CppTypeHelper {
 			case TType(defRef, []): {
 				final d = defRef.get();
 				switch(d.name) {
-					case "UInt8" | "UInt16" | "UInt32" | "UInt64": isCxxNum(d);
+					case "UInt8" | "UInt16" | "UInt32" | "UInt64" | "SizeT": isCxxNum(d);
 					case _: false;
 				}
 			}
@@ -273,6 +273,8 @@ class CppTypeHelper {
 
 				case "Float32": 32;
 				case "Float64": 64;
+
+				case "SizeT": 32;
 
 				case _: -1;
 			}
