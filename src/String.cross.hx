@@ -67,12 +67,14 @@ extern class String {
 	public var length(default, null): Int;
 
 	@:nativeName("find")
+	@:redirectType("indexOf_type")
 	public function indexOf(str: String, startIndex: Int = 0): Int;
 	
 	@:nativeName("substr")
 	public function substr(pos: Int, len: Int = -1): String;
 
 	@:nativeName("rfind")
+	@:redirectType("lastIndexOf_type")
 	public function lastIndexOf(str: String, startIndex: Int = -1): Int;
 
 	// ----------
@@ -129,4 +131,12 @@ extern class String {
 	@:unusable
 	@:noCompletion
 	private var length_type: cxx.num.UInt32;
+
+	@:unusable
+	@:noCompletion
+	private function indexOf_type(str: String, startIndex: cxx.num.SizeT = 0): Int;
+
+	@:unusable
+	@:noCompletion
+	private function lastIndexOf_type(str: String, startIndex: cxx.num.SizeT = -1): Int;
 }
