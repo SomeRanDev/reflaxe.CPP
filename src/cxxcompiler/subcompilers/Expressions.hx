@@ -371,7 +371,7 @@ class Expressions extends SubCompiler {
 			}
 			case TEnumParameter(expr, enumField, index): {
 				IComp.addIncludeFromMetaAccess(enumField.meta, compilingInHeader);
-				result = Main.compileExpressionOrError(expr);
+				result = compileExpressionNotNull(expr);
 				switch(enumField.type) {
 					case TFun(args, _): {
 						if(index < args.length) {
@@ -384,7 +384,7 @@ class Expressions extends SubCompiler {
 			}
 			case TEnumIndex(expr): {
 				final access = isArrowAccessType(Main.getExprType(expr)) ? "->" : ".";
-				result = Main.compileExpressionOrError(expr) + access + "index";
+				result = compileExpressionNotNull(expr) + access + "index";
 			}
 		}
 

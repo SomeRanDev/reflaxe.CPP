@@ -1,5 +1,12 @@
 package;
 
+function assert(b: Bool) {
+	if(!b) {
+		Sys.println("Failed");
+		Sys.exit(1);
+	}
+}
+
 function main() {
 	test1();
 }
@@ -14,17 +21,22 @@ function test2() {
 
 function test3() {
 	final callstack = haxe.CallStack.callStack();
-	final result = "[FilePos(Method(Main_Fields_, test1), test/unit_testing/tests/CallStack/Main.hx, 8, 1), " + 
-		"FilePos(Method(Main_Fields_, test2), test/unit_testing/tests/CallStack/Main.hx, 12, 1), " + 
-		"FilePos(Method(Main_Fields_, test3), test/unit_testing/tests/CallStack/Main.hx, 16, 1)]";
 
-	if(Std.string(callstack) != result) {
-		Sys.println("Failed");
-		Sys.exit(1);
+	// expected output
+	trace(callstack);
+
+	switch(callstack[0]) {
+		case FilePos(Method("Main_Fields_", "test1"), _, 15, 1): assert(true);
+		case _: assert(false);
 	}
 
-	// ---
+	switch(callstack[1]) {
+		case FilePos(Method("Main_Fields_", "test2"), _, 19, 1): assert(true);
+		case _: assert(false);
+	}
 
-	final callstackStr = haxe.CallStack.toString(callstack);
-	// TODO: test this? (comparing it doesn't seem to work?)
+	switch(callstack[2]) {
+		case FilePos(Method("Main_Fields_", "test3"), _, 23, 1): assert(true);
+		case _: assert(false);
+	}
 }

@@ -14,7 +14,7 @@ std::shared_ptr<std::deque<std::shared_ptr<haxe::StackItem>>> haxe::_CallStack::
 }
 
 std::string haxe::_CallStack::CallStack_Impl_::toString(std::shared_ptr<std::deque<std::shared_ptr<haxe::StackItem>>> stack) {
-	HCXX_STACK_METHOD("/usr/share/haxe/std/haxe/CallStack.hx"s, 71, 2, "CallStack_Impl_"s, "toString"s);
+	HCXX_STACK_METHOD("Z:\\Haxe\\haxe\\std/haxe/CallStack.hx"s, 71, 2, "CallStack_Impl_"s, "toString"s);
 	
 	HCXX_LINE(72);
 	std::shared_ptr<StringBuf> b = std::make_shared<StringBuf>();
@@ -41,7 +41,7 @@ std::string haxe::_CallStack::CallStack_Impl_::toString(std::shared_ptr<std::deq
 }
 
 void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> b, std::shared_ptr<haxe::StackItem> s) {
-	HCXX_STACK_METHOD("/usr/share/haxe/std/haxe/CallStack.hx"s, 155, 2, "CallStack_Impl_"s, "itemToString"s);
+	HCXX_STACK_METHOD("Z:\\Haxe\\haxe\\std/haxe/CallStack.hx"s, 155, 2, "CallStack_Impl_"s, "itemToString"s);
 	
 	HCXX_LINE(156);
 	switch(s->index) {
