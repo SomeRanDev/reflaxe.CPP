@@ -53,7 +53,7 @@ public:
 		typename std::map<int, T>::iterator it = this->m.begin();
 		typename std::map<int, T>::iterator end = this->m.end();
 		
-		for(0; it != end; (it++)) {
+		for(; it != end; (it++)) {
 			keys->push_back(it->first);
 		};
 		
@@ -65,7 +65,7 @@ public:
 		typename std::map<int, T>::iterator it = this->m.begin();
 		typename std::map<int, T>::iterator end = this->m.end();
 		
-		for(0; it != end; (it++)) {
+		for(; it != end; (it++)) {
 			values->push_back(it->second);
 		};
 		

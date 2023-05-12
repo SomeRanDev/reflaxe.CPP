@@ -62,9 +62,9 @@ void Main::main() {
 		int num = 3;
 		
 		Main::assert(num > 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 52, "main"s));
-		Main::assert(num >= 3 && num >= 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 53, "main"s));
+		Main::assert((num >= 3) && (num >= 2), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 53, "main"s));
 		Main::assert(num == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 54, "main"s));
-		Main::assert(num <= 3 && num <= 6, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 55, "main"s));
+		Main::assert((num <= 3) && (num <= 6), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 55, "main"s));
 		Main::assert(num < 4, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 56, "main"s));
 	} else {
 		Main::assert(false, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 58, "main"s));
@@ -79,7 +79,6 @@ void Main::main() {
 	Main::assert(1 + 1 == 1 + 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 68, "main"s));
 	
 	std::string dict_hey = "Hey"s;
-	std::shared_ptr<Main> dict_thing = obj;
 	int dict_number = 3;
 	
 	Main::assertStringEq(dict_hey, "Hey"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 77, "main"s));
@@ -93,9 +92,7 @@ void Main::main() {
 	
 	Main::assert(EReg("Any\\(.+\\)"s, ""s).match(tempString), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 86, "main"s));
 	
-	int arr_0 = 1;
 	int arr_1 = 2;
-	int arr_2 = 3;
 	
 	Main::assert(arr_1 == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 90, "main"s));
 	Main::assert(3 == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 91, "main"s));

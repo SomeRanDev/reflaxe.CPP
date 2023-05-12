@@ -3,7 +3,7 @@
 #include "Dynamic.h"
 namespace haxe {
 
-class Dynamic_Std: public Dynamic {
+class Dynamic_Std {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
 		if(name == "string") {

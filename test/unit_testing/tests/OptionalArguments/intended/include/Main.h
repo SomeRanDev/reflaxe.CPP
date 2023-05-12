@@ -8,6 +8,8 @@
 
 class Base {
 public:
+	virtual ~Base() {}
+
 	Base();
 	
 	virtual void doThing(int num, std::string other);

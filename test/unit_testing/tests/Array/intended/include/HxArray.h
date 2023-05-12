@@ -15,9 +15,11 @@ public:
 		
 		{
 			std::shared_ptr<std::deque<T>> result = std::make_shared<std::deque<T>>(std::deque<T>{});
+			
 			{
 				int _g = 0;
 				std::shared_ptr<std::deque<T>> _g1 = a;
+				
 				while(_g < (int)(_g1->size())) {
 					T obj = (*_g1)[_g];
 					
@@ -25,6 +27,7 @@ public:
 					result->push_back(obj);
 				};
 			};
+			
 			tempArray = result;
 		};
 		
@@ -32,6 +35,7 @@ public:
 		
 		{
 			int _g = 0;
+			
 			while(_g < (int)(other->size())) {
 				T o = (*other)[_g];
 				
@@ -67,10 +71,10 @@ public:
 		if(pos < 0) {
 			pos += (int)(a->size());
 		};
-		if(pos < 0 || pos >= (int)(a->size())) {
+		if((pos < 0) || (pos >= (int)(a->size()))) {
 			return std::make_shared<std::deque<T>>(std::deque<T>{});
 		};
-		if(!end.has_value() || end.value() > (int)(a->size())) {
+		if((!end.has_value()) || (end.value() > (int)(a->size()))) {
 			end = (int)(a->size());
 		} else {
 			if(end.value() < 0) {
@@ -88,7 +92,7 @@ public:
 		while(_g < _g1.value()) {
 			int i = _g++;
 			
-			if(i >= 0 && i < (int)(a->size())) {
+			if((i >= 0) && (i < (int)(a->size()))) {
 				result->push_back((*a)[i]);
 			};
 		};
@@ -101,7 +105,7 @@ public:
 		if(pos < 0) {
 			pos += (int)(a->size());
 		};
-		if(pos < 0 || pos > (int)(a->size())) {
+		if((pos < 0) || (pos > (int)(a->size()))) {
 			return std::make_shared<std::deque<T>>(std::deque<T>{});
 		};
 		if(len < 0) {
@@ -121,7 +125,7 @@ public:
 		while(_g < _g1) {
 			int i = _g++;
 			
-			if(i >= 0 && i < (int)(a->size())) {
+			if((i >= 0) && (i < (int)(a->size()))) {
 				result->push_back((*a)[i]);
 			};
 		};

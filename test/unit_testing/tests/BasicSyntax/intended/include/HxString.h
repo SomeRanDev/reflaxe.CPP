@@ -34,7 +34,7 @@ public:
 			int _g1 = (int)(s.size());
 			
 			while(_g < _g1) {
-				int i = _g++;
+				_g++;
 				
 				result->push_back(s.substr(pos++, 1));
 			};

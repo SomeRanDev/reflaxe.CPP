@@ -47,7 +47,7 @@ void Main::main() {
 	
 	Main::assert(!Sys_GetEnv::getEnv(key).has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 22, "main"s));
 	
-	if(false || (int)(val.size()) == 0) {
+	if(false || ((int)(val.size()) == 0)) {
 		unsetenv(key.c_str());
 	} else {
 		setenv(key.c_str(), val.c_str(), 1);
@@ -55,7 +55,7 @@ void Main::main() {
 	
 	Main::assert(Sys_GetEnv::getEnv("Haxe2UC++ Test Value"s) == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 24, "main"s));
 	
-	if(false || (int)(""s.size()) == 0) {
+	if(false || ((int)(""s.size()) == 0)) {
 		unsetenv(key.c_str());
 	} else {
 		setenv(key.c_str(), ""s.c_str(), 1);
@@ -65,7 +65,7 @@ void Main::main() {
 	
 	std::string s = key + "env_map"s;
 	
-	if(false || (int)("123"s.size()) == 0) {
+	if(false || ((int)("123"s.size()) == 0)) {
 		unsetenv(s.c_str());
 	} else {
 		setenv(s.c_str(), "123"s.c_str(), 1);
@@ -89,7 +89,7 @@ void Main::main() {
 	
 	double sleepTime = Sys_CpuTime::cpuTime() - beforeSleep;
 	
-	Main::assert(sleepTime > 1.1 && sleepTime < 1.4, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 61, "main"s));
+	Main::assert((sleepTime > 1.1) && (sleepTime < 1.4), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 61, "main"s));
 	haxe::Log::trace("sleepTime = "s + std::to_string(sleepTime), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 62, "main"s));
 	
 	if(Main::returnCode != 0) {

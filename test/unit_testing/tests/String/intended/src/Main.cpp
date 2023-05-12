@@ -69,7 +69,7 @@ void Main::main() {
 	
 	int tempLeft1;
 	
-	if(0 < 0 || 0 >= (int)(toolsStr.size())) {
+	if((0 < 0) || (0 >= (int)(toolsStr.size()))) {
 		tempLeft1 = -1;
 	} else {
 		tempLeft1 = toolsStr.at(0);
@@ -79,7 +79,7 @@ void Main::main() {
 	
 	int tempLeft2;
 	
-	if(99 < 0 || 99 >= (int)(toolsStr.size())) {
+	if((99 < 0) || (99 >= (int)(toolsStr.size()))) {
 		tempLeft2 = -1;
 	} else {
 		tempLeft2 = toolsStr.at(99);
@@ -111,13 +111,15 @@ void Main::main() {
 		int it_offset = 0;
 		std::string it_s = "Hello"s;
 		std::string result = ""s;
+		
 		while(it_offset < (int)(it_s.size())) {
 			int tempRight;
 			
 			{
 				std::string s = it_s;
 				int index = it_offset++;
-				if(index < 0 || index >= (int)(s.size())) {
+				
+				if((index < 0) || (index >= (int)(s.size()))) {
 					tempRight = -1;
 				} else {
 					tempRight = s.at(index);
@@ -126,6 +128,7 @@ void Main::main() {
 			
 			result += tempRight;
 		};
+		
 		Main::assert(result == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 84, "main"s));
 	};
 	{
@@ -133,6 +136,7 @@ void Main::main() {
 		std::string it_s = "Hello"s;
 		int count = 0;
 		std::string result = ""s;
+		
 		while(it_offset < (int)(it_s.size())) {
 			int n_value;
 			int n_key;
@@ -144,7 +148,8 @@ void Main::main() {
 			{
 				std::string s = it_s;
 				int index = it_offset++;
-				if(index < 0 || index >= (int)(s.size())) {
+				
+				if((index < 0) || (index >= (int)(s.size()))) {
 					tempRight1 = -1;
 				} else {
 					tempRight1 = s.at(index);
@@ -155,6 +160,7 @@ void Main::main() {
 			count += n_key;
 			result += n_value;
 		};
+		
 		Main::assert(count == 10, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 96, "main"s));
 		Main::assert(result == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 97, "main"s));
 	};

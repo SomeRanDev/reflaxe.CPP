@@ -3,7 +3,7 @@
 #include "Dynamic.h"
 namespace haxe {
 
-class Dynamic__Main_Main_Fields_: public Dynamic {
+class Dynamic__Main_Main_Fields_ {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
 		if(name == "main") {
@@ -24,7 +24,7 @@ public:
 }
 namespace haxe {
 
-class Dynamic_Test: public Dynamic {
+class Dynamic_Test {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
 		if(name == "a") {

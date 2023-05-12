@@ -85,7 +85,7 @@ void Main::main() {
 	int _g = 0;
 	
 	while(_g < 1000) {
-		int i = _g++;
+		_g++;
 		int tempNumber;
 		
 		if(10 <= 1) {
@@ -96,7 +96,7 @@ void Main::main() {
 		
 		int v = tempNumber;
 		
-		Main::assert(v >= 0 && v < 10, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 103, "main"s));
+		Main::assert((v >= 0) && (v < 10), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 103, "main"s));
 	};
 	
 	if(Main::returnCode != 0) {

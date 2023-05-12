@@ -29,9 +29,11 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 	
 	{
 		std::shared_ptr<std::deque<int>> result = std::make_shared<std::deque<int>>(std::deque<int>{});
+		
 		{
 			int _g = 0;
 			std::shared_ptr<std::deque<int>> _g1 = numbers;
+			
 			while(_g < (int)(_g1->size())) {
 				int obj = (*_g1)[_g];
 				
@@ -39,6 +41,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 				result->push_back(obj);
 			};
 		};
+		
 		tempLeft = result;
 	};
 	
@@ -49,9 +52,11 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 	
 	{
 		std::shared_ptr<std::deque<int>> result = std::make_shared<std::deque<int>>(std::deque<int>{});
+		
 		{
 			int _g = 0;
 			std::shared_ptr<std::deque<int>> _g1 = numbers;
+			
 			while(_g < (int)(_g1->size())) {
 				int obj = (*_g1)[_g];
 				
@@ -59,6 +64,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 				result->push_back(obj);
 			};
 		};
+		
 		tempArray = result;
 	};
 	
@@ -89,9 +95,11 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 	{
 		std::shared_ptr<haxe::_Rest::NativeRest<int>> this1 = haxe::_Rest::Rest_Impl_::append(numbers, 4);
 		std::shared_ptr<std::deque<int>> result = std::make_shared<std::deque<int>>(std::deque<int>{});
+		
 		{
 			int _g = 0;
 			std::shared_ptr<std::deque<int>> _g1 = this1;
+			
 			while(_g < (int)(_g1->size())) {
 				int obj = (*_g1)[_g];
 				
@@ -99,6 +107,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 				result->push_back(obj);
 			};
 		};
+		
 		tempLeft1 = result;
 	};
 	
@@ -109,9 +118,11 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 	{
 		std::shared_ptr<haxe::_Rest::NativeRest<int>> this1 = haxe::_Rest::Rest_Impl_::prepend(numbers, 0);
 		std::shared_ptr<std::deque<int>> result = std::make_shared<std::deque<int>>(std::deque<int>{});
+		
 		{
 			int _g = 0;
 			std::shared_ptr<std::deque<int>> _g1 = this1;
+			
 			while(_g < (int)(_g1->size())) {
 				int obj = (*_g1)[_g];
 				
@@ -119,6 +130,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 				result->push_back(obj);
 			};
 		};
+		
 		tempLeft2 = result;
 	};
 	
@@ -132,12 +144,14 @@ void Main::testRest(std::shared_ptr<haxe::_Rest::NativeRest<std::string>> string
 		std::shared_ptr<std::deque<std::string>> result = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
 		int _g = 0;
 		std::shared_ptr<std::deque<std::string>> _g1 = strings;
+		
 		while(_g < (int)(_g1->size())) {
 			std::string obj = (*_g1)[_g];
 			
 			++_g;
 			result->push_back(obj);
 		};
+		
 		tempLeft = result;
 	};
 	
@@ -165,6 +179,7 @@ void Main::main() {
 	
 	{
 		std::shared_ptr<haxe::_Rest::NativeRest<int>> this1;
+		
 		this1 = std::make_shared<std::deque<int>>(std::deque<int>{ 1, 2, 3 });
 		tempRest = this1;
 	};
@@ -175,6 +190,7 @@ void Main::main() {
 	
 	{
 		std::shared_ptr<haxe::_Rest::NativeRest<std::string>> this1;
+		
 		this1 = std::make_shared<std::deque<std::string>>(std::deque<std::string>{
 			"one"s,
 			"two"s,
@@ -189,6 +205,7 @@ void Main::main() {
 	
 	{
 		std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct0>>> this1;
+		
 		this1 = std::make_shared<std::deque<std::shared_ptr<haxe::AnonStruct0>>>(std::deque<std::shared_ptr<haxe::AnonStruct0>>{
 			haxe::shared_anon<haxe::AnonStruct0>(static_cast<std::any>(std::nullopt)),
 			haxe::shared_anon<haxe::AnonStruct0>(std::make_shared<std::deque<int>>(std::deque<int>{ 0, 500, 1000 }))
@@ -202,6 +219,7 @@ void Main::main() {
 	
 	{
 		std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct1>>> this1;
+		
 		this1 = std::make_shared<std::deque<std::shared_ptr<haxe::AnonStruct1>>>(std::deque<std::shared_ptr<haxe::AnonStruct1>>{
 			haxe::shared_anon<haxe::AnonStruct1>(123),
 			haxe::shared_anon<haxe::AnonStruct1>(std::nullopt),

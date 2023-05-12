@@ -16,6 +16,8 @@ public:
 	std::string _message;
 	
 	std::optional<std::shared_ptr<haxe::Exception>> _previous;
+	
+	virtual ~Exception() {}
 
 	Exception(std::string message, std::optional<haxe::Exception> previous = std::nullopt, std::optional<std::any> native = std::nullopt);
 	

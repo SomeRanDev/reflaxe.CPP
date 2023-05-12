@@ -15,6 +15,8 @@ public:
 
 class Base {
 public:
+	virtual ~Base() {}
+
 	Base();
 	
 	virtual int getVal();

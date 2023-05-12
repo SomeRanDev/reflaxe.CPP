@@ -20,9 +20,11 @@ public:
 		
 		{
 			std::shared_ptr<std::deque<T>> result = std::make_shared<std::deque<T>>(std::deque<T>{});
+			
 			{
 				int _g = 0;
 				std::shared_ptr<std::deque<T>> _g1 = this1;
+				
 				while(_g < (int)(_g1->size())) {
 					T obj = (*_g1)[_g];
 					
@@ -30,6 +32,7 @@ public:
 					result->push_back(obj);
 				};
 			};
+			
 			tempArray = result;
 		};
 		
@@ -49,9 +52,11 @@ public:
 		
 		{
 			std::shared_ptr<std::deque<T>> result = std::make_shared<std::deque<T>>(std::deque<T>{});
+			
 			{
 				int _g = 0;
 				std::shared_ptr<std::deque<T>> _g1 = this1;
+				
 				while(_g < (int)(_g1->size())) {
 					T obj = (*_g1)[_g];
 					
@@ -59,6 +64,7 @@ public:
 					result->push_back(obj);
 				};
 			};
+			
 			tempArray = result;
 		};
 		

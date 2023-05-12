@@ -3,7 +3,7 @@
 #include "Dynamic.h"
 namespace haxe {
 
-class Dynamic_haxe_Log: public Dynamic {
+class Dynamic_haxe_Log {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
 		if(name == "formatOutput") {

@@ -10,6 +10,8 @@ namespace haxe {
 template<typename K, typename V>
 class IMap {
 public:
+	virtual ~IMap() {}
+
 	virtual std::optional<V> get(K k) = 0;
 	
 	virtual void set(K k, V v) = 0;

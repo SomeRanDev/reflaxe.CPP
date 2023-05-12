@@ -19,8 +19,8 @@ void Main::bla() {
 	
 	{
 		std::shared_ptr<haxe::IMap<std::string, int>> this1 = this->testMap;
+		
 		this1->set("test"s, 123);
-		123;
 	};
 	
 	std::cout << "test/unit_testing/tests/IMapIssue/Main.hx:10: Test"s << std::endl;
@@ -29,6 +29,7 @@ void Main::bla() {
 	
 	{
 		std::shared_ptr<haxe::IMap<std::string, int>> this1 = this->testMap;
+		
 		tempString = this1->toString();
 	};
 	

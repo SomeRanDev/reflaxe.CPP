@@ -58,9 +58,11 @@ void Main::main() {
 	
 	{
 		std::shared_ptr<std::deque<int>> result = std::make_shared<std::deque<int>>(std::deque<int>{});
+		
 		{
 			int _g = 0;
 			std::shared_ptr<std::deque<int>> _g1 = arr2;
+			
 			while(_g < (int)(_g1->size())) {
 				int obj = (*_g1)[_g];
 				
@@ -68,6 +70,7 @@ void Main::main() {
 				result->push_back(obj);
 			};
 		};
+		
 		tempRight = result;
 	};
 	
@@ -81,6 +84,7 @@ void Main::main() {
 	
 	{
 		int fromIndex = 0;
+		
 		tempLeft = HxArray::indexOf<int>(arr3, 2, fromIndex);
 	};
 	
@@ -131,6 +135,7 @@ void Main::main() {
 	
 	{
 		std::optional<int> result = stack->back();
+		
 		stack->pop_back();
 		tempMaybeNumber = result;
 	};
@@ -144,11 +149,15 @@ void Main::main() {
 	
 	{
 		int tempNumber;
+		
 		{
 			int fromIndex = 0;
+			
 			tempNumber = HxArray::indexOf<int>(stack, 84, fromIndex);
 		};
+		
 		int index = tempNumber;
+		
 		if(index < 0) {
 			tempCond = false;
 		} else {
@@ -173,6 +182,7 @@ void Main::main() {
 	
 	{
 		std::optional<int> result = ordered->front();
+		
 		ordered->pop_front();
 		tempMaybeNumber1 = result;
 	};
@@ -184,6 +194,7 @@ void Main::main() {
 	
 	{
 		std::optional<int> end = std::nullopt;
+		
 		tempLeft1 = HxArray::slice<int>(newArr, 1, end);
 	};
 	
@@ -194,6 +205,7 @@ void Main::main() {
 	
 	{
 		std::optional<int> end = std::nullopt;
+		
 		tempLeft2 = HxArray::slice<int>(newArr, -1, end);
 	};
 	
@@ -234,6 +246,7 @@ void Main::main() {
 	
 	{
 		int _g = 0;
+		
 		while(_g < (int)(itArr->size())) {
 			int a = (*itArr)[_g];
 			

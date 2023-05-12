@@ -29,6 +29,7 @@ void Main::main() {
 	
 	{
 		std::shared_ptr<haxe::ds::IntMap<int>> _g = std::make_shared<haxe::ds::IntMap<int>>();
+		
 		_g->set(1, 123);
 		tempMap = _g;
 	};
@@ -74,6 +75,7 @@ void Main::main() {
 		std::shared_ptr<haxe::IMap<int, int>> map = intMap;
 		std::shared_ptr<haxe::IMap<int, int>> test_map = map;
 		std::shared_ptr<Iterator<int>> test_keys = map->keys();
+		
 		while(test_keys->hasNext()) {
 			int test_value;
 			int test_key;
@@ -84,6 +86,7 @@ void Main::main() {
 			
 			{
 				int _g = index++;
+				
 				switch(_g) {
 				
 					case 0: {
@@ -116,6 +119,7 @@ void Main::main() {
 	
 	{
 		std::shared_ptr<haxe::ds::IntMap<std::string>> _g = std::make_shared<haxe::ds::IntMap<std::string>>();
+		
 		_g->set(1, "test"s);
 		tempMap1 = _g;
 	};
@@ -125,6 +129,7 @@ void Main::main() {
 	
 	{
 		std::shared_ptr<haxe::ds::IntMap<std::string>> map = _intmap->copyOG();
+		
 		tempMap2 = map;
 	};
 	
