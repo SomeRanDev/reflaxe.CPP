@@ -6,8 +6,8 @@ import haxe.CallStack.StackItem;
 
 @:unsafePtrType
 extern class NativeStackItem {
-	public var type: Int;
-	public var data: String;
+	public var classname: String;
+	public var method: String;
 
 	public var file: String;
 	public var line: Int;
@@ -20,7 +20,7 @@ extern class NativeStackItem {
 @:noCompletion
 @:headerCode("
 #define HCXX_STACK_METHOD(...) \\
-	auto ___s = haxe::NativeStackItem::method(__VA_ARGS__)
+	haxe::NativeStackItem ___s(__VA_ARGS__)
 
 #define HCXX_LINE(line_num) \\
 	___s.line = line_num
@@ -29,15 +29,15 @@ namespace haxe {
 
 class NativeStackItem {
 public:
-	std::string data;
-	int type;
+	std::string classname;
+	std::string method;
 
 	std::string file;
 	int line;
 	int col;
 
-	NativeStackItem(int type, std::string file, int line, int col, std::string data):
-		data(data), type(type), file(file), line(line), col(col)
+	NativeStackItem(std::string file, int line, int col, std::string classname, std::string method):
+		file(file), line(line), col(col), classname(classname), method(method)
 	{
 		getStack()->push_front(this);
 	}
@@ -49,10 +49,6 @@ public:
 	static std::shared_ptr<std::deque<NativeStackItem*>> getStack() {
 		static auto stack = std::make_shared<std::deque<NativeStackItem*>>();
 		return stack;
-	}
-
-	static NativeStackItem method(std::string file, int line, int col, std::string classname, std::string method) {
-		return NativeStackItem(0, file, line, col, classname + \"::\" + method);
 	}
 };
 
@@ -84,15 +80,7 @@ class NativeStackTrace {
 				continue;
 			}
 			final item = nativeStackTrace[i];
-			switch(item.type) {
-				case 0: {
-					final str = item.data.split("::");
-					result.push(FilePos(Method(str[0], str[1]), item.file, item.line, item.col));
-				}
-				case _: {
-					result.push(CFunction);
-				}
-			}
+			result.push(FilePos(Method(item.classname, item.method), item.file, item.line, item.col));
 		}
 
 		return result;

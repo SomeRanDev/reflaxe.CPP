@@ -30,6 +30,7 @@ using reflaxe.helpers.OperatorHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
+using reflaxe.helpers.PositionHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypedExprHelper;
 using reflaxe.helpers.TypeHelper;
@@ -229,15 +230,7 @@ class Expressions extends SubCompiler {
 				result = unopToCpp(op, e, postFix);
 			}
 			case TFunction(tfunc): {
-				IComp.addInclude("functional", compilingInHeader, true);
-				final captureType = compilingForTopLevel ? "" : "&";
-				result = "[" + captureType + "](" + tfunc.args.map(a -> Main.compileFunctionArgument(a, expr.pos, false, true)).join(", ") + ") mutable {\n";
-				
-				pushReturnType(tfunc.t);
-				result += toIndentedScope(tfunc.expr);
-				popReturnType();
-				
-				result += "\n}";
+				result = compileLocalFunction(null, expr, tfunc);
 			}
 			case TVar(tvar, maybeExpr) if(!Define.KeepUnusedLocals.defined() && tvar.meta.maybeHas("-reflaxe.unused")): {
 				if(maybeExpr != null && maybeExpr.isMutator()) {
@@ -263,7 +256,15 @@ class Expressions extends SubCompiler {
 				}
 				result = typeCpp + " " + Main.compileVarName(tvar.name, expr);
 				if(maybeExpr != null) {
-					result += " = " + compileExpressionForType(maybeExpr, t);
+					final cpp = switch(maybeExpr.expr) {
+						case TFunction(tfunc): {
+							compileLocalFunction(tvar.name, expr, tfunc);
+						}
+						case _: {
+							compileExpressionForType(maybeExpr, t);
+						}
+					}
+					result += " = " + cpp;
 				}
 			}
 			case TBlock(_): {
@@ -899,6 +900,33 @@ class Expressions extends SubCompiler {
 		return isPostfix ? (cppExpr + operatorStr) : (operatorStr + cppExpr);
 	}
 
+	var localFunctionStack: Array<String> = [];
+	function compileLocalFunction(name: Null<String>, expr: TypedExpr, tfunc: TFunc): String {
+		IComp.addInclude("functional", compilingInHeader, true);
+		final captureType = compilingForTopLevel ? "" : "&";
+		var result = "[" + captureType + "](" + tfunc.args.map(a -> Main.compileFunctionArgument(a, expr.pos, false, true)).join(", ") + ") mutable {\n";
+		
+		// Setup call stack tracking for local function
+		final localFuncName = name ?? "<unnamed>";
+		if(Define.Callstack.defined()) {
+			IComp.addNativeStackTrace();
+			final functionName = CComp.currentFunction != null ? CComp.currentFunction.field.name : "<unknown>";
+			final parentLocalNames = localFunctionStack.length > 0 ? (localFunctionStack.join(".") + ".") : "";
+			final stackFuncName = functionName + "." + parentLocalNames + localFuncName;
+			result += generateStackTrackCode(Main.currentModule?.getCommonData(), stackFuncName, expr.pos).tab() + ";\n";
+		}
+
+		localFunctionStack.push(localFuncName);
+		pushReturnType(tfunc.t);
+		result += toIndentedScope(tfunc.expr);
+		popReturnType();
+		localFunctionStack.pop();
+		
+		result += "\n}";
+
+		return result;
+	}
+
 	function isThisExpr(te: TypedExpr): Bool {
 		return switch(te.expr) {
 			case TConst(TThis) if(thisOverride == null): {
@@ -1348,6 +1376,26 @@ class Expressions extends SubCompiler {
 		return switch(name) {
 			case _: null;
 		}
+	}
+
+	//functionName + "." + localFuncName
+	public function generateStackTrackCode(bt: Null<BaseType>, funcName: String, pos: Position): String {
+		final moduleName = {
+			if(Main.currentModule != null) {
+				final baseType = Main.currentModule.getCommonData();
+				(baseType.pack.length > 0 ? baseType.pack.join(".") + "." : "") + baseType.name;
+			 } else {
+				"<unknown>";
+			 }
+		}
+		final params: Array<String> = [
+			XComp.stringToCpp(pos.getFile()),
+			Std.string(pos.line()),
+			Std.string(pos.column()),
+			XComp.stringToCpp(moduleName),
+			XComp.stringToCpp(funcName)
+		];
+		return 'HCXX_STACK_METHOD(${params.join(", ")})';
 	}
 
 	// Checks a TCall expression to see if it is a `trace` call that

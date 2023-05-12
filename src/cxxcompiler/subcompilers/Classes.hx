@@ -43,6 +43,8 @@ using cxxcompiler.helpers.MetaHelper;
 class Classes extends SubCompiler {
 	@:nullSafety(Off) var classType: ClassType;
 
+	public var currentFunction: Null<ClassFuncData> = null;
+
 	var variables: Map<String, Array<String>> = [];
 	var functions: Map<String, Array<String>> = [];
 
@@ -175,6 +177,8 @@ class Classes extends SubCompiler {
 			compileFunction(destructorField);
 		}
 
+		currentFunction = null;
+
 		XComp.compilingInHeader = false;
 
 		generateOutput();
@@ -277,6 +281,8 @@ class Classes extends SubCompiler {
 
 	// Compile class function
 	function compileFunction(f: ClassFuncData) {
+		currentFunction = f;
+
 		final field = f.field;
 
 		final isStatic = f.isStatic;
@@ -533,12 +539,8 @@ class Classes extends SubCompiler {
 
 				final useCallStack = Define.Callstack.defined() && !field.hasMeta(Meta.NoCallstack);
 				if(useCallStack) {
-					final t = Context.getType("haxe.NativeStackTrace");
-					if(t != null) {
-						Main.onTypeEncountered(t, XComp.compilingInHeader);
-					}
-					IComp.addInclude("haxe_NativeStackTrace.h", XComp.compilingInHeader);
-					code.push('HCXX_STACK_METHOD(${XComp.stringToCpp(field.pos.getFile())}, ${field.pos.line()}, ${field.pos.column()}, ${XComp.stringToCpp(className)}, ${XComp.stringToCpp(name)});');
+					IComp.addNativeStackTrace();
+					code.push(XComp.generateStackTrackCode(classType, name, field.pos) + ";");
 				}
 
 				if(frontOptionalAssigns.length > 0) {
