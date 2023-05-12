@@ -244,12 +244,9 @@ class Expressions extends SubCompiler {
 					result += " = " + compileExpressionForType(maybeExpr, t);
 				}
 			}
-			case TBlock(el): {
+			case TBlock(_): {
 				result = "{\n";
-				result += el.map(e -> {
-					final e = Main.compileExpression(e);
-					return e == null ? null : (e.tab() + ";");
-				}).filter(s -> s != null).join("\n");
+				result += toIndentedScope(expr);
 				result += "\n}";
 			}
 			case TFor(tvar, iterExpr, blockExpr): {
