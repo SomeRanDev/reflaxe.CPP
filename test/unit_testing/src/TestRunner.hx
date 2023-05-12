@@ -192,6 +192,8 @@ function printFailed(msg: Null<String> = null) {
 }
 
 function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
+	final noIntended = sys.FileSystem.exists(haxe.io.Path.join([testDir, "no-intended"]));
+
 	for(hxml in hxmlFiles) {
 		final absPath = haxe.io.Path.join([testDir, hxml]);
 		final systemNameDefine = Sys.systemName().toLowerCase();
@@ -203,7 +205,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"-lib reflaxe",
 			"extraParams.hxml",
 			"-cp " + testDir,
-			"-D cpp-output=" + haxe.io.Path.join([testDir, getOutputDirectory(testDir)]),
+			"-D cpp-output=" + haxe.io.Path.join([testDir, noIntended ? OUT_DIR : getOutputDirectory(testDir)]),
 			"-D " + systemNameDefine,
 			"\"" + absPath + "\""
 		];
@@ -228,7 +230,11 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			}
 		}
 	}
-	return if(compareOutputFolders(testDir)) {
+
+	return if(noIntended) {
+		Sys.println("No intended folder! 😉");
+		true;
+	} else if(compareOutputFolders(testDir)) {
 		Sys.println("Success! Output matches! ❤️");
 		true;
 	} else {
