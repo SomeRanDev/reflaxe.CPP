@@ -9,12 +9,14 @@ package cxxcompiler.subcompilers;
 
 #if (macro || cxx_runtime)
 
+import reflaxe.helpers.Context;
 import haxe.macro.Type;
 
 import reflaxe.BaseCompiler;
 import reflaxe.data.EnumOptionData;
 
 using reflaxe.helpers.NullHelper;
+using reflaxe.helpers.PositionHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
@@ -28,6 +30,14 @@ using cxxcompiler.helpers.Sort;
 @:access(cxxcompiler.subcompilers.Includes)
 @:access(cxxcompiler.subcompilers.Types)
 class Enums extends SubCompiler {
+	static var dynToStringType: Null<Type>;
+	static function getDynToStringType(): Type {
+		if(dynToStringType == null) {
+			dynToStringType = Context.getType("cxx.DynamicToString");
+		}
+		return dynToStringType;
+	}
+
 	public function compileEnum(enumType: EnumType, options: Array<EnumOptionData>): Null<String> {
 		final filename = Main.getFileNameFromModuleData(enumType);
 		final headerFilename = filename + Compiler.HeaderExt;
@@ -69,6 +79,7 @@ class Enums extends SubCompiler {
 		var enumArgGetters = [];
 		var unionStructs = [];
 		var structs = [];
+		var toStringCases = [];
 
 		// Counts arguments added to the variant.
 		var variantIndex = 0;
@@ -76,10 +87,22 @@ class Enums extends SubCompiler {
 		// Sort the enum fields in index order to ensure
 		// sequential indexes are consistent + cleaner output.
 		final sortedOptions = options.sorted((a, b) -> {
-			return if(a.field.index < a.field.index) -1;
+			return if(a.field.index < b.field.index) -1;
 			else if(a.field.index > b.field.index) 1;
 			else 0;
 		});
+
+		// Generate, #include, and encounter `cxx.DynamicToString` if necessary.
+		final dynToStringType = getDynToStringType();
+		var dynToStringCpp = null;
+		function getDynToStringCpp() {
+			if(dynToStringCpp == null) {
+				dynToStringCpp = TComp.compileType(dynToStringType, PositionHelper.unknownPos(), true);
+				Main.onTypeEncountered(dynToStringType, true);
+				IComp.addIncludeFromType(dynToStringType, true);
+			}
+			return dynToStringCpp;
+		}
 
 		// Iterate
 		for(o in sortedOptions) {
@@ -141,6 +164,23 @@ class Enums extends SubCompiler {
 				unionStructs.push(content.tab());
 			}
 
+			// Generate cases used in `toString(): String` method
+			{
+				XComp.compilingInHeader = true;
+				final lines = ['case ${index}: {'];
+				if(hasArgs) {
+					lines.push('\tauto temp = get${o.name}();');
+					final a = args.map(a -> '${getDynToStringCpp()}(temp.${a[1]})').join(" + \", \" + ");
+					lines.push('\treturn ${XComp.stringToCpp(o.name)} + "(" + ${a} + ")";');
+				} else {
+					lines.push('\treturn ${XComp.stringToCpp(o.name)};');
+				}
+				lines.push("}");
+				XComp.compilingInHeader = false;
+
+				toStringCases.push(lines.join("\n").tab());
+			}
+
 			if(hasArgs) {
 				variantIndex++;
 			}
@@ -167,6 +207,10 @@ class Enums extends SubCompiler {
 		if(enumArgGetters.length > 0) {
 			declaration += "\n\n" + enumArgGetters.join("\n\n").tab();
 		}
+
+		// toString
+		final toStringContent = "switch(index) {\n" + toStringCases.join("\n") + "\n}\nreturn \"\";";
+		declaration += "\n\n" + ("std::string toString() {\n" + toStringContent.tab() + "\n}").tab();
 
 		// Finish C++ class
 		declaration += "\n};";
