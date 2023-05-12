@@ -34,6 +34,7 @@ using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypedExprHelper;
 using reflaxe.helpers.TypeHelper;
 
+using cxxcompiler.helpers.DefineHelper;
 using cxxcompiler.helpers.Error;
 using cxxcompiler.helpers.MetaHelper;
 using cxxcompiler.helpers.CppTypeHelper;
@@ -452,10 +453,12 @@ class Expressions extends SubCompiler {
 		}
 
 		if(targetType != null) {
-			final st = Main.getExprType(expr).unwrapNullTypeOrSelf();
-			final tt = targetType.unwrapNullTypeOrSelf();
-			if(tt.isCppNumberType() && st.isCppNumberType() && st.shouldCastNumber(tt)) {
-				result = '(${TComp.compileType(tt, expr.pos)})($result)';
+			if(!Define.DontCastNumComp.defined()) {
+				final st = Main.getExprType(expr).unwrapNullTypeOrSelf();
+				final tt = targetType.unwrapNullTypeOrSelf();
+				if(tt.isCppNumberType() && st.isCppNumberType() && st.shouldCastNumber(tt)) {
+					result = '(${TComp.compileType(tt, expr.pos)})($result)';
+				}
 			}
 		}
 
@@ -733,7 +736,7 @@ class Expressions extends SubCompiler {
 
 		// Check if one of the numbers should be casted.
 		// Certain C++ warnings require both numbers to be the same.
-		if(!Context.defined(Define.DontCastNumComp)) {
+		if(!Define.DontCastNumComp.defined()) {
 			final comparisonOp = switch(op) {
 				case OpEq | OpNotEq | OpGt | OpGte | OpLt | OpLte: true;
 				case _: false;
