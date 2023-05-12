@@ -39,11 +39,11 @@ public:
 	NativeStackItem(int type, std::string file, int line, int col, std::string data):
 		data(data), type(type), file(file), line(line), col(col)
 	{
-		getStack()->push_back(this);
+		getStack()->push_front(this);
 	}
 
 	~NativeStackItem() {
-		getStack()->pop_back();
+		getStack()->pop_front();
 	}
 
 	static std::shared_ptr<std::deque<NativeStackItem*>> getStack() {
