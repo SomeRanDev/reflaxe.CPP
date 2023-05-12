@@ -23,13 +23,16 @@ using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.NullHelper;
+using reflaxe.helpers.PositionHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
 import cxxcompiler.subcompilers.Includes.ExtraFlag;
+import cxxcompiler.config.Define;
 import cxxcompiler.config.Meta;
 import cxxcompiler.other.DependencyTracker;
 
+using cxxcompiler.helpers.DefineHelper;
 using cxxcompiler.helpers.Error;
 using cxxcompiler.helpers.MetaHelper;
 
@@ -527,8 +530,24 @@ class Classes extends SubCompiler {
 				
 				// Store every section of code to be added to the function
 				final code = [];
-				if(frontOptionalAssigns.length > 0) code.push(frontOptionalAssigns.join("\n"));
+
+				final useCallStack = Define.Callstack.defined() && !field.hasMeta(Meta.NoCallstack);
+				if(useCallStack) {
+					final t = Context.getType("haxe.NativeStackTrace");
+					if(t != null) {
+						Main.onTypeEncountered(t, XComp.compilingInHeader);
+					}
+					IComp.addInclude("haxe_NativeStackTrace.h", XComp.compilingInHeader);
+					code.push('HCXX_STACK_METHOD(${XComp.stringToCpp(field.pos.getFile())}, ${field.pos.line()}, ${field.pos.column()}, ${XComp.stringToCpp(className)}, ${XComp.stringToCpp(name)});');
+				}
+
+				if(frontOptionalAssigns.length > 0) {
+					code.push(frontOptionalAssigns.join("\n"));
+				}
+
+				XComp.pushTrackLines(useCallStack);
 				code.push(Main.compileClassFuncExpr(f.expr));
+				XComp.popTrackLines();
 
 				// Put everything together
 				constructorInitFields + suffixSpecifiers.join(" ") + " {\n" + code.join("\n\n").tab() + "\n}";

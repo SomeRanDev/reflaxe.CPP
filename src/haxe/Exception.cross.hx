@@ -11,7 +11,11 @@ class Exception extends cxx.std.Exception {
 
 	public var stack(get, never): CallStack;
 	private function get_stack(): CallStack {
+		#if cxx_callstack
+		return _stack;
+		#else
 		return [];
+		#end
 	}
 
 	public var previous(get, never): Null<Exception>;
@@ -38,12 +42,18 @@ class Exception extends cxx.std.Exception {
 
 	var _message: String;
 	var _previous: Null<cxx.SharedPtr<Exception>>;
+	#if cxx_callstack
+	var _stack: CallStack;
+	#end
 
 	public function new(message: String, ?previous: Exception, ?native: Any): Void {
 		super();
 
 		_message = message;
 		_previous = previous != null ? cxx.SharedPtr.make((previous : Exception)) : null;
+		#if cxx_callstack
+		_stack = NativeStackTrace.toHaxe(NativeStackTrace.callStack());
+		#end
 	}
 
 	private function unwrap(): Any {

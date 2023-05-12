@@ -299,4 +299,10 @@ enum abstract Meta(String) from String to String {
 	// When processing this field using its type, the type of the field
 	// provided by this meta is used instead. Use carefully.
 	var RedirectType = ":redirectType";
+
+	// @:noCallstack()
+	//
+	// When used on a function, that function will not generate callstack
+	// tracking C++ code if it's enabled. 
+	var NoCallstack = ":noCallstack";
 }

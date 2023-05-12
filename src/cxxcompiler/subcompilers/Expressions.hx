@@ -83,6 +83,27 @@ class Expressions extends SubCompiler {
 	}
 
 	// ----------------------------
+	// If `true`, indented scopes will assume a `haxe::NativeStackItem`
+	// named `___s` exists and will update its Haxe line.
+	var trackLinesCallStack: Bool = false;
+	var trackLinesStack: Array<Bool> = [];
+
+	public function pushTrackLines(b: Bool) {
+		trackLinesStack.push(trackLinesCallStack);
+		trackLinesCallStack = b;
+	}
+
+	public function popTrackLines(): Bool {
+		return if(trackLinesStack.length > 0) {
+			final old = trackLinesStack.pop() ?? false;
+			trackLinesCallStack = trackLinesStack.length > 0 ? trackLinesStack[trackLinesStack.length - 1] : false;
+			old;
+		} else {
+			false;
+		}
+	}
+
+	// ----------------------------
 	// Compiles an expression into C++.
 	public function compileExpressionToCpp(expr: TypedExpr): Null<String> {
 		// cxx.Stynax.classicFor
@@ -674,7 +695,7 @@ class Expressions extends SubCompiler {
 		}
 	}
 
-	function stringToCpp(s: String): String {
+	public function stringToCpp(s: String): String {
 		// Add backslash to all quotes and backslashes.
 		var result = StringTools.replace(s, "\\", "\\\\");
 		result = StringTools.replace(result, "\"", "\\\"");
