@@ -25,7 +25,7 @@ enum MemoryManagementType {
 	UniquePtr;
 }
 
-class MetaHelpers {
+class MetaHelper {
 	public static function hasNativeMeta(meta: NameAndMeta): Bool {
 		return meta.hasMeta(":native");
 	}
