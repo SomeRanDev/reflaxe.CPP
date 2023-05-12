@@ -1,11 +1,8 @@
 // =======================================================
-// * Meta
+// * MetaHelper
 //
-// List all the custom metadata used in this project and
-// provides access using a String enum abstract.
-//
-// Furthermore, it adds static extensions for objects that
-// match: { name: String, meta: Null<MetaAccess> }
+// Adds static extensions for objects that match:
+//    { name: String, meta: Null<MetaAccess> }
 // =======================================================
 
 package cxxcompiler.helpers;

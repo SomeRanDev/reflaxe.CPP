@@ -1,3 +1,10 @@
+// =======================================================
+// * Meta
+//
+// List all the custom metadata used in this project and
+// provides access using a String enum abstract.
+// =======================================================
+
 package cxxcompiler.config;
 
 enum abstract Meta(String) from String to String {

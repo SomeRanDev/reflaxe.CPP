@@ -1,3 +1,10 @@
+// =======================================================
+// * Define
+//
+// List all the custom defines used in this project and
+// provides access using a String enum abstract.
+// =======================================================
+
 package cxxcompiler.config;
 
 enum abstract Define(String) from String to String {
