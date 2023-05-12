@@ -23,9 +23,16 @@ function test3() {
 	final callstack = haxe.CallStack.callStack();
 
 	// expected output
-	trace(callstack);
+	Sys.println(callstack);
+	Sys.println("");
+	Sys.println(haxe.CallStack.toString(callstack));
 
-	switch(callstack[0]) {
+	switch(callstack[3]) {
+		case FilePos(Method("Main_Fields_", "main"), _, 11, 1): assert(true);
+		case _: assert(false);
+	}
+
+	switch(callstack[2]) {
 		case FilePos(Method("Main_Fields_", "test1"), _, 15, 1): assert(true);
 		case _: assert(false);
 	}
@@ -35,7 +42,7 @@ function test3() {
 		case _: assert(false);
 	}
 
-	switch(callstack[2]) {
+	switch(callstack[0]) {
 		case FilePos(Method("Main_Fields_", "test3"), _, 23, 1): assert(true);
 		case _: assert(false);
 	}

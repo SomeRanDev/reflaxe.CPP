@@ -44,7 +44,7 @@ class CompilerInit {
 		// Ensure the Haxe compiler keeps every IMap field.
 		#if macro
 		haxe.macro.Compiler.addMetadata("@:keep", "haxe.IMap");
-		haxe.macro.Compiler.addMetadata("@:noCallstack", "haxe.CallStack", "callStack", true);
+		// haxe.macro.Compiler.addMetadata("@:noCallstack", "haxe.CallStack", "callStack", true);
 		#end
 	}
 
