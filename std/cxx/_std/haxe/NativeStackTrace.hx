@@ -4,16 +4,20 @@ package haxe;
 
 import haxe.CallStack.StackItem;
 
-@:unsafePtrType
-extern class NativeStackItem {
+@:valueType
+extern class NativeStackItemData {
 	public var classname: String;
 	public var method: String;
 
 	public var file: String;
 	public var line: Int;
 	public var col: Int;
+}
 
-	public static function getStack(): Array<cxx.Ptr<NativeStackItem>>;
+@:unsafePtrType
+extern class NativeStackItem {
+	public var data: NativeStackItemData;
+	public static function copyStack(): Array<NativeStackItemData>;
 }
 
 @:dox(hide)
@@ -23,32 +27,56 @@ extern class NativeStackItem {
 	haxe::NativeStackItem ___s(__VA_ARGS__)
 
 #define HCXX_LINE(line_num) \\
-	___s.line = line_num
+	___s.data.line = line_num
 
 namespace haxe {
 
-class NativeStackItem {
-public:
+// Data for the call stack
+struct NativeStackItemData {
 	std::string classname;
 	std::string method;
 
 	std::string file;
 	int line;
 	int col;
+};
 
-	NativeStackItem(std::string file, int line, int col, std::string classname, std::string method):
-		classname(classname), method(method), file(file), line(line), col(col)
-	{
+// Manages the call stack data
+class NativeStackItem {
+public:
+	NativeStackItemData data;
+
+	// Generate an item at the start of a function
+	NativeStackItem(std::string file, int line, int col, std::string classname, std::string method) {
+		data.file = file;
+		data.line = line;
+		data.col = col;
+		data.classname = classname;
+		data.method = method;
+
+		// Do not copy by value, use pointers to avoid multiple destructions
 		getStack()->push_front(this);
 	}
 
+	// Once this object goes out of scope (the function is complete),
+	// it removes itself from the static list.
 	~NativeStackItem() {
 		getStack()->pop_front();
 	}
 
+	// Hack to use static variable in header only class
 	static std::shared_ptr<std::deque<NativeStackItem*>> getStack() {
 		static auto stack = std::make_shared<std::deque<NativeStackItem*>>();
 		return stack;
+	}
+
+	// Copy the data specifically (so copy/destruction doesn't occur on manager object)
+	static std::shared_ptr<std::deque<NativeStackItemData>> copyStack() {
+		auto result = std::make_shared<std::deque<NativeStackItemData>>();
+		for(auto& item : *getStack()) {
+			result->push_back(item->data);
+		}
+		return result;
 	}
 };
 
@@ -62,17 +90,17 @@ class NativeStackTrace {
 	}
 
 	@:noCallstack
-	public static function callStack(): Array<NativeStackItem> {
-		return NativeStackItem.getStack();
+	public static function callStack(): Array<NativeStackItemData> {
+		return NativeStackItem.copyStack();
 	}
 
 	@:noCallstack
-	public static function exceptionStack(): Array<NativeStackItem> {
-		return NativeStackItem.getStack();
+	public static function exceptionStack(): Array<NativeStackItemData> {
+		return NativeStackItem.copyStack();
 	}
 
 	@:noCallstack
-	public static function toHaxe(nativeStackTrace: Array<NativeStackItem>, skip: Int = 0): Array<StackItem> {
+	public static function toHaxe(nativeStackTrace: Array<NativeStackItemData>, skip: Int = 0): Array<StackItem> {
 		final result = [];
 
 		for(i in 0...nativeStackTrace.length) {
