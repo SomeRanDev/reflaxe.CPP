@@ -818,7 +818,7 @@ class Expressions extends SubCompiler {
 	function checkIfBinopWrapNeeded(operators: Array<Binop>, op: Binop, e1: TypedExpr, e2: TypedExpr): { p1: Bool, p2: Bool } {
 		// Returns `true` if a Binop that should be wrapped with parenthesis.
 		function isWrapOp(op: Null<Binop>)
-			return operators.contains(op);
+			return op != null && operators.contains(op);
 
 		final result = { p1: false, p2: false };
 
