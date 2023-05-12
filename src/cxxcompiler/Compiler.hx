@@ -25,6 +25,7 @@ using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.NullHelper;
+using reflaxe.helpers.PositionHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypedExprHelper;
 using reflaxe.helpers.TypeHelper;
@@ -39,9 +40,11 @@ import cxxcompiler.subcompilers.Reflection;
 import cxxcompiler.subcompilers.Dynamic.Dynamic_;
 import cxxcompiler.subcompilers.Types;
 
+import cxxcompiler.config.Define;
 import cxxcompiler.config.Meta;
 import cxxcompiler.other.DependencyTracker;
 
+using cxxcompiler.helpers.DefineHelper;
 using cxxcompiler.helpers.MetaHelper;
 using cxxcompiler.helpers.CppTypeHelper;
 
@@ -90,6 +93,18 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// Required for adding semicolons at the end of each line.
 	override function formatExpressionLine(expr: String): String {
 		return expr + ";";
+	}
+
+	// ----------------------------
+	// Required for adding call stack information on each expression.
+	override function prefixExpressionContent(expr: TypedExpr, output: String): Null<Array<String>> {
+		return if(Define.Callstack.defined() && XComp.trackLinesCallStack) {
+			final result = super.prefixExpressionContent(expr, output) ?? [];
+			result.push('HCXX_LINE(${expr.pos.line()});');
+			return result;
+		} else {
+			super.prefixExpressionContent(expr, output);
+		}
 	}
 
 	// ============================
