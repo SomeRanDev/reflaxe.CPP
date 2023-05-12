@@ -112,7 +112,6 @@ class NativeStackTrace {
 		}
 
 		return result;
-
 	}
 }
 
