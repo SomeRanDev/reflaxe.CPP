@@ -205,7 +205,6 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"-cp " + testDir,
 			"-D cpp-output=" + haxe.io.Path.join([testDir, getOutputDirectory(testDir)]),
 			"-D " + systemNameDefine,
-			"-D cxx_callstack",
 			"\"" + absPath + "\""
 		];
 
