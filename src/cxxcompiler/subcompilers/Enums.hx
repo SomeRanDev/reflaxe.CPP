@@ -76,7 +76,7 @@ class Enums extends SubCompiler {
 		// Sort the enum fields in index order to ensure
 		// sequential indexes are consistent + cleaner output.
 		final sortedOptions = options.sorted((a, b) -> {
-			return if(a.field.index < a.field.index) -1;
+			return if(a.field.index < b.field.index) -1;
 			else if(a.field.index > b.field.index) 1;
 			else 0;
 		});
