@@ -37,7 +37,7 @@ public:
 	int col;
 
 	NativeStackItem(std::string file, int line, int col, std::string classname, std::string method):
-		file(file), line(line), col(col), classname(classname), method(method)
+		classname(classname), method(method), file(file), line(line), col(col)
 	{
 		getStack()->push_front(this);
 	}
