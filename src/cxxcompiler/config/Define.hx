@@ -24,4 +24,11 @@ enum abstract Define(String) from String to String {
 		the same type.
 	**/
 	var DontCastNumComp = "dont-cast-numeric-comparisons";
+
+	/**
+		-D keep-unused-locals
+
+		If defined, unused local variables are generated.
+	**/
+	var KeepUnusedLocals = "keep-unused-locals";
 }
