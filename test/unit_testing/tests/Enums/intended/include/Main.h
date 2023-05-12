@@ -1,5 +1,7 @@
 #pragma once
 
+#include "_AnonUtils.h"
+#include "cxx_DynamicToString.h"
 #include "haxe_PosInfos.h"
 #include <memory>
 #include <optional>
@@ -50,6 +52,23 @@ public:
 	
 	dEntry3Impl getEntry3() {
 		return std::get<1>(data);
+	}
+
+	std::string toString() {
+		switch(index) {
+			case 0: {
+				return std::string("Entry1");
+			}
+			case 1: {
+				auto temp = getEntry2();
+				return std::string("Entry2") + "(" + haxe::DynamicToString(temp.i) + ")";
+			}
+			case 2: {
+				auto temp = getEntry3();
+				return std::string("Entry3") + "(" + haxe::DynamicToString(temp.s) + ")";
+			}
+		}
+		return "";
 	}
 };
 
