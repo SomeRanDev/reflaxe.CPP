@@ -674,7 +674,7 @@ class Expressions extends SubCompiler {
 		}
 	}
 
-	function stringToCpp(s: String): String {
+	public function stringToCpp(s: String): String {
 		// Add backslash to all quotes and backslashes.
 		var result = StringTools.replace(s, "\\", "\\\\");
 		result = StringTools.replace(result, "\"", "\\\"");
