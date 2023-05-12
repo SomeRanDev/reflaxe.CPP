@@ -87,7 +87,7 @@ class Dynamic_ extends SubCompiler {
 		return '
 namespace haxe {
 
-class ${dynamicName}: public Dynamic {
+class ${dynamicName} {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
 ${getProps.map(p -> p.tab(2)).join(" else ")}
@@ -288,7 +288,7 @@ public:
 		return std::string(\"Dynamic\");
 	}
 
-	virtual Dynamic getProp(std::string name) {
+	Dynamic getProp(std::string name) {
 		if(getFunc != nullptr) {
 			Dynamic result = getFunc(*this, name);
 			if(!result.isEmpty()) return result;
@@ -296,7 +296,7 @@ public:
 		throw \"Property does not exist\";
 	}
 
-	virtual Dynamic setProp(std::string name, Dynamic value) {
+	Dynamic setProp(std::string name, Dynamic value) {
 		if(setFunc != nullptr) {
 			Dynamic result = setFunc(*this, name, value);
 			if(!result.isEmpty()) return result;
@@ -304,14 +304,14 @@ public:
 		throw \"Property does not exist\";
 	}
 
-	virtual Dynamic operator()() {
+	Dynamic operator()() {
 		if(_dynType == Function) {
 			return func({});
 		}
 		throw \"Cannot call this Dynamic\";
 	}
 
-	virtual Dynamic operator()(std::deque<Dynamic> args) {
+	Dynamic operator()(std::deque<Dynamic> args) {
 		if(_dynType == Function) {
 			return func(args);
 		}
