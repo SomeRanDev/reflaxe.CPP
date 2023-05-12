@@ -31,4 +31,12 @@ enum abstract Define(String) from String to String {
 		If defined, unused local variables are generated.
 	**/
 	var KeepUnusedLocals = "keep-unused-locals";
+
+	/**
+		-D keep-useless-exprs
+
+		If defined, expressions that don't do anything
+		are still generated.
+	**/
+	var KeepUselessExprs = "keep-useless-exprs";
 }

@@ -632,7 +632,11 @@ class Expressions extends SubCompiler {
 			case TBlock(el): el;
 			case _: [e];
 		}
-		el = el.filter(TypedExprHelper.isMutator);
+
+		if(!Define.KeepUselessExprs.defined()) {
+			el = el.filter(TypedExprHelper.isMutator);
+		}
+
 		return if(el.length == 0) {
 			"";
 		} else {
