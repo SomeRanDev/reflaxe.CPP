@@ -538,7 +538,7 @@ class Classes extends SubCompiler {
 						Main.onTypeEncountered(t, XComp.compilingInHeader);
 					}
 					IComp.addInclude("haxe_NativeStackTrace.h", XComp.compilingInHeader);
-					code.push('HCXX_STACK_METHOD(${XComp.stringToCpp(field.pos.getFile())}, ${field.pos.line()}, ${field.pos.column()}, ${XComp.stringToCpp(className)}, ${XComp.stringToCpp(name)});');
+					code.push('HCXX_STACK_METHOD(${XComp.stringToCpp(field.pos.getFile())}, ${field.pos.line()}, ${field.pos.column()}, ${XComp.stringToCpp(className)}, ${XComp.stringToCpp(name)})');
 				}
 
 				if(frontOptionalAssigns.length > 0) {

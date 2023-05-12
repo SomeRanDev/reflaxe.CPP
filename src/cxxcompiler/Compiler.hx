@@ -100,7 +100,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	override function prefixExpressionContent(expr: TypedExpr, output: String): Null<Array<String>> {
 		return if(Define.Callstack.defined() && XComp.trackLinesCallStack) {
 			final result = super.prefixExpressionContent(expr, output) ?? [];
-			result.push('HCXX_LINE(${expr.pos.line()});');
+			result.push('HCXX_LINE(${expr.pos.line()})');
 			return result;
 		} else {
 			super.prefixExpressionContent(expr, output);
