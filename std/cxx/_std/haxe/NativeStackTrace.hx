@@ -104,13 +104,13 @@ class NativeStackTrace {
 
 @:dox(hide)
 @:noCompletion
-class NativeStackTrace {
-	public static function saveStack(exception: Any): Void {}
-	public static function callStack(): Array<Any> { err(); return []; }
-	public static function exceptionStack(): Array<Any> { err(); return []; }
-	public static function toHaxe(nativeStackTrace: Array<Any>, skip: Int = 0): Array<haxe.CallStack.StackItem> { err(); return []; }
+extern class NativeStackTrace {
+	public static inline extern function saveStack(exception: Any): Void {}
+	public static inline extern function callStack(): Array<Any> { err(); return []; }
+	public static inline extern function exceptionStack(): Array<Any> { err(); return []; }
+	public static inline extern function toHaxe(nativeStackTrace: Array<Any>, skip: Int = 0): Array<haxe.CallStack.StackItem> { err(); return []; }
 
-	static function err() Sys.println("Call stack features must be enabled using -D cxx_callstack.");
+	static inline extern function err() Sys.println("Call stack features must be enabled using -D cxx_callstack.");
 }
 
 #end
