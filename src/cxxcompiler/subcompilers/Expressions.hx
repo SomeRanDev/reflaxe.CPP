@@ -34,6 +34,7 @@ using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypedExprHelper;
 using reflaxe.helpers.TypeHelper;
 
+using cxxcompiler.helpers.DefineHelper;
 using cxxcompiler.helpers.Error;
 using cxxcompiler.helpers.MetaHelper;
 using cxxcompiler.helpers.CppTypeHelper;
@@ -217,7 +218,7 @@ class Expressions extends SubCompiler {
 				
 				result += "\n}";
 			}
-			case TVar(tvar, maybeExpr) if(tvar.meta.maybeHas("-reflaxe.unused")): {
+			case TVar(tvar, maybeExpr) if(!Define.KeepUnusedLocals.defined() && tvar.meta.maybeHas("-reflaxe.unused")): {
 				if(maybeExpr != null && maybeExpr.isMutator()) {
 					result = Main.compileExpression(maybeExpr);
 				} else {
@@ -452,10 +453,12 @@ class Expressions extends SubCompiler {
 		}
 
 		if(targetType != null) {
-			final st = Main.getExprType(expr).unwrapNullTypeOrSelf();
-			final tt = targetType.unwrapNullTypeOrSelf();
-			if(tt.isCppNumberType() && st.isCppNumberType() && st.shouldCastNumber(tt)) {
-				result = '(${TComp.compileType(tt, expr.pos)})($result)';
+			if(!Define.DontCastNumComp.defined()) {
+				final st = Main.getExprType(expr).unwrapNullTypeOrSelf();
+				final tt = targetType.unwrapNullTypeOrSelf();
+				if(tt.isCppNumberType() && st.isCppNumberType() && st.shouldCastNumber(tt)) {
+					result = '(${TComp.compileType(tt, expr.pos)})($result)';
+				}
 			}
 		}
 
@@ -629,7 +632,11 @@ class Expressions extends SubCompiler {
 			case TBlock(el): el;
 			case _: [e];
 		}
-		el = el.filter(TypedExprHelper.isMutator);
+
+		if(!Define.KeepUselessExprs.defined()) {
+			el = el.filter(TypedExprHelper.isMutator);
+		}
+
 		return if(el.length == 0) {
 			"";
 		} else {
@@ -733,7 +740,7 @@ class Expressions extends SubCompiler {
 
 		// Check if one of the numbers should be casted.
 		// Certain C++ warnings require both numbers to be the same.
-		if(!Context.defined(Define.DontCastNumComp)) {
+		if(!Define.DontCastNumComp.defined()) {
 			final comparisonOp = switch(op) {
 				case OpEq | OpNotEq | OpGt | OpGte | OpLt | OpLte: true;
 				case _: false;
