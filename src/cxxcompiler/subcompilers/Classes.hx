@@ -45,6 +45,8 @@ class Classes extends SubCompiler {
 
 	public var currentFunction: Null<ClassFuncData> = null;
 
+	public var superConstructorCall: Null<String> = null;
+
 	var variables: Map<String, Array<String>> = [];
 	var functions: Map<String, Array<String>> = [];
 
@@ -209,6 +211,8 @@ class Classes extends SubCompiler {
 		hadVirtual = false;
 
 		fieldsCompiled = 0;
+
+		superConstructorCall = null;
 
 		classTypeRef = switch(Main.getCurrentModule()) {
 			case TClassDecl(c): c;
@@ -517,13 +521,6 @@ class Classes extends SubCompiler {
 			var content = if(f.expr != null) {
 				XComp.compilingInHeader = !addToCpp;
 
-				// Use initialization list to set _order_id in constructor.
-				final constructorInitFields = if(isConstructor && !noAutogen) {
-					": _order_id(generate_order_id())";
-				} else {
-					"";
-				}
-
 				// Optional arguments in front need to be given
 				// their default value if they are passed `null`.
 				final frontOptionalAssigns = [];
@@ -551,8 +548,25 @@ class Classes extends SubCompiler {
 				code.push(Main.compileClassFuncExpr(f.expr));
 				XComp.popTrackLines();
 
+				// Use initialization list to set _order_id in constructor.
+				final constructorInitFields = if(isConstructor && !noAutogen) {
+					["_order_id(generate_order_id())"];
+				} else {
+					[];
+				}
+
+				if(superConstructorCall != null) {
+					constructorInitFields.unshift(superConstructorCall);
+					superConstructorCall = null;
+				}
+
+				final constructorInitFieldsStr = constructorInitFields.length > 0 ? (":\n\t" + constructorInitFields.join(", ") + "\n") : "";
+				final suffixSpecifiersStr = suffixSpecifiers.length > 0 ? (suffixSpecifiers.join(" ") + " ") : "";
+
+				final space = constructorInitFieldsStr.length == 0 && suffixSpecifiersStr.length == 0 ? " " : "";
+
 				// Put everything together
-				constructorInitFields + suffixSpecifiers.join(" ") + " {\n" + code.join("\n\n").tab() + "\n}";
+				constructorInitFieldsStr + suffixSpecifiersStr + space + "{\n" + code.join("\n\n").tab() + "\n}";
 			} else {
 				"";
 			}
@@ -725,13 +739,15 @@ class Classes extends SubCompiler {
 
 		final content = DComp.getDynamicContent();
 		final dynFilename = "dynamic/Dynamic_" + filename + Compiler.HeaderExt;
-		Main.addCompileEndCallback(function() {
-			if(DComp.enabled) {
-				Main.setExtraFileIfEmpty(Compiler.HeaderFolder + "/" + dynFilename, "#pragma once\n\n#include \"Dynamic.h\"");
-				Main.appendToExtraFile(Compiler.HeaderFolder + "/" + dynFilename,  content);
-				Main.appendToExtraFile(headerFilename, "#include \"" + dynFilename + "\"\n", 9999999);
-			}
-		});
+		if(classType.params.length == 0) { // TODO, allow type params
+			Main.addCompileEndCallback(function() {
+				if(DComp.enabled) {
+					Main.setExtraFileIfEmpty(Compiler.HeaderFolder + "/" + dynFilename, "#pragma once\n\n#include \"Dynamic.h\"");
+					Main.appendToExtraFile(Compiler.HeaderFolder + "/" + dynFilename,  content);
+					Main.appendToExtraFile(headerFilename, "#include \"" + dynFilename + "\"\n", 9999999);
+				}
+			});
+		}
 
 		Main.addReflectionCpp(headerFilename, classTypeRef.trustMe());
 	}

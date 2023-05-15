@@ -250,6 +250,12 @@ enum abstract Meta(String) from String to String {
 	// type parameter number "X" (starting from 0).
 	var NativeTypeCode = ":nativeTypeCode";
 
+	// @:makeThisNotNull
+	//
+	// Used with @:nativeFunctionCode. Ensures {this} expression
+	// is compiled as "not null".
+	var MakeThisNotNull = ":makeThisNotNull";
+
 	// @:appendContent(code: String)
 	//
 	// Appends arbitrary C++ code to the declaration of the 

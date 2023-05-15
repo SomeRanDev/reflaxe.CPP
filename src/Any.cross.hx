@@ -9,6 +9,7 @@ extern abstract Any(Dynamic) {
 	@:noCompletion
 	@:to
 	@:nativeFunctionCode("std::any_cast<{type0}>({this})")
+	@:makeThisNotNull
 	@:include("any", true)
 	extern function __promote<T>(): T;
 

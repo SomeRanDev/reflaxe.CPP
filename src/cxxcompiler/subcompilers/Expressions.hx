@@ -126,6 +126,14 @@ class Expressions extends SubCompiler {
 			case TConst(constant): {
 				result = constantToCpp(constant, expr);
 			}
+			case TCall(callExpr, el) if(switch(callExpr.expr) { case TConst(TSuper): true; case _: false; }): {
+				if(CComp.superConstructorCall == null) {
+					CComp.superConstructorCall = compileCall(callExpr, el, expr);
+				} else {
+					throw "`super` constructor call made multiple times!";
+				}
+				result = null;
+			}
 			case TLocal(v): {
 				IComp.addIncludeFromMetaAccess(v.meta, compilingInHeader);
 				result = Main.compileVarName(v.name, expr);
@@ -341,7 +349,21 @@ class Expressions extends SubCompiler {
 						Main.compileExpression(maybeExpr);
 					}
 				} : null;
-				if(cpp != null) {
+
+				// Check if throw statement.
+				var returnThrow = false;
+				if(maybeExpr != null) {
+					switch(maybeExpr.unwrapParenthesis().expr) {
+						case TThrow(throwExpr):
+							returnThrow = true;
+						case _:
+					}
+				}
+
+				if(returnThrow) {
+					// `throw` can't be returned, so we'll just ignore the return.
+					result = cpp;
+				} else if(cpp != null) {
 					result = "return " + cpp;
 				} else {
 					result = "return";
@@ -456,7 +478,15 @@ class Expressions extends SubCompiler {
 	// Internally compiles the expression for a type.
 	// Used in multiple places where the special cases for the target type do not apply.
 	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool): Null<String> {
-		var result = switch(expr.expr) {
+		var result = switch(expr.unwrapMeta().expr) {
+			case TConst(TNull) if(targetType != null && !targetType.isNull() && !expr.hasMeta("-conflicting-default-value")): {
+				if(TComp.getMemoryManagementTypeFromType(targetType) == Value) {
+					expr.pos.makeError(ValueAssignedNull);
+				} else if(!Define.NoNullAssignWarnings.defined()) {
+					expr.pos.makeWarning(UsedNullOnNonNullable);
+				}
+				constantToCpp(TNull, expr, true);
+			}
 			case TConst(TFloat(fStr)) if(targetType != null && targetType.getNumberTypeSize() == 32): {
 				constantToCpp(TFloat(fStr), expr) + "f";
 			}
@@ -670,18 +700,19 @@ class Expressions extends SubCompiler {
 		return Main.injectExpressionPrefixContent(cpp);
 	}
 
-	function constantToCpp(constant: TConstant, originalExpr: TypedExpr): String {
+	function constantToCpp(constant: TConstant, originalExpr: TypedExpr, useUntypedNull: Bool = false): String {
 		return switch(constant) {
 			case TInt(i): Std.string(i);
 			case TFloat(s): s;
 			case TString(s): stringToCpp(s);
 			case TBool(b): b ? "true" : "false";
 			case TNull: {
+				final nullExpr = useUntypedNull ? "nullptr" : "std::nullopt";
 				final cppType = TComp.maybeCompileType(Main.getExprType(originalExpr), originalExpr.pos);
 				if(explicitNull && cppType != null) {
-					"static_cast<" + cppType + ">(std::nullopt)";
+					"static_cast<" + cppType + ">(" + nullExpr + ")";
 				} else {
-					"std::nullopt";
+					nullExpr;
 				}
 			}
 			case TThis: {
@@ -1029,7 +1060,13 @@ class Expressions extends SubCompiler {
 					} else {
 						Main.compileExpressionOrError(e);
 					}
-					cppExpr + (useArrow ? "->" : ".") + name;
+
+					var accessOp = switch(e.expr) {
+						case TConst(TSuper): "::";
+						case _: (useArrow ? "->" : ".");
+					}
+
+					cppExpr + accessOp + name;
 				}
 			}
 
@@ -1102,7 +1139,20 @@ class Expressions extends SubCompiler {
 			// Get list of function argument types
 			var funcArgs = switch(Main.getExprType(callExpr)) {
 				case TFun(args, _): {
-					args.map(a -> a.t);
+					[for(i in 0...args.length) {
+						var t = args[i].t;
+
+						// If an expression is `null` for a conflicting default value,
+						// we need to make sure its argument is typed as nullable.
+						if(i < el.length && !t.isNull()) {
+							final e = el[i];
+							if(e.hasMeta("-conflicting-default-value")) {
+								t = t.wrapWithNull();
+							}
+						}
+
+						t;
+					}];
 				}
 				case _: null;
 			}
@@ -1170,6 +1220,21 @@ class Expressions extends SubCompiler {
 				}
 			}
 			final native = { name: "", meta: meta }.getNameOrNative();
+			
+			// Replace `null`s with default values
+			switch(type) {
+				case TInst(clsRef, params): {
+					final cls = clsRef.get();
+					if(cls.constructor != null) {
+						final cf = cls.constructor.get();
+						final funcData = cf.findFuncData(cls);
+						if(funcData != null) {
+							el = funcData.replacePadNullsWithDefaults(el);
+						}
+					}
+				}
+				case _:
+			}
 
 			// Find argument types (if possible)
 			var funcArgs = switch(type) {
@@ -1282,21 +1347,29 @@ class Expressions extends SubCompiler {
 		if(maybeModuleType == null && Main.getExprType(castedExpr, false).isNullOfType(Main.getExprType(originalExpr, false))) {
 			result = compileExpressionNotNull(castedExpr);
 		} else {
-			// Otherwise...
-			result = Main.compileExpression(castedExpr);
+			// Find cast type
+			var isAnyCast = false;
+			if(maybeModuleType != null) {
+				switch(Main.getExprType(castedExpr)) {
+					case TAbstract(aRef, []) if(aRef.get().name == "Any" && aRef.get().module == "Any"):
+						isAnyCast = true;
+					case _:
+				}
+			}
+
+			// Generate cast code
+			final allowNullable = !isAnyCast;
+			result = allowNullable ? Main.compileExpression(castedExpr) : compileExpressionNotNull(castedExpr);
 			if(result != null) {
 				if(maybeModuleType != null) {
 					final mCpp = moduleNameToCpp(maybeModuleType, originalExpr.pos);
-					switch(Main.getExprType(castedExpr)) {
+					if(isAnyCast) {
 						// If casting from Any
-						case TAbstract(aRef, []) if(aRef.get().name == "Any" && aRef.get().module == "Any"): {
-							IComp.addInclude("any", compilingInHeader, true);
-							result = "std::any_cast<" + mCpp + ">(" + result + ")";
-						}
+						IComp.addInclude("any", compilingInHeader, true);
+						result = "std::any_cast<" + mCpp + ">(" + result + ")";
+					} else {
 						// C-style case
-						case _: {
-							result = "((" + mCpp + ")(" + result + "))";
-						}
+						result = "((" + mCpp + ")(" + result + "))";
 					}
 				}
 			}

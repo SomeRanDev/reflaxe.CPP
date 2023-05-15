@@ -39,4 +39,12 @@ enum abstract Define(String) from String to String {
 		are still generated.
 	**/
 	var KeepUselessExprs = "keep-useless-exprs";
+
+	/**
+		-D cxx-no-null-warnings
+
+		If defined, Reflaxe/C++ will not print warnings
+		about non-nullable types being assigned `null`.
+	**/
+	var NoNullAssignWarnings = "cxx-no-null-warnings";
 }

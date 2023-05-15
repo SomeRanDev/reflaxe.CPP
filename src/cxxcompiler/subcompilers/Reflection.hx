@@ -61,7 +61,9 @@ class Reflection extends SubCompiler {
 		final ifCpp = ic == 0 ? "{}" : "{ " + instanceFields.map(f -> "\"" + f + "\"").join(", ") + " }";
 		final sfCpp = sc == 0 ? "{}" : "{ " + staticFields.map(f -> "\"" + f + "\"").join(", ") + " }";
 
-		final fields = ['\"${cls.name}\"', ifCpp, sfCpp, "true"];
+		final dynEnabled = DComp.enabled && cls.params.length == 0;
+
+		final fields = ['\"${cls.name}\"', ifCpp, sfCpp, dynEnabled ? "true" : "false"];
 
 		// If the total number of fields is less than 10,
 		// place everything on a single line.
@@ -71,7 +73,7 @@ class Reflection extends SubCompiler {
 			fields.join(", ");
 		}
 
-		final DynClass = DComp.enabled ? '\nusing Dyn = haxe::Dynamic_${StringTools.replace(clsName, "::", "_")};' : "";
+		final DynClass = dynEnabled ? '\nusing Dyn = haxe::Dynamic_${StringTools.replace(clsName, "::", "_")};' : "";
 
 		return 'template<${paramsCpp}> struct _class<${cpp}> {
 	DEFINE_CLASS_TOSTRING${DynClass}

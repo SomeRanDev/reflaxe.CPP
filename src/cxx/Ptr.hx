@@ -5,7 +5,7 @@ package cxx;
 @:overrideMemoryManagement
 @:unsafePtrType
 @:forward
-extern abstract Ptr<T>(T) from T to T {
+extern abstract Ptr<T>(T) from T to T from Value<T> {
 	@:nativeFunctionCode("std::string({this})")
 	@:include("string", true)
 	public function toString(): String;
