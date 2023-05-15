@@ -107,6 +107,12 @@ class Types extends SubCompiler {
 				compileEnumName(enumRef, pos, params, true, asValue, dependent);
 			}
 			case TInst(clsRef, params): {
+				switch(clsRef.get().kind) {
+					case KExpr(e): {
+						return haxe.macro.ExprTools.toString(e);
+					}
+					case _:
+				}
 				compileClassName(clsRef, pos, params, true, asValue, dependent);
 			}
 			case TFun(args, ret): {
