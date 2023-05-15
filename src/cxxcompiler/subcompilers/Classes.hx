@@ -213,6 +213,7 @@ class Classes extends SubCompiler {
 		fieldsCompiled = 0;
 
 		superConstructorCall = null;
+
 		classTypeRef = switch(Main.getCurrentModule()) {
 			case TClassDecl(c): c;
 			case _: throw "Impossible";
