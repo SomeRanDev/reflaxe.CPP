@@ -37,7 +37,7 @@ Recompiles the C++ without compiling the Haxe code.
 * always-compile
 The C++ compiling/run tests will occur no matter what, even if the initial output comparison tests fail.
 
-* show-all-output
+* show-output
 The output of the C++ compilation and executable is always shown, even if it ran successfuly.
 
 * update-intended
@@ -50,7 +50,7 @@ Only tests with intended folders exclusive to this operating system will be proc
 The list of C++ output lines that do not match the tests are ommitted from the output.
 
 * dev-mode
-Enables `always-compile`, `show-all-output`, and `no-details`.
+Enables `always-compile`, `show-output`, and `no-details`.
 
 * test=TestName
 Makes it so only this test is ran. This option can be added multiple times to perform multiple tests.");
@@ -58,7 +58,7 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 		return;
 	}
 
-	ShowAllOutput = args.contains("show-all-output");
+	ShowAllOutput = args.contains("show-output");
 	UpdateIntended = args.contains("update-intended");
 	UpdateIntendedSys = args.contains("update-intended-sys");
 	OSExclusive = args.contains("os-exclusive");
