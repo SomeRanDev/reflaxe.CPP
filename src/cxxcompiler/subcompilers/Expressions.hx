@@ -1347,21 +1347,29 @@ class Expressions extends SubCompiler {
 		if(maybeModuleType == null && Main.getExprType(castedExpr, false).isNullOfType(Main.getExprType(originalExpr, false))) {
 			result = compileExpressionNotNull(castedExpr);
 		} else {
-			// Otherwise...
-			result = Main.compileExpression(castedExpr);
+			// Find cast type
+			var isAnyCast = false;
+			if(maybeModuleType != null) {
+				switch(Main.getExprType(castedExpr)) {
+					case TAbstract(aRef, []) if(aRef.get().name == "Any" && aRef.get().module == "Any"):
+						isAnyCast = true;
+					case _:
+				}
+			}
+
+			// Generate cast code
+			final allowNullable = !isAnyCast;
+			result = allowNullable ? Main.compileExpression(castedExpr) : compileExpressionNotNull(castedExpr);
 			if(result != null) {
 				if(maybeModuleType != null) {
 					final mCpp = moduleNameToCpp(maybeModuleType, originalExpr.pos);
-					switch(Main.getExprType(castedExpr)) {
+					if(isAnyCast) {
 						// If casting from Any
-						case TAbstract(aRef, []) if(aRef.get().name == "Any" && aRef.get().module == "Any"): {
-							IComp.addInclude("any", compilingInHeader, true);
-							result = "std::any_cast<" + mCpp + ">(" + result + ")";
-						}
+						IComp.addInclude("any", compilingInHeader, true);
+						result = "std::any_cast<" + mCpp + ">(" + result + ")";
+					} else {
 						// C-style case
-						case _: {
-							result = "((" + mCpp + ")(" + result + "))";
-						}
+						result = "((" + mCpp + ")(" + result + "))";
 					}
 				}
 			}
