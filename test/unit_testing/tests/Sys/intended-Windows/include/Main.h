@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <optional>
+#include "_AnonUtils.h"
 #include "_HaxeUtils.h"
 #include "haxe_PosInfos.h"
 

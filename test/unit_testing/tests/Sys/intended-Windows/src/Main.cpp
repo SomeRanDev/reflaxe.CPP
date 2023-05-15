@@ -1,5 +1,6 @@
 #include "Main.h"
 
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
@@ -10,10 +11,13 @@
 #include <stdlib.h>
 #include <string>
 #include <thread>
+#include <windows.h>
 #include "_AnonStructs.h"
+#include "cxx_DynamicToString.h"
 #include "cxx_io_NativeOutput.h"
 #include "haxe_Constraints.h"
 #include "haxe_Log.h"
+#include "Std.h"
 #include "Sys.h"
 
 using namespace std::string_literals;
@@ -116,10 +120,19 @@ void Main::main() {
 	
 	Main::assert((sleepTime > 1.1) && (sleepTime < 1.4), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 61, "main"s));
 	haxe::Log::trace("sleepTime = "s + std::to_string(sleepTime), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 62, "main"s));
-	cxx::io::NativeOutput(&std::cout).writeString("Written to stdout."s, std::nullopt);
+	cxx::io::NativeOutput(&std::cout).writeString("Written to stdout.\n"s, std::nullopt);
 	cxx::io::NativeOutput(&std::cout).flush();
-	cxx::io::NativeOutput(&std::cerr).writeString("Error output."s, std::nullopt);
+	cxx::io::NativeOutput(&std::cerr).writeString("Error output.\n"s, std::nullopt);
 	cxx::io::NativeOutput(&std::cerr).flush();
+	
+	std::array<char, 256> path = std::array<char, 256>();
+	
+	GetModuleFileName(nullptr, path.data(), path.size());
+	
+	std::string tempString3 = std::string((((const char*)(path.data()))));
+	haxe::DynamicToString v = tempString3;
+	
+	std::cout << Std::string(v) << std::endl;
 	
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
