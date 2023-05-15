@@ -14,7 +14,7 @@ public:
 		throw "Property does not exist";
 	}
 
-	static Dynamic setProp(Dynamic& d, std::string name, Dynamic value) {
+	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
 
 		throw "Property does not exist";
 	}

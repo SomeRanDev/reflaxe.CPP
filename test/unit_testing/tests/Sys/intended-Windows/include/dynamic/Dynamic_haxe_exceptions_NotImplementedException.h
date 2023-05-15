@@ -5,12 +5,12 @@ namespace haxe {
 
 class Dynamic_haxe_exceptions_NotImplementedException {
 public:
-	static Dynamic getProp(Dynamic& d, std::string name) {
+	static Dynamic getProp(Dynamic&, std::string) {
 
 		throw "Property does not exist";
 	}
 
-	static Dynamic setProp(Dynamic& d, std::string name, Dynamic value) {
+	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
 
 		throw "Property does not exist";
 	}
