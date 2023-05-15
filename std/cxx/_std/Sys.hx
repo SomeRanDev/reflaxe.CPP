@@ -226,7 +226,10 @@ extern class Sys {
 
 	static function programPath(): String;
 	static function getChar(echo: Bool): Int;
-	static function stdin(): haxe.io.Input;
+
+	public static extern inline function stdin(): haxe.io.Input {
+		return new cxx.io.NativeInput(cxx.Std.cin);
+	}
 
 	public static extern inline function stdout(): haxe.io.Output {
 		return new cxx.io.NativeOutput(cxx.Std.cout);
