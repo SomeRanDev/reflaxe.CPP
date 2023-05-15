@@ -269,8 +269,8 @@ class CppTypeHelper {
 			}
 
 			return if(!result) {
-				final b = t.toModuleType().getCommonData();
-				b.meta.extractPrimtiveFromFirstMeta(Meta.NumberType, 1) ?? false;
+				final b = t.toModuleType()?.getCommonData();
+				b?.meta?.extractPrimtiveFromFirstMeta(Meta.NumberType, 1) ?? false;
 			} else {
 				true;
 			}
@@ -304,8 +304,8 @@ class CppTypeHelper {
 			}
 
 			return if(!result) {
-				final b = t.toModuleType().getCommonData();
-				b.meta.extractPrimtiveFromFirstMeta(Meta.NumberType, 2) ?? false;
+				final b = t.toModuleType()?.getCommonData();
+				b?.meta?.extractPrimtiveFromFirstMeta(Meta.NumberType, 2) ?? false;
 			} else {
 				true;
 			}
@@ -365,8 +365,8 @@ class CppTypeHelper {
 		}
 
 		return if(result == -1) {
-			final b = t.toModuleType().getCommonData();
-			b.meta.extractPrimtiveFromFirstMeta(Meta.NumberType, 0) ?? -1;
+			final b = t.toModuleType()?.getCommonData();
+			b?.meta?.extractPrimtiveFromFirstMeta(Meta.NumberType, 0) ?? -1;
 		} else {
 			result;
 		}
