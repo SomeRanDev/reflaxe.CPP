@@ -1037,7 +1037,13 @@ class Expressions extends SubCompiler {
 					} else {
 						Main.compileExpressionOrError(e);
 					}
-					cppExpr + (useArrow ? "->" : ".") + name;
+
+					var accessOp = switch(e.expr) {
+						case TConst(TSuper): "::";
+						case _: (useArrow ? "->" : ".");
+					}
+
+					cppExpr + accessOp + name;
 				}
 			}
 
