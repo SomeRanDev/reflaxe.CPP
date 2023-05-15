@@ -62,16 +62,19 @@ class Main {
 		trace("sleepTime = " + sleepTime); // Debug purposes
 
 		// Output Streams
-		Sys.stdout().writeString("Written to stdout.");
+		Sys.stdout().writeString("Written to stdout.\n");
 		Sys.stdout().flush();
 
-		Sys.stderr().writeString("Error output.");
+		Sys.stderr().writeString("Error output.\n");
 		Sys.stderr().flush();
 
 		// Input (how do i test this lol?)
 		// Sys.stdout().writeString("Type \"Hello!\":\n >");
 		// final input = Sys.stdin().readLine();
 		// assert(input == "Hello!");
+
+		// programPath (there's probably a way to test this but im lazy)
+		Sys.println(Sys.programPath());
 
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
