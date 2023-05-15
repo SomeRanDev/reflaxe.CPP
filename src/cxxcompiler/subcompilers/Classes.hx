@@ -45,6 +45,8 @@ class Classes extends SubCompiler {
 
 	public var currentFunction: Null<ClassFuncData> = null;
 
+	public var superConstructorCall: Null<String> = null;
+
 	var variables: Map<String, Array<String>> = [];
 	var functions: Map<String, Array<String>> = [];
 
@@ -210,6 +212,7 @@ class Classes extends SubCompiler {
 
 		fieldsCompiled = 0;
 
+		superConstructorCall = null;
 		classTypeRef = switch(Main.getCurrentModule()) {
 			case TClassDecl(c): c;
 			case _: throw "Impossible";
@@ -517,13 +520,6 @@ class Classes extends SubCompiler {
 			var content = if(f.expr != null) {
 				XComp.compilingInHeader = !addToCpp;
 
-				// Use initialization list to set _order_id in constructor.
-				final constructorInitFields = if(isConstructor && !noAutogen) {
-					": _order_id(generate_order_id())";
-				} else {
-					"";
-				}
-
 				// Optional arguments in front need to be given
 				// their default value if they are passed `null`.
 				final frontOptionalAssigns = [];
@@ -551,8 +547,23 @@ class Classes extends SubCompiler {
 				code.push(Main.compileClassFuncExpr(f.expr));
 				XComp.popTrackLines();
 
+				// Use initialization list to set _order_id in constructor.
+				final constructorInitFields = if(isConstructor && !noAutogen) {
+					["_order_id(generate_order_id())"];
+				} else {
+					[];
+				}
+
+				if(superConstructorCall != null) {
+					constructorInitFields.unshift(superConstructorCall);
+					superConstructorCall = null;
+				}
+
+				final constructorInitFieldsStr = constructorInitFields.length > 0 ? (":\n\t" + constructorInitFields.join(", ") + "\n") : "";
+				final suffixSpecifiersStr = suffixSpecifiers.length > 0 ? (suffixSpecifiers.join(" ") + " ") : "";
+
 				// Put everything together
-				constructorInitFields + suffixSpecifiers.join(" ") + " {\n" + code.join("\n\n").tab() + "\n}";
+				constructorInitFieldsStr + suffixSpecifiersStr + "{\n" + code.join("\n\n").tab() + "\n}";
 			} else {
 				"";
 			}

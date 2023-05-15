@@ -126,6 +126,14 @@ class Expressions extends SubCompiler {
 			case TConst(constant): {
 				result = constantToCpp(constant, expr);
 			}
+			case TCall(callExpr, el) if(switch(callExpr.expr) { case TConst(TSuper): true; case _: false; }): {
+				if(CComp.superConstructorCall == null) {
+					CComp.superConstructorCall = compileCall(callExpr, el, expr);
+				} else {
+					throw "`super` constructor call made multiple times!";
+				}
+				result = null;
+			}
 			case TLocal(v): {
 				IComp.addIncludeFromMetaAccess(v.meta, compilingInHeader);
 				result = Main.compileVarName(v.name, expr);
