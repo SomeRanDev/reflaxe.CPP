@@ -224,7 +224,6 @@ extern class Sys {
 		return programPath();
 	}
 
-	static function getChar(echo: Bool): Int;
 	#if windows
 
 	public static extern inline function programPath(): String {
@@ -256,6 +255,13 @@ extern class Sys {
 
 	#end
 
+	public static extern inline function getChar(echo: Bool): Int {
+		final result = cxx.Std.cin.get();
+		if(echo) {
+			Sys.println(result);
+		}
+		return result;
+	}
 
 	public static extern inline function stdin(): haxe.io.Input {
 		return new cxx.io.NativeInput(cxx.Std.cin);
