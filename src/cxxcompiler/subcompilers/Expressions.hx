@@ -479,6 +479,14 @@ class Expressions extends SubCompiler {
 	// Used in multiple places where the special cases for the target type do not apply.
 	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool): Null<String> {
 		var result = switch(expr.expr) {
+			case TConst(TNull) if(targetType != null && !targetType.isNull()): {
+				if(TComp.getMemoryManagementTypeFromType(targetType) == Value) {
+					expr.pos.makeError(ValueAssignedNull);
+				} else if(!Define.NoNullAssignWarnings.defined()) {
+					expr.pos.makeWarning(UsedNullOnNonNullable);
+				}
+				constantToCpp(TNull, expr, true);
+			}
 			case TConst(TFloat(fStr)) if(targetType != null && targetType.getNumberTypeSize() == 32): {
 				constantToCpp(TFloat(fStr), expr) + "f";
 			}
@@ -692,18 +700,19 @@ class Expressions extends SubCompiler {
 		return Main.injectExpressionPrefixContent(cpp);
 	}
 
-	function constantToCpp(constant: TConstant, originalExpr: TypedExpr): String {
+	function constantToCpp(constant: TConstant, originalExpr: TypedExpr, useUntypedNull: Bool = false): String {
 		return switch(constant) {
 			case TInt(i): Std.string(i);
 			case TFloat(s): s;
 			case TString(s): stringToCpp(s);
 			case TBool(b): b ? "true" : "false";
 			case TNull: {
+				final nullExpr = useUntypedNull ? "nullptr" : "std::nullopt";
 				final cppType = TComp.maybeCompileType(Main.getExprType(originalExpr), originalExpr.pos);
 				if(explicitNull && cppType != null) {
-					"static_cast<" + cppType + ">(std::nullopt)";
+					"static_cast<" + cppType + ">(" + nullExpr + ")";
 				} else {
-					"std::nullopt";
+					nullExpr;
 				}
 			}
 			case TThis: {

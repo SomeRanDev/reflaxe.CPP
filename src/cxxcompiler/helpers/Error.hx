@@ -1,23 +1,38 @@
 // =======================================================
 // * Error
 //
-// Where all error messages reside.
-// Call "makeError" on any Position.
+// All error messages are documented and reported here.
+// Call `makeError` or `makeWarning` on any Position.
 // =======================================================
 
 package cxxcompiler.helpers;
 
 #if (macro || cxx_runtime)
 
-import reflaxe.helpers.Context;
 import haxe.macro.Expr;
+import reflaxe.helpers.Context;
+import cxxcompiler.config.Define;
 
+/**
+	An enum containing all the possible warnings
+	for Reflaxe/C++ to report.
+**/
+enum WarningType {
+	// General
+	UsedNullOnNonNullable;
+}
+
+/**
+	An enum containing all the possible errors
+	for Reflaxe/C++ to report.
+**/
 enum ErrorType {
 	// General
 	CannotCompileNullType;
 	DynamicUnsupported;
 	OMMIncorrectParamCount;
 	ValueSelfRef;
+	ValueAssignedNull;
 
 	// Meta
 	ConstExprMetaInvalidUse;
@@ -36,6 +51,26 @@ enum ErrorType {
 }
 
 class Error {
+	/**
+		Print one of the preset warnings for Reflaxe/C++.
+	**/
+	public static function makeWarning(pos: Position, warn: WarningType) {
+		final msg = switch(warn) {
+			case UsedNullOnNonNullable: {
+				"`null` assigned to a type not wrapped with `Null<T>`. This will generate unsafe C++. Disable this warning with `-D " + Define.NoNullAssignWarnings + "`.";
+			}
+
+			case _: {
+				"Unknown warning.";
+			}
+		}
+
+		Context.warning(msg, pos);
+	}
+
+	/**
+		Print one of the preset errors for Reflaxe/C++.
+	**/
 	public static function makeError(pos: Position, err: ErrorType): Dynamic {
 		final msg = switch(err) {
 			// General
@@ -50,6 +85,9 @@ class Error {
 			}
 			case ValueSelfRef: {
 				"Types using @:valueType cannot reference themselves. Consider wrapping with SharedPtr<T>.";
+			}
+			case ValueAssignedNull: {
+				"Cannot assign `null` to value-type. Wrap the type with `Null<T>`.";
 			}
 
 			// Meta
