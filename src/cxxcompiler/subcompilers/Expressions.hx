@@ -1184,6 +1184,21 @@ class Expressions extends SubCompiler {
 				}
 			}
 			final native = { name: "", meta: meta }.getNameOrNative();
+			
+			// Replace `null`s with default values
+			switch(type) {
+				case TInst(clsRef, params): {
+					final cls = clsRef.get();
+					if(cls.constructor != null) {
+						final cf = cls.constructor.get();
+						final funcData = cf.findFuncData(cls);
+						if(funcData != null) {
+							el = funcData.replacePadNullsWithDefaults(el);
+						}
+					}
+				}
+				case _:
+			}
 
 			// Find argument types (if possible)
 			var funcArgs = switch(type) {
