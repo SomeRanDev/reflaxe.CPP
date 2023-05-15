@@ -2,6 +2,9 @@ package cxx;
 
 @:cxxStd
 extern class Std {
+	@:native("std::cin")
+	public static var cin: cxx.Value<cxx.std.ios.IStream>;
+
 	@:native("std::cout")
 	public static var cout: cxx.Value<cxx.std.ios.OStream>;
 
