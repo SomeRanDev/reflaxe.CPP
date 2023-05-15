@@ -183,6 +183,8 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// is encountered while compiling to 
 	// ensure it is #included and compiled.
 	public function onModuleTypeEncountered(mt: ModuleType, addToHeader: Bool) {
+		if(TypeHelper.fromModuleType(mt).isExprClass()) return;
+
 		IComp.addIncludeFromModuleType(mt, addToHeader);
 		addModuleTypeForCompilation(mt);
 	}
@@ -192,6 +194,8 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// is encountered while compiling to
 	// ensure it is #included.
 	public function onTypeEncountered(t: Type, addToHeader: Bool) {
+		if(t.isExprClass()) return;
+
 		IComp.addIncludeFromType(t, addToHeader);
 
 		if(addToHeader) {
