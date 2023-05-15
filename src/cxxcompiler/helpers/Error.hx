@@ -40,6 +40,7 @@ enum ErrorType {
 	TopLevelConstructor;
 	MainPrependOnNonStatic;
 	MainPrependWrongArguments;
+	InvalidCStr;
 
 	// Memory Management Conversion
 	UnsafeToShared;
@@ -105,6 +106,9 @@ class Error {
 			}
 			case MainPrependWrongArguments: {
 				"Functions with @:prependToMain must either have no required arguments or the first two must match (Int, cxx.CArray<cxx.ConstCharPtr>).";
+			}
+			case InvalidCStr: {
+				"Invalid use of @:cstr. Must be used on a constant String expresszion.";
 			}
 
 			// Memory Management Conversion

@@ -727,14 +727,18 @@ class Expressions extends SubCompiler {
 		}
 	}
 
-	public function stringToCpp(s: String): String {
-		// Add backslash to all quotes and backslashes.
+	function stringToLiteralCpp(s: String): String {
 		var result = StringTools.replace(s, "\\", "\\\\");
 		result = StringTools.replace(result, "\"", "\\\"");
 		result = StringTools.replace(result, "\t", "\\t");
 		result = StringTools.replace(result, "\n", "\\n");
 		result = StringTools.replace(result, "\r", "\\r");
-		result = "\"" + result + "\"";
+		return "\"" + result + "\"";
+	}
+
+	public function stringToCpp(s: String): String {
+		// Add backslash to all quotes and backslashes.
+		var result = stringToLiteralCpp(s);
 
 		if(compilingInHeader) {
 			// If compiling in header, we don't want to taint the global namespace with "using namespace",
@@ -1435,6 +1439,12 @@ class Expressions extends SubCompiler {
 				switch(internalExpr.expr) {
 					case TIf(econd, eif, eelse): compileIf(econd, eif, eelse, true);
 					case _: metaEntry.pos.makeError(ConstExprMetaInvalidUse);
+				}
+			}
+			case ":cstr": {
+				switch(internalExpr.expr) {
+					case TConst(TString(s)): stringToLiteralCpp(s);
+					case _: metaEntry.pos.makeError(InvalidCStr);
 				}
 			}
 			case _: null;

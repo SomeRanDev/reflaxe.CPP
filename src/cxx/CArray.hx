@@ -12,4 +12,7 @@ extern abstract CArray<T>(T) {
 	@:arrayAccess
 	@:nativeFunctionCode("{this}[{arg0}] = {arg1}")
 	public function set(index: Int, val: T): Void;
+
+	@:nativeFunctionCode("{this}")
+	public function toPtr(): Ptr<T>;
 }
