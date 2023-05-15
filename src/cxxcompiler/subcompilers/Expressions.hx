@@ -478,8 +478,8 @@ class Expressions extends SubCompiler {
 	// Internally compiles the expression for a type.
 	// Used in multiple places where the special cases for the target type do not apply.
 	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool): Null<String> {
-		var result = switch(expr.expr) {
-			case TConst(TNull) if(targetType != null && !targetType.isNull()): {
+		var result = switch(expr.unwrapMeta().expr) {
+			case TConst(TNull) if(targetType != null && !targetType.isNull() && !expr.hasMeta("-conflicting-default-value")): {
 				if(TComp.getMemoryManagementTypeFromType(targetType) == Value) {
 					expr.pos.makeError(ValueAssignedNull);
 				} else if(!Define.NoNullAssignWarnings.defined()) {
@@ -1139,7 +1139,20 @@ class Expressions extends SubCompiler {
 			// Get list of function argument types
 			var funcArgs = switch(Main.getExprType(callExpr)) {
 				case TFun(args, _): {
-					args.map(a -> a.t);
+					[for(i in 0...args.length) {
+						var t = args[i].t;
+
+						// If an expression is `null` for a conflicting default value,
+						// we need to make sure its argument is typed as nullable.
+						if(i < el.length && !t.isNull()) {
+							final e = el[i];
+							if(e.hasMeta("-conflicting-default-value")) {
+								t = t.wrapWithNull();
+							}
+						}
+
+						t;
+					}];
 				}
 				case _: null;
 			}
