@@ -20,7 +20,9 @@ class IntMap: public haxe::IMap<int, T>, public std::enable_shared_from_this<Int
 public:
 	std::map<int, T> m;
 
-	IntMap(): _order_id(generate_order_id()) {
+	IntMap():
+		_order_id(generate_order_id())
+	{
 		this->m = std::map<int, T>();
 	}
 	

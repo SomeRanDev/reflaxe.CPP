@@ -42,3 +42,35 @@ public:
 	static std::shared_ptr<haxe::ds::StringMap<std::string>> environment();
 };
 
+
+
+#include "dynamic/Dynamic_Sys.h"
+#include "dynamic/Dynamic_Sys.h"
+#include "dynamic/Dynamic_Sys.h"
+#include "dynamic/Dynamic_Sys.h"
+
+
+// Reflection info
+#include "_TypeUtils.h"
+namespace haxe {
+	template<> struct _class<Sys_GetEnv> {
+		DEFINE_CLASS_TOSTRING
+	using Dyn = haxe::Dynamic_Sys_GetEnv;
+		constexpr static _class_data<0, 1> data {"Sys_GetEnv", {}, { "getEnv" }, true};
+	};
+	template<> struct _class<Sys_Environment> {
+		DEFINE_CLASS_TOSTRING
+	using Dyn = haxe::Dynamic_Sys_Environment;
+		constexpr static _class_data<0, 1> data {"Sys_Environment", {}, { "environment" }, true};
+	};
+	template<> struct _class<Sys_Args> {
+		DEFINE_CLASS_TOSTRING
+	using Dyn = haxe::Dynamic_Sys_Args;
+		constexpr static _class_data<0, 3> data {"Sys_Args", {}, { "_args", "setupArgs", "args" }, true};
+	};
+	template<> struct _class<Sys_CpuTime> {
+		DEFINE_CLASS_TOSTRING
+	using Dyn = haxe::Dynamic_Sys_CpuTime;
+		constexpr static _class_data<0, 3> data {"Sys_CpuTime", {}, { "_startTime", "setupStart", "cpuTime" }, true};
+	};
+}

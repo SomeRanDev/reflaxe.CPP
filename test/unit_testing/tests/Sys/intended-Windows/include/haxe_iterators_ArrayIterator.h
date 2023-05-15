@@ -13,7 +13,9 @@ public:
 	
 	int current;
 
-	ArrayIterator(std::shared_ptr<std::deque<T>> array): _order_id(generate_order_id()) {
+	ArrayIterator(std::shared_ptr<std::deque<T>> array):
+		_order_id(generate_order_id())
+	{
 		this->current = 0;
 		this->array = array;
 	}
@@ -29,4 +31,14 @@ public:
 	HX_COMPARISON_OPERATORS(ArrayIterator<T>)
 };
 
+}
+
+
+// Reflection info
+#include "_TypeUtils.h"
+namespace haxe {
+	template<typename T> struct _class<haxe::iterators::ArrayIterator<T>> {
+		DEFINE_CLASS_TOSTRING
+		constexpr static _class_data<4, 0> data {"ArrayIterator", { "array", "current", "hasNext", "next" }, {}, false};
+	};
 }

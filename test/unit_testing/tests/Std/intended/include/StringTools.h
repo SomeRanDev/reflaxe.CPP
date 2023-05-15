@@ -14,6 +14,6 @@ public:
 namespace haxe {
 	template<> struct _class<StringTools> {
 		DEFINE_CLASS_TOSTRING
-		constexpr static _class_data<0, 1> data {"StringTools", {}, { "startsWith" }, true};
+		constexpr static _class_data<0, 1> data {"StringTools", {}, { "startsWith" }, false};
 	};
 }

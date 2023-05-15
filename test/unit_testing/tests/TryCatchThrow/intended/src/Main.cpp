@@ -27,7 +27,7 @@ void _Main::Main_Fields_::main() {
 		assert(e.get_message() == msg);
 	};
 	try {
-		throw haxe::Exception(msg);
+		throw haxe::Exception(msg, std::nullopt, std::nullopt);
 	} catch(haxe::Exception& e) {
 		assert(e.get_message() == msg);
 	};

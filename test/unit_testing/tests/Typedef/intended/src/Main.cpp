@@ -51,9 +51,13 @@ void _Main::Main_Fields_::main() {
 		exit(_Main::Main_Fields_::exitCode);
 	};
 }
-ValueClass::ValueClass(): _order_id(generate_order_id()) {
+ValueClass::ValueClass():
+	_order_id(generate_order_id())
+{
 	this->val = 100;
 }
-NormalClass::NormalClass(): _order_id(generate_order_id()) {
+NormalClass::NormalClass():
+	_order_id(generate_order_id())
+{
 	
 }

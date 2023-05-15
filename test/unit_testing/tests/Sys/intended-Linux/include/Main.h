@@ -20,3 +20,17 @@ public:
 	HX_COMPARISON_OPERATORS(Main)
 };
 
+
+
+#include "dynamic/Dynamic_Main.h"
+
+
+// Reflection info
+#include "_TypeUtils.h"
+namespace haxe {
+	template<> struct _class<Main> {
+		DEFINE_CLASS_TOSTRING
+	using Dyn = haxe::Dynamic_Main;
+		constexpr static _class_data<1, 3> data {"Main", { "a" }, { "returnCode", "assert", "main" }, true};
+	};
+}

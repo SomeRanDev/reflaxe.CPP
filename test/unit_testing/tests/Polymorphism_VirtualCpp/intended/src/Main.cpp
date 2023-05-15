@@ -21,7 +21,9 @@ void _Main::Main_Fields_::main() {
 		exit(1);
 	};
 }
-Base::Base(): _order_id(generate_order_id()) {
+Base::Base():
+	_order_id(generate_order_id())
+{
 	
 }
 
@@ -32,8 +34,10 @@ int Base::getVal() {
 int Base::getVal2() {
 	return 999;
 }
-Child::Child(): _order_id(generate_order_id()) {
-	Base();
+Child::Child():
+	Base(), _order_id(generate_order_id())
+{
+	
 }
 
 int Child::getVal() {

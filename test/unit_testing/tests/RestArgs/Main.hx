@@ -43,7 +43,7 @@ class Main {
 	}
 
 	// test w/ anonymous structures
-	static function testRestAny(anys: haxe.Rest<{ data: Any }>) {
+	static function testRestAny(anys: haxe.Rest<{ data: Null<Any> }>) {
 		assert((anys[1].data : Array<Int>) == [0, 500, 1000]);
 		assert((anys[1].data : Array<Int>)[1] == 500);
 		assert((anys[1].data : Array<Int>)[2] == 1000);

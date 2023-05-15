@@ -163,9 +163,9 @@ void Main::testRest(std::shared_ptr<haxe::_Rest::NativeRest<std::string>> string
 }
 
 void Main::testRestAny(std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct0>>> anys) {
-	Main::assert((*std::any_cast<std::shared_ptr<std::deque<int>>>((*anys)[1]->data)) == (*std::make_shared<std::deque<int>>(std::deque<int>{ 0, 500, 1000 })), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 47, "testRestAny"s));
-	Main::assert((*std::any_cast<std::shared_ptr<std::deque<int>>>((*anys)[1]->data))[1] == 500, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 48, "testRestAny"s));
-	Main::assert((*std::any_cast<std::shared_ptr<std::deque<int>>>((*anys)[1]->data))[2] == 1000, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 49, "testRestAny"s));
+	Main::assert((*std::any_cast<std::shared_ptr<std::deque<int>>>((*anys)[1]->data.value())) == (*std::make_shared<std::deque<int>>(std::deque<int>{ 0, 500, 1000 })), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 47, "testRestAny"s));
+	Main::assert((*std::any_cast<std::shared_ptr<std::deque<int>>>((*anys)[1]->data.value()))[1] == 500, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 48, "testRestAny"s));
+	Main::assert((*std::any_cast<std::shared_ptr<std::deque<int>>>((*anys)[1]->data.value()))[2] == 1000, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 49, "testRestAny"s));
 }
 
 void Main::testRestAny2(std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct1>>> anys) {
@@ -207,7 +207,7 @@ void Main::main() {
 		std::shared_ptr<haxe::_Rest::NativeRest<std::shared_ptr<haxe::AnonStruct0>>> this1;
 		
 		this1 = std::make_shared<std::deque<std::shared_ptr<haxe::AnonStruct0>>>(std::deque<std::shared_ptr<haxe::AnonStruct0>>{
-			haxe::shared_anon<haxe::AnonStruct0>(static_cast<std::any>(std::nullopt)),
+			haxe::shared_anon<haxe::AnonStruct0>(std::nullopt),
 			haxe::shared_anon<haxe::AnonStruct0>(std::make_shared<std::deque<int>>(std::deque<int>{ 0, 500, 1000 }))
 		});
 		tempRest2 = this1;

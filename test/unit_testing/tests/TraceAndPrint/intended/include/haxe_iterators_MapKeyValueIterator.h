@@ -15,7 +15,9 @@ public:
 	
 	std::shared_ptr<Iterator<K>> keys;
 
-	MapKeyValueIterator(std::shared_ptr<haxe::IMap<K, V>> map): _order_id(generate_order_id()) {
+	MapKeyValueIterator(std::shared_ptr<haxe::IMap<K, V>> map):
+		_order_id(generate_order_id())
+	{
 		this->map = map;
 		this->keys = map->keys();
 	}

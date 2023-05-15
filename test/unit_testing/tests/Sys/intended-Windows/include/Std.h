@@ -26,3 +26,17 @@ public:
 	}
 };
 
+
+
+#include "dynamic/Dynamic_Std.h"
+
+
+// Reflection info
+#include "_TypeUtils.h"
+namespace haxe {
+	template<> struct _class<Std> {
+		DEFINE_CLASS_TOSTRING
+	using Dyn = haxe::Dynamic_Std;
+		constexpr static _class_data<0, 3> data {"Std", {}, { "string", "parseInt", "parseFloat" }, true};
+	};
+}

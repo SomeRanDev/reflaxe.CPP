@@ -103,19 +103,27 @@ void Main::main() {
 		exit(Main::returnCode);
 	};
 }
-BaseClass::BaseClass(): _order_id(generate_order_id()) {
+BaseClass::BaseClass():
+	_order_id(generate_order_id())
+{
 	
 }
-ChildClass::ChildClass(): _order_id(generate_order_id()) {
-	BaseClass();
+ChildClass::ChildClass():
+	BaseClass(), _order_id(generate_order_id())
+{
+	
 }
-AnotherClass::AnotherClass(): _order_id(generate_order_id()) {
+AnotherClass::AnotherClass():
+	_order_id(generate_order_id())
+{
 	
 }
 
 std::string AnotherClass::toString() {
 	return "another class as string"s;
 }
-ClassWInt::ClassWInt(): _order_id(generate_order_id()) {
+ClassWInt::ClassWInt():
+	_order_id(generate_order_id())
+{
 	this->number = 123;
 }

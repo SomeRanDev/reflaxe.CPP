@@ -33,7 +33,7 @@ struct AnonStruct1 {
 };
 
 
-// { data: Any }
+// { data: Null<Any> }
 struct AnonStruct0 {
 
 	// default constructor
@@ -42,18 +42,20 @@ struct AnonStruct0 {
 	// auto-construct from any object's fields
 	template<typename T>
 	AnonStruct0(T o):
-		data(haxe::unwrap(o).data)
+		data(extract_data(haxe::unwrap(o)))
 	{}
 	
 	// construct fields directly
-	static AnonStruct0 make(std::any data) {
+	static AnonStruct0 make(std::optional<std::any> data = std::nullopt) {
 		AnonStruct0 result;
 		result.data = data;
 		return result;
 	}
 
 	// fields
-	std::any data;
+	std::optional<std::any> data;
+
+	GEN_EXTRACTOR_FUNC(data)
 };
 
 }

@@ -15,7 +15,9 @@ public:
 	
 	std::shared_ptr<Iterator<K>> keys;
 
-	MapKeyValueIterator(std::shared_ptr<haxe::IMap<K, V>> map): _order_id(generate_order_id()) {
+	MapKeyValueIterator(std::shared_ptr<haxe::IMap<K, V>> map):
+		_order_id(generate_order_id())
+	{
 		this->map = map;
 		this->keys = map->keys();
 	}
@@ -33,4 +35,14 @@ public:
 	HX_COMPARISON_OPERATORS(MapKeyValueIterator<K, V>)
 };
 
+}
+
+
+// Reflection info
+#include "_TypeUtils.h"
+namespace haxe {
+	template<typename K, typename V> struct _class<haxe::iterators::MapKeyValueIterator<K, V>> {
+		DEFINE_CLASS_TOSTRING
+		constexpr static _class_data<4, 0> data {"MapKeyValueIterator", { "map", "keys", "hasNext", "next" }, {}, false};
+	};
 }

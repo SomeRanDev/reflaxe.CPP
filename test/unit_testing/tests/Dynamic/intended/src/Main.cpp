@@ -16,7 +16,9 @@ void _Main::Main_Fields_::main() {
 	d.setProp("a", 123);
 	haxe::Log::trace(d.getProp("a"), haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 18, "main"s));
 }
-Test::Test(): _order_id(generate_order_id()) {
+Test::Test():
+	_order_id(generate_order_id())
+{
 	this->a = 0;
 }
 

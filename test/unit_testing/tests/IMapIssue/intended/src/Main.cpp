@@ -10,7 +10,9 @@
 
 using namespace std::string_literals;
 
-Main::Main(): _order_id(generate_order_id()) {
+Main::Main():
+	_order_id(generate_order_id())
+{
 	
 }
 

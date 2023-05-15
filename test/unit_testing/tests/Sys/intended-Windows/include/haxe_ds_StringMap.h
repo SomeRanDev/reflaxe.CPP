@@ -20,7 +20,9 @@ class StringMap: public haxe::IMap<std::string, T>, public std::enable_shared_fr
 public:
 	std::map<std::string, T> m;
 
-	StringMap(): _order_id(generate_order_id()) {
+	StringMap():
+		_order_id(generate_order_id())
+	{
 		this->m = std::map<std::string, T>();
 	}
 	
@@ -134,4 +136,19 @@ public:
 	HX_COMPARISON_OPERATORS(StringMap<T>)
 };
 
+}
+
+
+// Reflection info
+#include "_TypeUtils.h"
+namespace haxe {
+	template<typename T> struct _class<haxe::ds::StringMap<T>> {
+		DEFINE_CLASS_TOSTRING
+		constexpr static _class_data<11, 0> data {
+		"StringMap",
+		{ "m", "set", "get", "exists", "remove", "keys", "iterator", "keyValueIterator", "copy", "toString", "clear" },
+		{},
+		false
+		};
+	};
 }

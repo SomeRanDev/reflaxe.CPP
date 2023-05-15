@@ -19,3 +19,17 @@ public:
 };
 
 }
+
+
+#include "dynamic/Dynamic_haxe_Log.h"
+
+
+// Reflection info
+#include "_TypeUtils.h"
+namespace haxe {
+	template<> struct _class<haxe::Log> {
+		DEFINE_CLASS_TOSTRING
+	using Dyn = haxe::Dynamic_haxe_Log;
+		constexpr static _class_data<0, 2> data {"Log", {}, { "formatOutput", "trace" }, true};
+	};
+}

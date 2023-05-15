@@ -11,6 +11,7 @@
 #include <string>
 #include <thread>
 #include "_AnonStructs.h"
+#include "cxx_io_NativeOutput.h"
 #include "haxe_Constraints.h"
 #include "haxe_Log.h"
 #include "Sys.h"
@@ -19,7 +20,9 @@ using namespace std::string_literals;
 
 int Main::returnCode = 0;
 
-Main::Main(): _order_id(generate_order_id()) {
+Main::Main():
+	_order_id(generate_order_id())
+{
 	this->a = 123;
 }
 
@@ -113,6 +116,10 @@ void Main::main() {
 	
 	Main::assert((sleepTime > 1.1) && (sleepTime < 1.4), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 61, "main"s));
 	haxe::Log::trace("sleepTime = "s + std::to_string(sleepTime), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 62, "main"s));
+	cxx::io::NativeOutput(&std::cout).writeString("Written to stdout."s, std::nullopt);
+	cxx::io::NativeOutput(&std::cout).flush();
+	cxx::io::NativeOutput(&std::cerr).writeString("Error output."s, std::nullopt);
+	cxx::io::NativeOutput(&std::cerr).flush();
 	
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);

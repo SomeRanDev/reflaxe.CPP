@@ -74,7 +74,9 @@ void Main::main() {
 		exit(Main::returnCode);
 	};
 }
-Base::Base(): _order_id(generate_order_id()) {
+Base::Base():
+	_order_id(generate_order_id())
+{
 	
 }
 
@@ -89,8 +91,10 @@ void Base::doThing2(std::optional<int> num, std::string other) {
 	Main::assert(other == "other"s, haxe::shared_anon<haxe::PosInfos>("Base"s, "test/unit_testing/tests/OptionalArguments/Main.hx"s, 80, "doThing2"s));
 	Main::assert(num == 100, haxe::shared_anon<haxe::PosInfos>("Base"s, "test/unit_testing/tests/OptionalArguments/Main.hx"s, 81, "doThing2"s));
 }
-Child::Child(): _order_id(generate_order_id()) {
-	Base();
+Child::Child():
+	Base(), _order_id(generate_order_id())
+{
+	
 }
 
 void Child::doThing(int num, std::string other) {

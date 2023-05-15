@@ -13,7 +13,9 @@ public:
 	
 	int current;
 
-	ArrayIterator(std::shared_ptr<std::deque<T>> array): _order_id(generate_order_id()) {
+	ArrayIterator(std::shared_ptr<std::deque<T>> array):
+		_order_id(generate_order_id())
+	{
 		this->current = 0;
 		this->array = array;
 	}
