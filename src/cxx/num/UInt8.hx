@@ -1,6 +1,7 @@
 package cxx.num;
 
 @:cxxStd
+@:numberType(8, false, false)
 @:native("unsigned char")
 @:coreType
 @:notNull

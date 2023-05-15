@@ -1,6 +1,7 @@
 package cxx.num;
 
 @:cxxStd
+@:numberType(32, true, false)
 @:native("float")
 @:coreType
 @:notNull

@@ -84,17 +84,20 @@ class Dynamic_ extends SubCompiler {
 	}
 
 	public function getDynamicContent() {
+		final getArgs = getProps.length > 0 ? "Dynamic& d, std::string name" : "Dynamic&, std::string";
+		final setArgs = setProps.length > 0 ? "Dynamic& d, std::string name, Dynamic value" : "Dynamic&, std::string, Dynamic";
+
 		return '
 namespace haxe {
 
 class ${dynamicName} {
 public:
-	static Dynamic getProp(Dynamic& d, std::string name) {
+	static Dynamic getProp(${getArgs}) {
 ${getProps.map(p -> p.tab(2)).join(" else ")}
 		throw \"Property does not exist\";
 	}
 
-	static Dynamic setProp(Dynamic& d, std::string name, Dynamic value) {
+	static Dynamic setProp(${setArgs}) {
 ${setProps.map(p -> p.tab(2)).join(" else ")}
 		throw \"Property does not exist\";
 	}

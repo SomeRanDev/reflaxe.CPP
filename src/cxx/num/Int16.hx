@@ -1,6 +1,7 @@
 package cxx.num;
 
 @:cxxStd
+@:numberType(16, false, true)
 @:native("short")
 @:coreType
 @:notNull

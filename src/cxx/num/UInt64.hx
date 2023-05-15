@@ -1,6 +1,7 @@
 package cxx.num;
 
 @:cxxStd
+@:numberType(64, false, false)
 @:native("unsigned long")
 @:coreType
 @:notNull
