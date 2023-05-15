@@ -11,6 +11,11 @@ package cxxcompiler.helpers;
 import haxe.macro.Context;
 import haxe.macro.Type;
 
+import cxxcompiler.config.Meta;
+
+using reflaxe.helpers.NullableMetaAccessHelper;
+using reflaxe.helpers.ModuleTypeHelper;
+using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.TypeHelper;
 
 using cxxcompiler.helpers.MetaHelper;
@@ -169,10 +174,9 @@ class CppTypeHelper {
 	**/
 	public static function isCppNumberType(t: Type): Bool {
 		return if(t.isNumberType()) true;
-		else switch(t) {
-			case TType(isCxxNum(_.get()) => true, []): true;
-			case TAbstract(isCxxNum(_.get()) => true, []): true;
-			case _: false;
+		else {
+			final mt = t.toModuleType();
+			mt != null ? isCxxNum(mt.getCommonData()) : false;
 		}
 	}
 
@@ -229,6 +233,7 @@ class CppTypeHelper {
 		the `cxx.num` package.
 	**/
 	public static function isCxxNum(b: BaseType): Bool {
+		if(b.hasMeta(Meta.NumberType)) return true;
 		return b.pack.length == 2 && b.pack[0] == "cxx" && b.pack[1] == "num";
 	}
 
@@ -242,24 +247,33 @@ class CppTypeHelper {
 	**/
 	public static function isFloatType(t: Type): Bool {
 		return if(!isCppNumberType(t)) false;
-		else switch(t) {
-			case TAbstract(abRef, []): {
-				final a = abRef.get();
-				switch(a.name) {
-					case "Single": a.module == "StdTypes" || a.module == "Single";
-					case "Float": a.module == "StdTypes";
-					case "Float32" | "Float64": isCxxNum(a);
-					case _: false;
+		else {
+			final result = switch(t) {
+				case TAbstract(abRef, []): {
+					final a = abRef.get();
+					switch(a.name) {
+						case "Single": a.module == "StdTypes" || a.module == "Single";
+						case "Float": a.module == "StdTypes";
+						case "Float32" | "Float64": isCxxNum(a);
+						case _: false;
+					}
 				}
-			}
-			case TType(defRef, []): {
-				final d = defRef.get();
-				switch(d.name) {
-					case "Float32" | "Float64": isCxxNum(d);
-					case _: false;
+				case TType(defRef, []): {
+					final d = defRef.get();
+					switch(d.name) {
+						case "Float32" | "Float64": isCxxNum(d);
+						case _: false;
+					}
 				}
+				case _: false;
 			}
-			case _: false;
+
+			return if(!result) {
+				final b = t.toModuleType().getCommonData();
+				b.meta.extractPrimtiveFromFirstMeta(Meta.NumberType, 1) ?? false;
+			} else {
+				true;
+			}
 		}
 	}
 
@@ -269,23 +283,32 @@ class CppTypeHelper {
 	**/
 	public static function isUnsignedType(t: Type): Bool {
 		return if(!isCppNumberType(t)) false;
-		else switch(t) {
-			case TAbstract(abRef, []): {
-				final a = abRef.get();
-				switch(a.name) {
-					case "UInt8" | "UInt16" | "UInt32" | "UInt64" | "SizeT": isCxxNum(a);
-					case "UInt": a.module == "UInt";
-					case _: false;
+		else {
+			final result = switch(t) {
+				case TAbstract(abRef, []): {
+					final a = abRef.get();
+					switch(a.name) {
+						case "UInt8" | "UInt16" | "UInt32" | "UInt64" | "SizeT": isCxxNum(a);
+						case "UInt": a.module == "UInt";
+						case _: false;
+					}
 				}
-			}
-			case TType(defRef, []): {
-				final d = defRef.get();
-				switch(d.name) {
-					case "UInt8" | "UInt16" | "UInt32" | "UInt64" | "SizeT": isCxxNum(d);
-					case _: false;
+				case TType(defRef, []): {
+					final d = defRef.get();
+					switch(d.name) {
+						case "UInt8" | "UInt16" | "UInt32" | "UInt64" | "SizeT": isCxxNum(d);
+						case _: false;
+					}
 				}
+				case _: false;
 			}
-			case _: false;
+
+			return if(!result) {
+				final b = t.toModuleType().getCommonData();
+				b.meta.extractPrimtiveFromFirstMeta(Meta.NumberType, 2) ?? false;
+			} else {
+				true;
+			}
 		}
 	}
 
@@ -307,7 +330,7 @@ class CppTypeHelper {
 			case _: return -1;
 		}
 
-		return if(isCxxNum(baseType)) {
+		final result = if(isCxxNum(baseType)) {
 			switch(baseType.name) {
 				case "Int8": 8;
 				case "Int16": 16;
@@ -339,6 +362,13 @@ class CppTypeHelper {
 				case { module: "UInt", name: "UInt" }: 32;
 				case _: -1;
 			}
+		}
+
+		return if(result == -1) {
+			final b = t.toModuleType().getCommonData();
+			b.meta.extractPrimtiveFromFirstMeta(Meta.NumberType, 0) ?? -1;
+		} else {
+			result;
 		}
 	}
 }

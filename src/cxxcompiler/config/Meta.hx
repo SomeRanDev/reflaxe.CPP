@@ -311,4 +311,10 @@ enum abstract Meta(String) from String to String {
 	// When used on a function, that function will not generate callstack
 	// tracking C++ code if it's enabled. 
 	var NoCallstack = ":noCallstack";
+
+	// @:numberType(size: Int, isFloat: Bool, isSigned: Bool)
+	//
+	// Used to generate casts when converting between other number types
+	// to prevent C++ warnings.
+	var NumberType = ":numberType";
 }
