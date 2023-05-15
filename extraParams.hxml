@@ -1,4 +1,5 @@
 -D cxx
 -D reflaxe.cpp
+-D retain-untyped-meta
 --macro nullSafety("cxxcompiler")
 --macro cxxcompiler.CompilerInit.Start()
