@@ -224,8 +224,38 @@ extern class Sys {
 		return programPath();
 	}
 
-	static function programPath(): String;
 	static function getChar(echo: Bool): Int;
+	#if windows
+
+	public static extern inline function programPath(): String {
+		untyped __include__("windows.h", true);
+		final path: cxx.Value<cxx.std.Array<cxx.Char, 256>> = new cxx.std.Array<cxx.Char, 256>();
+		untyped GetModuleFileName(__cpp__("nullptr"), path.data(), path.size());
+		return cast(path.data(), cxx.ConstCharPtr).toString();
+	}
+
+	#elseif linux
+
+	public static extern inline function programPath(): String {
+		untyped __include__("unistd.h", true);
+		untyped __include__("libgen.h", true);
+		final path: cxx.Value<cxx.std.Array<cxx.Char, 256>> = new cxx.std.Array<cxx.Char, 256>();
+		final count: cxx.num.SizeT = untyped readlink(@:cstr "/proc/self/exe", path.data(), path.size());
+		return if(count != -1) {
+			cxx.ConstCharPtr.fromCharPtr(path.data().toPtr()).toString();
+		} else {
+			"";
+		}
+	}
+
+	#else
+
+	public static extern inline function programPath(): String {
+		throw "Sys.programPath not currently supported by Reflaxe/C++ on this platform.";
+	}
+
+	#end
+
 
 	public static extern inline function stdin(): haxe.io.Input {
 		return new cxx.io.NativeInput(cxx.Std.cin);
