@@ -349,7 +349,21 @@ class Expressions extends SubCompiler {
 						Main.compileExpression(maybeExpr);
 					}
 				} : null;
-				if(cpp != null) {
+
+				// Check if throw statement.
+				var returnThrow = false;
+				if(maybeExpr != null) {
+					switch(maybeExpr.unwrapParenthesis().expr) {
+						case TThrow(throwExpr):
+							returnThrow = true;
+						case _:
+					}
+				}
+
+				if(returnThrow) {
+					// `throw` can't be returned, so we'll just ignore the return.
+					result = cpp;
+				} else if(cpp != null) {
 					result = "return " + cpp;
 				} else {
 					result = "return";
