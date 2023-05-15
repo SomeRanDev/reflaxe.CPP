@@ -61,6 +61,18 @@ class Main {
 		assert(sleepTime > 1.1 && sleepTime < 1.4);
 		trace("sleepTime = " + sleepTime); // Debug purposes
 
+		// Output Streams
+		Sys.stdout().writeString("Written to stdout.");
+		Sys.stdout().flush();
+
+		Sys.stderr().writeString("Error output.");
+		Sys.stderr().flush();
+
+		// Input (how do i test this lol?)
+		// Sys.stdout().writeString("Type \"Hello!\":\n >");
+		// final input = Sys.stdin().readLine();
+		// assert(input == "Hello!");
+
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
 		}
