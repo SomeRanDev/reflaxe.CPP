@@ -228,6 +228,9 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			if(stdoutContent.length > 0) {
 				Sys.println(stdoutContent);
 			}
+			if(ShowAllOutput && stderrContent.length > 0) {
+				Sys.println(stderrContent);
+			}
 		}
 	}
 
