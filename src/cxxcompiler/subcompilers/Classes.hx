@@ -563,8 +563,10 @@ class Classes extends SubCompiler {
 				final constructorInitFieldsStr = constructorInitFields.length > 0 ? (":\n\t" + constructorInitFields.join(", ") + "\n") : "";
 				final suffixSpecifiersStr = suffixSpecifiers.length > 0 ? (suffixSpecifiers.join(" ") + " ") : "";
 
+				final space = constructorInitFieldsStr.length == 0 && suffixSpecifiersStr.length == 0 ? " " : "";
+
 				// Put everything together
-				constructorInitFieldsStr + suffixSpecifiersStr + "{\n" + code.join("\n\n").tab() + "\n}";
+				constructorInitFieldsStr + suffixSpecifiersStr + space + "{\n" + code.join("\n\n").tab() + "\n}";
 			} else {
 				"";
 			}
