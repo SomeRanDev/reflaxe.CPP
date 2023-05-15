@@ -737,13 +737,15 @@ class Classes extends SubCompiler {
 
 		final content = DComp.getDynamicContent();
 		final dynFilename = "dynamic/Dynamic_" + filename + Compiler.HeaderExt;
-		Main.addCompileEndCallback(function() {
-			if(DComp.enabled) {
-				Main.setExtraFileIfEmpty(Compiler.HeaderFolder + "/" + dynFilename, "#pragma once\n\n#include \"Dynamic.h\"");
-				Main.appendToExtraFile(Compiler.HeaderFolder + "/" + dynFilename,  content);
-				Main.appendToExtraFile(headerFilename, "#include \"" + dynFilename + "\"\n", 9999999);
-			}
-		});
+		if(classType.params.length == 0) { // TODO, allow type params
+			Main.addCompileEndCallback(function() {
+				if(DComp.enabled) {
+					Main.setExtraFileIfEmpty(Compiler.HeaderFolder + "/" + dynFilename, "#pragma once\n\n#include \"Dynamic.h\"");
+					Main.appendToExtraFile(Compiler.HeaderFolder + "/" + dynFilename,  content);
+					Main.appendToExtraFile(headerFilename, "#include \"" + dynFilename + "\"\n", 9999999);
+				}
+			});
+		}
 
 		Main.addReflectionCpp(headerFilename, classTypeRef.trustMe());
 	}
