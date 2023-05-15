@@ -229,7 +229,7 @@ extern class Sys {
 	public static extern inline function programPath(): String {
 		untyped __include__("windows.h", true);
 		final path: cxx.Value<cxx.std.Array<cxx.Char, 256>> = new cxx.std.Array<cxx.Char, 256>();
-		untyped GetModuleFileName(__cpp__("nullptr"), path.data(), path.size());
+		untyped GetModuleFileNameA(__cpp__("nullptr"), path.data(), path.size());
 		return cast(path.data(), cxx.ConstCharPtr).toString();
 	}
 

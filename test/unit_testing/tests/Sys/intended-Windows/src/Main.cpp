@@ -127,7 +127,7 @@ void Main::main() {
 	
 	std::array<char, 256> path = std::array<char, 256>();
 	
-	GetModuleFileName(nullptr, path.data(), path.size());
+	GetModuleFileNameA(nullptr, path.data(), path.size());
 	
 	std::string tempString3 = std::string((((const char*)(path.data()))));
 	haxe::DynamicToString v = tempString3;
