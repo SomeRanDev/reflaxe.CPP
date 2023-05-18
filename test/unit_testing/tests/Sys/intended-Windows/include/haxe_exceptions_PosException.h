@@ -31,7 +31,7 @@ public:
 namespace haxe {
 	template<> struct _class<haxe::exceptions::PosException> {
 		DEFINE_CLASS_TOSTRING
-	using Dyn = haxe::Dynamic_haxe_exceptions_PosException;
+		using Dyn = haxe::Dynamic_haxe_exceptions_PosException;
 		constexpr static _class_data<2, 0> data {"PosException", { "posInfos", "toString" }, {}, true};
 	};
 }

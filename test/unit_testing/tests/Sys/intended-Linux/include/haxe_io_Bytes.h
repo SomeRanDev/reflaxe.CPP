@@ -33,7 +33,7 @@ public:
 namespace haxe {
 	template<> struct _class<haxe::io::Bytes> {
 		DEFINE_CLASS_TOSTRING
-	using Dyn = haxe::Dynamic_haxe_io_Bytes;
+		using Dyn = haxe::Dynamic_haxe_io_Bytes;
 		constexpr static _class_data<2, 1> data {"Bytes", { "length", "b" }, { "ofString" }, true};
 	};
 }

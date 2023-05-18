@@ -10,17 +10,17 @@ public:
 			return Dynamic::unwrap<haxe::exceptions::PosException>(d, [](haxe::exceptions::PosException* o) {
 				return makeDynamic(o->posInfos);
 			});
-		} else 		if(name == "toString") {
+		} else if(name == "toString") {
 			return Dynamic::makeFunc<haxe::exceptions::PosException>(d, [](haxe::exceptions::PosException* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->toString());
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
-
-		throw "Property does not exist";
+		
+		return Dynamic();
 	}
 };
 

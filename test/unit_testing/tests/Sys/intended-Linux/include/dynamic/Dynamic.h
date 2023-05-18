@@ -10,6 +10,9 @@
 
 namespace haxe {
 
+[[noreturn]]
+void makeError(const char* msg);
+
 // Forward declare just in case
 template<typename T> struct _class;
 
@@ -66,7 +69,7 @@ public:
 
 		// We cannot copy or move `std::unique_ptr`s
 		if(_dynType == UniquePtr) {
-			throw "Cannot assign std::unique_ptr to haxe::Dynamic";
+			makeError("Cannot assign std::unique_ptr to haxe::Dynamic");
 		}
 
 		// Supply properties if possible.
@@ -143,16 +146,16 @@ public:
 				default: break;
 			}
 		} else if constexpr(_mm_type<T>::type == Reference) {
-			throw "Cannot cast Dynamic to reference (&)";
+			makeError("Cannot cast Dynamic to reference (&)");
 		} else if constexpr(_mm_type<T>::type == UniquePtr) {
-			throw "Cannot cast Dynamic to std::unique_ptr";
+			makeError("Cannot cast Dynamic to std::unique_ptr");
 		} else if constexpr(_mm_type<T>::type == SharedPtr) {
 			if(_dynType == SharedPtr) {
 				return std::any_cast<std::shared_ptr<In>>(_anyObj);
 			}
 		}
 		
-		throw "Bad Dynamic cast";
+		makeError("Bad Dynamic cast");
 	}
 
 	std::string toString() {
@@ -179,34 +182,44 @@ public:
 		return std::string("Dynamic");
 	}
 
-	Dynamic getProp(std::string name) {
+	Dynamic getPropSafe(std::string name) {
 		if(getFunc != nullptr) {
-			Dynamic result = getFunc(*this, name);
-			if(!result.isEmpty()) return result;
+			return getFunc(*this, name);
 		}
-		throw "Property does not exist";
+		return Dynamic();
+	}
+
+	Dynamic setPropSafe(std::string name, Dynamic value) {
+		if(setFunc != nullptr) {
+			return setFunc(*this, name, value);
+		}
+		return Dynamic();
+	}
+
+	Dynamic getProp(std::string name) {
+		Dynamic result = getPropSafe(name);
+		if(!result.isEmpty()) return result;
+		makeError("Property does not exist");
 	}
 
 	Dynamic setProp(std::string name, Dynamic value) {
-		if(setFunc != nullptr) {
-			Dynamic result = setFunc(*this, name, value);
-			if(!result.isEmpty()) return result;
-		}
-		throw "Property does not exist";
+		Dynamic result = setPropSafe(name, value);
+		if(!result.isEmpty()) return result;
+		makeError("Property does not exist");
 	}
 
 	Dynamic operator()() {
 		if(_dynType == Function) {
 			return func({});
 		}
-		throw "Cannot call this Dynamic";
+		makeError("Cannot call this Dynamic");
 	}
 
 	Dynamic operator()(std::deque<Dynamic> args) {
 		if(_dynType == Function) {
 			return func(args);
 		}
-		throw "Cannot call this Dynamic";
+		makeError("Cannot call this Dynamic");
 	}
 
 	// helpers
@@ -251,3 +264,4 @@ Dynamic makeDynamic(T obj) {
 }
 
 }
+

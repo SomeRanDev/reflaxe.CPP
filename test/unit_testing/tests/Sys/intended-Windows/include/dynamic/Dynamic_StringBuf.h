@@ -11,7 +11,7 @@ public:
 				return makeDynamic(o->b);
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic& d, std::string name, Dynamic value) {
@@ -21,7 +21,7 @@ public:
 				return value;
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 };
 

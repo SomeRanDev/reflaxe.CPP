@@ -38,11 +38,15 @@ public:
 }
 
 
+#include "dynamic/Dynamic_haxe_iterators_MapKeyValueIterator.h"
+
+
 // Reflection info
 #include "_TypeUtils.h"
 namespace haxe {
 	template<typename K, typename V> struct _class<haxe::iterators::MapKeyValueIterator<K, V>> {
 		DEFINE_CLASS_TOSTRING
-		constexpr static _class_data<4, 0> data {"MapKeyValueIterator", { "map", "keys", "hasNext", "next" }, {}, false};
+		using Dyn = haxe::Dynamic_haxe_iterators_MapKeyValueIterator<haxe::iterators::MapKeyValueIterator<K, V>>;
+		constexpr static _class_data<4, 0> data {"MapKeyValueIterator", { "map", "keys", "hasNext", "next" }, {}, true};
 	};
 }

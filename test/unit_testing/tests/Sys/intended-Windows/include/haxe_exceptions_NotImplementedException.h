@@ -28,7 +28,7 @@ public:
 namespace haxe {
 	template<> struct _class<haxe::exceptions::NotImplementedException> {
 		DEFINE_CLASS_TOSTRING
-	using Dyn = haxe::Dynamic_haxe_exceptions_NotImplementedException;
+		using Dyn = haxe::Dynamic_haxe_exceptions_NotImplementedException;
 		constexpr static _class_data<0, 0> data {"NotImplementedException", {}, {}, true};
 	};
 }

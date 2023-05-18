@@ -22,7 +22,7 @@ public:
 namespace haxe {
 	template<> struct _class<StringBuf> {
 		DEFINE_CLASS_TOSTRING
-	using Dyn = haxe::Dynamic_StringBuf;
+		using Dyn = haxe::Dynamic_StringBuf;
 		constexpr static _class_data<1, 0> data {"StringBuf", { "b" }, {}, true};
 	};
 }

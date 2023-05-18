@@ -36,16 +36,20 @@ public:
 }
 
 
+#include "dynamic/Dynamic_haxe_Constraints.h"
+
+
 // Reflection info
 #include "_TypeUtils.h"
 namespace haxe {
 	template<typename K, typename V> struct _class<haxe::IMap<K, V>> {
 		DEFINE_CLASS_TOSTRING
+		using Dyn = haxe::Dynamic_haxe_IMap<haxe::IMap<K, V>>;
 		constexpr static _class_data<10, 0> data {
-		"IMap",
-		{ "get", "set", "exists", "remove", "keys", "iterator", "keyValueIterator", "copy", "toString", "clear" },
-		{},
-		false
-		};
+			"IMap",
+			{ "get", "set", "exists", "remove", "keys", "iterator", "keyValueIterator", "copy", "toString", "clear" },
+			{},
+			true
+			};
 	};
 }

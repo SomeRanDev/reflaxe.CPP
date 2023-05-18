@@ -139,16 +139,20 @@ public:
 }
 
 
+#include "dynamic/Dynamic_haxe_ds_StringMap.h"
+
+
 // Reflection info
 #include "_TypeUtils.h"
 namespace haxe {
 	template<typename T> struct _class<haxe::ds::StringMap<T>> {
 		DEFINE_CLASS_TOSTRING
+		using Dyn = haxe::Dynamic_haxe_ds_StringMap<haxe::ds::StringMap<T>>;
 		constexpr static _class_data<11, 0> data {
-		"StringMap",
-		{ "m", "set", "get", "exists", "remove", "keys", "iterator", "keyValueIterator", "copy", "toString", "clear" },
-		{},
-		false
-		};
+			"StringMap",
+			{ "m", "set", "get", "exists", "remove", "keys", "iterator", "keyValueIterator", "copy", "toString", "clear" },
+			{},
+			true
+			};
 	};
 }

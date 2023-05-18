@@ -36,7 +36,7 @@ public:
 namespace haxe {
 	template<> struct _class<Std> {
 		DEFINE_CLASS_TOSTRING
-	using Dyn = haxe::Dynamic_Std;
+		using Dyn = haxe::Dynamic_Std;
 		constexpr static _class_data<0, 3> data {"Std", {}, { "string", "parseInt", "parseFloat" }, true};
 	};
 }

@@ -36,7 +36,7 @@ public:
 namespace haxe {
 	template<> struct _class<cxx::io::NativeOutput> {
 		DEFINE_CLASS_TOSTRING
-	using Dyn = haxe::Dynamic_cxx_io_NativeOutput;
+		using Dyn = haxe::Dynamic_cxx_io_NativeOutput;
 		constexpr static _class_data<5, 0> data {"NativeOutput", { "stream", "writeByte", "close", "flush", "prepare" }, {}, true};
 	};
 }

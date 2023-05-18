@@ -31,7 +31,7 @@ public:
 namespace haxe {
 	template<> struct _class<Main> {
 		DEFINE_CLASS_TOSTRING
-	using Dyn = haxe::Dynamic_Main;
+		using Dyn = haxe::Dynamic_Main;
 		constexpr static _class_data<1, 3> data {"Main", { "a" }, { "returnCode", "assert", "main" }, true};
 	};
 }

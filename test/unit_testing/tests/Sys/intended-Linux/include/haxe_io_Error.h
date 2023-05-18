@@ -7,6 +7,7 @@
 #include "_AnonUtils.h"
 #include "_TypeUtils.h"
 #include "cxx_DynamicToString.h"
+#include "haxe_Exception.h"
 
 namespace haxe::io {
 

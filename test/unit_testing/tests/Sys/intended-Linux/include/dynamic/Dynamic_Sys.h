@@ -11,12 +11,12 @@ public:
 				return makeDynamic(o->getEnv(args[0].asType<std::string>()));
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
-
-		throw "Property does not exist";
+		
+		return Dynamic();
 	}
 };
 
@@ -31,12 +31,12 @@ public:
 				return makeDynamic(o->environment());
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
-
-		throw "Property does not exist";
+		
+		return Dynamic();
 	}
 };
 
@@ -50,17 +50,17 @@ public:
 			return Dynamic::unwrap<Sys_Args>(d, [](Sys_Args* o) {
 				return makeDynamic(o->_args);
 			});
-		} else 		if(name == "setupArgs") {
+		} else if(name == "setupArgs") {
 			return Dynamic::makeFunc<Sys_Args>(d, [](Sys_Args* o, std::deque<Dynamic> args) {
 				o->setupArgs(args[0].asType<int>(), args[1].asType<const char**>());
 				return Dynamic();
 			});
-		} else 		if(name == "args") {
+		} else if(name == "args") {
 			return Dynamic::makeFunc<Sys_Args>(d, [](Sys_Args* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->args());
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic& d, std::string name, Dynamic value) {
@@ -70,7 +70,7 @@ public:
 				return value;
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 };
 
@@ -84,17 +84,17 @@ public:
 			return Dynamic::unwrap<Sys_CpuTime>(d, [](Sys_CpuTime* o) {
 				return makeDynamic(o->_startTime);
 			});
-		} else 		if(name == "setupStart") {
+		} else if(name == "setupStart") {
 			return Dynamic::makeFunc<Sys_CpuTime>(d, [](Sys_CpuTime* o, std::deque<Dynamic> args) {
 				o->setupStart();
 				return Dynamic();
 			});
-		} else 		if(name == "cpuTime") {
+		} else if(name == "cpuTime") {
 			return Dynamic::makeFunc<Sys_CpuTime>(d, [](Sys_CpuTime* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->cpuTime());
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic& d, std::string name, Dynamic value) {
@@ -104,7 +104,7 @@ public:
 				return value;
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 };
 

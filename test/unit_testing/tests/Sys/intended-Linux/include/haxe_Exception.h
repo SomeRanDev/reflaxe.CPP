@@ -53,12 +53,12 @@ public:
 namespace haxe {
 	template<> struct _class<haxe::Exception> {
 		DEFINE_CLASS_TOSTRING
-	using Dyn = haxe::Dynamic_haxe_Exception;
+		using Dyn = haxe::Dynamic_haxe_Exception;
 		constexpr static _class_data<13, 2> data {
-		"Exception",
-		{ "message", "get_message", "stack", "get_stack", "previous", "get_previous", "native", "get_native", "_message", "_previous", "unwrap", "toString", "details" },
-		{ "caught", "thrown" },
-		true
-		};
+			"Exception",
+			{ "message", "get_message", "stack", "get_stack", "previous", "get_previous", "native", "get_native", "_message", "_previous", "unwrap", "toString", "details" },
+			{ "caught", "thrown" },
+			true
+			};
 	};
 }

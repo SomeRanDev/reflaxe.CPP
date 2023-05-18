@@ -25,12 +25,16 @@ include/haxe_Log.h
 include/haxe_Exception.h
 include/haxe_Constraints.h
 include/haxe_CallStack.h
+include/dynamic/Dynamic_haxe_iterators_MapKeyValueIterator.h
+include/dynamic/Dynamic_haxe_iterators_ArrayIterator.h
 include/dynamic/Dynamic_haxe_io_Output.h
 include/dynamic/Dynamic_haxe_io_Bytes.h
 include/dynamic/Dynamic_haxe_exceptions_PosException.h
 include/dynamic/Dynamic_haxe_exceptions_NotImplementedException.h
+include/dynamic/Dynamic_haxe_ds_StringMap.h
 include/dynamic/Dynamic_haxe_Log.h
 include/dynamic/Dynamic_haxe_Exception.h
+include/dynamic/Dynamic_haxe_Constraints.h
 include/dynamic/Dynamic_haxe_CallStack.h
 include/dynamic/Dynamic_cxx_io_NativeOutput.h
 include/dynamic/Dynamic_Sys.h

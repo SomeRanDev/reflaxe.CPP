@@ -11,12 +11,12 @@ public:
 				return makeDynamic(o->formatOutput(args[0].asType<std::string>(), args[1].asType<std::optional<std::shared_ptr<haxe::PosInfos>>>()));
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
-
-		throw "Property does not exist";
+		
+		return Dynamic();
 	}
 };
 

@@ -34,11 +34,15 @@ public:
 }
 
 
+#include "dynamic/Dynamic_haxe_iterators_ArrayIterator.h"
+
+
 // Reflection info
 #include "_TypeUtils.h"
 namespace haxe {
 	template<typename T> struct _class<haxe::iterators::ArrayIterator<T>> {
 		DEFINE_CLASS_TOSTRING
-		constexpr static _class_data<4, 0> data {"ArrayIterator", { "array", "current", "hasNext", "next" }, {}, false};
+		using Dyn = haxe::Dynamic_haxe_iterators_ArrayIterator<haxe::iterators::ArrayIterator<T>>;
+		constexpr static _class_data<4, 0> data {"ArrayIterator", { "array", "current", "hasNext", "next" }, {}, true};
 	};
 }

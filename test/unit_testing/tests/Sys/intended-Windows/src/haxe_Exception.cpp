@@ -1,5 +1,6 @@
 #include "haxe_Exception.h"
 
+#include <iostream>
 #include <memory>
 #include <string>
 #include "haxe_CallStack.h"
@@ -28,6 +29,8 @@ std::string haxe::Exception::get_message() {
 }
 
 std::shared_ptr<std::deque<std::shared_ptr<haxe::StackItem>>> haxe::Exception::get_stack() {
+	std::cout << Std::string("Call stack features must be enabled using -D cxx_callstack."s) << std::endl;
+	
 	return std::make_shared<std::deque<std::shared_ptr<haxe::StackItem>>>(std::deque<std::shared_ptr<haxe::StackItem>>{});
 }
 

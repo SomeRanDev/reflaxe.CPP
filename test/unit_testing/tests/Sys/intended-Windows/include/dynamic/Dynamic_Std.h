@@ -10,21 +10,21 @@ public:
 			return Dynamic::makeFunc<Std>(d, [](Std* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->string(args[0].asType<haxe::DynamicToString>()));
 			});
-		} else 		if(name == "parseInt") {
+		} else if(name == "parseInt") {
 			return Dynamic::makeFunc<Std>(d, [](Std* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->parseInt(args[0].asType<std::string>()));
 			});
-		} else 		if(name == "parseFloat") {
+		} else if(name == "parseFloat") {
 			return Dynamic::makeFunc<Std>(d, [](Std* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->parseFloat(args[0].asType<std::string>()));
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
-
-		throw "Property does not exist";
+		
+		return Dynamic();
 	}
 };
 

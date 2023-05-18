@@ -34,7 +34,7 @@ public:
 namespace haxe {
 	template<> struct _class<haxe::io::Output> {
 		DEFINE_CLASS_TOSTRING
-	using Dyn = haxe::Dynamic_haxe_io_Output;
+		using Dyn = haxe::Dynamic_haxe_io_Output;
 		constexpr static _class_data<5, 0> data {"Output", { "writeByte", "writeBytes", "flush", "writeFullBytes", "writeString" }, {}, true};
 	};
 }

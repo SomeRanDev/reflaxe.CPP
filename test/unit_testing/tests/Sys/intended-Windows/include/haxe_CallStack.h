@@ -139,7 +139,7 @@ public:
 namespace haxe {
 	template<> struct _class<haxe::_CallStack::CallStack_Impl_> {
 		DEFINE_CLASS_TOSTRING
-	using Dyn = haxe::Dynamic_haxe__CallStack_CallStack_Impl_;
+		using Dyn = haxe::Dynamic_haxe__CallStack_CallStack_Impl_;
 		constexpr static _class_data<0, 2> data {"CallStack_Impl_", {}, { "toString", "itemToString" }, true};
 	};
 }

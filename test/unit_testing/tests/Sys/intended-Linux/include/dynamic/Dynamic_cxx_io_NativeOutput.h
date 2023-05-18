@@ -10,28 +10,28 @@ public:
 			return Dynamic::unwrap<cxx::io::NativeOutput>(d, [](cxx::io::NativeOutput* o) {
 				return makeDynamic(o->stream);
 			});
-		} else 		if(name == "writeByte") {
+		} else if(name == "writeByte") {
 			return Dynamic::makeFunc<cxx::io::NativeOutput>(d, [](cxx::io::NativeOutput* o, std::deque<Dynamic> args) {
 				o->writeByte(args[0].asType<int>());
 				return Dynamic();
 			});
-		} else 		if(name == "close") {
+		} else if(name == "close") {
 			return Dynamic::makeFunc<cxx::io::NativeOutput>(d, [](cxx::io::NativeOutput* o, std::deque<Dynamic> args) {
 				o->close();
 				return Dynamic();
 			});
-		} else 		if(name == "flush") {
+		} else if(name == "flush") {
 			return Dynamic::makeFunc<cxx::io::NativeOutput>(d, [](cxx::io::NativeOutput* o, std::deque<Dynamic> args) {
 				o->flush();
 				return Dynamic();
 			});
-		} else 		if(name == "prepare") {
+		} else if(name == "prepare") {
 			return Dynamic::makeFunc<cxx::io::NativeOutput>(d, [](cxx::io::NativeOutput* o, std::deque<Dynamic> args) {
 				o->prepare(args[0].asType<int>());
 				return Dynamic();
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic& d, std::string name, Dynamic value) {
@@ -41,7 +41,7 @@ public:
 				return value;
 			});
 		}
-		throw "Property does not exist";
+		return Dynamic();
 	}
 };
 

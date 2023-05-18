@@ -2,5 +2,6 @@
 # -lib reflaxe.cpp
 # -D cpp-output=out
 
+-D cxx_callstack
 -D mainClass=Main
 -main Main
