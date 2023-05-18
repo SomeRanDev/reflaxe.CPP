@@ -13,6 +13,9 @@ package cxxcompiler.subcompilers;
 
 #if (macro || cxx_runtime)
 
+import reflaxe.helpers.Context;
+import haxe.macro.Type;
+
 import reflaxe.data.ClassVarData;
 import reflaxe.data.ClassFuncData;
 
@@ -24,7 +27,15 @@ using reflaxe.helpers.TypeHelper;
 class Dynamic_ extends SubCompiler {
 	public var enabled(default, null): Bool = false;
 
+	public var exceptionType: Null<haxe.macro.Type>;
+
 	public function enableDynamic() {
+		// dynamic/Dynamic.h requires this
+		if(exceptionType == null) {
+			exceptionType = Context.getType("haxe.Exception");
+			Main.onTypeEncountered(exceptionType, true);
+		}
+
 		enabled = true;
 	}
 
@@ -33,12 +44,14 @@ class Dynamic_ extends SubCompiler {
 	}
 
 	var valueType: String = "";
+	var valueTypeWParams: String = "";
 	var dynamicName: String = "";
 	var getProps: Array<String> = [];
 	var setProps: Array<String> = [];
 
-	public function reset(valueTypeCpp: String) {
+	public function reset(valueTypeCpp: String, valueTypeWParamsCpp) {
 		valueType = valueTypeCpp;
+		valueTypeWParams = valueTypeWParamsCpp;
 		dynamicName = "Dynamic_" + StringTools.replace(valueTypeCpp, "::", "_");
 		getProps = [];
 		setProps = [];
@@ -47,14 +60,14 @@ class Dynamic_ extends SubCompiler {
 	public function addVar(v: ClassVarData, cppType: String, name: String) {
 		if(v.read == AccNormal || v.read == AccNo) {
 			getProps.push('if(name == "${name}") {
-	return Dynamic::unwrap<${valueType}>(d, [](${valueType}* o) {
+	return Dynamic::unwrap<$valueTypeWParams>(d, []($valueTypeWParams* o) {
 		return makeDynamic(o->${name});
 	});
 }');
 		}
 		if(v.write == AccNormal || v.write == AccNo) {
 			setProps.push('if(name == "${name}") {
-	return Dynamic::unwrap<${valueType}>(d, [value](${valueType}* o) {
+	return Dynamic::unwrap<$valueTypeWParams>(d, [value]($valueTypeWParams* o) {
 		o->${name} = value.asType<${cppType}>();
 		return value;
 	});
@@ -77,29 +90,45 @@ class Dynamic_ extends SubCompiler {
 		}
 
 		getProps.push('if(name == "${name}") {
-	return Dynamic::makeFunc<${valueType}>(d, [](${valueType}* o, std::deque<Dynamic> args) {
+	return Dynamic::makeFunc<$valueTypeWParams>(d, []($valueTypeWParams* o, std::deque<Dynamic> args) {
 		${content}
 	});
 }');
 	}
 
-	public function getDynamicContent() {
+	public function getDynamicContent(classType: ClassType) {
 		final getArgs = getProps.length > 0 ? "Dynamic& d, std::string name" : "Dynamic&, std::string";
 		final setArgs = setProps.length > 0 ? "Dynamic& d, std::string name, Dynamic value" : "Dynamic&, std::string, Dynamic";
 
+		final hasTypeParams = classType.params.length > 0;
+
+		final prefix = if(hasTypeParams) {
+			final blankTemplateClass = 'template<typename T> class $dynamicName;';
+			final dynamicTemplate = 'template<${classType.params.map(p -> "typename " + p.name).join(", ")}>';
+			'\n$blankTemplateClass\n\n$dynamicTemplate';
+		} else {
+			"";
+		}
+
+		final name = if(hasTypeParams) {
+			'$dynamicName<$valueTypeWParams>';
+		} else {
+			dynamicName;
+		}
+
 		return '
 namespace haxe {
-
-class ${dynamicName} {
+$prefix
+class ${name} {
 public:
 	static Dynamic getProp(${getArgs}) {
-${getProps.map(p -> p.tab(2)).join(" else ")}
-		throw \"Property does not exist\";
+${getProps.join(" else ").tab(2)}
+		return Dynamic();
 	}
 
 	static Dynamic setProp(${setArgs}) {
-${setProps.map(p -> p.tab(2)).join(" else ")}
-		throw \"Property does not exist\";
+${setProps.join(" else ").tab(2)}
+		return Dynamic();
 	}
 };
 
@@ -110,17 +139,15 @@ ${setProps.map(p -> p.tab(2)).join(" else ")}
 		Get dynamic.
 	**/
 	public function dynamicTypeContent() {
-		return "#pragma once
+		final includes = ["any", "deque", "functional", "memory", "optional", "string", "typeindex"];
+		for(i in includes) {
+			IComp.addInclude(i, true, true);
+		}
 
-#include <any>
-#include <deque>
-#include <functional>
-#include <memory>
-#include <optional>
-#include <string>
-#include <typeindex>
+		return "namespace haxe {
 
-namespace haxe {
+[[noreturn]]
+void makeError(const char* msg);
 
 // Forward declare just in case
 template<typename T> struct _class;
@@ -178,7 +205,7 @@ public:
 
 		// We cannot copy or move `std::unique_ptr`s
 		if(_dynType == UniquePtr) {
-			throw \"Cannot assign std::unique_ptr to haxe::Dynamic\";
+			makeError(\"Cannot assign std::unique_ptr to haxe::Dynamic\");
 		}
 
 		// Supply properties if possible.
@@ -255,16 +282,16 @@ public:
 				default: break;
 			}
 		} else if constexpr(_mm_type<T>::type == Reference) {
-			throw \"Cannot cast Dynamic to reference (&)\";
+			makeError(\"Cannot cast Dynamic to reference (&)\");
 		} else if constexpr(_mm_type<T>::type == UniquePtr) {
-			throw \"Cannot cast Dynamic to std::unique_ptr\";
+			makeError(\"Cannot cast Dynamic to std::unique_ptr\");
 		} else if constexpr(_mm_type<T>::type == SharedPtr) {
 			if(_dynType == SharedPtr) {
 				return std::any_cast<std::shared_ptr<In>>(_anyObj);
 			}
 		}
 		
-		throw \"Bad Dynamic cast\";
+		makeError(\"Bad Dynamic cast\");
 	}
 
 	std::string toString() {
@@ -291,34 +318,44 @@ public:
 		return std::string(\"Dynamic\");
 	}
 
-	Dynamic getProp(std::string name) {
+	Dynamic getPropSafe(std::string name) {
 		if(getFunc != nullptr) {
-			Dynamic result = getFunc(*this, name);
-			if(!result.isEmpty()) return result;
+			return getFunc(*this, name);
 		}
-		throw \"Property does not exist\";
+		return Dynamic();
+	}
+
+	Dynamic setPropSafe(std::string name, Dynamic value) {
+		if(setFunc != nullptr) {
+			return setFunc(*this, name, value);
+		}
+		return Dynamic();
+	}
+
+	Dynamic getProp(std::string name) {
+		Dynamic result = getPropSafe(name);
+		if(!result.isEmpty()) return result;
+		makeError(\"Property does not exist\");
 	}
 
 	Dynamic setProp(std::string name, Dynamic value) {
-		if(setFunc != nullptr) {
-			Dynamic result = setFunc(*this, name, value);
-			if(!result.isEmpty()) return result;
-		}
-		throw \"Property does not exist\";
+		Dynamic result = setPropSafe(name, value);
+		if(!result.isEmpty()) return result;
+		makeError(\"Property does not exist\");
 	}
 
 	Dynamic operator()() {
 		if(_dynType == Function) {
 			return func({});
 		}
-		throw \"Cannot call this Dynamic\";
+		makeError(\"Cannot call this Dynamic\");
 	}
 
 	Dynamic operator()(std::deque<Dynamic> args) {
 		if(_dynType == Function) {
 			return func(args);
 		}
-		throw \"Cannot call this Dynamic\";
+		makeError(\"Cannot call this Dynamic\");
 	}
 
 	// helpers

@@ -191,7 +191,7 @@ class Includes extends SubCompiler {
 
 	// ----------------------------
 	// Add include based on the provided Type.
-	function addIncludeFromType(t: Type, header: Bool) {
+	public function addIncludeFromType(t: Type, header: Bool) {
 		switch(t.unwrapNullTypeOrSelf()) {
 			case TFun(_, _): {
 				addFunctionTypeInclude(header);

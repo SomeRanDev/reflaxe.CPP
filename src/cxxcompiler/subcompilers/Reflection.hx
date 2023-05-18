@@ -47,10 +47,12 @@ class Reflection extends SubCompiler {
 
 		var cpp = TComp.compileClassName(clsRef, PositionHelper.unknownPos(), null, true, true);
 		final clsName = cpp;
+
+		var paramsCpp = "";
 		if(cls.params.length > 0) {
+			paramsCpp = cls.params.map(p -> "typename " + p.name).join(", ");
 			cpp += "<" + cls.params.map(p -> p.name).join(", ") + ">";
 		}
-		final paramsCpp = cls.params.map(p -> "typename " + p.name).join(", ");
 
 		final instanceFields = cls.fields.get().map(f -> Main.compileVarName(f.name));
 		final staticFields = cls.statics.get().map(f -> Main.compileVarName(f.name));
@@ -61,7 +63,7 @@ class Reflection extends SubCompiler {
 		final ifCpp = ic == 0 ? "{}" : "{ " + instanceFields.map(f -> "\"" + f + "\"").join(", ") + " }";
 		final sfCpp = sc == 0 ? "{}" : "{ " + staticFields.map(f -> "\"" + f + "\"").join(", ") + " }";
 
-		final dynEnabled = DComp.enabled && cls.params.length == 0;
+		final dynEnabled = DComp.enabled;
 
 		final fields = ['\"${cls.name}\"', ifCpp, sfCpp, dynEnabled ? "true" : "false"];
 
@@ -73,12 +75,12 @@ class Reflection extends SubCompiler {
 			fields.join(", ");
 		}
 
-		final DynClass = dynEnabled ? '\nusing Dyn = haxe::Dynamic_${StringTools.replace(clsName, "::", "_")};' : "";
+		final lines = [];
+		lines.push("DEFINE_CLASS_TOSTRING");
+		if(dynEnabled) lines.push('using Dyn = haxe::Dynamic_${StringTools.replace(clsName, "::", "_")}${cls.params.length > 0 ? '<$cpp>' : ""};');
+		lines.push('constexpr static _class_data<${ic}, ${sc}> data {${fieldsCpp}};');
 
-		return 'template<${paramsCpp}> struct _class<${cpp}> {
-	DEFINE_CLASS_TOSTRING${DynClass}
-	constexpr static _class_data<${ic}, ${sc}> data {${fieldsCpp}};
-};';
+		return 'template<${paramsCpp}> struct _class<${cpp}> {\n${lines.join("\n").tab()}\n};';
 	}
 
 	public function typeUtilHeaderContent() {

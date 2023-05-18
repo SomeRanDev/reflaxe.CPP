@@ -222,13 +222,15 @@ class Classes extends SubCompiler {
 		final fullClassPath = TComp.compileClassName(classTypeRef, classType.pos, null, true, true);
 		classNameNS = fullClassPath.length > 0 ? (fullClassPath + "::") : fullClassPath;
 
-		DComp.reset(fullClassPath);
-
-		classNameWParams = className + if(classType.params.length > 0) {
+		final wParams = if(classType.params.length > 0) {
 			"<" + classType.params.map(p -> p.name).join(", ") + ">";
 		} else {
 			"";
 		}
+
+		classNameWParams = className + wParams;
+
+		DComp.reset(fullClassPath, fullClassPath + wParams);
 
 		filename = Main.getFileNameFromModuleData(classType);
 
@@ -737,17 +739,15 @@ class Classes extends SubCompiler {
 			Main.appendToExtraFile(headerFilename, result + "\n", currentDep != null ? currentDep.getPriority() : DependencyTracker.minimum);
 		});
 
-		final content = DComp.getDynamicContent();
+		final content = DComp.getDynamicContent(classType);
 		final dynFilename = "dynamic/Dynamic_" + filename + Compiler.HeaderExt;
-		if(classType.params.length == 0) { // TODO, allow type params
-			Main.addCompileEndCallback(function() {
-				if(DComp.enabled) {
-					Main.setExtraFileIfEmpty(Compiler.HeaderFolder + "/" + dynFilename, "#pragma once\n\n#include \"Dynamic.h\"");
-					Main.appendToExtraFile(Compiler.HeaderFolder + "/" + dynFilename,  content);
-					Main.appendToExtraFile(headerFilename, "#include \"" + dynFilename + "\"\n", 9999999);
-				}
-			});
-		}
+		Main.addCompileEndCallback(function() {
+			if(DComp.enabled) {
+				Main.setExtraFileIfEmpty(Compiler.HeaderFolder + "/" + dynFilename, "#pragma once\n\n#include \"Dynamic.h\"");
+				Main.appendToExtraFile(Compiler.HeaderFolder + "/" + dynFilename,  content);
+				Main.appendToExtraFile(headerFilename, "#include \"" + dynFilename + "\"\n", 9999999);
+			}
+		});
 
 		Main.addReflectionCpp(headerFilename, classTypeRef.trustMe());
 	}
