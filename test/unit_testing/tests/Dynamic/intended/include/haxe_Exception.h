@@ -17,8 +17,6 @@ public:
 	
 	std::optional<std::shared_ptr<haxe::Exception>> _previous;
 	
-	std::shared_ptr<std::deque<std::shared_ptr<haxe::StackItem>>> _stack;
-	
 	virtual ~Exception() {}
 
 	Exception(std::string message, std::optional<haxe::Exception> previous = std::nullopt, std::optional<std::any> native = std::nullopt);
@@ -56,9 +54,9 @@ namespace haxe {
 	template<> struct _class<haxe::Exception> {
 		DEFINE_CLASS_TOSTRING
 		using Dyn = haxe::Dynamic_haxe_Exception;
-		constexpr static _class_data<14, 2> data {
+		constexpr static _class_data<13, 2> data {
 			"Exception",
-			{ "message", "get_message", "stack", "get_stack", "previous", "get_previous", "native", "get_native", "_message", "_previous", "_stack", "unwrap", "toString", "details" },
+			{ "message", "get_message", "stack", "get_stack", "previous", "get_previous", "native", "get_native", "_message", "_previous", "unwrap", "toString", "details" },
 			{ "caught", "thrown" },
 			true
 			};

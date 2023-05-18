@@ -4,12 +4,20 @@
 #include "_HaxeUtils.h"
 #include "_TypeUtils.h"
 #include "haxe_Exception.h"
-#include "haxe_NativeStackTrace.h"
 #include <dynamic/Dynamic.h>
 #include <iostream>
-#include <memory>
 #include <optional>
 #include <string>
+
+namespace _Main {
+
+class Main_Fields_ {
+public:
+	static void main();
+};
+
+}
+
 
 class Test {
 public:
@@ -26,16 +34,6 @@ public:
 
 
 
-namespace _Main {
-
-class Main_Fields_ {
-public:
-	static void main();
-};
-
-}
-
-
 template<typename T>
 class HasParam {
 public:
@@ -44,23 +42,14 @@ public:
 	HasParam(T t):
 		_order_id(generate_order_id())
 	{
-		HCXX_STACK_METHOD(std::string("test/unit_testing/tests/Dynamic/Main.hx"), 12, 2, std::string("HasParam"), std::string("HasParam"));
-		
-		HCXX_LINE(12);
 		this->t = t;
 	}
 	
 	void test() {
-		HCXX_STACK_METHOD(std::string("test/unit_testing/tests/Dynamic/Main.hx"), 13, 2, std::string("HasParam"), std::string("test"));
-		
-		HCXX_LINE(13);
 		std::cout << std::string("test/unit_testing/tests/Dynamic/Main.hx:13: Hello!") << std::endl;
 	}
 	
 	T getT() {
-		HCXX_STACK_METHOD(std::string("test/unit_testing/tests/Dynamic/Main.hx"), 14, 2, std::string("HasParam"), std::string("getT"));
-		
-		HCXX_LINE(14);
 		return this->t;
 	}
 	

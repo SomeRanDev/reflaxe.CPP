@@ -14,10 +14,6 @@ public:
 			return Dynamic::unwrap<haxe::Exception>(d, [](haxe::Exception* o) {
 				return makeDynamic(o->_previous);
 			});
-		} else if(name == "_stack") {
-			return Dynamic::unwrap<haxe::Exception>(d, [](haxe::Exception* o) {
-				return makeDynamic(o->_stack);
-			});
 		} else if(name == "get_message") {
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->get_message());
@@ -67,11 +63,6 @@ public:
 		} else if(name == "_previous") {
 			return Dynamic::unwrap<haxe::Exception>(d, [value](haxe::Exception* o) {
 				o->_previous = value.asType<std::optional<std::shared_ptr<haxe::Exception>>>();
-				return value;
-			});
-		} else if(name == "_stack") {
-			return Dynamic::unwrap<haxe::Exception>(d, [value](haxe::Exception* o) {
-				o->_stack = value.asType<std::shared_ptr<std::deque<std::shared_ptr<haxe::StackItem>>>>();
 				return value;
 			});
 		}
