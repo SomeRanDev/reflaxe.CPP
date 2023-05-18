@@ -518,7 +518,10 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 			IComp.resetAndInitIncludes(true);
 			final headerContent = DComp.dynamicTypeContent();
 
-			IComp.addIncludeFromType(DComp.exceptionType, false);
+			if(DComp.exceptionType == null) {
+				DComp.exceptionType = Context.getType("haxe.Exception");
+				IComp.addIncludeFromType(DComp.exceptionType, false);
+			}
 
 			// dynamic/Dynamic.h
 			var content = "#pragma once\n\n";
