@@ -317,4 +317,10 @@ enum abstract Meta(String) from String to String {
 	// Used to generate casts when converting between other number types
 	// to prevent C++ warnings.
 	var NumberType = ":numberType";
+
+	// @:dynamicCompatible
+	//
+	// If used on an extern class, a dynamic wrapper will be generated
+	// that will allow it to be used with the `Dynamic` type.
+	var DynamicCompatible = ":dynamicCompatible";
 }

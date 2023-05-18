@@ -30,6 +30,7 @@ class CompilerInit {
 			dynamicDCE: true,
 			customStdMeta: [":cxxStd"],
 			trackUsedTypes: true,
+			ignoreExterns: false,
 			allowMetaMetadata: true,
 			autoNativeMetaFormat: "[[{}]]"
 		});
