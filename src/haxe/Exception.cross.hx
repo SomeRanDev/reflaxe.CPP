@@ -14,6 +14,7 @@ class Exception extends cxx.std.Exception {
 		#if cxx_callstack
 		return _stack;
 		#else
+		NativeStackTrace.err();
 		return [];
 		#end
 	}

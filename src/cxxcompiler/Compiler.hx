@@ -174,7 +174,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		generateAnonStructHeader();
 		generateTypeUtilsHeader();
 		generateHaxeUtilsHeader();
-		generateDynamicHeader();
+		generateDynamic();
 		copyAdditionalFiles();
 	}
 
@@ -513,9 +513,24 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	bool operator<(const __VA_ARGS__& other) const { return _order_id < other._order_id; }";
 	}
 
-	function generateDynamicHeader() {
+	function generateDynamic() {
 		if(DComp.enabled) {
-			setExtraFile(HeaderFolder + "/dynamic/Dynamic" + HeaderExt, DComp.dynamicTypeContent());
+			IComp.resetAndInitIncludes(true);
+			final headerContent = DComp.dynamicTypeContent();
+
+			IComp.addIncludeFromType(DComp.exceptionType, false);
+
+			// dynamic/Dynamic.h
+			var content = "#pragma once\n\n";
+			content += IComp.compileHeaderIncludes() + "\n\n";
+			content += headerContent + "\n\n";
+			setExtraFile(HeaderFolder + "/dynamic/Dynamic" + HeaderExt, content);
+
+			// _main_.cpp
+			var cppContent = "// Implementation for haxe::makeError from dynamic/Dynamic.h\n";
+			cppContent += IComp.compileCppIncludes() + "\n\n";
+			cppContent += "void haxe::makeError(const char* msg) {\n\tthrow haxe::Exception(msg);\n}";
+			appendToExtraFile(SourceFolder + "/_main_.cpp", cppContent, 10);
 		}
 	}
 
