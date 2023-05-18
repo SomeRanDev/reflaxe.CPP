@@ -41,8 +41,6 @@ using cxxcompiler.helpers.MetaHelper;
 @:access(cxxcompiler.subcompilers.Includes)
 @:access(cxxcompiler.subcompilers.Types)
 class Classes extends SubCompiler {
-	@:nullSafety(Off) var classType: ClassType;
-
 	/**
 		A list of extern classes encountered that should be `Dynamic`
 		compatible, but haven't been compiled yet because `Dynamic`
@@ -53,54 +51,88 @@ class Classes extends SubCompiler {
 	**/
 	var dynamicCompatibleExterns: Array<{ classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData> }> = [];
 
+	// ---------------------------------------------------
+	// Variables that expose the current context
+	// of this class...
+	// ---------------------------------------------------
 	public var currentFunction: Null<ClassFuncData> = null;
-
 	public var superConstructorCall: Null<String> = null;
 
+	// ---------------------------------------------------
+	// The following variables are reset for each
+	// class that's compiled...
+	// ---------------------------------------------------
+
+	/**
+		The `ClassType` for the class currently being compiled.
+	**/
+	@:nullSafety(Off)
+	var classType: ClassType;
+	
+	/**
+		Variable declarations compiled into C++ to be added into class
+		in header file.
+
+		Mapped by the section they should be stored in "public", "private", etc.
+	**/
 	var variables: Map<String, Array<String>> = [];
+
+	/**
+		Function declarations compiled into C++ to be added into class
+		in header file.
+
+		Mapped by the section they should be stored in "public", "private", etc.
+	**/
 	var functions: Map<String, Array<String>> = [];
 
-	function addVariable(funcOutput: String, access: String = "public") {
-		if(!variables.exists(access)) {
-			variables.set(access, []);
-		}
-		variables.get(access).trustMe().push(funcOutput);
-	}
-
-	function addFunction(funcOutput: String, access: String = "public") {
-		if(!functions.exists(access)) {
-			functions.set(access, []);
-		}
-		functions.get(access).trustMe().push(funcOutput);
-	}
-
+	// ---------------------------------------------------
+	// Store C++ output for content for the source file (.cpp).
+	// ---------------------------------------------------
 	var topLevelFunctions: Array<String> = [];
 	var cppVariables: Array<String> = [];
 	var cppFunctions: Array<String> = [];
 
-	var extendedFrom: Array<String> = [];
-
-	var destructorField: Null<ClassFuncData> = null;
-	var hadVirtual: Bool = false;
-
-	var fieldsCompiled = 0;
-
+	// ---------------------------------------------------
+	// Important context information to track
+	// ---------------------------------------------------
 	var classTypeRef: Null<Ref<ClassType>> = null;
 	var className: String = "";
 	var classNameNS: String = "";
-
-	// Used in autogen and extension classes
-	var classNameWParams: String = "";
-
 	var filename: String = "";
 
-	var dep: Null<DependencyTracker> = null;
+	var fieldsCompiled = 0;
 
-	var headerOnly: Bool = false;
-	var noAutogen: Bool = false;
+	var extendedFrom: Array<String> = [];
+	var destructorField: Null<ClassFuncData> = null;
+	var hadVirtual: Bool = false;
 	var hasConstructor: Bool = false;
 
+	// ---------------------------------------------------
+	// Cache results of metadata for class
+	// ---------------------------------------------------
+	var headerOnly: Bool = false;
+	var noAutogen: Bool = false;
+	
+	/**
+		The declaration of the class is stored here.
+
+		It's an array so different pieces of content can be injected
+		at different points in the class compilation process.
+
+		At the end, it's joined together without anything between
+		each element.
+	**/
 	var headerContent: Array<String> = [];
+
+	/**
+		Used in autogen and extension classes.
+	**/
+	var classNameWParams: String = "";
+
+	/**
+		The current `DependencyTracker` for the class being compiled.
+	**/
+	var dep: Null<DependencyTracker> = null;
 
 	public function compileClass(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>): Null<String> {
 		if(classType.isExtern) {
@@ -218,7 +250,29 @@ class Classes extends SubCompiler {
 		return null;
 	}
 
-	// Initialize fields at the start of `compileClass`.
+	/**
+		Helper for adding the C++ header output of a variable.
+	**/
+	function addVariable(funcOutput: String, access: String = "public") {
+		if(!variables.exists(access)) {
+			variables.set(access, []);
+		}
+		variables.get(access).trustMe().push(funcOutput);
+	}
+
+	/**
+		Helper for adding the C++ header output of a function.
+	**/
+	function addFunction(funcOutput: String, access: String = "public") {
+		if(!functions.exists(access)) {
+			functions.set(access, []);
+		}
+		functions.get(access).trustMe().push(funcOutput);
+	}
+
+	/**
+		Initialize fields at the start of `compileClass`.
+	**/
 	function initFields(classType: ClassType) {
 		this.classType = classType;
 		variables = [];
@@ -265,7 +319,9 @@ class Classes extends SubCompiler {
 		hasConstructor = false;
 	}
 
-	// Compile class var
+	/**
+		Compile class variable.
+	**/
 	function compileVar(v: ClassVarData) {
 		final field = v.field;
 		final isStatic = v.isStatic;
@@ -307,7 +363,9 @@ class Classes extends SubCompiler {
 		fieldsCompiled++;
 	}
 
-	// Compile class function
+	/**
+		Compile class function.
+	**/
 	function compileFunction(f: ClassFuncData) {
 		currentFunction = f;
 
@@ -640,7 +698,9 @@ class Classes extends SubCompiler {
 		}
 	}
 
-	// Generate file output
+	/**
+		Generate file output.
+	**/
 	function generateOutput() {
 		// Auto-generated content
 		if(hasConstructor && !noAutogen) {
@@ -662,7 +722,9 @@ class Classes extends SubCompiler {
 		generateHeaderFile();
 	}
 
-	// Add additional extension classes based on flags and found data.
+	/**
+		Add additional extension classes based on flags and found data.
+	**/
 	function addExtensionClasses() {
 		if(IComp.isExtraFlagOn(ExtraFlag.SharedFromThis)) {
 			IComp.addInclude("memory", true, true);
@@ -670,7 +732,9 @@ class Classes extends SubCompiler {
 		}
 	}
 
-	// Source file (.cpp)
+	/**
+		Source file (.cpp)
+	**/
 	function generateSourceFile() {
 		if(!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0)) {
 			final srcFilename = Compiler.SourceFolder + "/" + filename + Compiler.SourceExt;
@@ -692,7 +756,9 @@ class Classes extends SubCompiler {
 		}
 	}
 
-	// Header file (.h)
+	/**
+		Header file (.h)
+	**/
 	function generateHeaderFile() {
 		if(fieldsCompiled <= 0 && !classType.hasMeta(":used")) {
 			return;
