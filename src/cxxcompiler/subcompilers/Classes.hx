@@ -43,6 +43,16 @@ using cxxcompiler.helpers.MetaHelper;
 class Classes extends SubCompiler {
 	@:nullSafety(Off) var classType: ClassType;
 
+	/**
+		A list of extern classes encountered that should be `Dynamic`
+		compatible, but haven't been compiled yet because `Dynamic`
+		hasn't been encountered yet.
+
+		Once `Dynamic` is found, these classes will be compiled and
+		this list will be emptied.
+	**/
+	var dynamicCompatibleExterns: Array<{ classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData> }> = [];
+
 	public var currentFunction: Null<ClassFuncData> = null;
 
 	public var superConstructorCall: Null<String> = null;
@@ -93,6 +103,18 @@ class Classes extends SubCompiler {
 	var headerContent: Array<String> = [];
 
 	public function compileClass(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>): Null<String> {
+		if(classType.isExtern) {
+			if(classType.hasMeta(Meta.DynamicCompatible)) {
+				// If Dynamic isn't confirmed to be used, let's
+				// delay generating extern compatibility wrappers.
+				if(!DComp.enabled) {
+					dynamicCompatibleExterns.push({ classType: classType, varFields: varFields, funcFields: funcFields });
+				}
+			} else {
+				return null;
+			}
+		}
+
 		// Init variables
 		initFields(classType);
 
