@@ -37,6 +37,9 @@ class Dynamic_ extends SubCompiler {
 		}
 
 		enabled = true;
+
+		// Call `onDynamicEnabled` for Class compiler
+		CComp.onDynamicEnabled();
 	}
 
 	public function compileDynamicTypeName() {

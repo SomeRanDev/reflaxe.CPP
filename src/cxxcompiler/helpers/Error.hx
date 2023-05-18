@@ -35,6 +35,7 @@ enum ErrorType {
 	ValueAssignedNull;
 
 	// Meta
+	CannotUseOnExternClass;
 	ConstExprMetaInvalidUse;
 	TopLevelInstanceFunction;
 	TopLevelConstructor;
@@ -92,6 +93,9 @@ class Error {
 			}
 
 			// Meta
+			case CannotUseOnExternClass: {
+				"Cannot use on extern class.";
+			}
 			case ConstExprMetaInvalidUse: {
 				"Invalid use of @:constexpr. Must be used with if statement.";
 			}

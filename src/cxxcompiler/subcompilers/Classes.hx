@@ -14,7 +14,6 @@ import haxe.macro.Type;
 
 import haxe.display.Display.MetadataTarget;
 
-import reflaxe.BaseCompiler;
 import reflaxe.data.ClassFuncData;
 import reflaxe.data.ClassVarData;
 import reflaxe.input.ClassHierarchyTracker;
@@ -36,6 +35,48 @@ using cxxcompiler.helpers.DefineHelper;
 using cxxcompiler.helpers.Error;
 using cxxcompiler.helpers.MetaHelper;
 
+/**
+	Structure used in `FunctionCompileContext` to store covariant related data.
+**/
+typedef FunctionCovariantData = {
+	isCovariant: Bool,
+	name: String,
+	ret: String,
+	retVal: String
+}
+
+/**
+	Structure for storing data for compiling class functions.
+**/
+typedef FunctionCompileContext = {
+	// data
+	f: ClassFuncData,
+	field: ClassField,
+
+	// flags
+	isConstructor: Bool,
+	isStatic: Bool,
+	isAbstract: Bool,
+	useReturnType: Bool,
+	addToCpp: Bool,
+
+	// covariance
+	covariance: FunctionCovariantData,
+
+	// pieces
+	section: String,
+	meta: String,
+	ret: String,
+	prefix: String,
+	name: String,
+	suffixSpecifiers: Array<String>,
+	prependFieldContent: String,
+	appendFieldContent: String,
+}
+
+/**
+	The compiler component for compiling Haxe classes.
+**/
 @:allow(cxxcompiler.Compiler)
 @:access(cxxcompiler.Compiler)
 @:access(cxxcompiler.subcompilers.Includes)
@@ -102,6 +143,7 @@ class Classes extends SubCompiler {
 
 	var fieldsCompiled = 0;
 
+	var isExtern: Bool = false;
 	var extendedFrom: Array<String> = [];
 	var destructorField: Null<ClassFuncData> = null;
 	var hadVirtual: Bool = false;
@@ -134,7 +176,11 @@ class Classes extends SubCompiler {
 	**/
 	var dep: Null<DependencyTracker> = null;
 
+	/**
+		Called by `cxxcompiler.Compiler` to generate C++ for class.
+	**/
 	public function compileClass(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>): Null<String> {
+		// Handle extern classes
 		if(classType.isExtern) {
 			if(classType.hasMeta(Meta.DynamicCompatible)) {
 				// If Dynamic isn't confirmed to be used, let's
@@ -212,9 +258,13 @@ class Classes extends SubCompiler {
 
 		// @:headerClassCode
 		if(classType.hasMeta(Meta.HeaderClassCode)) {
-			final code = classType.meta.extractStringFromFirstMeta(Meta.HeaderClassCode);
-			if(code != null) {
-				headerContent[3] += code + "\n";
+			if(!isExtern) {
+				final code = classType.meta.extractStringFromFirstMeta(Meta.HeaderClassCode);
+				if(code != null) {
+					headerContent[3] += code + "\n";
+				}
+			} else {
+				classType.meta.getFirstPosition(Meta.HeaderClassCode)?.makeError(CannotUseOnExternClass);
 			}
 		}
 
@@ -251,6 +301,24 @@ class Classes extends SubCompiler {
 	}
 
 	/**
+		Called if the `Dynamic` type is enabled.
+
+		Compiles all cached extern classes that need to have
+		`Dynamic` wrappers generated for.
+	**/
+	public function onDynamicEnabled() {
+		for(cls in dynamicCompatibleExterns) {
+			// Extern classes will return `null` anyway, so we can ignore.
+			compileClass(cls.classType, cls.varFields, cls.funcFields);
+		}
+
+		// No longer needed
+		if(dynamicCompatibleExterns.length > 0) {
+			dynamicCompatibleExterns = [];
+		}
+	}
+
+	/**
 		Helper for adding the C++ header output of a variable.
 	**/
 	function addVariable(funcOutput: String, access: String = "public") {
@@ -283,6 +351,7 @@ class Classes extends SubCompiler {
 
 		extendedFrom = [];
 
+		isExtern = classType.isExtern;
 		destructorField = null;
 		hadVirtual = false;
 
@@ -344,18 +413,21 @@ class Classes extends SubCompiler {
 
 		Main.onTypeEncountered(field.type, true);
 
-		final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
-		final assign = (cppVal.length == 0 ? "" : (" = " + cppVal));
 		final type = TComp.compileType(field.type, field.pos, false, true);
-		var decl = (meta ?? "") + (isStatic ? "static " : "") + type + " " + varName;
-		if(!addToCpp) {
-			decl += assign;
-		}
-		final section = field.meta.extractStringFromFirstMeta(Meta.ClassSection);
-		addVariable(decl + ";", section ?? "public");
 
-		if(addToCpp) {
-			cppVariables.push(type + " " + classNameNS + varName + assign + ";");
+		if(!isExtern) {
+			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
+			final assign = (cppVal.length == 0 ? "" : (" = " + cppVal));
+			var decl = (meta ?? "") + (isStatic ? "static " : "") + type + " " + varName;
+			if(!addToCpp) {
+				decl += assign;
+			}
+			final section = field.meta.extractStringFromFirstMeta(Meta.ClassSection);
+			addVariable(decl + ";", section ?? "public");
+
+			if(addToCpp) {
+				cppVariables.push(type + " " + classNameNS + varName + assign + ";");
+			}
 		}
 
 		DComp.addVar(v, type, varName);
@@ -371,12 +443,39 @@ class Classes extends SubCompiler {
 
 		final field = f.field;
 
-		final isStatic = f.isStatic;
-		final isDynamic = f.kind == MethDynamic;
-		final isAbstract = field.isAbstract || classType.isInterface;
-		final isInstanceFunc = !isStatic && !isDynamic;
+		final ctx: FunctionCompileContext = {
+			f: f,
+			field: field,
 
-		final isConstructor = isInstanceFunc && field.name == "new";
+			isStatic: false,
+			isAbstract: false,
+			isConstructor: false,
+			useReturnType: false,
+			addToCpp: false,
+
+			covariance: {
+				isCovariant: false,
+				name: "",
+				ret: "",
+				retVal: ""
+			},
+
+			section: "",
+			meta: "",
+			ret: "",
+			prefix: "",
+			name: "",
+			suffixSpecifiers: [],
+			prependFieldContent: "",
+			appendFieldContent: ""
+		}
+
+		ctx.isStatic = f.isStatic;
+		final isDynamic = f.kind == MethDynamic;
+		ctx.isAbstract = ctx.field.isAbstract || classType.isInterface;
+		final isInstanceFunc = !ctx.isStatic && !isDynamic;
+
+		ctx.isConstructor = isInstanceFunc && field.name == "new";
 		final isDestructor = isInstanceFunc && field.name == "destructor";
 
 		// If destructor is found for first time, save for later.
@@ -386,8 +485,8 @@ class Classes extends SubCompiler {
 			return;
 		}
 
-		final useReturnType = !isConstructor && !isDestructor;
-		var name = if(isConstructor) {
+		ctx.useReturnType = !ctx.isConstructor && !isDestructor;
+		ctx.name = if(ctx.isConstructor) {
 			hasConstructor = true;
 			className;
 		} else if(isDestructor) {
@@ -396,10 +495,8 @@ class Classes extends SubCompiler {
 			Main.compileVarName(field.name);
 		}
 
-		var section = field.meta.extractStringFromFirstMeta(Meta.ClassSection);
-		if(section == null) section = "public";
-
-		var addToCpp = !headerOnly && !isAbstract;
+		ctx.section = field.meta.extractStringFromFirstMeta(Meta.ClassSection) ?? "public";
+		ctx.addToCpp = !headerOnly && !ctx.isAbstract;
 
 		// -----------------
 		// Type encounters
@@ -410,29 +507,29 @@ class Classes extends SubCompiler {
 			Main.onTypeEncountered(a.type, true);
 		}
 
-		final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
+		ctx.meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField) ?? "";
 
 		// -----------------
 		// Track covariance
-		var isCovariant = false;
-		var covariantOGName = "";
-		var covariantOGRet = "";
-		var covariantOGRetVal = "";
+		ctx.covariance.isCovariant = false;
+		ctx.covariance.name = "";
+		ctx.covariance.ret = "";
+		ctx.covariance.retVal = "";
 
 		// -----------------
 		// Compile return type
-		final ret = if(f.ret == null) {
+		ctx.ret = if(f.ret == null) {
 			"void";
 		} else if(f.ret.isDynamic()) {
 			"auto";
 		} else {
-			final covariant = ClassHierarchyTracker.funcGetCovariantBaseType(classType, field, isStatic);
+			final covariant = ClassHierarchyTracker.funcGetCovariantBaseType(classType, field, ctx.isStatic);
 			if(covariant != null) {
-				isCovariant = true;
-				covariantOGName = name;
-				name += "OG";
-				covariantOGRet = TComp.compileType(covariant, field.pos, false, true);
-				covariantOGRetVal = TComp.compileType(covariant, field.pos, true, true);
+				ctx.covariance.isCovariant = true;
+				ctx.covariance.name = ctx.name;
+				ctx.name += "OG";
+				ctx.covariance.ret = TComp.compileType(covariant, field.pos, false, true);
+				ctx.covariance.retVal = TComp.compileType(covariant, field.pos, true, true);
 			}
 			TComp.compileType(f.ret, field.pos, false, true);
 		}
@@ -441,7 +538,7 @@ class Classes extends SubCompiler {
 		// Function attributes
 		final specifiers = [];
 
-		if(isStatic) {
+		if(ctx.isStatic) {
 			specifiers.push("static");
 		}
 		if(field.hasMeta(Meta.ConstExpr)) {
@@ -450,7 +547,7 @@ class Classes extends SubCompiler {
 		if(field.hasMeta(Meta.CppInline)) {
 			specifiers.push("inline");
 		}
-		if(isAbstract || (isDestructor && hadVirtual) || field.hasMeta(Meta.Virtual) || ClassHierarchyTracker.funcHasChildOverride(classType, field, isStatic)) {
+		if(ctx.isAbstract || (isDestructor && hadVirtual) || field.hasMeta(Meta.Virtual) || ClassHierarchyTracker.funcHasChildOverride(classType, field, ctx.isStatic)) {
 			specifiers.push("virtual");
 			hadVirtual = true;
 		}
@@ -462,11 +559,11 @@ class Classes extends SubCompiler {
 			}
 		}
 
-		final prefix = specifiers.length > 0 ? (specifiers.join(" ") + " ") : "";
+		ctx.prefix = specifiers.length > 0 ? (specifiers.join(" ") + " ") : "";
 
 		// -----------------
 		// Function SUFFIX attributes
-		final suffixSpecifiers = [];
+		ctx.suffixSpecifiers = [];
 
 		if(field.hasMeta(Meta.NoExcept)) {
 			specifiers.push("noexcept");
@@ -477,11 +574,12 @@ class Classes extends SubCompiler {
 		if(field.hasMeta(Meta.PrependToMain)) {
 			final entries = field.meta.maybeExtract(Meta.PrependToMain);
 			final pos = entries.length > 0 ? entries[0].pos : field.pos;
-			if(!isStatic) {
+			if(!ctx.isStatic) {
 				pos.makeError(MainPrependOnNonStatic);
 			} else {
 				// -----------------
 				// Convert this static function information into a TypedExpr.
+				final name = ctx.name;
 				final ct = Context.toComplexType(TInst(classTypeRef.trustMe(), [])).trustMe();
 				final clsComplex = haxe.macro.ComplexTypeTools.toString(ct).split(".");
 				final untypedExpr = if(f.args.length == 0) {
@@ -506,195 +604,285 @@ class Classes extends SubCompiler {
 			}
 		}
 
-		final prependFieldContent = field.getCombinedStringContentOfMeta(Meta.PrependContent);
-		final appendFieldContent = field.getCombinedStringContentOfMeta(Meta.AppendContent);
+		ctx.prependFieldContent = field.getCombinedStringContentOfMeta(Meta.PrependContent);
+		ctx.appendFieldContent = field.getCombinedStringContentOfMeta(Meta.AppendContent);
 
-		if(isDynamic) {
-			// -----------------
-			// Compile dynamic function as a variable containing a function.
-			// -----------------
+		final incrementFields = if(isDynamic) {
+			compileDynamicFunction(ctx);
+			true;
+		} else {
+			compileNormalFunction(ctx);
+		}
 
-			// -----------------
-			// Requires #include <functional>
-			IComp.addInclude("functional", true, true);
+		if(incrementFields) {
+			fieldsCompiled++;
+		}
+	}
 
-			// -----------------
-			// Compile the function content
-			final dynAddToCpp = !headerOnly && isStatic;
-			XComp.compilingInHeader = !dynAddToCpp;
-			XComp.compilingForTopLevel = true;
-			final callable = Main.compileClassVarExpr(field.expr().trustMe());
-			XComp.compilingForTopLevel = false;
+	/**
+		Compile dynamic function as a variable containing a function.
+	**/
+	function compileDynamicFunction(ctx: FunctionCompileContext) {
+		final f = ctx.f;
+		final field = ctx.field;
 
+		// -----------------
+		// Requires #include <functional>
+		IComp.addInclude("functional", true, true);
+
+		// -----------------
+		// Compile the function content
+		final dynAddToCpp = !headerOnly && ctx.isStatic;
+		XComp.compilingInHeader = !dynAddToCpp;
+		XComp.compilingForTopLevel = true;
+		final callable = Main.compileClassVarExpr(field.expr().trustMe());
+		XComp.compilingForTopLevel = false;
+
+		final cppArgs = f.args.map(a -> {
+			return TComp.compileType(a.type, field.pos, false, true);
+		});
+
+		if(!isExtern) {
 			// -----------------
 			// Compile declaration
 			final assign = " = " + callable;
-			final type = "std::function<" + ret + "(" + f.args.map(a -> {
-				return TComp.compileType(a.type, field.pos, false, true);
-			}).join(", ") + ")>";
-			var decl = (meta ?? "") + prefix + type + " " + name;
+			final type = "std::function<" + ctx.ret + "(" + cppArgs.join(", ") + ")>";
+			var decl = (ctx.meta ?? "") + ctx.prefix + type + " " + ctx.name;
 			if(!dynAddToCpp) {
 				decl += assign;
 			}
 
 			// -----------------
 			// Add to output
-			addVariable(prependFieldContent + decl + ";" + appendFieldContent, section);
+			addVariable(ctx.prependFieldContent + decl + ";" + ctx.appendFieldContent, ctx.section);
 
 			if(dynAddToCpp) {
-				cppVariables.push(type + " " + classNameNS + name + assign);
+				cppVariables.push(type + " " + classNameNS + ctx.name + assign);
 			}
+		}
+	}
 
-			fieldsCompiled++;
-		} else {
-			// -----------------
-			// Check for @:topLevel and check if valid
-			final topLevel = field.hasMeta(Meta.TopLevel);
-			if(topLevel) {
-				if(isConstructor) {
-					field.pos.makeError(TopLevelConstructor);
-				} else if(!isStatic) {
-					field.pos.makeError(TopLevelInstanceFunction);
-				}
+	/**
+		Compile non-dynamic functions as actual C++ functions.
+	**/
+	function compileNormalFunction(ctx: FunctionCompileContext): Bool {
+		final field = ctx.field;
+
+		// -----------------
+		// Check for @:topLevel and check if valid
+		final topLevel = field.hasMeta(Meta.TopLevel);
+		if(topLevel) {
+			if(ctx.isConstructor) {
+				field.pos.makeError(TopLevelConstructor);
+			} else if(!ctx.isStatic) {
+				field.pos.makeError(TopLevelInstanceFunction);
 			}
+		}
 
-			// -----------------
-			// Compile the function arguments
-			TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
+		// -----------------
+		// Compile the function arguments
+		TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
+		final argCpp = compileArguments(ctx);
 
-			final argCpp = [];
-			final argTypes = [];
-			for(arg in f.args) {
-				var type = arg.type;
-
-				// If the argument is a front optional, and has conflicing
-				// default value, make sure `null` can be passed to it.
-				// (Wrap type in Null<T>).
-				if(arg.isFrontOptional() && arg.hasConflicingDefaultValue() && arg.tvar != null && !arg.tvar.t.isNull()) {
-					type = arg.tvar.t.wrapWithNull();
-					Main.setTVarType(arg.tvar, type);
-				}
-
-				argCpp.push(Main.compileFunctionArgumentData(type, arg.name, arg.expr, field.pos, arg.isFrontOptional(), false, true));
-				argTypes.push(TComp.compileType(type, field.pos, false, true));
-			}
-
-			DComp.addFunc(f, argTypes, name);
-
+		if(!isExtern) {
 			final argDecl = "(" + argCpp.join(", ") + ")";
+			final templateDecl = generateTemplateDecl(ctx);
 
 			// -----------------
-			// Compile the type parameters
-			final templateTypes = field.params.map(f -> f.name).concat(TComp.disableDynamicToTemplate());
-			final templateDecl = if(templateTypes.length > 0) {
-				addToCpp = false;
-				"template<" + templateTypes.map(t -> "typename " + t).join(", ") + ">\n";
-			} else {
-				"";
-			};
+			// Compile the function content for C++
+			final fb = compileFunctionBody(ctx, argDecl, topLevel);
+			generateFunctionOutput(ctx, fb.funcDeclaration, fb.content, templateDecl, argDecl, topLevel);
+		}
 
-			// We reuse this for covariant
-			final genFuncDecl = (name: String, ret: String) -> (meta ?? "") + (topLevel ? "" : prefix) + (useReturnType ? (ret + " ") : "") + name + argDecl;
+		return topLevel;
+	}
+
+	/**
+		Compile the function arguments to C++.
+
+		Also registers the function with the Dynamic compiler.
+	**/
+	function compileArguments(ctx: FunctionCompileContext): Array<String> {
+		final argCpp = [];
+		final argTypes = [];
+		for(arg in ctx.f.args) {
+			var type = arg.type;
+
+			// If the argument is a front optional, and has conflicing
+			// default value, make sure `null` can be passed to it.
+			// (Wrap type in Null<T>).
+			if(arg.isFrontOptional() && arg.hasConflicingDefaultValue() && arg.tvar != null && !arg.tvar.t.isNull()) {
+				type = arg.tvar.t.wrapWithNull();
+				Main.setTVarType(arg.tvar, type);
+			}
+
+			argCpp.push(Main.compileFunctionArgumentData(type, arg.name, arg.expr, ctx.field.pos, arg.isFrontOptional(), false, true));
+			argTypes.push(TComp.compileType(type, ctx.field.pos, false, true));
+		}
+
+		// -----------------
+		// Register this function to Dynamic compiler
+		DComp.addFunc(ctx.f, argTypes, ctx.name);
+
+		return argCpp;
+	}
+
+	/**
+		Generate basic declaration without content.
+		We reuse this for covariant.
+	**/
+	function generateHeaderDecl(ctx: FunctionCompileContext, name: String, ret: String, argDecl: String, topLevel: Bool) {
+		return (ctx.meta ?? "") + (topLevel ? "" : ctx.prefix) + (ctx.useReturnType ? (ret + " ") : "") + name + argDecl;
+	}
+
+	/**
+		Generate content for covariant function wrapper.
+	**/
+	function covariantContent(ctx: FunctionCompileContext) {
+		final argNames = ctx.f.args.map(a -> a.name);
+		return ctx.suffixSpecifiers.join(" ") + " {\n\treturn std::static_pointer_cast<" + ctx.covariance.retVal + ">(" + ctx.name + "(" + argNames.join(", ") + "));\n}";
+	}
+
+	/**
+		Compile the code within the function.
+	**/
+	function compileFunctionBody(ctx: FunctionCompileContext, argDecl: String, topLevel: Bool): { funcDeclaration: String, content: String } {
+		final f = ctx.f;
+		final field = ctx.field;
+		XComp.pushReturnType(f.ret);
+
+		var content = "";
+		final funcDeclaration = generateHeaderDecl(ctx, ctx.name, ctx.ret, argDecl, topLevel);
+		
+		if(f.expr != null) {
+			XComp.compilingInHeader = !ctx.addToCpp;
 
 			// -----------------
-			// Compile the function content
-			XComp.pushReturnType(f.ret);
-			final funcDeclaration = genFuncDecl(name, ret);
-			var content = if(f.expr != null) {
-				XComp.compilingInHeader = !addToCpp;
-
-				// Optional arguments in front need to be given
-				// their default value if they are passed `null`.
-				final frontOptionalAssigns = [];
-				for(arg in f.args) {
-					if(arg.expr != null && arg.isFrontOptional() && arg.hasConflicingDefaultValue()) {
-						final t = arg.tvar != null ? Main.getTVarType(arg.tvar) : arg.type;
-						frontOptionalAssigns.push('if(!${arg.name}) ${arg.name} = ${XComp.compileExpressionForType(arg.expr, t)};');
-					}
+			// Optional arguments in front need to be given
+			// their default value if they are passed `null`.
+			final frontOptionalAssigns = [];
+			for(arg in f.args) {
+				if(arg.expr != null && arg.isFrontOptional() && arg.hasConflicingDefaultValue()) {
+					final t = arg.tvar != null ? Main.getTVarType(arg.tvar) : arg.type;
+					frontOptionalAssigns.push('if(!${arg.name}) ${arg.name} = ${XComp.compileExpressionForType(arg.expr, t)};');
 				}
-				
-				// Store every section of code to be added to the function
-				final code = [];
-
-				final useCallStack = Define.Callstack.defined() && !field.hasMeta(Meta.NoCallstack);
-				if(useCallStack) {
-					IComp.addNativeStackTrace();
-					code.push(XComp.generateStackTrackCode(classType, name, field.pos) + ";");
-				}
-
-				if(frontOptionalAssigns.length > 0) {
-					code.push(frontOptionalAssigns.join("\n"));
-				}
-
-				XComp.pushTrackLines(useCallStack);
-				code.push(Main.compileClassFuncExpr(f.expr));
-				XComp.popTrackLines();
-
-				// Use initialization list to set _order_id in constructor.
-				final constructorInitFields = if(isConstructor && !noAutogen) {
-					["_order_id(generate_order_id())"];
-				} else {
-					[];
-				}
-
-				if(superConstructorCall != null) {
-					constructorInitFields.unshift(superConstructorCall);
-					superConstructorCall = null;
-				}
-
-				final constructorInitFieldsStr = constructorInitFields.length > 0 ? (":\n\t" + constructorInitFields.join(", ") + "\n") : "";
-				final suffixSpecifiersStr = suffixSpecifiers.length > 0 ? (suffixSpecifiers.join(" ") + " ") : "";
-
-				final space = constructorInitFieldsStr.length == 0 && suffixSpecifiersStr.length == 0 ? " " : "";
-
-				// Put everything together
-				constructorInitFieldsStr + suffixSpecifiersStr + space + "{\n" + code.join("\n\n").tab() + "\n}";
-			} else {
-				"";
 			}
-			XComp.popReturnType();
+			
+			// -----------------
+			// Store every section of the function body C++ to be added to the function
+			final body = [];
 
-			final covariantContent = () -> {
-				final argNames = f.args.map(a -> a.name);
-				return suffixSpecifiers.join(" ") + " {\n\treturn std::static_pointer_cast<" + covariantOGRetVal + ">(" + name + "(" + argNames.join(", ") + "));\n}";
+			final useCallStack = Define.Callstack.defined() && !field.hasMeta(Meta.NoCallstack);
+			if(useCallStack) {
+				IComp.addNativeStackTrace();
+				body.push(XComp.generateStackTrackCode(classType, ctx.name, field.pos) + ";");
+			}
+
+			if(frontOptionalAssigns.length > 0) {
+				body.push(frontOptionalAssigns.join("\n"));
+			}
+
+			XComp.pushTrackLines(useCallStack);
+			body.push(Main.compileClassFuncExpr(f.expr));
+			XComp.popTrackLines();
+
+			// -----------------
+			// Use initialization list to set _order_id in constructor.
+			final constructorInitFields = [];
+			
+			if(ctx.isConstructor && !noAutogen) {
+				constructorInitFields.push("_order_id(generate_order_id())");
+			}
+
+			if(superConstructorCall != null) {
+				constructorInitFields.unshift(superConstructorCall);
+				superConstructorCall = null;
 			}
 
 			// -----------------
-			// Add to output
-			if(addToCpp) {
-				final headerContent = prependFieldContent + funcDeclaration + ";" + appendFieldContent;
-				if(topLevel) {
-					topLevelFunctions.push(headerContent);
-				} else {
-					addFunction(headerContent, section);
-					if(isCovariant) {
-						addFunction(prependFieldContent + genFuncDecl(covariantOGName, covariantOGRet) + ";" + appendFieldContent, section);
-					}
-				}
+			// Generate bigger pieces
+			final constructorInitFieldsStr = constructorInitFields.length > 0 ? (":\n\t" + constructorInitFields.join(", ") + "\n") : "";
+			final suffixSpecifiersStr = ctx.suffixSpecifiers.length > 0 ? (ctx.suffixSpecifiers.join(" ") + " ") : "";
+			final space = constructorInitFieldsStr.length == 0 && suffixSpecifiersStr.length == 0 ? " " : "";
 
-				final argCpp = f.args.map(a -> {
-					// If the type was changed (ex: made to Null<T> if front optional),
-					// we need to get the modified version from tvar if possible.
-					final type = a.tvar != null ? Main.getTVarType(a.tvar) : a.type;
-					return Main.compileFunctionArgumentData(type, a.name, a.expr, field.pos, true);
-				});
-				final cppArgDecl = "(" + argCpp.join(", ") + ")";
-				cppFunctions.push((useReturnType ? (ret + " ") : "") + (topLevel ? "" : classNameNS) + name + cppArgDecl + content);
-				if(isCovariant) {
-					cppFunctions.push(covariantOGRet + (topLevel ? "" : classNameNS) + covariantOGName + cppArgDecl + covariantContent());
-				}
-			} else {
-				final content = prependFieldContent + templateDecl + funcDeclaration + (isAbstract ? " = 0;" : content) + appendFieldContent;
-				addFunction(content, section);
-				if(isCovariant) {
-					final covarContent = prependFieldContent + templateDecl + genFuncDecl(covariantOGName, covariantOGRet) + (isAbstract ? " = 0;" : covariantContent()) + appendFieldContent;
-					addFunction(covarContent, section);
-				}
-			}
+			// -----------------
+			// Put everything together
+			content = constructorInitFieldsStr + suffixSpecifiersStr + space + "{\n" + body.join("\n\n").tab() + "\n}";
+		}
 
-			if(!topLevel) {
-				fieldsCompiled++;
+		XComp.popReturnType();
+
+		return {
+			funcDeclaration: funcDeclaration,
+			content: content
+		};
+	}
+
+	/**
+		Compile the type parameters.
+	**/
+	function generateTemplateDecl(ctx: FunctionCompileContext): String {
+		final templateTypes = ctx.field.params.map(f -> f.name).concat(TComp.disableDynamicToTemplate());
+		return if(templateTypes.length > 0) {
+			ctx.addToCpp = false;
+			"template<" + templateTypes.map(t -> "typename " + t).join(", ") + ">\n";
+		} else {
+			"";
+		};
+	}
+
+	/**
+		Add normal function to output variables.
+	**/
+	function generateFunctionOutput(ctx: FunctionCompileContext, funcDeclaration: String, content: String, templateDecl: String, argDecl: String, topLevel: Bool) {
+		if(ctx.addToCpp) {
+			generateFunctionOutputForCpp(ctx, funcDeclaration, content, argDecl, topLevel);
+		} else {
+			generateFunctionOutputForHeader(ctx, funcDeclaration, content, templateDecl, argDecl, topLevel);
+		}
+	}
+
+	/**
+		Generate a function in C++ for a source file.
+	**/
+	function generateFunctionOutputForCpp(ctx: FunctionCompileContext, funcDeclaration: String, content: String, argDecl: String, topLevel: Bool) {
+		final headerContent = ctx.prependFieldContent + funcDeclaration + ";" + ctx.appendFieldContent;
+		if(topLevel) {
+			topLevelFunctions.push(headerContent);
+		} else {
+			addFunction(headerContent, ctx.section);
+			if(ctx.covariance.isCovariant) {
+				final decl = generateHeaderDecl(ctx, ctx.covariance.name, ctx.covariance.ret, argDecl, topLevel);
+				addFunction(ctx.prependFieldContent + decl + ";" + ctx.appendFieldContent, ctx.section);
 			}
+		}
+
+		final argCpp = ctx.f.args.map(a -> {
+			// If the type was changed (ex: made to Null<T> if front optional),
+			// we need to get the modified version from tvar if possible.
+			final type = a.tvar != null ? Main.getTVarType(a.tvar) : a.type;
+			return Main.compileFunctionArgumentData(type, a.name, a.expr, ctx.field.pos, true);
+		});
+
+		final cppArgDecl = "(" + argCpp.join(", ") + ")";
+		cppFunctions.push((ctx.useReturnType ? (ctx.ret + " ") : "") + (topLevel ? "" : classNameNS) + ctx.name + cppArgDecl + content);
+
+		if(ctx.covariance.isCovariant) {
+			cppFunctions.push(ctx.covariance.ret + (topLevel ? "" : classNameNS) + ctx.covariance.name + cppArgDecl + covariantContent(ctx));
+		}
+	}
+
+	/**
+		Generate a function in C++ for a header file.
+	**/
+	function generateFunctionOutputForHeader(ctx: FunctionCompileContext, funcDeclaration: String, content: String, templateDecl: String, argDecl: String, topLevel: Bool) {
+		final content = ctx.prependFieldContent + templateDecl + funcDeclaration + (ctx.isAbstract ? " = 0;" : content) + ctx.appendFieldContent;
+		addFunction(content, ctx.section);
+
+		if(ctx.covariance.isCovariant) {
+			final decl = generateHeaderDecl(ctx, ctx.covariance.name, ctx.covariance.ret, argDecl, topLevel);
+			final covarContent = ctx.prependFieldContent + templateDecl + decl + (ctx.isAbstract ? " = 0;" : covariantContent(ctx)) + ctx.appendFieldContent;
+			addFunction(covarContent, ctx.section);
 		}
 	}
 
