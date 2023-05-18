@@ -31,6 +31,8 @@ function main() {
 	try {
 		d2.bla();
 	} catch(e) {
+		// You won't get callstack without uncommenting 
+		// `-D cxx_callstack` from Test.hxml
 		Sys.println(e.details());
 	}
 }
