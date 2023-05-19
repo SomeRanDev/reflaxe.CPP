@@ -11,10 +11,12 @@
 
 package cxxcompiler.subcompilers;
 
+import cxxcompiler.config.Meta;
 #if (macro || cxx_runtime)
 
 import haxe.macro.Type;
 
+using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.PositionHelper;
 using reflaxe.helpers.SyntaxHelper;
 
@@ -63,7 +65,7 @@ class Reflection extends SubCompiler {
 		final ifCpp = ic == 0 ? "{}" : "{ " + instanceFields.map(f -> "\"" + f + "\"").join(", ") + " }";
 		final sfCpp = sc == 0 ? "{}" : "{ " + staticFields.map(f -> "\"" + f + "\"").join(", ") + " }";
 
-		final dynEnabled = DComp.enabled;
+		final dynEnabled = DComp.enabled && !cls.hasMeta(Meta.DontGenerateDynamic);
 
 		final fields = ['\"${cls.name}\"', ifCpp, sfCpp, dynEnabled ? "true" : "false"];
 

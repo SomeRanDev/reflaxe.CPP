@@ -176,7 +176,7 @@ class Anon extends SubCompiler {
 	public function compileNamedAnonTypeDefinition(defType: DefType, anonRef: Ref<AnonType>): String {
 		final anonStruct = getNamedAnonStruct(defType, anonRef);
 		for(f in anonStruct.constructorOrder) {
-			Main.onTypeEncountered(f.type, true);
+			Main.onTypeEncountered(f.type, true, f.pos);
 		}
 		return anonStruct.cpp;
 	}
@@ -342,7 +342,7 @@ class Anon extends SubCompiler {
 		for(name => as in anonStructs) {
 			decls.push(as.cpp);
 			for(f in as.constructorOrder) {
-				Main.onTypeEncountered(f.type, true);
+				Main.onTypeEncountered(f.type, true, f.pos);
 			}
 		}
 		return decls.join("\n\n");

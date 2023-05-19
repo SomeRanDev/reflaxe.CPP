@@ -134,7 +134,7 @@ class Types extends SubCompiler {
 						result;
 					} else {
 						// pos.makeError(DynamicUnsupported);
-						DComp.enableDynamic();
+						DComp.enableDynamic(pos);
 						IComp.addTypeUtilHeader(true);
 						IComp.addInclude("dynamic/Dynamic.h", true, true);
 						DComp.compileDynamicTypeName();
@@ -296,16 +296,16 @@ class Types extends SubCompiler {
 			if(r != null) return prefix + r;
 		}
 
-		if(dependent) {
-			final dep = Main.getCurrentDep();
-			if(dep != null) {
-				if(dep.isThisDepOfType(asType())) {
-					prefix = "class " + prefix;
-				} else {
-					Main.addDep(asType());
-				}
-			}
-		}
+		// if(dependent) {
+		// 	final dep = Main.getCurrentDep();
+		// 	if(dep != null) {
+		// 		if(dep.isThisDepOfType(asType())) {
+		// 			prefix = "class " + prefix;
+		// 		} else {
+		// 			Main.addDep(asType());
+		// 		}
+		// 	}
+		// }
 
 		final mmt = asValue ? Value : getMemoryManagementTypeFromType(asType());
 		return prefix + compileModuleTypeName(cls, pos, params, useNamespaces, mmt);
@@ -331,7 +331,7 @@ class Types extends SubCompiler {
 				if(dep.isThisDepOfType(asType())) {
 					prefix = "class " + prefix;
 				} else {
-					Main.addDep(asType());
+					Main.addDep(asType(), pos);
 				}
 			}
 		}

@@ -12,7 +12,11 @@ package cxxcompiler.other;
 
 #if (macro || cxx_runtime)
 
+import reflaxe.helpers.Context;
+import haxe.macro.Expr;
 import haxe.macro.Type;
+
+import reflaxe.helpers.PositionHelper;
 
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NullHelper;
@@ -52,6 +56,7 @@ class DependencyTracker {
 	var id: String;
 	var filename: Null<String> = null;
 	var dependencies: Array<DependencyTracker> = [];
+	var dependencyPositions: Array<Position> = [];
 	var priority: Int;
 	var tracking: Bool = false;
 
@@ -70,9 +75,10 @@ class DependencyTracker {
 		}
 	}
 
-	public function addDep(t: ModuleType) {
+	public function addDep(t: ModuleType, pos: Position) {
 		final dt = make(t);
 		if(!dependencies.contains(dt) && dt != this) {
+			dependencyPositions.push(pos);
 			dependencies.push(dt);
 		}
 	}
@@ -100,31 +106,63 @@ class DependencyTracker {
 	}
 
 	public function hasDep(targetDep: DependencyTracker) {
+		if(tracking) {
+			return false;
+		}
+
+		tracking = true;
+
+		var result = false;
+
 		for(d in dependencies) {
 			if(d.id == targetDep.id) {
-				return true;
+				result = true;
+				break;
 			} else if(d.hasDep(targetDep)) {
-				return true;
+				result = true;
+				break;
 			}
 		}
-		return false;
+
+		tracking = false;
+
+		return result;
+	}
+
+	public static var errorStack: Array<{ id: String, pos: Position }> = [];
+
+	public static function getErrorStackDetails() {
+		return errorStack.map(function(data) {
+			final id = data.id;
+			final pos = data.pos;
+		}).join("\n");
 	}
 
 	public function getPriority(): Int {
+		errorStack = [];
+		final result = _getPriority();
+		return result;
+	}
+
+	function _getPriority(): Int {
 		if(tracking) {
+			pushToErrorStack();
+			tracking = false;
 			return -1;
 		}
 		tracking = true;
 
 		var result = priority;
 
-		for(d in dependencies) {
+		for(i in 0...dependencies.length) {
+			final d = dependencies[i];
 			if(d.id != id) {
-				final p = d.getPriority();
-				if(result <= p) {
-					result = p + 1;
-				} else if(p == -1) {
+				final p = d._getPriority();
+				if(p == -1) {
+					pushToErrorStack(dependencyPositions[i]);
 					return -1;
+				} else if(result <= p) {
+					result = p + 1;
 				}
 			}
 		}
@@ -132,6 +170,10 @@ class DependencyTracker {
 		tracking = false;
 
 		return result;
+	}
+
+	function pushToErrorStack(pos: Null<Position> = null) {
+		errorStack.push({ id: id, pos: pos ?? PositionHelper.unknownPos() });
 	}
 }
 
