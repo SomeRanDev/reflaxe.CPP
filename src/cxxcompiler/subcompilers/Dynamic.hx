@@ -199,7 +199,8 @@ class Dynamic_ extends SubCompiler {
 		final cpp = makeCallExpr(v, typedArgs, exprArgs);
 		if(cpp != null && cpp.length > 0) {
 			final end = cpp[cpp.length - 1];
-			final content = cpp.slice(0, -1).join("\n") + "\n" + if(hasRet) {
+			final prefixCode = (cpp.length > 1 ? (cpp.slice(0, -1).join("\n") + "\n") : "");
+			final content = prefixCode + if(hasRet) {
 				'return makeDynamic($end);';
 			} else {
 				'$end;\nreturn Dynamic();';
@@ -239,13 +240,11 @@ namespace haxe {
 $prefix
 class ${name} {
 public:
-	static Dynamic getProp(${getArgs}) {
-${getProps.join(" else ").tab(2)}
+	static Dynamic getProp(${getArgs}) {${getProps.length > 0 ? ("\n" + getProps.join(" else ").tab(2)) : ""}
 		return Dynamic();
 	}
 
-	static Dynamic setProp(${setArgs}) {
-${setProps.join(" else ").tab(2)}
+	static Dynamic setProp(${setArgs}) {${setProps.length > 0 ? ("\n" + setProps.join(" else ").tab(2)) : ""}
 		return Dynamic();
 	}
 };
