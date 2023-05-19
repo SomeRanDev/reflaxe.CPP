@@ -39,7 +39,7 @@ class Enums extends SubCompiler {
 	}
 
 	public function compileEnum(enumType: EnumType, options: Array<EnumOptionData>): Null<String> {
-		final filename = Main.getFileNameFromModuleData(enumType);
+		final filename = Compiler.getFileNameFromModuleData(enumType);
 		final headerFilename = filename + Compiler.HeaderExt;
 
 		// --------------------
@@ -98,7 +98,7 @@ class Enums extends SubCompiler {
 		function getDynToStringCpp() {
 			if(dynToStringCpp == null) {
 				dynToStringCpp = TComp.compileType(dynToStringType, PositionHelper.unknownPos(), true);
-				Main.onTypeEncountered(dynToStringType, true);
+				Main.onTypeEncountered(dynToStringType, true, enumType.pos);
 				IComp.addIncludeFromType(dynToStringType, true);
 			}
 			return dynToStringCpp;
@@ -111,7 +111,7 @@ class Enums extends SubCompiler {
 			final args = o.args.map(opt -> [TComp.compileType(opt.type, o.field.pos), opt.name]);
 
 			for(a in o.args) {
-				Main.onTypeEncountered(a.type, true);
+				Main.onTypeEncountered(a.type, true, o.field.pos);
 			}
 
 			final structName = "d" + o.name + "Impl";

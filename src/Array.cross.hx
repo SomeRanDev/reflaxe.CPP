@@ -2,6 +2,8 @@ import haxe.iterators.ArrayKeyValueIterator;
 
 @:cxxStd
 @:pseudoCoreApi
+@:dontGenerateDynamic
+@:unreflective
 @:filename("HxArray")
 class HxArray {
 	public static function concat<T>(a: Array<T>, other: Array<T>): Array<T> {
@@ -116,6 +118,7 @@ class HxArray {
 @:include("deque", true)
 @:valueEquality
 @:filename("HxArray")
+@:dynamicCompatible
 @:allow(HxArray)
 extern class Array<T> {
 	// ----------------------------
@@ -130,6 +133,7 @@ extern class Array<T> {
 	// @:nativeName
 	@:nativeName("size()")
 	@:redirectType("length_type")
+	@:dynamicAccessors("default", "never")
 	var length(default, null): Int;
 
 	@:nativeName("push_back")
@@ -242,6 +246,7 @@ extern class Array<T> {
 	// ----------
 	// Redirects
 	@:unusable
+	@:dontGenerateDynamic
 	@:noCompletion
 	private var length_type: cxx.num.UInt32;
 }

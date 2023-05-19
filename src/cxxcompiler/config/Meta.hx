@@ -323,4 +323,25 @@ enum abstract Meta(String) from String to String {
 	// If used on an extern class, a dynamic wrapper will be generated
 	// that will allow it to be used with the `Dynamic` type.
 	var DynamicCompatible = ":dynamicCompatible";
+
+	// @:dontGenerateDynamic
+	//
+	// If used on a field, this field will not be generated in the Dynamic
+	// wrapper for C++.
+	//
+	// If used on a class, the class will not have a Dynamic wrapper at all.
+	var DontGenerateDynamic = ":dontGenerateDynamic";
+
+	// @:unreflective
+	//
+	// If used on a module type, reflection information will not be generated
+	// for it. This includes both an implementation for `_class` and a
+	// Dynamic wrapper.
+	var Unreflective = ":unreflective";
+
+	// @:dynamicAccessors
+	//
+	// If used on a property, allows for the property to have different
+	// accessors when generating the Dynamic wrapper.
+	var DynamicAccessors = ":dynamicAccessors";
 }

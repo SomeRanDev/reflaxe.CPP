@@ -182,37 +182,88 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// Called whenever a significant ModuleType
 	// is encountered while compiling to 
 	// ensure it is #included and compiled.
-	public function onModuleTypeEncountered(mt: ModuleType, addToHeader: Bool) {
-		if(TypeHelper.fromModuleType(mt).isExprClass()) return;
+	public function onModuleTypeEncountered(mt: ModuleType, addToHeader: Bool, blamePosition: Position) {
+		final t = TypeHelper.fromModuleType(mt);
+		if(t.isExprClass()) return;
 
-		IComp.addIncludeFromModuleType(mt, addToHeader);
+		// Add include only if NOT in header OR no forward declare.
+		if(!addToHeader || !checkForForwardDeclare(t, blamePosition)) {
+			if(addToHeader) {
+				addDep(t, blamePosition);
+			}
+			IComp.addIncludeFromModuleType(mt, addToHeader);
+		}
+
+		// Tell BaseCompiler to compile it
 		addModuleTypeForCompilation(mt);
+	}
+
+	/**
+		Checks if the provided type is depending on the current module.
+
+		If it is, let's generate a forward declaration instead of
+		including it (to prevent infinite include loop).
+	**/
+	function checkForForwardDeclare(t: Type, blamePosition: Position) {
+		return if(isCurrentDependantOfType(t, blamePosition)) {
+			final cls = switch(t) {
+				case TInst(cls, _): cls.get();
+				case _: throw "Impossible";
+			}
+			IComp.addForwardDeclare(cls);
+			true;
+		} else {
+			false;
+		}
+	}
+
+	function isCurrentDependantOfType(t: Type, depReasonPos: Position) {
+		final isClass = switch(t) {
+			case TInst(_, _): true;
+			case _: false;
+		}
+		if(isClass) {
+			final dep = getCurrentDep();
+			if(dep != null) {
+				if(dep.isThisDepOfType(t)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	// ----------------------------
 	// Called whenever a significant Type
 	// is encountered while compiling to
 	// ensure it is #included.
-	public function onTypeEncountered(t: Type, addToHeader: Bool) {
+	public function onTypeEncountered(t: Type, addToHeader: Bool, blamePosition: Position) {
 		if(t.isExprClass()) return;
 
-		IComp.addIncludeFromType(t, addToHeader);
-
-		if(addToHeader) {
-			addDep(t);
-			addDep(Context.followWithAbstracts(t));
+		// Add include only if NOT in header OR no forward declare.
+		if(!addToHeader || !checkForForwardDeclare(t, blamePosition)) {
+			if(addToHeader) {
+				addDep(t, blamePosition);
+			}
+			IComp.addIncludeFromType(t, addToHeader);
 		}
 
+		// How it used to work
+		// if(addToHeader) {
+		// 	addDep(t);
+		// 	addDep(Context.followWithAbstracts(t));
+		// }
+
+		// Tell BaseCompiler to compile if module type
 		final mt = t.toModuleType();
 		if(mt != null) {
 			addModuleTypeForCompilation(mt);
-			// checkForExternToString(mt);
 		}
 
 		switch(t) {
 			case TInst(_, params) | TEnum(_, params) | TType(_, params) | TAbstract(_, params): {
 				for(p in params) {
-					onTypeEncountered(p, addToHeader);
+					onTypeEncountered(p, addToHeader, blamePosition);
 				}
 			}
 			
@@ -226,7 +277,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 					case TAbstract(absRef, _): {
 						final inner = getAbstractInner(followed);
 						if(!t.equals(inner) && !followed.equals(inner)) {
-							onTypeEncountered(inner, addToHeader);
+							onTypeEncountered(inner, addToHeader, blamePosition);
 						}
 					}
 					case _:
@@ -608,7 +659,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		return getFileNameFromModuleData(mt.getCommonData());
 	}
 
-	function getFileNameFromModuleData(md: BaseType): String {
+	public static function getFileNameFromModuleData(md: BaseType): String {
 		return if(md.hasMeta(Meta.Filename)) {
 			md.meta.extractStringFromFirstMeta(Meta.Filename) ?? md.moduleId();
 		} else {
@@ -761,7 +812,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		final typedefName = defType.getNameOrNative();
 
 		// Include type
-		onTypeEncountered(defType.type, true);
+		onTypeEncountered(defType.type, true, defType.pos);
 
 		// Compile content
 		var content = "";
@@ -799,9 +850,11 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilePath, IComp.compileHeaderIncludes(), 1);
 
 		// Output typedef
+		final name = defType.name;
 		final currentDep = dep;
 		addCompileEndCallback(function() {
-			appendToExtraFile(headerFilePath, content, currentDep.getPriority());
+			final priority = currentDep.getPriority();
+			appendToExtraFile(headerFilePath, content, priority);
 		});
 
 		// Clear the dependency tracker.
@@ -949,11 +1002,11 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		currentDep = null;
 	}
 
-	public function addDep(t: Null<Type>) {
+	public function addDep(t: Null<Type>, pos: Position) {
 		if(t != null && currentDep != null) {
 			final mt = t.toModuleType();
 			if(mt != null) {
-				currentDep.addDep(mt);
+				currentDep.addDep(mt, pos);
 			}
 		}
 	}

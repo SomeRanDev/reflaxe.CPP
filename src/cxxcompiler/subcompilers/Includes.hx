@@ -18,6 +18,7 @@ package cxxcompiler.subcompilers;
 #if (macro || cxx_runtime)
 
 import reflaxe.helpers.Context; // Use like haxe.macro.Context
+import haxe.macro.Expr;
 import haxe.macro.Type;
 
 import cxxcompiler.config.Meta;
@@ -45,6 +46,7 @@ class Includes extends SubCompiler {
 	// Store list of includes.
 	var headerIncludes: Array<String> = [];
 	var cppIncludes: Array<String> = [];
+	var lazyIncludes: Array<() -> Void> = [];
 
 	// ----------------------------
 	// Store list of "using namespace" uses.
@@ -52,6 +54,9 @@ class Includes extends SubCompiler {
 	// Using "using namespace" in header files is bad practice,
 	// so only usings for cpp files are tracked.
 	var cppUsings: Array<String> = [];
+
+	// ----------------------------
+	var forwardDeclares: Array<String> = [];
 
 	// ----------------------------
 	// A list of arbitrary flags that may be used.
@@ -93,10 +98,14 @@ class Includes extends SubCompiler {
 		// Reset include lists
 		headerIncludes = [];
 		cppIncludes = [];
+		lazyIncludes = [];
 		ignoreIncludes = ignoreList ?? [];
 
 		// Reset using list
 		cppUsings = [];
+
+		// Reset forward declares
+		forwardDeclares = [];
 
 		// Reset extra flags
 		extraFlags = [];
@@ -120,6 +129,13 @@ class Includes extends SubCompiler {
 	// being included until the next reset.
 	function addIgnore(includePath: String) {
 		ignoreIncludes.push(includePath);
+	}
+
+	// ----------------------------
+	// Add a callback to be called right before
+	// the includes are compiled.
+	function addLazyInclude(callback: () -> Void) {
+		lazyIncludes.push(callback);
 	}
 
 	// ----------------------------
@@ -148,6 +164,23 @@ class Includes extends SubCompiler {
 	public function addUsingNamespace(ns: String) {
 		if(!cppUsings.contains(ns)) {
 			cppUsings.push(ns);
+		}
+	}
+
+	// ----------------------------
+	// Add forward declaration for class.
+	public function addForwardDeclare(cls: ClassType) {
+		final pieces = [];
+		pieces.push(Main.compileNamespaceStart(cls));
+		if(cls.params.length > 0) {
+			pieces.push("tempalte<" + cls.params.map(p -> "typename") + ">");
+		}
+		pieces.push("class " + cls.name);
+		pieces.push(Main.compileNamespaceEnd(cls));
+
+		final cpp = pieces.join("");
+		if(!forwardDeclares.contains(cpp)) {
+			forwardDeclares.push(cpp);
 		}
 	}
 
@@ -233,10 +266,10 @@ class Includes extends SubCompiler {
 	}
 
 	// ----------------------------
-	function addNativeStackTrace() {
+	function addNativeStackTrace(blamePosition: Position) {
 		final t = Context.getType("haxe.NativeStackTrace");
 		if(t != null) {
-			Main.onTypeEncountered(t, XComp.compilingInHeader);
+			Main.onTypeEncountered(t, XComp.compilingInHeader, blamePosition);
 		}
 		IComp.addInclude("haxe_NativeStackTrace.h", XComp.compilingInHeader);
 	}
@@ -279,7 +312,18 @@ class Includes extends SubCompiler {
 					case _:
 				}
 				if(!cd.isExtern) {
-					addInclude(Main.getFileNameFromModuleData(cd) + Compiler.HeaderExt, header, false);
+					addInclude(Compiler.getFileNameFromModuleData(cd) + Compiler.HeaderExt, header, false);
+				} else {
+					switch(mt) {
+						case TClassDecl(_.get() => cls): {
+							addLazyInclude(function() {
+								if(DComp.enabled) {
+									addInclude(Classes.getDynamicFileName(cls), false, false);
+								}
+							});
+						}
+						case _:
+					}
 				}
 			}
 
@@ -344,16 +388,30 @@ class Includes extends SubCompiler {
 			if(result.length > 0) result += "\n\n";
 			result += cppUsings.sortedAlphabetically().map(u -> "using namespace " + u + ";").join("\n");
 		}
+		if(forwardDeclares.length > 0) {
+			if(forwardDeclares.length > 0) result += "\n\n";
+			result += forwardDeclares.join("\n");
+		}
 		return result;
 	}
 
 	// Take one of the include arrays and
 	// compile/format for the output.
 	function compileIncludes(includeArr: Array<String>): String {
+		callAllLazyIncludes();
 		return if(includeArr.length > 0) {
 			includeArr.sorted(Sort.includeBracketOrder).map(i -> "#include " + i).join("\n");
 		} else {
 			"";
+		}
+	}
+
+	function callAllLazyIncludes() {
+		if(lazyIncludes.length > 0) {
+			for(callback in lazyIncludes) {
+				callback();
+			}
+			lazyIncludes = [];
 		}
 	}
 

@@ -33,6 +33,7 @@ enum ErrorType {
 	OMMIncorrectParamCount;
 	ValueSelfRef;
 	ValueAssignedNull;
+	InfiniteReference(stackDetails: String);
 
 	// Meta
 	CannotUseOnExternClass;
@@ -90,6 +91,9 @@ class Error {
 			}
 			case ValueAssignedNull: {
 				"Cannot assign `null` to value-type. Wrap the type with `Null<T>`.";
+			}
+			case InfiniteReference(stackDetails): {
+				"[Reflaxe/C++ error] Infinite reference encountered!\nPlease find a way to break the chain:\n" + stackDetails;
 			}
 
 			// Meta

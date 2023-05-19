@@ -7,6 +7,7 @@ package;
 @:cxxStd
 @:includeTypeUtils
 @:pseudoCoreApi
+@:dontGenerateDynamic
 class StdImpl {
 	public static function isOfType<_Value, _Type>(v: _Value, t: _Type): Bool {
 		untyped __cpp__("if constexpr(!haxe::_unwrap_class<_Type>::iscls) {

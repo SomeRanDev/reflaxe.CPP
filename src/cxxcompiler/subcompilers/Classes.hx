@@ -90,7 +90,7 @@ class Classes extends SubCompiler {
 		Once `Dynamic` is found, these classes will be compiled and
 		this list will be emptied.
 	**/
-	var dynamicCompatibleExterns: Array<{ classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData> }> = [];
+	var dynamicCompatibleExterns: Array<{ classType: Ref<ClassType>, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData> }> = [];
 
 	// ---------------------------------------------------
 	// Variables that expose the current context
@@ -179,14 +179,15 @@ class Classes extends SubCompiler {
 	/**
 		Called by `cxxcompiler.Compiler` to generate C++ for class.
 	**/
-	public function compileClass(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>): Null<String> {
+	public function compileClass(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>, maybeClassRef: Null<Ref<ClassType>> = null): Null<String> {
 		// Handle extern classes
 		if(classType.isExtern) {
 			if(classType.hasMeta(Meta.DynamicCompatible)) {
 				// If Dynamic isn't confirmed to be used, let's
 				// delay generating extern compatibility wrappers.
 				if(!DComp.enabled) {
-					dynamicCompatibleExterns.push({ classType: classType, varFields: varFields, funcFields: funcFields });
+					final clsRef = findClassTypeRef();
+					dynamicCompatibleExterns.push({ classType: clsRef, varFields: varFields, funcFields: funcFields });
 				}
 			} else {
 				return null;
@@ -194,7 +195,7 @@ class Classes extends SubCompiler {
 		}
 
 		// Init variables
-		initFields(classType);
+		initFields(classType, maybeClassRef);
 
 		// Init includes
 		IComp.resetAndInitIncludes(headerOnly, [filename + Compiler.HeaderExt]);
@@ -232,9 +233,9 @@ class Classes extends SubCompiler {
 
 		if(classType.superClass != null) {
 			final superType = classType.superClass.t;
-			Main.onModuleTypeEncountered(TClassDecl(superType), true);
+			Main.onModuleTypeEncountered(TClassDecl(superType), true, classType.pos);
 			for(p in classType.superClass.params) {
-				Main.onTypeEncountered(p, true);
+				Main.onTypeEncountered(p, true, classType.pos);
 			}
 			Main.superTypeName = TComp.compileClassName(superType, classType.pos, classType.superClass.params, true, true, true);
 			extendedFrom.push(Main.superTypeName);
@@ -242,9 +243,9 @@ class Classes extends SubCompiler {
 
 		for(i in classType.interfaces) {
 			final interfaceType = i.t;
-			Main.onModuleTypeEncountered(TClassDecl(interfaceType), true);
+			Main.onModuleTypeEncountered(TClassDecl(interfaceType), true, classType.pos);
 			for(p in i.params) {
-				Main.onTypeEncountered(p, true);
+				Main.onTypeEncountered(p, true, classType.pos);
 			}
 			extendedFrom.push(TComp.compileClassName(interfaceType, classType.pos, i.params, true, true, true));
 		}
@@ -300,6 +301,13 @@ class Classes extends SubCompiler {
 		return null;
 	}
 
+	function findClassTypeRef() {
+		return switch(Main.getCurrentModule()) {
+			case TClassDecl(c): c;
+			case _: throw "Impossible";
+		}
+	}
+
 	/**
 		Called if the `Dynamic` type is enabled.
 
@@ -309,7 +317,7 @@ class Classes extends SubCompiler {
 	public function onDynamicEnabled() {
 		for(cls in dynamicCompatibleExterns) {
 			// Extern classes will return `null` anyway, so we can ignore.
-			compileClass(cls.classType, cls.varFields, cls.funcFields);
+			compileClass(cls.classType.get(), cls.varFields, cls.funcFields, cls.classType);
 		}
 
 		// No longer needed
@@ -341,7 +349,7 @@ class Classes extends SubCompiler {
 	/**
 		Initialize fields at the start of `compileClass`.
 	**/
-	function initFields(classType: ClassType) {
+	function initFields(classType: ClassType, maybeClassRef: Null<Ref<ClassType>> = null) {
 		this.classType = classType;
 		variables = [];
 		functions = [];
@@ -359,10 +367,7 @@ class Classes extends SubCompiler {
 
 		superConstructorCall = null;
 
-		classTypeRef = switch(Main.getCurrentModule()) {
-			case TClassDecl(c): c;
-			case _: throw "Impossible";
-		}
+		classTypeRef = maybeClassRef ?? findClassTypeRef();
 		className = TComp.compileClassName(classTypeRef, classType.pos, null, false, true);
 		final fullClassPath = TComp.compileClassName(classTypeRef, classType.pos, null, true, true);
 		classNameNS = fullClassPath.length > 0 ? (fullClassPath + "::") : fullClassPath;
@@ -375,9 +380,9 @@ class Classes extends SubCompiler {
 
 		classNameWParams = className + wParams;
 
-		DComp.reset(fullClassPath, fullClassPath + wParams);
+		DComp.reset(fullClassPath, fullClassPath + wParams, classType, TypeHelper.fromModuleType(TClassDecl(classTypeRef)));
 
-		filename = Main.getFileNameFromModuleData(classType);
+		filename = Compiler.getFileNameFromModuleData(classType);
 
 		// Dependency tracker
 		dep = DependencyTracker.make(TClassDecl(classTypeRef), filename);
@@ -411,7 +416,7 @@ class Classes extends SubCompiler {
 			"";
 		}
 
-		Main.onTypeEncountered(field.type, true);
+		Main.onTypeEncountered(field.type, true, v.field.pos);
 
 		final type = TComp.compileType(field.type, field.pos, false, true);
 
@@ -430,7 +435,9 @@ class Classes extends SubCompiler {
 			}
 		}
 
-		DComp.addVar(v, type, varName);
+		if(!field.hasMeta(Meta.DontGenerateDynamic)) {
+			DComp.addVar(v, type, varName);
+		}
 
 		fieldsCompiled++;
 	}
@@ -501,10 +508,10 @@ class Classes extends SubCompiler {
 		// -----------------
 		// Type encounters
 		if(f.ret != null) {
-			Main.onTypeEncountered(f.ret, true);
+			Main.onTypeEncountered(f.ret, true, f.field.pos);
 		}
 		for(a in f.args) {
-			Main.onTypeEncountered(a.type, true);
+			Main.onTypeEncountered(a.type, true, f.field.pos);
 		}
 
 		ctx.meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField) ?? "";
@@ -681,7 +688,10 @@ class Classes extends SubCompiler {
 
 		// -----------------
 		// Compile the function arguments
-		TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
+		if(!isExtern) {
+			TComp.enableDynamicToTemplate(classType.params.concat(field.params).map(p -> p.name));
+		}
+
 		final argCpp = compileArguments(ctx);
 
 		if(!isExtern) {
@@ -722,7 +732,9 @@ class Classes extends SubCompiler {
 
 		// -----------------
 		// Register this function to Dynamic compiler
-		DComp.addFunc(ctx.f, argTypes, ctx.name);
+		if(!ctx.field.hasMeta(Meta.DontGenerateDynamic)) {
+			DComp.addFunc(ctx.f, argTypes, ctx.name);
+		}
 
 		return argCpp;
 	}
@@ -774,7 +786,7 @@ class Classes extends SubCompiler {
 
 			final useCallStack = Define.Callstack.defined() && !field.hasMeta(Meta.NoCallstack);
 			if(useCallStack) {
-				IComp.addNativeStackTrace();
+				IComp.addNativeStackTrace(field.pos);
 				body.push(XComp.generateStackTrackCode(classType, ctx.name, field.pos) + ";");
 			}
 
@@ -890,24 +902,28 @@ class Classes extends SubCompiler {
 		Generate file output.
 	**/
 	function generateOutput() {
-		// Auto-generated content
-		if(hasConstructor && !noAutogen) {
-			IComp.addHaxeUtilHeader(true);
-			addFunction("HX_COMPARISON_OPERATORS(" + classNameWParams + ")");
+		if(!isExtern) {
+			// Auto-generated content
+			if(hasConstructor && !noAutogen) {
+				IComp.addHaxeUtilHeader(true);
+				addFunction("HX_COMPARISON_OPERATORS(" + classNameWParams + ")");
+			}
+
+			addExtensionClasses();
+
+			if(extendedFrom.length > 0) {
+				headerContent[1] += ": " + extendedFrom.map(e -> "public " + e).join(", ");
+			}
+
+			if(destructorField == null && hadVirtual) {
+				addVariable('virtual ~$className() {}');
+			}
+
+			generateSourceFile();
+			generateHeaderFile();
 		}
 
-		addExtensionClasses();
-
-		if(extendedFrom.length > 0) {
-			headerContent[1] += ": " + extendedFrom.map(e -> "public " + e).join(", ");
-		}
-
-		if(destructorField == null && hadVirtual) {
-			addVariable('virtual ~$className() {}');
-		}
-
-		generateSourceFile();
-		generateHeaderFile();
+		generateReflection();
 	}
 
 	/**
@@ -944,16 +960,24 @@ class Classes extends SubCompiler {
 		}
 	}
 
+	function shouldGenerateHeader() {
+		return fieldsCompiled > 0 || classType.hasMeta(":used");
+	}
+
+	function getHeaderFilename() {
+		return Compiler.HeaderFolder + "/" + filename + Compiler.HeaderExt;
+	}
+
 	/**
 		Header file (.h)
 	**/
 	function generateHeaderFile() {
-		if(fieldsCompiled <= 0 && !classType.hasMeta(":used")) {
+		final headerFilename = getHeaderFilename();
+		Main.setExtraFileIfEmpty(headerFilename, "#pragma once");
+
+		if(!shouldGenerateHeader()) {
 			return;
 		}
-
-		final headerFilename = Compiler.HeaderFolder + "/" + filename + Compiler.HeaderExt;
-		Main.setExtraFileIfEmpty(headerFilename, "#pragma once");
 
 		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilename, IComp.compileHeaderIncludes(), 1);
 
@@ -1011,21 +1035,52 @@ class Classes extends SubCompiler {
 		}
 
 		final currentDep = dep;
+		final name = classType.name;
+		final classTypePos = classType.pos;
 		Main.addCompileEndCallback(function() {
-			Main.appendToExtraFile(headerFilename, result + "\n", currentDep != null ? currentDep.getPriority() : DependencyTracker.minimum);
-		});
-
-		final content = DComp.getDynamicContent(classType);
-		final dynFilename = "dynamic/Dynamic_" + filename + Compiler.HeaderExt;
-		Main.addCompileEndCallback(function() {
-			if(DComp.enabled) {
-				Main.setExtraFileIfEmpty(Compiler.HeaderFolder + "/" + dynFilename, "#pragma once\n\n#include \"Dynamic.h\"");
-				Main.appendToExtraFile(Compiler.HeaderFolder + "/" + dynFilename,  content);
-				Main.appendToExtraFile(headerFilename, "#include \"" + dynFilename + "\"\n", 9999999);
+			final priority = currentDep != null ? currentDep.getPriority() : DependencyTracker.minimum;
+			if(priority == -1) {
+				classTypePos.makeError(InfiniteReference(DependencyTracker.getErrorStackDetails()));
+			} else {
+				Main.appendToExtraFile(headerFilename, result + "\n", priority);
 			}
 		});
+	}
+
+	/**
+		Generate reflection and dynamic information in the header file.
+	**/
+	function generateReflection() {
+		if(!shouldGenerateHeader()) {
+			return;
+		}
+
+		if(classType.hasMeta(Meta.Unreflective)) {
+			return;
+		}
+
+		final headerFilename = getHeaderFilename();
+
+		if(!classType.hasMeta(Meta.DontGenerateDynamic)) {
+			final content = DComp.getDynamicContent(classType);
+			final dynFilename = getDynamicFileName(classType);
+			Main.addCompileEndCallback(function() {
+				if(DComp.enabled) {
+					Main.setExtraFileIfEmpty(Compiler.HeaderFolder + "/" + dynFilename, "#pragma once\n\n#include \"Dynamic.h\"");
+					Main.appendToExtraFile(Compiler.HeaderFolder + "/" + dynFilename,  content);
+					Main.appendToExtraFile(headerFilename, "#include \"" + dynFilename + "\"\n", 9999999);
+				}
+			});
+		}
 
 		Main.addReflectionCpp(headerFilename, classTypeRef.trustMe());
+	}
+
+	/**
+		Name for dynamic header wrapper.
+	**/
+	public static function getDynamicFileName(classType: ClassType) {
+		return "dynamic/Dynamic_" + Compiler.getFileNameFromModuleData(classType) + Compiler.HeaderExt;
 	}
 }
 

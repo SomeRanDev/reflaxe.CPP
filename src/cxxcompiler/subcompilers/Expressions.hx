@@ -50,7 +50,7 @@ class Expressions extends SubCompiler {
 	// current expression is being compiled for a header file.
 	public var compilingInHeader: Bool = false;
 	public var compilingForTopLevel: Bool = false;
-	function onModuleTypeEncountered(mt: ModuleType) Main.onModuleTypeEncountered(mt, compilingInHeader);
+	function onModuleTypeEncountered(mt: ModuleType, pos: Position) Main.onModuleTypeEncountered(mt, compilingInHeader, pos);
 
 	// ----------------------------
 	// If true, `null` is explicitly cast in C++ output.
@@ -231,7 +231,7 @@ class Expressions extends SubCompiler {
 				result = compileCall(callExpr, el, expr);
 			}
 			case TNew(classTypeRef, params, el): {
-				onModuleTypeEncountered(TClassDecl(classTypeRef));
+				onModuleTypeEncountered(TClassDecl(classTypeRef), expr.pos);
 				result = compileNew(expr, TInst(classTypeRef, params), el);
 			}
 			case TUnop(op, postFix, e): {
@@ -249,7 +249,7 @@ class Expressions extends SubCompiler {
 			}
 			case TVar(tvar, maybeExpr): {
 				final t = Main.getTVarType(tvar);
-				Main.onTypeEncountered(t, compilingInHeader);
+				Main.onTypeEncountered(t, compilingInHeader, expr.pos);
 				final typeCpp = if(t.isUnresolvedMonomorph()) {
 					// TODO: Why use std::any instead of auto?
 					// I must have originally made this resolve to Any for a reason?
@@ -325,7 +325,7 @@ class Expressions extends SubCompiler {
 					for(c in catches) {
 						// Get catch type
 						final errType = Main.getTVarType(c.v);
-						Main.onTypeEncountered(errType, compilingInHeader);
+						Main.onTypeEncountered(errType, compilingInHeader, c.expr.pos);
 
 						// Compile as reference
 						final refType = TType(Main.getRefType(), [errType]);
@@ -944,7 +944,7 @@ class Expressions extends SubCompiler {
 		// Setup call stack tracking for local function
 		final localFuncName = name ?? "<unnamed>";
 		if(Define.Callstack.defined()) {
-			IComp.addNativeStackTrace();
+			IComp.addNativeStackTrace(expr.pos);
 			final functionName = CComp.currentFunction != null ? CComp.currentFunction.field.name : "<unknown>";
 			final parentLocalNames = localFunctionStack.length > 0 ? (localFunctionStack.join(".") + ".") : "";
 			final stackFuncName = functionName + "." + parentLocalNames + localFuncName;
@@ -1029,7 +1029,7 @@ class Expressions extends SubCompiler {
 			// and if so use singleton.
 			final result = switch(fa) {
 				case FStatic(clsRef, cfRef): {
-					onModuleTypeEncountered(TClassDecl(clsRef));
+					onModuleTypeEncountered(TClassDecl(clsRef), accessExpr.pos);
 
 					final cf = cfRef.get();
 					if(cf.hasMeta(Meta.TopLevel)) {
@@ -1040,7 +1040,7 @@ class Expressions extends SubCompiler {
 					}
 				}
 				case FEnum(enumRef, enumField): {
-					onModuleTypeEncountered(TEnumDecl(enumRef));
+					onModuleTypeEncountered(TEnumDecl(enumRef), accessExpr.pos);
 
 					final enumName = TComp.compileEnumName(enumRef, e.pos, null, true, true);
 					final potentialArgs = enumField.type.getTFunArgs();
@@ -1205,7 +1205,7 @@ class Expressions extends SubCompiler {
 	}
 
 	function compileNew(expr: TypedExpr, type: Type, el: Array<TypedExpr>, overrideMMT: Null<MemoryManagementType> = null): String {
-		Main.onTypeEncountered(type, compilingInHeader);
+		Main.onTypeEncountered(type, compilingInHeader, expr.pos);
 		final nfc = checkNativeCodeMeta(expr, el, type.getParams());
 		return if(nfc != null) {
 			nfc;
