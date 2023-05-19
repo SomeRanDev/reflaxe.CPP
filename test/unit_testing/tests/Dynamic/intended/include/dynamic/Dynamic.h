@@ -215,6 +215,12 @@ public:
 		makeError("Cannot call this Dynamic");
 	}
 
+	template<typename... Types>
+	Dynamic operator()(Types... args) {
+		std::deque<Dynamic> dynArgs = { args... };
+		return operator()(dynArgs);
+	}
+
 	Dynamic operator()(std::deque<Dynamic> args) {
 		if(_dynType == Function) {
 			return func(args);

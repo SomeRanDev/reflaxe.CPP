@@ -40,7 +40,10 @@ public:
 			});
 		} else if(name == "keyValueIterator") {
 			return Dynamic::makeFunc<haxe::ds::StringMap<T>>(d, [](haxe::ds::StringMap<T>* o, std::deque<Dynamic> args) {
-				return makeDynamic(o->keyValueIterator());
+				auto result = [o, args] {
+					return std::make_shared<haxe::iterators::MapKeyValueIterator<std::string, T>>(std::static_pointer_cast<haxe::IMap<std::string, T>>(o));
+				};
+				return makeDynamic(result());
 			});
 		} else if(name == "copyOG") {
 			return Dynamic::makeFunc<haxe::ds::StringMap<T>>(d, [](haxe::ds::StringMap<T>* o, std::deque<Dynamic> args) {

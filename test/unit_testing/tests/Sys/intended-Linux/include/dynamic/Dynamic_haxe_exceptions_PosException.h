@@ -12,7 +12,6 @@ public:
 			});
 		} else if(name == "toString") {
 			return Dynamic::makeFunc<haxe::exceptions::PosException>(d, [](haxe::exceptions::PosException* o, std::deque<Dynamic> args) {
-				
 				return makeDynamic(o->toString());
 			});
 		}
@@ -20,7 +19,6 @@ public:
 	}
 
 	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
-		
 		return Dynamic();
 	}
 };

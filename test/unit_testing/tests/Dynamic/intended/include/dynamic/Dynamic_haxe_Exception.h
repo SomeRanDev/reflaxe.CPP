@@ -42,14 +42,6 @@ public:
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->details());
 			});
-		} else if(name == "caught") {
-			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
-				return makeDynamic(o->caught(args[0].asType<std::any>()));
-			});
-		} else if(name == "thrown") {
-			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
-				return makeDynamic(o->thrown(args[0].asType<std::any>()));
-			});
 		}
 		return Dynamic();
 	}

@@ -11,6 +11,7 @@ src/Sys.cpp
 src/StringBuf.cpp
 src/Main.cpp
 include/haxe_iterators_MapKeyValueIterator.h
+include/haxe_iterators_ArrayKeyValueIterator.h
 include/haxe_iterators_ArrayIterator.h
 include/haxe_io_Output.h
 include/haxe_io_Error.h
@@ -41,6 +42,7 @@ include/dynamic/Dynamic_Sys.h
 include/dynamic/Dynamic_StringBuf.h
 include/dynamic/Dynamic_Std.h
 include/dynamic/Dynamic_Main.h
+include/dynamic/Dynamic_HxArray.h
 include/dynamic/Dynamic.h
 include/cxx_io_NativeOutput.h
 include/cxx_DynamicToString.h
@@ -54,3 +56,4 @@ include/StdTypes.h
 include/Std.h
 include/Map.h
 include/Main.h
+include/HxArray.h

@@ -9,16 +9,6 @@
 #include <optional>
 #include <string>
 
-namespace _Main {
-
-class Main_Fields_ {
-public:
-	static void main();
-};
-
-}
-
-
 class Test {
 public:
 	int a;
@@ -56,6 +46,16 @@ public:
 	HX_COMPARISON_OPERATORS(HasParam<T>)
 };
 
+
+
+namespace _Main {
+
+class Main_Fields_ {
+public:
+	static void main();
+};
+
+}
 
 
 #include "dynamic/Dynamic_Main.h"

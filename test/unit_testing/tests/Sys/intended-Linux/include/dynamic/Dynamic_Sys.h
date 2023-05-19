@@ -6,12 +6,10 @@ namespace haxe {
 class Dynamic_Sys_GetEnv {
 public:
 	static Dynamic getProp(Dynamic&, std::string) {
-		
 		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
-		
 		return Dynamic();
 	}
 };
@@ -22,12 +20,10 @@ namespace haxe {
 class Dynamic_Sys_Environment {
 public:
 	static Dynamic getProp(Dynamic&, std::string) {
-		
 		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
-		
 		return Dynamic();
 	}
 };

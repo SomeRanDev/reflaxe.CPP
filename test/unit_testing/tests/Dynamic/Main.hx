@@ -35,4 +35,14 @@ function main() {
 		// `-D cxx_callstack` from Test.hxml
 		Sys.println(e.details());
 	}
+
+	// Test extern types
+	try {
+		final arr: Dynamic = [1, 2, 3];
+		arr.push(32);
+		trace(arr.length);
+		trace(arr);
+	} catch(e) {
+		trace(e.message);
+	}	
 }

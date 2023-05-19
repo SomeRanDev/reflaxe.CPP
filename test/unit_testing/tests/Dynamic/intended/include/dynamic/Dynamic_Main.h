@@ -5,18 +5,11 @@ namespace haxe {
 
 class Dynamic__Main_Main_Fields_ {
 public:
-	static Dynamic getProp(Dynamic& d, std::string name) {
-		if(name == "main") {
-			return Dynamic::makeFunc<_Main::Main_Fields_>(d, [](_Main::Main_Fields_* o, std::deque<Dynamic> args) {
-				o->main();
-				return Dynamic();
-			});
-		}
+	static Dynamic getProp(Dynamic&, std::string) {
 		return Dynamic();
 	}
 
 	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
-		
 		return Dynamic();
 	}
 };

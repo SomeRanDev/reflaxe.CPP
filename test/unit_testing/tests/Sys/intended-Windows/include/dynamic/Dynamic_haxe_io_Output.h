@@ -35,7 +35,6 @@ public:
 	}
 
 	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
-		
 		return Dynamic();
 	}
 };

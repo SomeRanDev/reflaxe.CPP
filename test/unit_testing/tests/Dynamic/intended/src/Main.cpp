@@ -31,6 +31,15 @@ void _Main::Main_Fields_::main() {
 		
 		std::cout << Std::string(v) << std::endl;
 	};
+	try {
+		haxe::Dynamic arr = std::make_shared<std::deque<haxe::Dynamic>>(std::deque<haxe::Dynamic>{ 1, 2, 3 });
+		
+		arr.getProp("push")(32);
+		haxe::Log::trace(arr.getProp("length"), haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 43, "main"s));
+		haxe::Log::trace(arr, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 44, "main"s));
+	} catch(haxe::Exception& e) {
+		haxe::Log::trace(e.get_message(), haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 46, "main"s));
+	};
 }
 Test::Test():
 	_order_id(generate_order_id())

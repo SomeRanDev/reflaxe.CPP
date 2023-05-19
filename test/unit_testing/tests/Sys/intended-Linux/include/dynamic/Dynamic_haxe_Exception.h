@@ -16,37 +16,30 @@ public:
 			});
 		} else if(name == "get_message") {
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
-				
 				return makeDynamic(o->get_message());
 			});
 		} else if(name == "get_stack") {
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
-				
 				return makeDynamic(o->get_stack());
 			});
 		} else if(name == "get_previous") {
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
-				
 				return makeDynamic(o->get_previous());
 			});
 		} else if(name == "get_native") {
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
-				
 				return makeDynamic(o->get_native());
 			});
 		} else if(name == "unwrap") {
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
-				
 				return makeDynamic(o->unwrap());
 			});
 		} else if(name == "toString") {
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
-				
 				return makeDynamic(o->toString());
 			});
 		} else if(name == "details") {
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
-				
 				return makeDynamic(o->details());
 			});
 		}

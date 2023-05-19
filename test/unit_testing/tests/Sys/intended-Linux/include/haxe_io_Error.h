@@ -1,13 +1,17 @@
 #pragma once
 
+#include <deque>
 #include <dynamic/Dynamic.h>
+#include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <variant>
 #include "_AnonUtils.h"
 #include "_TypeUtils.h"
 #include "cxx_DynamicToString.h"
-#include "haxe_Exception.h"
+#include "haxe_iterators_ArrayIterator.h"
+#include "haxe_iterators_ArrayKeyValueIterator.h"
 
 namespace haxe::io {
 

@@ -3,6 +3,8 @@ src/haxe_CallStack.cpp
 src/_main_.cpp
 src/StringBuf.cpp
 src/Main.cpp
+include/haxe_iterators_ArrayKeyValueIterator.h
+include/haxe_iterators_ArrayIterator.h
 include/haxe_Exception.h
 include/haxe_CallStack.h
 include/cxx_DynamicToString.h
@@ -11,3 +13,4 @@ include/_AnonUtils.h
 include/StringBuf.h
 include/Std.h
 include/Main.h
+include/HxArray.h
