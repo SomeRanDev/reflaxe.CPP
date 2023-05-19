@@ -133,6 +133,7 @@ extern class Array<T> {
 	// @:nativeName
 	@:nativeName("size()")
 	@:redirectType("length_type")
+	@:dynamicAccessors("default", "never")
 	var length(default, null): Int;
 
 	@:nativeName("push_back")

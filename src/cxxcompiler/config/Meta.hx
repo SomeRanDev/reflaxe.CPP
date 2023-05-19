@@ -338,4 +338,10 @@ enum abstract Meta(String) from String to String {
 	// for it. This includes both an implementation for `_class` and a
 	// Dynamic wrapper.
 	var Unreflective = ":unreflective";
+
+	// @:dynamicAccessors
+	//
+	// If used on a property, allows for the property to have different
+	// accessors when generating the Dynamic wrapper.
+	var DynamicAccessors = ":dynamicAccessors";
 }
