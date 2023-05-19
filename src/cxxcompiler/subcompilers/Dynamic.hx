@@ -147,12 +147,10 @@ class Dynamic_ extends SubCompiler {
 		if(type == null) return null;
 		if(f.isStatic) return null;
 
-		final isInlineExtern = f.expr != null && (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline));
-		if(isInlineExtern) {
-			final t = f.expr;
-
+		final isInlineExtern = (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline));
+		if(isInlineExtern && f.expr != null) {
 			XComp.setThisOverride(genTypedExpr(TIdent("o"), type));
-			final cpp = ['auto result = [o, args] ${Main.compileExpression(t)};', "result()"];
+			final cpp = ['auto result = [o, args] ${Main.compileExpression(f.expr)};', "result()"];
 			XComp.clearThisOverride();
 
 			return cpp;
@@ -214,6 +212,10 @@ ${content.tab(2)}
 		Generate the Dynamic wrapper class.
 	**/
 	public function getDynamicContent() {
+		if(classType == null) {
+			throw "Impossible";
+		}
+
 		final getArgs = getProps.length > 0 ? "Dynamic& d, std::string name" : "Dynamic&, std::string";
 		final setArgs = setProps.length > 0 ? "Dynamic& d, std::string name, Dynamic value" : "Dynamic&, std::string, Dynamic";
 
