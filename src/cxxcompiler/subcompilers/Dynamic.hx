@@ -14,11 +14,17 @@ package cxxcompiler.subcompilers;
 #if (macro || cxx_runtime)
 
 import reflaxe.helpers.Context;
+import haxe.macro.Expr;
 import haxe.macro.Type;
 
 import reflaxe.data.ClassVarData;
 import reflaxe.data.ClassFuncData;
+import reflaxe.helpers.PositionHelper;
 
+import cxxcompiler.config.Meta;
+
+using reflaxe.helpers.NameMetaHelper;
+using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
@@ -29,11 +35,11 @@ class Dynamic_ extends SubCompiler {
 
 	public var exceptionType: Null<haxe.macro.Type>;
 
-	public function enableDynamic() {
+	public function enableDynamic(blamePosition: Position) {
 		// dynamic/Dynamic.h requires this
 		if(exceptionType == null) {
 			exceptionType = Context.getType("haxe.Exception");
-			Main.onTypeEncountered(exceptionType, true);
+			Main.onTypeEncountered(exceptionType, true, blamePosition);
 		}
 
 		enabled = true;
@@ -48,27 +54,125 @@ class Dynamic_ extends SubCompiler {
 
 	var valueType: String = "";
 	var valueTypeWParams: String = "";
+	var classType: Null<ClassType> = null;
+	var type: Null<Type> = null;
 	var dynamicName: String = "";
 	var getProps: Array<String> = [];
 	var setProps: Array<String> = [];
 
-	public function reset(valueTypeCpp: String, valueTypeWParamsCpp) {
+	public function reset(valueTypeCpp: String, valueTypeWParamsCpp: String, classType: ClassType, type: Type) {
 		valueType = valueTypeCpp;
 		valueTypeWParams = valueTypeWParamsCpp;
+		this.classType = classType;
+		this.type = type;
 		dynamicName = "Dynamic_" + StringTools.replace(valueTypeCpp, "::", "_");
 		getProps = [];
 		setProps = [];
 	}
 
+	function tExpr(typedExprDef: TypedExprDef, type: Type, pos: Null<Position> = null): TypedExpr {
+		return {
+			expr: typedExprDef,
+			t: type,
+			pos: pos ?? PositionHelper.unknownPos()
+		};
+	}
+
+	function makeGetExpr(field: ClassField) {
+		final thisExpr = tExpr(TConst(TThis), type);
+		final exprDef = switch(type) {
+			case TInst(clsRef, params): TField(thisExpr, FInstance(clsRef, params, { get: () -> field, toString: () -> "" }));
+			case _: null;
+		}
+		final expr = tExpr(exprDef, field.type);
+
+		XComp.setThisOverride(tExpr(TIdent("o"), TAbstract(Main.getPtrType(), [type])));
+		final cpp = Main.compileExpression(expr);
+		XComp.clearThisOverride();
+
+		return cpp;
+	}
+
+	function makeCallExpr(f: ClassFuncData, el: Array<TypedExpr>, elUntyped: Array<Expr>): Null<Array<String>> {
+		//final ct = haxe.macro.TypeTools.toComplexType(type);
+
+		if(f.isStatic) return null;
+
+		final t = if(f.expr != null && (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline))) {
+			// var ct: ComplexType = switch(type) {
+			// 	case TInst(_, params): {
+			// 		switch (classType.kind) {
+			// 			case KTypeParameter(_):
+			// 				TPath({
+			// 					name: classType.name,
+			// 					pack: [],
+			// 				});
+			// 			default:
+			// 				@:privateAccess TPath(haxe.macro.TypeTools.toTypePath(classType, params));
+			// 		}
+			// 	}
+			// 	case _: throw "Impossible";
+			// }
+	
+			// switch(ct) {
+			// 	case TPath(p): {
+			// 		if(p.params != null) {
+			// 			p.params = p.params.map(function(paramCt) {
+			// 				return switch(paramCt) {
+			// 					case TPType(t): TPType(macro : Dynamic);
+			// 					case TPExpr(e): paramCt;
+			// 				}
+			// 			});
+			// 			ct = TPath(p);
+			// 		}
+			// 	}
+			// 	case _:
+			// }
+			// final name = f.field.name;
+			// final untypedExpr = macro untyped @:privateAccess (o : cxx.Ptr<$ct>).$name($a{elUntyped});
+			// final t = Context.typeExpr(untypedExpr);
+			// t;
+
+			final t = f.expr;
+
+			XComp.setThisOverride(tExpr(TIdent("o"), type));
+			final cpp = ['auto result = [] ${Main.compileExpression(t)}', "result()"];
+			XComp.clearThisOverride();
+
+			return cpp;
+		} else {
+			final field = f.field;
+			final thisExpr = tExpr(TConst(TThis), type);
+			final exprDef = switch(type) {
+				case TInst(clsRef, params): TField(thisExpr, FInstance(clsRef, params, { get: () -> field, toString: () -> "" }));
+				case _: null;
+			}
+			final expr = tExpr(exprDef, field.type);
+			final t = tExpr(TCall(expr, el), f.ret);
+			
+			XComp.setThisOverride(tExpr(TIdent("o"), TAbstract(Main.getPtrType(), [type])));
+			final cpp = Main.compileExpression(t);
+			XComp.clearThisOverride();
+
+			return [cpp];
+		}
+	}
+
 	public function addVar(v: ClassVarData, cppType: String, name: String) {
-		if(v.read == AccNormal || v.read == AccNo) {
-			getProps.push('if(name == "${name}") {
+		final getDynAcc = v.field.meta.extractPrimtiveFromFirstMeta(Meta.DynamicAccessors, 0);
+		if((v.read == AccNormal || v.read == AccNo) && getDynAcc != "never" && getDynAcc != "get") {
+			final cpp = makeGetExpr(v.field);
+			if(cpp != null) {
+				getProps.push('if(name == "${name}") {
 	return Dynamic::unwrap<$valueTypeWParams>(d, []($valueTypeWParams* o) {
-		return makeDynamic(o->${name});
+		return makeDynamic(${cpp});
 	});
 }');
+			}
 		}
-		if(v.write == AccNormal || v.write == AccNo) {
+
+		final setDynAcc = v.field.meta.extractPrimtiveFromFirstMeta(Meta.DynamicAccessors, 1);
+		if((v.write == AccNormal || v.write == AccNo) && setDynAcc != "never" && setDynAcc != "set") {
 			setProps.push('if(name == "${name}") {
 	return Dynamic::unwrap<$valueTypeWParams>(d, [value]($valueTypeWParams* o) {
 		o->${name} = value.asType<${cppType}>();
@@ -80,23 +184,34 @@ class Dynamic_ extends SubCompiler {
 
 	public function addFunc(v: ClassFuncData, cppArgs: Array<String>, name: String) {
 		if(v.field.name == "new") return;
+
 		final hasRet = !v.ret.isVoid();
 		final args = [];
+		final typedArgs = [];
+		final exprArgs = [];
 		for(i in 0...cppArgs.length) {
-			args.push('args[${i}].asType<${cppArgs[i]}>()');
+			final a = 'args[${i}].asType<${cppArgs[i]}>()';
+			args.push(a);
+			typedArgs.push(tExpr(TIdent(a), v.args[i].type));
+			exprArgs.push(macro untyped __cpp__($v{a}));
 		}
 
-		final content = if(hasRet) {
-			'return makeDynamic(o->${name}(${args.join(", ")}));';
-		} else {
-			'o->${name}(${args.join(", ")});\n\t\treturn Dynamic();';
-		}
-
-		getProps.push('if(name == "${name}") {
+		final cpp = makeCallExpr(v, typedArgs, exprArgs);
+		if(cpp != null && cpp.length > 0) {
+			final end = cpp[cpp.length - 1];
+			final content = cpp.slice(0, -1).join("\n") + "\n" + if(hasRet) {
+				'return makeDynamic($end);';
+			} else {
+				'$end;\nreturn Dynamic();';
+			}
+	
+			getProps.push('if(name == "${name}") {
 	return Dynamic::makeFunc<$valueTypeWParams>(d, []($valueTypeWParams* o, std::deque<Dynamic> args) {
-		${content}
+${content.tab(2)}
 	});
 }');
+		}
+		
 	}
 
 	public function getDynamicContent(classType: ClassType) {
@@ -352,6 +467,12 @@ public:
 			return func({});
 		}
 		makeError(\"Cannot call this Dynamic\");
+	}
+
+	template<typename... Types>
+	Dynamic operator()(Types... args) {
+		std::deque<Dynamic> dynArgs = { args... };
+		return operator()(dynArgs);
 	}
 
 	Dynamic operator()(std::deque<Dynamic> args) {
