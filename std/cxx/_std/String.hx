@@ -4,6 +4,7 @@ package;
 @:pseudoCoreApi
 @:headerInclude("algorithm", true)
 @:headerInclude("cctype", true)
+@:dontGenerateDynamic
 @:filename("HxString")
 @:headerOnly
 class HxString {
@@ -129,14 +130,17 @@ extern class String {
 	// ----------
 	// Redirects
 	@:unusable
+	@:dontGenerateDynamic
 	@:noCompletion
 	private var length_type: cxx.num.UInt32;
 
 	@:unusable
+	@:dontGenerateDynamic
 	@:noCompletion
 	private function indexOf_type(str: String, startIndex: cxx.num.SizeT = 0): cxx.num.SizeT;
 
 	@:unusable
+	@:dontGenerateDynamic
 	@:noCompletion
 	private function lastIndexOf_type(str: String, startIndex: cxx.num.SizeT = -1): cxx.num.SizeT;
 }
