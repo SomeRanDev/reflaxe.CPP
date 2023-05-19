@@ -48,29 +48,44 @@ class Dynamic_ extends SubCompiler {
 		CComp.onDynamicEnabled();
 	}
 
+	/**
+		Return the name of the `Dynamic` type in C++.
+	**/
 	public function compileDynamicTypeName() {
 		return "haxe::Dynamic";
 	}
 
 	var valueType: String = "";
 	var valueTypeWParams: String = "";
+
 	var classType: Null<ClassType> = null;
 	var type: Null<Type> = null;
+
 	var dynamicName: String = "";
+
 	var getProps: Array<String> = [];
 	var setProps: Array<String> = [];
 
-	public function reset(valueTypeCpp: String, valueTypeWParamsCpp: String, classType: ClassType, type: Type) {
-		valueType = valueTypeCpp;
-		valueTypeWParams = valueTypeWParamsCpp;
+	/**
+		Reset the state of the compiler in preparation for generating
+		`Dynamic` wrapper for a new class.
+	**/
+	public function reset(valueType: String, valueTypeWParams: String, classType: ClassType, type: Type) {
+		this.valueType = valueType;
+		this.valueTypeWParams = valueTypeWParams;
 		this.classType = classType;
 		this.type = type;
-		dynamicName = "Dynamic_" + StringTools.replace(valueTypeCpp, "::", "_");
+
+		dynamicName = "Dynamic_" + StringTools.replace(valueType, "::", "_");
+
 		getProps = [];
 		setProps = [];
 	}
 
-	function tExpr(typedExprDef: TypedExprDef, type: Type, pos: Null<Position> = null): TypedExpr {
+	/**
+		Generate a `TypedExpr` given a `TypedExprDef` and `Type`.
+	**/
+	function genTypedExpr(typedExprDef: TypedExprDef, type: Type, pos: Null<Position> = null): TypedExpr {
 		return {
 			expr: typedExprDef,
 			t: type,
@@ -78,88 +93,29 @@ class Dynamic_ extends SubCompiler {
 		};
 	}
 
+	/**
+		Handle compilation of variable field.
+	**/
 	function makeGetExpr(field: ClassField): Null<String> {
 		if(type == null) return null;
-		final thisExpr = tExpr(TConst(TThis), type);
+
+		final thisExpr = genTypedExpr(TConst(TThis), type);
 		final exprDef = switch(type) {
 			case TInst(clsRef, params): TField(thisExpr, FInstance(clsRef, params, { get: () -> field, toString: () -> "" }));
 			case _: throw "Unsupported";
 		}
-		final expr = tExpr(exprDef, field.type);
+		final expr = genTypedExpr(exprDef, field.type);
 
-		XComp.setThisOverride(tExpr(TIdent("o"), TAbstract(Main.getPtrType(), [type])));
+		XComp.setThisOverride(genTypedExpr(TIdent("o"), TAbstract(Main.getPtrType(), [type])));
 		final cpp = Main.compileExpression(expr);
 		XComp.clearThisOverride();
 
 		return cpp;
 	}
 
-	function makeCallExpr(f: ClassFuncData, el: Array<TypedExpr>): Null<Array<String>> {
-		//final ct = haxe.macro.TypeTools.toComplexType(type);
-
-		if(type == null) return null;
-		if(f.isStatic) return null;
-
-		if(f.expr != null && (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline))) {
-			// var ct: ComplexType = switch(type) {
-			// 	case TInst(_, params): {
-			// 		switch (classType.kind) {
-			// 			case KTypeParameter(_):
-			// 				TPath({
-			// 					name: classType.name,
-			// 					pack: [],
-			// 				});
-			// 			default:
-			// 				@:privateAccess TPath(haxe.macro.TypeTools.toTypePath(classType, params));
-			// 		}
-			// 	}
-			// 	case _: throw "Impossible";
-			// }
-	
-			// switch(ct) {
-			// 	case TPath(p): {
-			// 		if(p.params != null) {
-			// 			p.params = p.params.map(function(paramCt) {
-			// 				return switch(paramCt) {
-			// 					case TPType(t): TPType(macro : Dynamic);
-			// 					case TPExpr(e): paramCt;
-			// 				}
-			// 			});
-			// 			ct = TPath(p);
-			// 		}
-			// 	}
-			// 	case _:
-			// }
-			// final name = f.field.name;
-			// final untypedExpr = macro untyped @:privateAccess (o : cxx.Ptr<$ct>).$name($a{elUntyped});
-			// final t = Context.typeExpr(untypedExpr);
-			// t;
-
-			final t = f.expr;
-
-			XComp.setThisOverride(tExpr(TIdent("o"), type));
-			final cpp = ['auto result = [o, args] ${Main.compileExpression(t)};', "result()"];
-			XComp.clearThisOverride();
-
-			return cpp;
-		} else {
-			final field = f.field;
-			final thisExpr = tExpr(TConst(TThis), type);
-			final exprDef = switch(type) {
-				case TInst(clsRef, params): TField(thisExpr, FInstance(clsRef, params, { get: () -> field, toString: () -> "" }));
-				case _: throw "Unsupported";
-			}
-			final expr = tExpr(exprDef, field.type);
-			final t = tExpr(TCall(expr, el), f.ret);
-			
-			XComp.setThisOverride(tExpr(TIdent("o"), TAbstract(Main.getPtrType(), [type])));
-			final cpp = Main.compileExpression(t);
-			XComp.clearThisOverride();
-
-			return cpp != null ? [cpp] : null;
-		}
-	}
-
+	/**
+		Add a variable's get and set.
+	**/
 	public function addVar(v: ClassVarData, cppType: String, name: String) {
 		final getDynAcc = v.field.meta.extractPrimtiveFromFirstMeta(Meta.DynamicAccessors, 0);
 		if((v.read == AccNormal || v.read == AccNo) && getDynAcc != "never" && getDynAcc != "get") {
@@ -184,6 +140,43 @@ class Dynamic_ extends SubCompiler {
 		}
 	}
 
+	/**
+		Generate code to call function given its data.
+	**/
+	function makeCallExpr(f: ClassFuncData, el: Array<TypedExpr>): Null<Array<String>> {
+		if(type == null) return null;
+		if(f.isStatic) return null;
+
+		final isInlineExtern = f.expr != null && (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline));
+		if(isInlineExtern) {
+			final t = f.expr;
+
+			XComp.setThisOverride(genTypedExpr(TIdent("o"), type));
+			final cpp = ['auto result = [o, args] ${Main.compileExpression(t)};', "result()"];
+			XComp.clearThisOverride();
+
+			return cpp;
+		} else {
+			final field = f.field;
+			final thisExpr = genTypedExpr(TConst(TThis), type);
+			final exprDef = switch(type) {
+				case TInst(clsRef, params): TField(thisExpr, FInstance(clsRef, params, { get: () -> field, toString: () -> "" }));
+				case _: throw "Unsupported";
+			}
+			final expr = genTypedExpr(exprDef, field.type);
+			final t = genTypedExpr(TCall(expr, el), f.ret);
+			
+			XComp.setThisOverride(genTypedExpr(TIdent("o"), TAbstract(Main.getPtrType(), [type])));
+			final cpp = Main.compileExpression(t);
+			XComp.clearThisOverride();
+
+			return cpp != null ? [cpp] : null;
+		}
+	}
+
+	/**
+		Add a function.
+	**/
 	public function addFunc(v: ClassFuncData, cppArgs: Array<String>, name: String) {
 		if(v.field.name == "new") return;
 
@@ -194,7 +187,7 @@ class Dynamic_ extends SubCompiler {
 		for(i in 0...cppArgs.length) {
 			final a = 'args[${i}].asType<${cppArgs[i]}>()';
 			args.push(a);
-			typedArgs.push(tExpr(TIdent(a), v.args[i].type));
+			typedArgs.push(genTypedExpr(TIdent(a), v.args[i].type));
 			//exprArgs.push(macro untyped __cpp__($v{a}));
 		}
 
@@ -217,7 +210,10 @@ ${content.tab(2)}
 		
 	}
 
-	public function getDynamicContent(classType: ClassType) {
+	/**
+		Generate the Dynamic wrapper class.
+	**/
+	public function getDynamicContent() {
 		final getArgs = getProps.length > 0 ? "Dynamic& d, std::string name" : "Dynamic&, std::string";
 		final setArgs = setProps.length > 0 ? "Dynamic& d, std::string name, Dynamic value" : "Dynamic&, std::string, Dynamic";
 
@@ -255,7 +251,7 @@ public:
 	}
 
 	/**
-		Get dynamic.
+		Generate the `dynamic/Dynamic.h` file.
 	**/
 	public function dynamicTypeContent() {
 		final includes = ["any", "deque", "functional", "memory", "optional", "string", "typeindex"];
