@@ -19,10 +19,12 @@ public:
 			});
 		} else if(name == "hasNext") {
 			return Dynamic::makeFunc<haxe::iterators::ArrayIterator<T>>(d, [](haxe::iterators::ArrayIterator<T>* o, std::deque<Dynamic> args) {
+				
 				return makeDynamic(o->hasNext());
 			});
 		} else if(name == "next") {
 			return Dynamic::makeFunc<haxe::iterators::ArrayIterator<T>>(d, [](haxe::iterators::ArrayIterator<T>* o, std::deque<Dynamic> args) {
+				
 				return makeDynamic(o->next());
 			});
 		}

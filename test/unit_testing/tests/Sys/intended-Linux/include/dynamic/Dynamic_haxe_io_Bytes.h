@@ -14,10 +14,6 @@ public:
 			return Dynamic::unwrap<haxe::io::Bytes>(d, [](haxe::io::Bytes* o) {
 				return makeDynamic(o->b);
 			});
-		} else if(name == "ofString") {
-			return Dynamic::makeFunc<haxe::io::Bytes>(d, [](haxe::io::Bytes* o, std::deque<Dynamic> args) {
-				return makeDynamic(o->ofString(args[0].asType<std::string>(), args[1].asType<std::optional<std::shared_ptr<haxe::io::Encoding>>>()));
-			});
 		}
 		return Dynamic();
 	}

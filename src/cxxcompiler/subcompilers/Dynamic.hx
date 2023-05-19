@@ -136,7 +136,7 @@ class Dynamic_ extends SubCompiler {
 			final t = f.expr;
 
 			XComp.setThisOverride(tExpr(TIdent("o"), type));
-			final cpp = ['auto result = [] ${Main.compileExpression(t)}', "result()"];
+			final cpp = ['auto result = [o, args] ${Main.compileExpression(t)};', "result()"];
 			XComp.clearThisOverride();
 
 			return cpp;
