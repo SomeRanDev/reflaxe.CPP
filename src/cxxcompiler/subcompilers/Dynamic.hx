@@ -78,11 +78,12 @@ class Dynamic_ extends SubCompiler {
 		};
 	}
 
-	function makeGetExpr(field: ClassField) {
+	function makeGetExpr(field: ClassField): Null<String> {
+		if(type == null) return null;
 		final thisExpr = tExpr(TConst(TThis), type);
 		final exprDef = switch(type) {
 			case TInst(clsRef, params): TField(thisExpr, FInstance(clsRef, params, { get: () -> field, toString: () -> "" }));
-			case _: null;
+			case _: throw "Unsupported";
 		}
 		final expr = tExpr(exprDef, field.type);
 
@@ -93,12 +94,13 @@ class Dynamic_ extends SubCompiler {
 		return cpp;
 	}
 
-	function makeCallExpr(f: ClassFuncData, el: Array<TypedExpr>, elUntyped: Array<Expr>): Null<Array<String>> {
+	function makeCallExpr(f: ClassFuncData, el: Array<TypedExpr>): Null<Array<String>> {
 		//final ct = haxe.macro.TypeTools.toComplexType(type);
 
+		if(type == null) return null;
 		if(f.isStatic) return null;
 
-		final t = if(f.expr != null && (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline))) {
+		if(f.expr != null && (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline))) {
 			// var ct: ComplexType = switch(type) {
 			// 	case TInst(_, params): {
 			// 		switch (classType.kind) {
@@ -145,7 +147,7 @@ class Dynamic_ extends SubCompiler {
 			final thisExpr = tExpr(TConst(TThis), type);
 			final exprDef = switch(type) {
 				case TInst(clsRef, params): TField(thisExpr, FInstance(clsRef, params, { get: () -> field, toString: () -> "" }));
-				case _: null;
+				case _: throw "Unsupported";
 			}
 			final expr = tExpr(exprDef, field.type);
 			final t = tExpr(TCall(expr, el), f.ret);
@@ -154,7 +156,7 @@ class Dynamic_ extends SubCompiler {
 			final cpp = Main.compileExpression(t);
 			XComp.clearThisOverride();
 
-			return [cpp];
+			return cpp != null ? [cpp] : null;
 		}
 	}
 
@@ -188,15 +190,15 @@ class Dynamic_ extends SubCompiler {
 		final hasRet = !v.ret.isVoid();
 		final args = [];
 		final typedArgs = [];
-		final exprArgs = [];
+		//final exprArgs = [];
 		for(i in 0...cppArgs.length) {
 			final a = 'args[${i}].asType<${cppArgs[i]}>()';
 			args.push(a);
 			typedArgs.push(tExpr(TIdent(a), v.args[i].type));
-			exprArgs.push(macro untyped __cpp__($v{a}));
+			//exprArgs.push(macro untyped __cpp__($v{a}));
 		}
 
-		final cpp = makeCallExpr(v, typedArgs, exprArgs);
+		final cpp = makeCallExpr(v, typedArgs);
 		if(cpp != null && cpp.length > 0) {
 			final end = cpp[cpp.length - 1];
 			final prefixCode = (cpp.length > 1 ? (cpp.slice(0, -1).join("\n") + "\n") : "");
