@@ -1062,7 +1062,7 @@ class Classes extends SubCompiler {
 		final headerFilename = getHeaderFilename();
 
 		if(!classType.hasMeta(Meta.DontGenerateDynamic)) {
-			final content = DComp.getDynamicContent(classType);
+			final content = DComp.getDynamicContent();
 			final dynFilename = getDynamicFileName(classType);
 			Main.addCompileEndCallback(function() {
 				if(DComp.enabled) {
