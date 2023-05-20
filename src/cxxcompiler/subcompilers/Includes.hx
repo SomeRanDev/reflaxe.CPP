@@ -171,14 +171,15 @@ class Includes extends SubCompiler {
 	// Add forward declaration for class.
 	public function addForwardDeclare(cls: ClassType) {
 		final pieces = [];
-		pieces.push(Main.compileNamespaceStart(cls));
+		final ns = Main.compileNamespaceStart(cls);
+		pieces.push(ns.length > 0 ? (ns + "\t") : "");
 		if(cls.params.length > 0) {
-			pieces.push("template<" + cls.params.map(p -> "typename").join(", ") + ">");
+			pieces.push("template<" + cls.params.map(p -> "typename").join(", ") + "> ");
 		}
-		pieces.push("class " + cls.name);
+		pieces.push("class " + cls.name + ";");
 		pieces.push(Main.compileNamespaceEnd(cls));
 
-		final cpp = pieces.join(" ");
+		final cpp = pieces.join("");
 		if(!forwardDeclares.contains(cpp)) {
 			forwardDeclares.push(cpp);
 		}
@@ -385,7 +386,7 @@ class Includes extends SubCompiler {
 		var result = compileIncludes(headerIncludes);
 		if(forwardDeclares.length > 0) {
 			if(forwardDeclares.length > 0) result += "\n\n";
-			result += forwardDeclares.map(fd -> fd + ";").join("\n");
+			result += forwardDeclares.join("\n");
 		}
 		return result;
 	}
