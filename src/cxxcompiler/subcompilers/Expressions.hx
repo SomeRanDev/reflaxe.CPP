@@ -436,8 +436,10 @@ class Expressions extends SubCompiler {
 		var result = Main.compileExpressionOrError(expr);
 
 		if(unwrapOptional) {
-			if(Main.getExprType(expr).isNull() && !expr.isNullExpr()) {
-				result = ensureSafeToAccess(result) + ".value()";
+			final t = Main.getExprType(expr);
+			if(t.isNull() && !expr.isNullExpr()) {
+				final isValue = t.getInternalType().isTypeParameter() || Types.getMemoryManagementTypeFromType(t) == Value;
+				result = ensureSafeToAccess(result) + (isValue ? ".value()" : ".value_or(nullptr)");
 			}
 		}
 
@@ -565,11 +567,11 @@ class Expressions extends SubCompiler {
 		var result = null;
 
 		// Unwraps Null<T> (std::optional) if converting from optional -> not optional
-		inline function convertCppNull(cpp: String): String {
+		inline function convertCppNull(cpp: String, pointerType: Bool): String {
 			// This is true if `null` is not allowed, but the source expression is nullable.
 			final nullToNotNull = !allowNull && nullToValue && !expr.isNullExpr();
 			if(nullMMConvert || nullToNotNull) {
-				return ensureSafeToAccess(cpp) + ".value()";
+				return ensureSafeToAccess(cpp) + (pointerType ? ".value_or(nullptr)" : ".value()");
 			}
 			return cpp;
 		}
@@ -580,7 +582,7 @@ class Expressions extends SubCompiler {
 				var cpp = internal_compileExpressionForType(expr, targetType, false);
 				if(cpp != null) {
 					IComp.addInclude("memory", compilingInHeader, true);
-					cpp = convertCppNull(cpp);
+					cpp = convertCppNull(cpp, true);
 					result = "std::static_pointer_cast<" + TComp.compileType(targetType, expr.pos, true) + ">(" + cpp + ")";
 				}
 			}
@@ -608,7 +610,11 @@ class Expressions extends SubCompiler {
 						final code = hasAlias ? "v" : cpp;
 
 						// Apply memory management conversion
-						final newCpp = convertCppNull(code);
+						var pointerType = cmmt != Value;
+						if(targetType == null || targetType.getInternalType().isTypeParameter()) {
+							pointerType = false;
+						}
+						final newCpp = convertCppNull(code, pointerType);
 						result = applyMMConversion(newCpp, expr.pos, Main.getExprType(expr), cmmt, tmmt);
 
 						// If we converting between two different memory types that are both nullable,
