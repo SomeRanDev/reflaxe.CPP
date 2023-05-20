@@ -205,6 +205,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"-lib reflaxe",
 			"extraParams.hxml",
 			"-cp " + testDir,
+			"-D message-reporting=pretty",
 			"-D cpp-output=" + haxe.io.Path.join([testDir, noIntended ? OUT_DIR : getOutputDirectory(testDir)]),
 			"-D " + systemNameDefine,
 			"\"" + absPath + "\""
