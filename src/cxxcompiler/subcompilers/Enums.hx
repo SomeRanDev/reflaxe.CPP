@@ -20,6 +20,8 @@ using reflaxe.helpers.PositionHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
+import cxxcompiler.other.DependencyTracker;
+
 using cxxcompiler.helpers.Error;
 using cxxcompiler.helpers.MetaHelper;
 using cxxcompiler.helpers.Sort;
@@ -37,6 +39,11 @@ class Enums extends SubCompiler {
 		}
 		return dynToStringType;
 	}
+
+	/**
+		The current `DependencyTracker` for the class being compiled.
+	**/
+	var dep: Null<DependencyTracker> = null;
 
 	public function compileEnum(enumType: EnumType, options: Array<EnumOptionData>): Null<String> {
 		final filename = Compiler.getFileNameFromModuleData(enumType);
@@ -64,6 +71,11 @@ class Enums extends SubCompiler {
 			case TEnumDecl(e): e;
 			case _: throw "Impossible";
 		}
+
+		// --------------------
+		// Dependency tracker
+		dep = DependencyTracker.make(TEnumDecl(enumTypeRef), filename);
+		if(dep != null) Main.setCurrentDep(dep);
 
 		// --------------------
 		// Generate entire class declaration in "declaration"
@@ -112,6 +124,7 @@ class Enums extends SubCompiler {
 
 			for(a in o.args) {
 				Main.onTypeEncountered(a.type, true, o.field.pos);
+				if(dep != null) dep.assertCanUseInHeader(a.type, o.field.pos);
 			}
 
 			final structName = "d" + o.name + "Impl";
@@ -234,6 +247,9 @@ class Enums extends SubCompiler {
 
 		// Let the reflection compiler know this enum was compiled.
 		RComp.addCompiledModuleType(Main.getCurrentModule().trustMe());
+
+		// Clear the dependency tracker.
+		Main.clearDep();
 
 		return null;
 	}

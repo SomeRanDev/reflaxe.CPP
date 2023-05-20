@@ -169,15 +169,23 @@ class Includes extends SubCompiler {
 
 	// ----------------------------
 	// Add forward declaration for class.
-	public function addForwardDeclare(cls: ClassType) {
-		final pieces = [];
-		final ns = Main.compileNamespaceStart(cls);
-		pieces.push(ns.length > 0 ? (ns + "\t") : "");
-		if(cls.params.length > 0) {
-			pieces.push("template<" + cls.params.map(p -> "typename").join(", ") + "> ");
+	public function addForwardDeclare(mt: ModuleType) {
+		switch(mt) {
+			case TAbstract(_): throw "Cannot forward declare abstract";
+			case _:
 		}
-		pieces.push("class " + cls.name + ";");
-		pieces.push(Main.compileNamespaceEnd(cls));
+
+		final baseType = mt.getCommonData();
+		if(baseType.isExtern) throw "Cannot forward declare extern class";
+
+		final pieces = [];
+		final ns = Main.compileNamespaceStart(baseType);
+		pieces.push(ns.length > 0 ? (ns + "\t") : "");
+		if(baseType.params.length > 0) {
+			pieces.push("template<" + baseType.params.map(p -> "typename").join(", ") + "> ");
+		}
+		pieces.push("class " + baseType.name + ";");
+		pieces.push(Main.compileNamespaceEnd(baseType));
 
 		final cpp = pieces.join("");
 		if(!forwardDeclares.contains(cpp)) {
