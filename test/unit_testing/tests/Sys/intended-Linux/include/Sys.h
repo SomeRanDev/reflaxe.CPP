@@ -15,17 +15,6 @@ public:
 
 
 
-class Sys_CpuTime {
-public:
-	static std::chrono::time_point<std::chrono::system_clock> _startTime;
-
-	static void setupStart();
-	
-	static double cpuTime();
-};
-
-
-
 class Sys_Args {
 public:
 	static std::deque<std::string> _args;
@@ -33,6 +22,17 @@ public:
 	static void setupArgs(int argCount, const char** args);
 	
 	static std::shared_ptr<std::deque<std::string>> args();
+};
+
+
+
+class Sys_CpuTime {
+public:
+	static std::chrono::time_point<std::chrono::system_clock> _startTime;
+
+	static void setupStart();
+	
+	static double cpuTime();
 };
 
 

@@ -35,17 +35,6 @@ public:
 
 
 
-class ClassWInt {
-public:
-	int number;
-
-	ClassWInt();
-	
-	HX_COMPARISON_OPERATORS(ClassWInt)
-};
-
-
-
 class Main {
 public:
 	static int returnCode;
@@ -55,6 +44,15 @@ public:
 	static void assertFloat(double a, double b, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt);
 	
 	static void main();
+};
+
+class ClassWInt {
+public:
+	int number;
+
+	ClassWInt();
+	
+	HX_COMPARISON_OPERATORS(ClassWInt)
 };
 
 

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <memory>
 #include "_HaxeUtils.h"
 #include "Other.h"
+#include <memory>
+#include <optional>
 
 namespace _Main {
 

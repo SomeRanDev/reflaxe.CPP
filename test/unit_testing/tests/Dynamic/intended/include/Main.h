@@ -24,6 +24,14 @@ public:
 
 
 
+namespace _Main {
+
+class Main_Fields_ {
+public:
+	static void main();
+};
+
+}
 template<typename T>
 class HasParam {
 public:
@@ -46,16 +54,6 @@ public:
 	HX_COMPARISON_OPERATORS(HasParam<T>)
 };
 
-
-
-namespace _Main {
-
-class Main_Fields_ {
-public:
-	static void main();
-};
-
-}
 
 
 #include "dynamic/Dynamic_Main.h"
