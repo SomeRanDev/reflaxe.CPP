@@ -1,6 +1,8 @@
 src/_main_.cpp
+src/Other2.cpp
 src/Other.cpp
 src/Main.cpp
 include/_HaxeUtils.h
+include/Other2.h
 include/Other.h
 include/Main.h

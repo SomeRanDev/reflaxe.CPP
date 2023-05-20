@@ -4,13 +4,13 @@
 #include <optional>
 #include "_HaxeUtils.h"
 
- class Main ;
+ class Other2 ;
 
 class Other {
 public:
-	std::shared_ptr<Main> main;
+	std::shared_ptr<Other2> main;
 
-	Other(std::optional<std::shared_ptr<Main>> main = std::nullopt);
+	Other(std::optional<std::shared_ptr<Other2>> main = std::nullopt);
 	
 	HX_COMPARISON_OPERATORS(Other)
 };
