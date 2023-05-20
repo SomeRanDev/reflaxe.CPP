@@ -173,12 +173,12 @@ class Includes extends SubCompiler {
 		final pieces = [];
 		pieces.push(Main.compileNamespaceStart(cls));
 		if(cls.params.length > 0) {
-			pieces.push("tempalte<" + cls.params.map(p -> "typename") + ">");
+			pieces.push("template<" + cls.params.map(p -> "typename").join(", ") + ">");
 		}
 		pieces.push("class " + cls.name);
 		pieces.push(Main.compileNamespaceEnd(cls));
 
-		final cpp = pieces.join("");
+		final cpp = pieces.join(" ");
 		if(!forwardDeclares.contains(cpp)) {
 			forwardDeclares.push(cpp);
 		}
