@@ -347,6 +347,27 @@ class Classes extends SubCompiler {
 	}
 
 	/**
+		Retutnrs `true` if the `ClassType` is expected to generate
+		a constructor without any arguments.
+	**/
+	public static function hasDefaultConstructor(classType: ClassType) {
+		return if(classType.constructor != null) {
+			switch(classType.constructor.get().type) {
+				case TFun(args, _): {
+					if(args.filter(a -> !a.opt).length == 0) {
+						!classType.hasMeta(Meta.DontGenerateDefaultConstructor);
+					} else {
+						false;
+					}
+				}
+				case _: throw "Impossible";
+			}
+		} else {
+			true;
+		}
+	}
+
+	/**
 		Initialize fields at the start of `compileClass`.
 	**/
 	function initFields(classType: ClassType, maybeClassRef: Null<Ref<ClassType>> = null) {
@@ -416,11 +437,13 @@ class Classes extends SubCompiler {
 			"";
 		}
 
-		Main.onTypeEncountered(field.type, true, v.field.pos);
+		Main.onTypeEncountered(field.type, true, field.pos);
 
 		final type = TComp.compileType(field.type, field.pos, false, true);
 
 		if(!isExtern) {
+			if(dep != null) dep.assertCanUseInHeader(field.type, field.pos);
+
 			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
 			final assign = (cppVal.length == 0 ? "" : (" = " + cppVal));
 			var decl = (meta ?? "") + (isStatic ? "static " : "") + type + " " + varName;
@@ -509,9 +532,11 @@ class Classes extends SubCompiler {
 		// Type encounters
 		if(f.ret != null) {
 			Main.onTypeEncountered(f.ret, true, f.field.pos);
+			if(dep != null) dep.assertCanUseInHeader(f.ret, f.field.pos);
 		}
 		for(a in f.args) {
 			Main.onTypeEncountered(a.type, true, f.field.pos);
+			if(dep != null) dep.assertCanUseInHeader(a.type, f.field.pos);
 		}
 
 		ctx.meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField) ?? "";
@@ -858,6 +883,10 @@ class Classes extends SubCompiler {
 		Generate a function in C++ for a source file.
 	**/
 	function generateFunctionOutputForCpp(ctx: FunctionCompileContext, funcDeclaration: String, content: String, argDecl: String, topLevel: Bool) {
+		if(ctx.isConstructor) {
+			generateDefaultConstructor(ctx, topLevel);
+		}
+
 		final headerContent = ctx.prependFieldContent + funcDeclaration + ";" + ctx.appendFieldContent;
 		if(topLevel) {
 			topLevelFunctions.push(headerContent);
@@ -895,6 +924,28 @@ class Classes extends SubCompiler {
 			final decl = generateHeaderDecl(ctx, ctx.covariance.name, ctx.covariance.ret, argDecl, topLevel);
 			final covarContent = ctx.prependFieldContent + templateDecl + decl + (ctx.isAbstract ? " = 0;" : covariantContent(ctx)) + ctx.appendFieldContent;
 			addFunction(covarContent, ctx.section);
+		}
+
+		if(ctx.isConstructor) {
+			generateDefaultConstructor(ctx, topLevel);
+		}
+	}
+
+	function generateDefaultConstructor(ctx: FunctionCompileContext, topLevel: Bool) {
+		return;
+		final shouldGenDefaultConstructor = ctx.f.args.length > 0 && hasDefaultConstructor(classType);
+		if(shouldGenDefaultConstructor) {
+			if(topLevel) throw "Impossible"; // Constructors should never be top level
+			final funcDeclaration = generateHeaderDecl(ctx, ctx.name, ctx.ret, "()", topLevel);
+			final pos = PositionHelper.unknownPos();
+			final defaultArgs: Array<TypedExpr> = ctx.f.replacePadNullsWithDefaults(ctx.f.args.map(a -> { expr: TConst(TNull), t: a.type, pos: pos }));
+			final argsCpp = defaultArgs.map(Main.compileExpressionOrError).join(", ");
+			if(ctx.addToCpp) {
+				addFunction(funcDeclaration + ";", ctx.section);
+				cppFunctions.push('$classNameNS${ctx.name}${ctx.covariance.name}(): ${ctx.name}($argsCpp) {}');
+			} else {
+				addFunction('$funcDeclaration: ${ctx.name}($argsCpp) {}', ctx.section);
+			}
 		}
 	}
 

@@ -206,11 +206,20 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	**/
 	function checkForForwardDeclare(t: Type, blamePosition: Position) {
 		return if(isCurrentDependantOfType(t, blamePosition)) {
+			final mt = t.toModuleType();
+			if(mt == null) throw "Impossible";
 			final cls = switch(t) {
 				case TInst(cls, _): cls.get();
 				case _: throw "Impossible";
 			}
+
 			IComp.addForwardDeclare(cls);
+			IComp.addIncludeFromType(t, false);
+			IComp.includeMMType(mt.getCommonData().getMemoryManagementType(), true);
+
+			// Stack details setup from `isThisDefOfType` from `isCurrentDependantOfType`.
+			getCurrentDep()?.addForwardDeclared(mt, DependencyTracker.getDepStackDetails());
+
 			true;
 		} else {
 			false;
@@ -928,7 +937,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// ----------------------------
 	// This should be used instead of `AbstractType.type`.
 	// Properly unwraps @:multiType.
-	public function getAbstractInner(t: Type): Type {
+	public static function getAbstractInner(t: Type): Type {
 		return switch(t) {
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
@@ -945,7 +954,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// ----------------------------
 	// This should be used instead of `DefType.type`.
 	// Properly unwraps memory management types and returns the desired type.
-	public function getTypedefInner(t: Type): Type {
+	public static function getTypedefInner(t: Type): Type {
 		return switch(t) {
 			case TType(defRef, _): {
 				// In a rare case of conflicting memory management types:

@@ -173,12 +173,12 @@ class Includes extends SubCompiler {
 		final pieces = [];
 		pieces.push(Main.compileNamespaceStart(cls));
 		if(cls.params.length > 0) {
-			pieces.push("tempalte<" + cls.params.map(p -> "typename") + ">");
+			pieces.push("template<" + cls.params.map(p -> "typename").join(", ") + ">");
 		}
 		pieces.push("class " + cls.name);
 		pieces.push(Main.compileNamespaceEnd(cls));
 
-		final cpp = pieces.join("");
+		final cpp = pieces.join(" ");
 		if(!forwardDeclares.contains(cpp)) {
 			forwardDeclares.push(cpp);
 		}
@@ -327,12 +327,15 @@ class Includes extends SubCompiler {
 				}
 			}
 
-			final mmType = cd.getMemoryManagementType();
-			if(mmType == UniquePtr) {
-				addInclude(Compiler.SharedPtrInclude[0], header, Compiler.SharedPtrInclude[1]);
-			} else if(mmType == SharedPtr) {
-				addInclude(Compiler.UniquePtrInclude[0], header, Compiler.UniquePtrInclude[1]);
-			}
+			includeMMType(cd.getMemoryManagementType(), header);
+		}
+	}
+
+	public function includeMMType(mmType: MemoryManagementType, header: Bool) {
+		if(mmType == UniquePtr) {
+			addInclude(Compiler.SharedPtrInclude[0], header, Compiler.SharedPtrInclude[1]);
+		} else if(mmType == SharedPtr) {
+			addInclude(Compiler.UniquePtrInclude[0], header, Compiler.UniquePtrInclude[1]);
 		}
 	}
 
@@ -379,7 +382,12 @@ class Includes extends SubCompiler {
 	}
 
 	function compileHeaderIncludes(): String {
-		return compileIncludes(headerIncludes);
+		var result = compileIncludes(headerIncludes);
+		if(forwardDeclares.length > 0) {
+			if(forwardDeclares.length > 0) result += "\n\n";
+			result += forwardDeclares.map(fd -> fd + ";").join("\n");
+		}
+		return result;
 	}
 
 	function compileCppIncludes(): String {
@@ -387,10 +395,6 @@ class Includes extends SubCompiler {
 		if(cppUsings.length > 0) {
 			if(result.length > 0) result += "\n\n";
 			result += cppUsings.sortedAlphabetically().map(u -> "using namespace " + u + ";").join("\n");
-		}
-		if(forwardDeclares.length > 0) {
-			if(forwardDeclares.length > 0) result += "\n\n";
-			result += forwardDeclares.join("\n");
 		}
 		return result;
 	}

@@ -243,6 +243,16 @@ class Expressions extends SubCompiler {
 			case TVar(tvar, maybeExpr) if(!Define.KeepUnusedLocals.defined() && tvar.meta.maybeHas("-reflaxe.unused")): {
 				if(maybeExpr != null && maybeExpr.isMutator()) {
 					result = Main.compileExpression(maybeExpr);
+
+					// C++ will complain about an object being created but not assigned,
+					// so wrap with void cast to avoid.
+					final isConstruct = switch(maybeExpr.expr) {
+						case TNew(_, _, ): true;
+						case _: false;
+					}
+					if(isConstruct) {
+						result = 'static_cast<void>($result)';
+					}
 				} else {
 					result = null;
 				}
@@ -426,8 +436,10 @@ class Expressions extends SubCompiler {
 		var result = Main.compileExpressionOrError(expr);
 
 		if(unwrapOptional) {
-			if(Main.getExprType(expr).isNull() && !expr.isNullExpr()) {
-				result = ensureSafeToAccess(result) + ".value()";
+			final t = Main.getExprType(expr);
+			if(t.isNull() && !expr.isNullExpr()) {
+				final isValue = t.getInternalType().isTypeParameter() || Types.getMemoryManagementTypeFromType(t) == Value;
+				result = ensureSafeToAccess(result) + (isValue ? ".value()" : ".value_or(nullptr)");
 			}
 		}
 
@@ -480,7 +492,7 @@ class Expressions extends SubCompiler {
 	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool): Null<String> {
 		var result = switch(expr.unwrapMeta().expr) {
 			case TConst(TNull) if(targetType != null && !targetType.isNull() && !expr.hasMeta("-conflicting-default-value")): {
-				if(TComp.getMemoryManagementTypeFromType(targetType) == Value) {
+				if(Types.getMemoryManagementTypeFromType(targetType) == Value) {
 					expr.pos.makeError(ValueAssignedNull);
 				} else if(!Define.NoNullAssignWarnings.defined()) {
 					expr.pos.makeWarning(UsedNullOnNonNullable);
@@ -522,7 +534,7 @@ class Expressions extends SubCompiler {
 	// is different from the provided expression, compile the expression and with additional
 	// conversions in the generated code.
 	function compileMMConversion(expr: TypedExpr, target: Either<Type, MemoryManagementType>, allowNull: Bool = false): String {
-		final cmmt = TComp.getMemoryManagementTypeFromType(Main.getExprType(expr));
+		final cmmt = Types.getMemoryManagementTypeFromType(Main.getExprType(expr));
 
 		var tmmt;
 		var targetType: Null<Type>;
@@ -530,7 +542,7 @@ class Expressions extends SubCompiler {
 		var nullToValue;
 		switch(target) {
 			case Left(tt): {
-				tmmt = TComp.getMemoryManagementTypeFromType(tt);
+				tmmt = Types.getMemoryManagementTypeFromType(tt);
 				targetType = tt;
 				allowNull = tt.isNull();
 
@@ -555,11 +567,11 @@ class Expressions extends SubCompiler {
 		var result = null;
 
 		// Unwraps Null<T> (std::optional) if converting from optional -> not optional
-		inline function convertCppNull(cpp: String): String {
+		inline function convertCppNull(cpp: String, pointerType: Bool): String {
 			// This is true if `null` is not allowed, but the source expression is nullable.
 			final nullToNotNull = !allowNull && nullToValue && !expr.isNullExpr();
 			if(nullMMConvert || nullToNotNull) {
-				return ensureSafeToAccess(cpp) + ".value()";
+				return ensureSafeToAccess(cpp) + (pointerType ? ".value_or(nullptr)" : ".value()");
 			}
 			return cpp;
 		}
@@ -570,7 +582,7 @@ class Expressions extends SubCompiler {
 				var cpp = internal_compileExpressionForType(expr, targetType, false);
 				if(cpp != null) {
 					IComp.addInclude("memory", compilingInHeader, true);
-					cpp = convertCppNull(cpp);
+					cpp = convertCppNull(cpp, true);
 					result = "std::static_pointer_cast<" + TComp.compileType(targetType, expr.pos, true) + ">(" + cpp + ")";
 				}
 			}
@@ -598,7 +610,11 @@ class Expressions extends SubCompiler {
 						final code = hasAlias ? "v" : cpp;
 
 						// Apply memory management conversion
-						final newCpp = convertCppNull(code);
+						var pointerType = cmmt != Value;
+						if(targetType == null || targetType.getInternalType().isTypeParameter()) {
+							pointerType = false;
+						}
+						final newCpp = convertCppNull(code, pointerType);
 						result = applyMMConversion(newCpp, expr.pos, Main.getExprType(expr), cmmt, tmmt);
 
 						// If we converting between two different memory types that are both nullable,
@@ -978,7 +994,7 @@ class Expressions extends SubCompiler {
 
 	function isArrowAccessType(t: Type): Bool {
 		final ut = t.unwrapNullTypeOrSelf();
-		final mmt = TComp.getMemoryManagementTypeFromType(ut);
+		final mmt = Types.getMemoryManagementTypeFromType(ut);
 		return mmt != Value;
 	}
 
@@ -1285,7 +1301,7 @@ class Expressions extends SubCompiler {
 				// If the expression's type is different, this may be the result of an unsafe cast.
 				// If so, let's use the memory management type from the cast.
 				if(overrideMMT == null) {
-					final exprMMT = TComp.getMemoryManagementTypeFromType(Main.getExprType(expr));
+					final exprMMT = Types.getMemoryManagementTypeFromType(Main.getExprType(expr));
 					if(exprMMT != cd.getMemoryManagementType()) {
 						overrideMMT = exprMMT;
 					}
@@ -1312,6 +1328,14 @@ class Expressions extends SubCompiler {
 
 		if(typeSource == null) {
 			typeSource = type;
+		}
+
+		// We cannot compile value-type constructors in header if using forward declare
+		if(compilingInHeader && mmt == Value) {
+			final canUseInheader = Main.getCurrentDep()?.canUseInHeader(typeSource, false) ?? true;
+			if(!canUseInheader) {
+				Context.error("Cannot construct this value-type here since it will be generated for header file that cannot #include its class.", pos);
+			}
 		}
 
 		final typeOutput = TComp.compileType(typeSource, pos, true);
@@ -1551,7 +1575,7 @@ class Expressions extends SubCompiler {
 						final file = Context.getPosInfos(callExpr.pos).file;
 						final clsConstruct = {
 							final clsName = TComp.compileType(e1InternalType, callExpr.pos, true);
-							final tmmt = TComp.getMemoryManagementTypeFromType(e1InternalType);
+							final tmmt = Types.getMemoryManagementTypeFromType(e1InternalType);
 							AComp.applyAnonMMConversion(clsName, ["\"\"", stringToCpp(file), Std.string(line), "\"\""], tmmt);
 						};
 						piCpp + ".value_or(" + clsConstruct + ")";
