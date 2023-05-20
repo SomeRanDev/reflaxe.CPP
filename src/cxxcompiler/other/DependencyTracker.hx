@@ -22,6 +22,11 @@ using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.TypeHelper;
 
+import cxxcompiler.subcompilers.Types;
+
+using cxxcompiler.helpers.CppTypeHelper;
+using cxxcompiler.helpers.MetaHelper;
+
 class DependencyTracker {
 	public static final bottom: Int = 99999999;
 
@@ -36,6 +41,10 @@ class DependencyTracker {
 
 		final tracker = if(!allDependencies.exists(id)) {
 			final dt = new DependencyTracker(id);
+			dt.haxeClassName = {
+				final baseType = t.getCommonData();
+				baseType.pack.concat([baseType.name]).join(".");
+			};
 			allDependencies.set(id, dt);
 			dt;
 		} else {
@@ -51,12 +60,43 @@ class DependencyTracker {
 		return allDependencies.exists(t.getUniqueId());
 	}
 
+	public static function find(id: String): Null<DependencyTracker> {
+		return allDependencies.get(id);
+	}
+
+	// stack
+
+	public static var errorStack: Array<{ id: String, pos: Position }> = [];
+	public static var dependencyStack: Array<{ id: String, pos: Position }> = [];
+
+	public static function getErrorStackDetails() {
+		return generateDetails(errorStack);
+	}
+
+	public static function getDepStackDetails() {
+		return generateDetails(dependencyStack);
+	}
+
+	static function generateDetails(stack: Array<{ id: String, pos: Position }>) {
+		var result = [];
+		var index = 0;
+		for(s in stack) {
+			final id = s.id;
+			final pos = s.pos;
+			result.push('(${++index}) ${find(id)?.haxeClassName ?? "<unknown>"} - $pos');
+		}
+		return "--- Dependency Chain ---\n" + result.join("\n") + "\n-------------------------";
+	}
+
 	// ----
 
 	var id: String;
+	var haxeClassName: String = "";
 	var filename: Null<String> = null;
 	var dependencies: Array<DependencyTracker> = [];
 	var dependencyPositions: Array<Position> = [];
+	var forwardDeclared: Array<DependencyTracker> = [];
+	var forwardDeclaredBlame: Array<String> = [];
 	var priority: Int;
 	var tracking: Bool = false;
 
@@ -75,6 +115,42 @@ class DependencyTracker {
 		}
 	}
 
+	public function addForwardDeclared(t: ModuleType, blame: String) {
+		final dt = make(t);
+		if(!forwardDeclared.contains(dt) && dt != this) {
+			forwardDeclared.push(dt);
+			forwardDeclaredBlame.push(blame);
+		}
+	}
+	
+	static var forwardDeclaredIndex: Null<Int> = null;
+	public function canUseInHeader(t: Type, checkValue: Bool = true): Bool {
+		return if(!checkValue || Types.getMemoryManagementTypeFromType(t) == Value) {
+			final mt = t.getInternalType().toModuleType();
+			if(mt != null) {
+				final index = forwardDeclared.indexOf(make(mt));
+				forwardDeclaredIndex = index == -1 ? null : index;
+				index == -1;
+			} else {
+				true;
+			}
+		} else {
+			true;
+		}
+	}
+
+	public function assertCanUseInHeader(t: Type, pos: Position, checkValue: Bool = true): Dynamic {
+		return if(!canUseInHeader(t, checkValue)) {
+			if(forwardDeclaredIndex != null) {
+				Sys.stderr().writeString(forwardDeclaredBlame[forwardDeclaredIndex] + "\n\n");
+			}
+			final typeName = #if macro haxe.macro.TypeTools.toString(t) #else Std.string(t) #end;
+			Context.error('Cannot use $typeName as value-type here as it cannot be #included without causing recursive #include chain. View dependecy chain above.', pos);
+		} else {
+			null;
+		}
+	}
+
 	public function addDep(t: ModuleType, pos: Position) {
 		final dt = make(t);
 		if(!dependencies.contains(dt) && dt != this) {
@@ -84,6 +160,8 @@ class DependencyTracker {
 	}
 
 	public function isThisDepOf(t: ModuleType): Bool {
+		dependencyStack = [];
+
 		if(!exists(t)) {
 			return false;
 		}
@@ -113,29 +191,28 @@ class DependencyTracker {
 		tracking = true;
 
 		var result = false;
+		var resultIndex = -1;
 
-		for(d in dependencies) {
+		for(i in 0...dependencies.length) {
+			final d = dependencies[i];
 			if(d.id == targetDep.id) {
 				result = true;
+				resultIndex = i;
 				break;
 			} else if(d.hasDep(targetDep)) {
 				result = true;
+				resultIndex = i;
 				break;
 			}
 		}
 
 		tracking = false;
 
+		if(result && resultIndex >= 0) {
+			dependencyStack.push({ id: id, pos: dependencyPositions[resultIndex] });
+		}
+
 		return result;
-	}
-
-	public static var errorStack: Array<{ id: String, pos: Position }> = [];
-
-	public static function getErrorStackDetails() {
-		return errorStack.map(function(data) {
-			final id = data.id;
-			final pos = data.pos;
-		}).join("\n");
 	}
 
 	public function getPriority(): Int {

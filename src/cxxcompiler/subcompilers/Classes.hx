@@ -437,11 +437,13 @@ class Classes extends SubCompiler {
 			"";
 		}
 
-		Main.onTypeEncountered(field.type, true, v.field.pos);
+		Main.onTypeEncountered(field.type, true, field.pos);
 
 		final type = TComp.compileType(field.type, field.pos, false, true);
 
 		if(!isExtern) {
+			if(dep != null) dep.assertCanUseInHeader(field.type, field.pos);
+
 			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
 			final assign = (cppVal.length == 0 ? "" : (" = " + cppVal));
 			var decl = (meta ?? "") + (isStatic ? "static " : "") + type + " " + varName;
@@ -530,9 +532,11 @@ class Classes extends SubCompiler {
 		// Type encounters
 		if(f.ret != null) {
 			Main.onTypeEncountered(f.ret, true, f.field.pos);
+			if(dep != null) dep.assertCanUseInHeader(f.ret, f.field.pos);
 		}
 		for(a in f.args) {
 			Main.onTypeEncountered(a.type, true, f.field.pos);
+			if(dep != null) dep.assertCanUseInHeader(a.type, f.field.pos);
 		}
 
 		ctx.meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField) ?? "";

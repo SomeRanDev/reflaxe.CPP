@@ -327,12 +327,15 @@ class Includes extends SubCompiler {
 				}
 			}
 
-			final mmType = cd.getMemoryManagementType();
-			if(mmType == UniquePtr) {
-				addInclude(Compiler.SharedPtrInclude[0], header, Compiler.SharedPtrInclude[1]);
-			} else if(mmType == SharedPtr) {
-				addInclude(Compiler.UniquePtrInclude[0], header, Compiler.UniquePtrInclude[1]);
-			}
+			includeMMType(cd.getMemoryManagementType(), header);
+		}
+	}
+
+	public function includeMMType(mmType: MemoryManagementType, header: Bool) {
+		if(mmType == UniquePtr) {
+			addInclude(Compiler.SharedPtrInclude[0], header, Compiler.SharedPtrInclude[1]);
+		} else if(mmType == SharedPtr) {
+			addInclude(Compiler.UniquePtrInclude[0], header, Compiler.UniquePtrInclude[1]);
 		}
 	}
 

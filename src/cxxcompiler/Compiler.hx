@@ -206,11 +206,20 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	**/
 	function checkForForwardDeclare(t: Type, blamePosition: Position) {
 		return if(isCurrentDependantOfType(t, blamePosition)) {
+			final mt = t.toModuleType();
+			if(mt == null) throw "Impossible";
 			final cls = switch(t) {
 				case TInst(cls, _): cls.get();
 				case _: throw "Impossible";
 			}
+
 			IComp.addForwardDeclare(cls);
+			IComp.addIncludeFromType(t, false);
+			IComp.includeMMType(mt.getCommonData().getMemoryManagementType(), true);
+
+			// Stack details setup from `isThisDefOfType` from `isCurrentDependantOfType`.
+			getCurrentDep()?.addForwardDeclared(mt, DependencyTracker.getDepStackDetails());
+
 			true;
 		} else {
 			false;

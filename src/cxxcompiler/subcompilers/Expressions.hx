@@ -1330,6 +1330,14 @@ class Expressions extends SubCompiler {
 			typeSource = type;
 		}
 
+		// We cannot compile value-type constructors in header if using forward declare
+		if(compilingInHeader && mmt == Value) {
+			final canUseInheader = Main.getCurrentDep()?.canUseInHeader(typeSource, false) ?? true;
+			if(!canUseInheader) {
+				Context.error("Cannot construct this value-type here since it will be generated for header file that cannot #include its class.", pos);
+			}
+		}
+
 		final typeOutput = TComp.compileType(typeSource, pos, true);
 		return switch(mmt) {
 			case Value: typeOutput;
