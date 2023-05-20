@@ -138,7 +138,7 @@ class Enums extends SubCompiler {
 					construct += "\tresult.data = " + structName + "{ " + args.map((tn) -> "_" + tn[1]).join(", ") + " };\n";
 				}
 
-				final tmmt = TComp.getMemoryManagementTypeFromType(enumType);
+				final tmmt = Types.getMemoryManagementTypeFromType(enumType);
 				final retCpp = XComp.applyMMConversion("result", o.field.pos, enumType, Value, tmmt);
 
 				construct += "\treturn " + retCpp + ";\n";

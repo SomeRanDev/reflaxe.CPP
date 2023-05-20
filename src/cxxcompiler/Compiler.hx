@@ -928,7 +928,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// ----------------------------
 	// This should be used instead of `AbstractType.type`.
 	// Properly unwraps @:multiType.
-	public function getAbstractInner(t: Type): Type {
+	public static function getAbstractInner(t: Type): Type {
 		return switch(t) {
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
@@ -945,7 +945,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// ----------------------------
 	// This should be used instead of `DefType.type`.
 	// Properly unwraps memory management types and returns the desired type.
-	public function getTypedefInner(t: Type): Type {
+	public static function getTypedefInner(t: Type): Type {
 		return switch(t) {
 			case TType(defRef, _): {
 				// In a rare case of conflicting memory management types:

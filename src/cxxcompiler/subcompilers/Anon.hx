@@ -93,7 +93,7 @@ class Anon extends SubCompiler {
 			cppArgs.push(_cpp);
 		}
 		if(internalType == null) throw "Expected type";
-		final tmmt = TComp.getMemoryManagementTypeFromType(internalType);
+		final tmmt = Types.getMemoryManagementTypeFromType(internalType);
 		return applyAnonMMConversion(name, cppArgs, tmmt);
 	}
 
@@ -111,7 +111,7 @@ class Anon extends SubCompiler {
 		final t = type.unwrapNullTypeOrSelf();
 		var as: Null<AnonStruct> = switch(t) {
 			case TType(defTypeRef, params): {
-				final inner = Main.getTypedefInner(t);
+				final inner = Compiler.getTypedefInner(t);
 				switch(inner) {
 					case TAnonymous(a): {
 						isNamed = true;

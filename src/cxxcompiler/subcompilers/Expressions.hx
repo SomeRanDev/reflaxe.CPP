@@ -480,7 +480,7 @@ class Expressions extends SubCompiler {
 	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool): Null<String> {
 		var result = switch(expr.unwrapMeta().expr) {
 			case TConst(TNull) if(targetType != null && !targetType.isNull() && !expr.hasMeta("-conflicting-default-value")): {
-				if(TComp.getMemoryManagementTypeFromType(targetType) == Value) {
+				if(Types.getMemoryManagementTypeFromType(targetType) == Value) {
 					expr.pos.makeError(ValueAssignedNull);
 				} else if(!Define.NoNullAssignWarnings.defined()) {
 					expr.pos.makeWarning(UsedNullOnNonNullable);
@@ -522,7 +522,7 @@ class Expressions extends SubCompiler {
 	// is different from the provided expression, compile the expression and with additional
 	// conversions in the generated code.
 	function compileMMConversion(expr: TypedExpr, target: Either<Type, MemoryManagementType>, allowNull: Bool = false): String {
-		final cmmt = TComp.getMemoryManagementTypeFromType(Main.getExprType(expr));
+		final cmmt = Types.getMemoryManagementTypeFromType(Main.getExprType(expr));
 
 		var tmmt;
 		var targetType: Null<Type>;
@@ -530,7 +530,7 @@ class Expressions extends SubCompiler {
 		var nullToValue;
 		switch(target) {
 			case Left(tt): {
-				tmmt = TComp.getMemoryManagementTypeFromType(tt);
+				tmmt = Types.getMemoryManagementTypeFromType(tt);
 				targetType = tt;
 				allowNull = tt.isNull();
 
@@ -978,7 +978,7 @@ class Expressions extends SubCompiler {
 
 	function isArrowAccessType(t: Type): Bool {
 		final ut = t.unwrapNullTypeOrSelf();
-		final mmt = TComp.getMemoryManagementTypeFromType(ut);
+		final mmt = Types.getMemoryManagementTypeFromType(ut);
 		return mmt != Value;
 	}
 
@@ -1285,7 +1285,7 @@ class Expressions extends SubCompiler {
 				// If the expression's type is different, this may be the result of an unsafe cast.
 				// If so, let's use the memory management type from the cast.
 				if(overrideMMT == null) {
-					final exprMMT = TComp.getMemoryManagementTypeFromType(Main.getExprType(expr));
+					final exprMMT = Types.getMemoryManagementTypeFromType(Main.getExprType(expr));
 					if(exprMMT != cd.getMemoryManagementType()) {
 						overrideMMT = exprMMT;
 					}
@@ -1551,7 +1551,7 @@ class Expressions extends SubCompiler {
 						final file = Context.getPosInfos(callExpr.pos).file;
 						final clsConstruct = {
 							final clsName = TComp.compileType(e1InternalType, callExpr.pos, true);
-							final tmmt = TComp.getMemoryManagementTypeFromType(e1InternalType);
+							final tmmt = Types.getMemoryManagementTypeFromType(e1InternalType);
 							AComp.applyAnonMMConversion(clsName, ["\"\"", stringToCpp(file), Std.string(line), "\"\""], tmmt);
 						};
 						piCpp + ".value_or(" + clsConstruct + ")";
