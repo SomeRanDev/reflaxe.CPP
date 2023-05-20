@@ -243,6 +243,16 @@ class Expressions extends SubCompiler {
 			case TVar(tvar, maybeExpr) if(!Define.KeepUnusedLocals.defined() && tvar.meta.maybeHas("-reflaxe.unused")): {
 				if(maybeExpr != null && maybeExpr.isMutator()) {
 					result = Main.compileExpression(maybeExpr);
+
+					// C++ will complain about an object being created but not assigned,
+					// so wrap with void cast to avoid.
+					final isConstruct = switch(maybeExpr.expr) {
+						case TNew(_, _, ): true;
+						case _: false;
+					}
+					if(isConstruct) {
+						result = 'static_cast<void>($result)';
+					}
 				} else {
 					result = null;
 				}
