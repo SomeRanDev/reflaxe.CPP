@@ -213,14 +213,18 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				case _: throw "Impossible";
 			}
 
-			IComp.addForwardDeclare(cls);
-			IComp.addIncludeFromType(t, false);
-			IComp.includeMMType(mt.getCommonData().getMemoryManagementType(), true);
+			if(!cls.isExtern) { // Ignore extern classes (might be repetitive here)
+				IComp.addForwardDeclare(cls);
+				IComp.addIncludeFromType(t, false);
+				IComp.includeMMType(mt.getCommonData().getMemoryManagementType(), true);
 
-			// Stack details setup from `isThisDefOfType` from `isCurrentDependantOfType`.
-			getCurrentDep()?.addForwardDeclared(mt, DependencyTracker.getDepStackDetails());
+				// Stack details setup from `isThisDefOfType` from `isCurrentDependantOfType`.
+				getCurrentDep()?.addForwardDeclared(mt, DependencyTracker.getDepStackDetails());
 
-			true;
+				true;
+			} else {
+				false;
+			}
 		} else {
 			false;
 		}
@@ -228,7 +232,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 	function isCurrentDependantOfType(t: Type, depReasonPos: Position) {
 		final isClass = switch(t) {
-			case TInst(_, _): true;
+			case TInst(_.get() => cls, _): !cls.isExtern; // Ignore extern classes
 			case _: false;
 		}
 		if(isClass) {
