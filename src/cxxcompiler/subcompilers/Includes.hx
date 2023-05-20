@@ -379,7 +379,12 @@ class Includes extends SubCompiler {
 	}
 
 	function compileHeaderIncludes(): String {
-		return compileIncludes(headerIncludes);
+		var result = compileIncludes(headerIncludes);
+		if(forwardDeclares.length > 0) {
+			if(forwardDeclares.length > 0) result += "\n\n";
+			result += forwardDeclares.map(fd -> fd + ";").join("\n");
+		}
+		return result;
 	}
 
 	function compileCppIncludes(): String {
@@ -387,10 +392,6 @@ class Includes extends SubCompiler {
 		if(cppUsings.length > 0) {
 			if(result.length > 0) result += "\n\n";
 			result += cppUsings.sortedAlphabetically().map(u -> "using namespace " + u + ";").join("\n");
-		}
-		if(forwardDeclares.length > 0) {
-			if(forwardDeclares.length > 0) result += "\n\n";
-			result += forwardDeclares.join("\n");
 		}
 		return result;
 	}
