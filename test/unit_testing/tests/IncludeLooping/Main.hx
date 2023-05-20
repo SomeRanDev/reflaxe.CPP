@@ -10,5 +10,5 @@ function main() {
 	trace("Hello world!");
 
 	final m = new Main();
-	final o = new Other(m);
+	final o = new Other2(m);
 }
