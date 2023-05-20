@@ -12,7 +12,7 @@ haxe::exceptions::PosException::PosException(std::string message, std::optional<
 	if(!pos.has_value()) {
 		this->posInfos = haxe::shared_anon<haxe::PosInfos>("(unknown)"s, "(unknown)"s, 0, "(unknown)"s);
 	} else {
-		this->posInfos = pos.value();
+		this->posInfos = pos.value_or(nullptr);
 	};
 }
 

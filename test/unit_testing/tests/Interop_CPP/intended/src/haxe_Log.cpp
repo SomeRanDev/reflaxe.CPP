@@ -21,14 +21,14 @@ std::string haxe::Log::formatOutput(std::string v, std::optional<std::shared_ptr
 		return v;
 	};
 	
-	std::string pstr = infos.value()->fileName + ":"s + std::to_string(infos.value()->lineNumber);
+	std::string pstr = infos.value_or(nullptr)->fileName + ":"s + std::to_string(infos.value_or(nullptr)->lineNumber);
 	std::string extra = ""s;
 	
-	if(infos.value()->customParams.has_value()) {
+	if(infos.value_or(nullptr)->customParams.has_value()) {
 		int _g = 0;
-		std::optional<std::shared_ptr<std::deque<haxe::DynamicToString>>> _g1 = infos.value()->customParams;
+		std::optional<std::shared_ptr<std::deque<haxe::DynamicToString>>> _g1 = infos.value_or(nullptr)->customParams;
 		
-		while(_g < (int)(_g1.value()->size())) {
+		while(_g < (int)(_g1.value_or(nullptr)->size())) {
 			haxe::DynamicToString v2 = (*_g1.value())[_g];
 			
 			++_g;

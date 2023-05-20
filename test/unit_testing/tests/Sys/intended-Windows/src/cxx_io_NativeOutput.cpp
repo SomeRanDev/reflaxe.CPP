@@ -8,7 +8,7 @@ cxx::io::NativeOutput::NativeOutput(std::ostream* stream):
 
 void cxx::io::NativeOutput::writeByte(int c) {
 	if(this->stream.has_value()) {
-		this->stream.value()->put((char)(c));
+		this->stream.value_or(nullptr)->put((char)(c));
 	};
 }
 
@@ -18,7 +18,7 @@ void cxx::io::NativeOutput::close() {
 
 void cxx::io::NativeOutput::flush() {
 	if(this->stream.has_value()) {
-		this->stream.value()->flush();
+		this->stream.value_or(nullptr)->flush();
 	};
 }
 

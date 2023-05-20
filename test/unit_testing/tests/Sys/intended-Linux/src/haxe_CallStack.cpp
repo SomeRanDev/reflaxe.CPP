@@ -50,7 +50,7 @@ void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> 
 			std::optional<int> col = _g3;
 			
 			if(s2.has_value()) {
-				haxe::_CallStack::CallStack_Impl_::itemToString(b, s2.value());
+				haxe::_CallStack::CallStack_Impl_::itemToString(b, s2.value_or(nullptr));
 				b->b += Std::string(" ("s);
 			};
 			

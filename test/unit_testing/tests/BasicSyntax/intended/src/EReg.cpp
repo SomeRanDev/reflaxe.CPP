@@ -48,7 +48,7 @@ bool EReg::match(std::string s) {
 		while(_g < _g1) {
 			int i = _g++;
 			
-			this->matches.value()->push_back(this->smatch.str((std::size_t)(i)));
+			this->matches.value_or(nullptr)->push_back(this->smatch.str((std::size_t)(i)));
 		};
 	};
 	
@@ -59,7 +59,7 @@ std::string EReg::matched(int n) {
 	if(!this->matches.has_value()) {
 		return ""s;
 	};
-	if((n < 0) || (n >= (int)(this->matches.value()->size()))) {
+	if((n < 0) || (n >= (int)(this->matches.value_or(nullptr)->size()))) {
 		return ""s;
 	};
 	
@@ -206,7 +206,7 @@ std::string EReg::replace(std::string s, std::string by) {
 				
 				int matchIndex = tempLeft - 48;
 				
-				if((this->matches.has_value()) && (matchIndex < (int)(this->matches.value()->size()))) {
+				if((this->matches.has_value()) && (matchIndex < (int)(this->matches.value_or(nullptr)->size()))) {
 					tempMaybeString = (*this->matches.value())[matchIndex];
 				} else {
 					tempMaybeString = std::nullopt;

@@ -36,7 +36,7 @@ std::shared_ptr<std::deque<std::shared_ptr<haxe::StackItem>>> haxe::Exception::g
 
 std::optional<haxe::Exception> haxe::Exception::get_previous() {
 	auto v = this->_previous;
-	return v.has_value() ? (std::optional<haxe::Exception>)(*v.value()) : std::nullopt;
+	return v.has_value() ? (std::optional<haxe::Exception>)(*v.value_or(nullptr)) : std::nullopt;
 }
 
 std::any haxe::Exception::get_native() {
