@@ -7,6 +7,7 @@
 
 package cxxcompiler.subcompilers;
 
+import cxxcompiler.other.DependencyTracker;
 #if (macro || cxx_runtime)
 
 import haxe.ds.Either;
@@ -1334,7 +1335,7 @@ class Expressions extends SubCompiler {
 		if(compilingInHeader && mmt == Value) {
 			final canUseInheader = Main.getCurrentDep()?.canUseInHeader(typeSource, false) ?? true;
 			if(!canUseInheader) {
-				Context.error("Cannot construct this value-type here since it will be generated for header file that cannot #include its class.", pos);
+				Main.getCurrentDep()?.cannotConstructValueTypeError(typeSource, pos);
 			}
 		}
 
