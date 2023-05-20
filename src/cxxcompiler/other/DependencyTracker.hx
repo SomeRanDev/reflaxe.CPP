@@ -90,6 +90,26 @@ class DependencyTracker {
 
 	// ----
 
+	function valueTypeError(msg: String, t: Type, pos: Position) {
+		if(forwardDeclaredIndex != null) {
+			Sys.stderr().writeString(forwardDeclaredBlame[forwardDeclaredIndex] + "\n\n");
+		}
+		final typeName = #if macro haxe.macro.TypeTools.toString(t) #else Std.string(t) #end;
+		return Context.error(~/\$typeName\$/g.replace(msg, typeName), pos);
+	}
+
+	public function cannotUseValueTypeError(t: Type, pos: Position) {
+		final msg = "Cannot use the value-type $typeName$ here as it cannot be #included without causing recursive #include chain. View dependecy chain above.";
+		return valueTypeError(msg, t, pos);
+	}
+
+	public function cannotConstructValueTypeError(t: Type, pos: Position) {
+		final msg = "Cannot construct value-type $typeName$ here since it will be generated for header file that cannot #include its class. View dependecy chain above.";
+		return valueTypeError(msg, t, pos);
+	}
+
+	// ----
+
 	var id: String;
 	var haxeClassName: String = "";
 	var filename: Null<String> = null;
@@ -141,11 +161,7 @@ class DependencyTracker {
 
 	public function assertCanUseInHeader(t: Type, pos: Position, checkValue: Bool = true): Dynamic {
 		return if(!canUseInHeader(t, checkValue)) {
-			if(forwardDeclaredIndex != null) {
-				Sys.stderr().writeString(forwardDeclaredBlame[forwardDeclaredIndex] + "\n\n");
-			}
-			final typeName = #if macro haxe.macro.TypeTools.toString(t) #else Std.string(t) #end;
-			Context.error('Cannot use $typeName as value-type here as it cannot be #included without causing recursive #include chain. View dependecy chain above.', pos);
+			cannotUseValueTypeError(t, pos);
 		} else {
 			null;
 		}
