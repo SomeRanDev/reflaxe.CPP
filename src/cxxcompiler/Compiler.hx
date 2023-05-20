@@ -208,30 +208,32 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		return if(isCurrentDependantOfType(t, blamePosition)) {
 			final mt = t.toModuleType();
 			if(mt == null) throw "Impossible";
-			final cls = switch(t) {
-				case TInst(cls, _): cls.get();
-				case _: throw "Impossible";
+			final cppCls = mt.getCommonData();
+
+			if(!cppCls.isExtern) { // Ignore extern classes (might be repetitive here)
+				IComp.addForwardDeclare(mt);
+				IComp.addIncludeFromType(t, false);
+				IComp.includeMMType(cppCls.getMemoryManagementType(), true);
+
+				// Stack details setup from `isThisDefOfType` from `isCurrentDependantOfType`.
+				getCurrentDep()?.addForwardDeclared(mt, DependencyTracker.getDepStackDetails());
+
+				true;
+			} else {
+				false;
 			}
-
-			IComp.addForwardDeclare(cls);
-			IComp.addIncludeFromType(t, false);
-			IComp.includeMMType(mt.getCommonData().getMemoryManagementType(), true);
-
-			// Stack details setup from `isThisDefOfType` from `isCurrentDependantOfType`.
-			getCurrentDep()?.addForwardDeclared(mt, DependencyTracker.getDepStackDetails());
-
-			true;
 		} else {
 			false;
 		}
 	}
 
 	function isCurrentDependantOfType(t: Type, depReasonPos: Position) {
-		final isClass = switch(t) {
-			case TInst(_, _): true;
+		final isCppClass = switch(t) {
+			case TInst(_.get() => cls, _): !cls.isExtern; // Ignore extern classes
+			case TEnum(_.get() => enm, _): !enm.isExtern;
 			case _: false;
 		}
-		if(isClass) {
+		if(isCppClass) {
 			final dep = getCurrentDep();
 			if(dep != null) {
 				if(dep.isThisDepOfType(t)) {

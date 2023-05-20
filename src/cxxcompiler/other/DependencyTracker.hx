@@ -168,6 +168,11 @@ class DependencyTracker {
 	}
 
 	public function addDep(t: ModuleType, pos: Position) {
+		// TODO: Would we ever want to track extern class dependencies ?
+		if(t.getCommonData().isExtern) {
+			return;
+		}
+
 		final dt = make(t);
 		if(!dependencies.contains(dt) && dt != this) {
 			dependencyPositions.push(pos);
