@@ -344,4 +344,11 @@ enum abstract Meta(String) from String to String {
 	// If used on a property, allows for the property to have different
 	// accessors when generating the Dynamic wrapper.
 	var DynamicAccessors = ":dynamicAccessors";
+
+	// @:dontGenerateDefaultConstructor
+	//
+	// Normally, a default constructor (constructor with no arguments) is
+	// generated for a C++ class if possible. This metadata will disable
+	// this behavior for the class it's used on.
+	var DontGenerateDefaultConstructor = ":dontGenerateDefaultConstructor";
 }
