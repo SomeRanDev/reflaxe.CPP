@@ -430,6 +430,19 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		return nullType.trustMe();
 	}
 
+	/**
+		Wrap a type with the corresponding memory management
+		overriding type.
+	**/
+	public function wrapWithMMType(type: Type, mmt: MemoryManagementType): Type {
+		return switch(mmt) {
+			case Value: TAbstract(getValueType(), [type]);
+			case UnsafePtr: TAbstract(getPtrType(), [type]);
+			case SharedPtr: TAbstract(getSharedPtrType(), [type]);
+			case UniquePtr: TAbstract(getUniquePtrType(), [type]);
+		}
+	}
+
 	var valType: Null<Ref<AbstractType>> = null;
 	public function getValueType(): Ref<AbstractType> {
 		if(valType == null) {
@@ -460,6 +473,36 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		return ptrType.trustMe();
 	}
 
+	var sharedPtrType: Null<Ref<AbstractType>> = null;
+	public function getSharedPtrType(): Ref<AbstractType> {
+		if(sharedPtrType == null) {
+			switch(Context.getModule("cxx.SharedPtr")[0]) {
+				case TAbstract(abRef, _): {
+					sharedPtrType = abRef;
+				}
+				case _: {
+					throw "`cxx.SharedPtr` does not refer to an abstract type.";
+				}
+			}
+		}
+		return sharedPtrType.trustMe();
+	}
+
+	var uniquePtrType: Null<Ref<AbstractType>> = null;
+	public function getUniquePtrType(): Ref<AbstractType> {
+		if(uniquePtrType == null) {
+			switch(Context.getModule("cxx.UniquePtr")[0]) {
+				case TAbstract(abRef, _): {
+					uniquePtrType = abRef;
+				}
+				case _: {
+					throw "`cxx.UniquePtr` does not refer to an abstract type.";
+				}
+			}
+		}
+		return uniquePtrType.trustMe();
+	}
+
 	var refType: Null<Ref<DefType>> = null;
 	public function getRefType(): Ref<DefType> {
 		if(refType == null) {
@@ -473,6 +516,38 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 			}
 		}
 		return refType.trustMe();
+	}
+
+	/**
+		If the variable has not explicitly given a memory management
+		type to its type, use the memory management type from the
+		assigned expression.
+	**/
+	public function determineTVarType(tvar: TVar, maybeExpr: Null<TypedExpr>) {
+		if(maybeExpr != null) {
+			final exprType = getExprType(maybeExpr);
+			final tmmt = Types.getMemoryManagementTypeFromType(exprType);
+			final tvarType = getTVarType(tvar).unwrapNullTypeOrSelf();
+
+			// Check if variable doesn't have explicit memory management type.
+			final mt = tvarType.toModuleType();
+			if(mt != null && !mt.getCommonData().isOverrideMemoryManagement()) {
+				final cmmt = Types.getMemoryManagementTypeFromType(tvarType);
+				if(cmmt != tmmt && exprType.valueTypesEqual(tvarType)) {
+					final newType = switch(tmmt) {
+						case Value if(!tvarType.isRef()):
+							TType(getRefType(), [wrapWithMMType(tvarType, Value)]);
+						case UnsafePtr | SharedPtr | UniquePtr:
+							wrapWithMMType(tvarType, tmmt);
+						case _:
+							null;
+					}
+					if(newType != null) {
+						setTVarType(tvar, newType);
+					}
+				}
+			}
+		}
 	}
 
 	// ----------------------------

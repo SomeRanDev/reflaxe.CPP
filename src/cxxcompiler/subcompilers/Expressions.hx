@@ -292,6 +292,7 @@ class Expressions extends SubCompiler {
 				}
 			}
 			case TVar(tvar, maybeExpr): {
+				Main.determineTVarType(tvar, maybeExpr);
 				final t = Main.getTVarType(tvar);
 				Main.onTypeEncountered(t, compilingInHeader, expr.pos);
 				final typeCpp = if(t.isUnresolvedMonomorph()) {
