@@ -141,9 +141,7 @@ std::string StringTools::htmlUnescape(std::string s) {
 									tempArray3 = HxString::split(_this, "&lt;"s);
 								};
 								
-								std::shared_ptr<std::deque<std::string>> _this = tempArray3;
-								
-								tempString2 = HxArray::join<std::string>(_this, "<"s);
+								tempString2 = HxArray::join<std::string>(tempArray3, "<"s);
 							};
 							
 							std::string _this = tempString2;
@@ -151,9 +149,7 @@ std::string StringTools::htmlUnescape(std::string s) {
 							tempArray2 = HxString::split(_this, "&quot;"s);
 						};
 						
-						std::shared_ptr<std::deque<std::string>> _this = tempArray2;
-						
-						tempString1 = HxArray::join<std::string>(_this, "\""s);
+						tempString1 = HxArray::join<std::string>(tempArray2, "\""s);
 					};
 					
 					std::string _this = tempString1;
@@ -161,9 +157,7 @@ std::string StringTools::htmlUnescape(std::string s) {
 					tempArray1 = HxString::split(_this, "&#039;"s);
 				};
 				
-				std::shared_ptr<std::deque<std::string>> _this = tempArray1;
-				
-				tempString = HxArray::join<std::string>(_this, "'"s);
+				tempString = HxArray::join<std::string>(tempArray1, "'"s);
 			};
 			
 			std::string _this = tempString;
@@ -171,9 +165,7 @@ std::string StringTools::htmlUnescape(std::string s) {
 			tempArray = HxString::split(_this, "&amp;"s);
 		};
 		
-		std::shared_ptr<std::deque<std::string>> _this = tempArray;
-		
-		tempResult = HxArray::join<std::string>(_this, "&"s);
+		tempResult = HxArray::join<std::string>(tempArray, "&"s);
 	};
 	
 	return tempResult;

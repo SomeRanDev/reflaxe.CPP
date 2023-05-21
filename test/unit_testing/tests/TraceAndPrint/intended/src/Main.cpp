@@ -20,17 +20,15 @@ void _Main::Main_Fields_::main() {
 	_g->set(1, 1);
 	_g->set(2, 2);
 	
-	std::shared_ptr<haxe::ds::IntMap<int>> tempMap = _g;
-	std::shared_ptr<haxe::ds::IntMap<int>> m = tempMap;
 	EReg regex = EReg("[a-zA-Z]+"s, ""s);
 	
 	haxe::Log::trace(arr, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/TraceAndPrint/Main.hx"s, 8, "main"s));
 	
-	std::string tempString = m->toString();
+	std::string tempString = _g->toString();
 	
 	haxe::Log::trace(tempString, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/TraceAndPrint/Main.hx"s, 9, "main"s));
 	haxe::Log::trace(regex, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/TraceAndPrint/Main.hx"s, 10, "main"s));
 	std::cout << Std::string(arr) << std::endl;
-	std::cout << Std::string(m) << std::endl;
+	std::cout << Std::string(_g) << std::endl;
 	std::cout << Std::string(regex) << std::endl;
 }

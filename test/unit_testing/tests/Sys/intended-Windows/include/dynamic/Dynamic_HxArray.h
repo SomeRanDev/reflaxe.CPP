@@ -13,10 +13,6 @@ public:
 			return Dynamic::unwrap<std::deque<T>>(d, [](std::deque<T>* o) {
 				return makeDynamic(o->size());
 			});
-		} else if(name == "push") {
-			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
-				return makeDynamic(o->push_back(args[0].asType<T>()));
-			});
 		} else if(name == "unshift") {
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
 				o->push_front(args[0].asType<T>());
@@ -35,6 +31,15 @@ public:
 		} else if(name == "lastIndexOf") {
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->lastIndexOf(args[0].asType<T>(), args[1].asType<std::optional<int>>()));
+			});
+		} else if(name == "push") {
+			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
+				auto result = [o, args] {
+					o->push_back(x);
+					
+					return o->size();
+				};
+				return makeDynamic(result());
 			});
 		} else if(name == "pop") {
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
@@ -120,7 +125,10 @@ public:
 							T obj = (*_g1)[_g];
 							
 							++_g;
-							result->push_back(obj);
+							
+							{
+								result->push_back(obj);
+							};
 						};
 					};
 					
@@ -228,10 +236,6 @@ public:
 			return Dynamic::unwrap<std::deque<T>>(d, [](std::deque<T>* o) {
 				return makeDynamic(o->size());
 			});
-		} else if(name == "push") {
-			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
-				return makeDynamic(o->push_back(args[0].asType<T>()));
-			});
 		} else if(name == "unshift") {
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
 				o->push_front(args[0].asType<T>());
@@ -250,6 +254,15 @@ public:
 		} else if(name == "lastIndexOf") {
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->lastIndexOf(args[0].asType<T>(), args[1].asType<std::optional<int>>()));
+			});
+		} else if(name == "push") {
+			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
+				auto result = [o, args] {
+					o->push_back(x);
+					
+					return o->size();
+				};
+				return makeDynamic(result());
 			});
 		} else if(name == "pop") {
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
@@ -335,7 +348,10 @@ public:
 							T obj = (*_g1)[_g];
 							
 							++_g;
-							result->push_back(obj);
+							
+							{
+								result->push_back(obj);
+							};
 						};
 					};
 					

@@ -17,10 +17,8 @@ void _Main::Main_Fields_::main() {
 	
 	_g->set("fds"s, "fds"s);
 	
-	std::shared_ptr<haxe::ds::StringMap<std::string>> tempMap = _g;
-	std::shared_ptr<haxe::ds::StringMap<std::string>> b = tempMap;
 	std::shared_ptr<haxe::ds::StringMap<std::string>> b2 = _Main::Main_Fields_::bla();
-	std::string tempString = b->toString();
+	std::string tempString = _g->toString();
 	std::string tempString1 = b2->toString();
 	
 	haxe::Log::trace(tempString, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Runtime/Main.hx"s, 9, "main"s, std::make_shared<std::deque<haxe::DynamicToString>>(std::deque<haxe::DynamicToString>{
@@ -33,7 +31,5 @@ std::shared_ptr<haxe::ds::StringMap<std::string>> _Main::Main_Fields_::bla() {
 	
 	_g->set("1"s, "2"s);
 	
-	std::shared_ptr<haxe::ds::StringMap<std::string>> tempResult = _g;
-	
-	return tempResult;
+	return _g;
 }

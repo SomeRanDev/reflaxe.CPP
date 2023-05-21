@@ -29,18 +29,19 @@ public:
 					T obj = (*_g1)[_g];
 					
 					++_g;
-					result->push_back(obj);
+					
+					{
+						result->push_back(obj);
+					};
 				};
 			};
 			
 			tempArray = result;
 		};
 		
-		std::shared_ptr<std::deque<T>> result = tempArray;
+		tempArray->push_back(item);
 		
-		result->push_back(item);
-		
-		std::shared_ptr<haxe::_Rest::NativeRest<T>> this2 = result;
+		std::shared_ptr<haxe::_Rest::NativeRest<T>> this2 = tempArray;
 		std::shared_ptr<haxe::_Rest::NativeRest<T>> tempResult = this2;
 		
 		return tempResult;
@@ -61,18 +62,19 @@ public:
 					T obj = (*_g1)[_g];
 					
 					++_g;
-					result->push_back(obj);
+					
+					{
+						result->push_back(obj);
+					};
 				};
 			};
 			
 			tempArray = result;
 		};
 		
-		std::shared_ptr<std::deque<T>> result = tempArray;
+		tempArray->push_front(item);
 		
-		result->push_front(item);
-		
-		std::shared_ptr<haxe::_Rest::NativeRest<T>> this2 = result;
+		std::shared_ptr<haxe::_Rest::NativeRest<T>> this2 = tempArray;
 		std::shared_ptr<haxe::_Rest::NativeRest<T>> tempResult = this2;
 		
 		return tempResult;

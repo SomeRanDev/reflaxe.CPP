@@ -47,8 +47,10 @@ bool EReg::match(std::string s) {
 		
 		while(_g < _g1) {
 			int i = _g++;
+			std::optional<std::shared_ptr<std::deque<std::string>>> _this = this->matches;
+			std::string x = this->smatch.str((std::size_t)(i));
 			
-			this->matches.value_or(nullptr)->push_back(this->smatch.str((std::size_t)(i)));
+			_this.value_or(nullptr)->push_back(x);
 		};
 	};
 	
@@ -109,19 +111,24 @@ std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
 	while(true) {
 		if(this->matchSub(s, index, -1)) {
 			std::shared_ptr<haxe::AnonStruct0> pos = this->matchedPos();
-			std::string tempString;
 			
 			{
-				int endIndex = pos->pos;
+				std::string tempString;
 				
-				if(endIndex < 0) {
-					tempString = s.substr(index);
-				} else {
-					tempString = s.substr(index, endIndex - index);
+				{
+					int endIndex = pos->pos;
+					
+					if(endIndex < 0) {
+						tempString = s.substr(index);
+					} else {
+						tempString = s.substr(index, endIndex - index);
+					};
 				};
+				
+				std::string x = tempString;
+				
+				result->push_back(x);
 			};
-			
-			result->push_back(tempString);
 			
 			if(pos->pos + pos->len <= index) {
 				break;
@@ -133,19 +140,23 @@ std::shared_ptr<std::deque<std::string>> EReg::split(std::string s) {
 				break;
 			};
 		} else {
-			std::string tempString1;
-			
 			{
-				int endIndex = -1;
+				std::string tempString1;
 				
-				if(endIndex < 0) {
-					tempString1 = s.substr(index);
-				} else {
-					tempString1 = s.substr(index, endIndex - index);
+				{
+					int endIndex = -1;
+					
+					if(endIndex < 0) {
+						tempString1 = s.substr(index);
+					} else {
+						tempString1 = s.substr(index, endIndex - index);
+					};
 				};
+				
+				std::string x = tempString1;
+				
+				result->push_back(x);
 			};
-			
-			result->push_back(tempString1);
 			
 			break;
 		};

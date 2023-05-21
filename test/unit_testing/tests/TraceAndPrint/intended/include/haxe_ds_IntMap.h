@@ -56,7 +56,9 @@ public:
 		typename std::map<int, T>::iterator end = this->m.end();
 		
 		for(; it != end; (it++)) {
-			keys->push_back(it->first);
+			int x = it->first;
+			
+			keys->push_back(x);
 		};
 		
 		return std::make_shared<Iterator<int>>(std::make_shared<haxe::iterators::ArrayIterator<int>>(keys));
@@ -68,7 +70,9 @@ public:
 		typename std::map<int, T>::iterator end = this->m.end();
 		
 		for(; it != end; (it++)) {
-			values->push_back(it->second);
+			T x = it->second;
+			
+			values->push_back(x);
 		};
 		
 		return std::make_shared<Iterator<T>>(std::make_shared<haxe::iterators::ArrayIterator<T>>(values));

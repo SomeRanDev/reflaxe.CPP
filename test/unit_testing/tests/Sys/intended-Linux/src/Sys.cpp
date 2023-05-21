@@ -63,8 +63,10 @@ void Sys_Args::setupArgs(int argCount, const char** args) {
 	
 	while(_g < _g1) {
 		int i = _g++;
+		std::deque<std::string>& _this = Sys_Args::_args;
+		std::string x = std::string(args[i]);
 		
-		Sys_Args::_args.push_back(std::string(args[i]));
+		_this.push_back(x);
 	};
 }
 

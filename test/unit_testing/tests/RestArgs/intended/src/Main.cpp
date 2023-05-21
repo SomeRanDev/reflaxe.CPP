@@ -38,7 +38,10 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 				int obj = (*_g1)[_g];
 				
 				++_g;
-				result->push_back(obj);
+				
+				{
+					result->push_back(obj);
+				};
 			};
 		};
 		
@@ -61,17 +64,18 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 				int obj = (*_g1)[_g];
 				
 				++_g;
-				result->push_back(obj);
+				
+				{
+					result->push_back(obj);
+				};
 			};
 		};
 		
 		tempArray = result;
 	};
 	
-	std::shared_ptr<std::deque<int>> arr = tempArray;
-	
-	arr->push_back(123);
-	Main::assert(HxArray::toString<int>(arr) == "[1, 2, 3, 123]"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 24, "oneTwoThree"s));
+	tempArray->push_back(123);
+	Main::assert(HxArray::toString<int>(tempArray) == "[1, 2, 3, 123]"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 24, "oneTwoThree"s));
 	
 	int i = 1;
 	int _g_current = 0;
@@ -104,7 +108,10 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 				int obj = (*_g1)[_g];
 				
 				++_g;
-				result->push_back(obj);
+				
+				{
+					result->push_back(obj);
+				};
 			};
 		};
 		
@@ -127,7 +134,10 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 				int obj = (*_g1)[_g];
 				
 				++_g;
-				result->push_back(obj);
+				
+				{
+					result->push_back(obj);
+				};
 			};
 		};
 		

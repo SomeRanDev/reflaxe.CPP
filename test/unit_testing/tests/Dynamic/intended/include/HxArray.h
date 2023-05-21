@@ -18,21 +18,20 @@ public:
 			
 			{
 				int _g = 0;
-				std::shared_ptr<std::deque<T>> _g1 = a;
 				
-				while(_g < (int)(_g1->size())) {
-					T obj = (*_g1)[_g];
+				while(_g < (int)(a->size())) {
+					T obj = (*a)[_g];
 					
 					++_g;
-					result->push_back(obj);
+					
+					{
+						result->push_back(obj);
+					};
 				};
 			};
 			
 			tempArray = result;
 		};
-		
-		std::shared_ptr<std::deque<T>> result = tempArray;
-		
 		{
 			int _g = 0;
 			
@@ -40,11 +39,14 @@ public:
 				T o = (*other)[_g];
 				
 				++_g;
-				result->push_back(o);
+				
+				{
+					tempArray->push_back(o);
+				};
 			};
 		};
 		
-		return result;
+		return tempArray;
 	}
 	
 	template<typename T>
@@ -171,12 +173,13 @@ public:
 			T v = (*a)[_g1];
 			
 			++_g1;
-			_g->push_back(f(v));
+			
+			S x = f(v);
+			
+			_g->push_back(x);
 		};
 		
-		std::shared_ptr<std::deque<S>> tempResult = _g;
-		
-		return tempResult;
+		return _g;
 	}
 	
 	template<typename T>
@@ -194,9 +197,7 @@ public:
 			};
 		};
 		
-		std::shared_ptr<std::deque<T>> tempResult = _g;
-		
-		return tempResult;
+		return _g;
 	}
 	
 	template<typename T>
@@ -235,7 +236,7 @@ namespace haxe {
 		using Dyn = haxe::Dynamic_std_deque<std::deque<T>>;
 		constexpr static _class_data<25, 0> data {
 			"Array",
-			{ "length", "push", "unshift", "cppInsert", "resize", "lastIndexOf", "pop", "reverse", "shift", "sort", "remove", "contains", "copy", "iterator", "keyValueIterator", "concat", "join", "slice", "splice", "toString", "insert", "indexOf", "map", "filter", "length_type" },
+			{ "length", "unshift", "cppInsert", "resize", "lastIndexOf", "push", "pop", "reverse", "shift", "sort", "remove", "contains", "copy", "iterator", "keyValueIterator", "concat", "join", "slice", "splice", "toString", "insert", "indexOf", "map", "filter", "length_type" },
 			{},
 			true
 			};

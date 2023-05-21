@@ -35,8 +35,9 @@ public:
 			
 			while(_g < _g1) {
 				_g++;
+				std::string x = s.substr(pos++, 1);
 				
-				result->push_back(s.substr(pos++, 1));
+				result->push_back(x);
 			};
 			
 			return result;
@@ -49,16 +50,23 @@ public:
 			int newPos = (int)(s.find(delimiter, (std::size_t)(pos)));
 			
 			if(newPos == -1) {
-				std::string tempString;
-				int endIndex = -1;
-				
-				if(endIndex < 0) {
-					tempString = s.substr(pos);
-				} else {
-					tempString = s.substr(pos, endIndex - pos);
+				{
+					std::string tempString;
+					
+					{
+						int endIndex = -1;
+						
+						if(endIndex < 0) {
+							tempString = s.substr(pos);
+						} else {
+							tempString = s.substr(pos, endIndex - pos);
+						};
+					};
+					
+					std::string x = tempString;
+					
+					result->push_back(x);
 				};
-				
-				result->push_back(tempString);
 				
 				break;
 			} else {
@@ -70,7 +78,9 @@ public:
 					tempString1 = s.substr(pos, newPos - pos);
 				};
 				
-				result->push_back(tempString1);
+				std::string x = tempString1;
+				
+				result->push_back(x);
 			};
 			
 			pos = (int)(newPos + delimiter.size());
