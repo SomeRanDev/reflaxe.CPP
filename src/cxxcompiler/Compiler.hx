@@ -535,6 +535,10 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				final cmmt = Types.getMemoryManagementTypeFromType(tvarType);
 				if(cmmt != tmmt && exprType.valueTypesEqual(tvarType)) {
 					final newType = switch(tmmt) {
+						// Convert Value types references.
+						// This is so if Haxe generates secret variables, they still
+						// modify the original object. For example, a static variable
+						// using a value type should be modified, NOT a copy modified.
 						case Value if(!tvarType.isRef()):
 							TType(getRefType(), [wrapWithMMType(tvarType, Value)]);
 						case UnsafePtr | SharedPtr | UniquePtr:
