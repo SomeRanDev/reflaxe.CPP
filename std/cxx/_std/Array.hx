@@ -134,6 +134,7 @@ extern class Array<T> {
 	@:nativeName("size()")
 	@:redirectType("length_type")
 	@:dynamicAccessors("default", "never")
+	@:noDiscard(true)
 	var length(default, null): Int;
 
 	@:nativeName("push_front")
