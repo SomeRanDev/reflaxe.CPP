@@ -106,6 +106,28 @@ class Expressions extends SubCompiler {
 	}
 
 	// ----------------------------
+	// Small helper for wrapping C++ code to ensure it doesn't generate
+	// an "unused" warning/error.
+	function unusedCpp(cpp: Null<String>): Null<String> {
+		return cpp != null ? 'static_cast<void>($cpp)' : null;
+	}
+
+	// ----------------------------
+	// If the return of a field access or call is [[nodiscard]],
+	// wrap or remove to avoid errors.
+	function handleUnused(expr: TypedExpr, cpp: Null<String>, unwrapCall: Bool): Null<String> {
+		final clsField = expr.getClassField(unwrapCall);
+		if(clsField?.hasMeta(Meta.NoDiscard) ?? false) {
+			if(clsField.meta.extractPrimtiveFromFirstMeta(Meta.NoDiscard) == true) {
+				return null;
+			} else {
+				return unusedCpp(cpp);
+			}
+		}
+		return cpp;
+	}
+
+	// ----------------------------
 	// Compiles an expression into C++.
 	public function compileExpressionToCpp(expr: TypedExpr, topLevel: Bool): Null<String> {
 		// cxx.Stynax.classicFor
@@ -167,6 +189,10 @@ class Expressions extends SubCompiler {
 			}
 			case TField(e, fa): {
 				result = fieldAccessToCpp(e, fa, expr);
+
+				if(topLevel) {
+					result = handleUnused(expr, result, false);
+				}
 			}
 			case TTypeExpr(m): {
 				IComp.addTypeUtilHeader(compilingInHeader);
@@ -230,6 +256,10 @@ class Expressions extends SubCompiler {
 			}
 			case TCall(callExpr, el): {
 				result = compileCall(callExpr, el, expr);
+
+				if(topLevel) {
+					result = handleUnused(expr, result, false);
+				}
 			}
 			case TNew(classTypeRef, params, el): {
 				onModuleTypeEncountered(TClassDecl(classTypeRef), expr.pos);
@@ -247,12 +277,15 @@ class Expressions extends SubCompiler {
 
 					// C++ will complain about an object being created but not assigned,
 					// so wrap with void cast to avoid.
-					final isConstruct = switch(maybeExpr.expr) {
-						case TNew(_, _, ): true;
-						case _: false;
+					final noDiscard = switch(maybeExpr.unwrapParenthesis().expr) {
+						case TNew(_, _, ): true; // constructing is inheritely no discard
+						case _: {
+							final clsField = maybeExpr.getClassField(true);
+							clsField?.hasMeta(Meta.NoDiscard) ?? false;
+						}
 					}
-					if(isConstruct) {
-						result = 'static_cast<void>($result)';
+					if(noDiscard) {
+						result = unusedCpp(result);
 					}
 				} else {
 					result = null;

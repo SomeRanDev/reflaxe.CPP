@@ -165,6 +165,16 @@ enum abstract Meta(String) from String to String {
 	// If used on a class no additional content is generated for it.
 	var NoAutogen = ":noAutogen";
 
+	// @:noDiscard(nonMutating: Bool = false)
+	//
+	// Marks an extern variable or field as [[nodiscard]] and will
+	// generate C++ to prevent discard warnings from occuring.
+	//
+	// If `nonMutating` is `true`, that means accessing this field
+	// does not affect the program's state and is safe to remove
+	// if the return value is unused.
+	var NoDiscard = ":noDiscard";
+
 	// @:constExpr
 	//
 	// Adds the constexpr specifier to the field or expression.
