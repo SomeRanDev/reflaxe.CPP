@@ -901,8 +901,8 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 	// ----------------------------
 	// Compile TypedExpr into C++.
-	public function compileExpressionImpl(expr: TypedExpr): Null<String> {
-		return XComp.compileExpressionToCpp(expr);
+	public function compileExpressionImpl(expr: TypedExpr, topLevel: Bool): Null<String> {
+		return XComp.compileExpressionToCpp(expr, topLevel);
 	}
 
 	// ----------------------------

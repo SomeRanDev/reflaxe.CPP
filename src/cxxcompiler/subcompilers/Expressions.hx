@@ -107,7 +107,7 @@ class Expressions extends SubCompiler {
 
 	// ----------------------------
 	// Compiles an expression into C++.
-	public function compileExpressionToCpp(expr: TypedExpr): Null<String> {
+	public function compileExpressionToCpp(expr: TypedExpr, topLevel: Bool): Null<String> {
 		// cxx.Stynax.classicFor
 		final classicForArgs = expr.isStaticCall("cxx.Syntax", "classicFor");
 		if(classicForArgs != null) {
