@@ -118,7 +118,7 @@ class Expressions extends SubCompiler {
 	function handleUnused(expr: TypedExpr, cpp: Null<String>, unwrapCall: Bool): Null<String> {
 		final clsField = expr.getClassField(unwrapCall);
 		if(clsField?.hasMeta(Meta.NoDiscard) ?? false) {
-			if(clsField.meta.extractPrimtiveFromFirstMeta(Meta.NoDiscard) == true) {
+			if(clsField.trustMe().meta.extractPrimtiveFromFirstMeta(Meta.NoDiscard) == true) {
 				return null;
 			} else {
 				return unusedCpp(cpp);
