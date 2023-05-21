@@ -80,10 +80,13 @@ class Main {
 		assert(doubleTotal == 20);
 
 		// pop, push
+		final empty = [];
+		for(i in 1...4) assert(empty.push(i) == i);
+
 		final stack = [84, 29, 655];
 		assert(stack.pop() == 655);
 		assert(stack.length == 2);
-		stack.push(333);
+		assert(stack.push(333) == 3);
 		assert(stack[2] == 333);
 
 		// remove
