@@ -136,9 +136,6 @@ extern class Array<T> {
 	@:dynamicAccessors("default", "never")
 	var length(default, null): Int;
 
-	@:nativeName("push_back")
-	public function push(x: T): Int;
-
 	@:nativeName("push_front")
 	public function unshift(x: T): Void;
 
@@ -151,6 +148,11 @@ extern class Array<T> {
 
 	// ----------
 	// @:runtime inline
+	@:runtime public inline function push(x: T): Int {
+		untyped this.push_back(x);
+		return length;
+	}
+
 	@:runtime public inline function pop(): Null<T> {
 		final result = untyped this.back();
 		untyped this.pop_back();
