@@ -213,6 +213,7 @@ class Expressions extends SubCompiler {
 				result = AComp.compileObjectDecl(Main.getExprType(expr), fields, expr, compilingInHeader);
 			}
 			case TArrayDecl(el): {
+				Main.onTypeEncountered(expr.t, compilingInHeader, expr.pos);
 				IComp.addInclude("memory", compilingInHeader, true);
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
 				final t = TComp.compileType(arrayType, expr.pos);
