@@ -739,8 +739,8 @@ class Classes extends SubCompiler {
 		Also registers the function with the Dynamic compiler.
 	**/
 	function compileArguments(ctx: FunctionCompileContext): Array<String> {
-		final argCpp = [];
 		final argTypes = [];
+		final argCpp = [];
 		for(arg in ctx.f.args) {
 			var type = arg.type;
 
@@ -752,8 +752,8 @@ class Classes extends SubCompiler {
 				Main.setTVarType(arg.tvar, type);
 			}
 
+			argTypes.push(type);
 			argCpp.push(Main.compileFunctionArgumentData(type, arg.name, arg.expr, ctx.field.pos, arg.isFrontOptional(), false, true));
-			argTypes.push(TComp.compileType(type, ctx.field.pos, false, true));
 		}
 
 		// -----------------
@@ -1126,6 +1126,13 @@ class Classes extends SubCompiler {
 		}
 
 		Main.addReflectionCpp(headerFilename, classTypeRef.trustMe());
+	}
+
+	/**
+		Name for header file with reflection info.
+	**/
+	public static function getReflectionFileName(classType: ClassType) {
+		return Compiler.getFileNameFromModuleData(classType) + Compiler.HeaderExt;
 	}
 
 	/**
