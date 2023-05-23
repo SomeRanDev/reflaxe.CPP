@@ -965,6 +965,9 @@ class Expressions extends SubCompiler {
 						null;
 				}
 			}
+			case TArray(e1, eIndex) if(Main.getExprType(e1).isDynamic()): {
+				'${Main.compileExpressionOrError(e1)}.setProp("[]", ${Main.compileExpressionOrError(eIndex)})(${Main.compileExpressionOrError(e2)})';
+			}
 			case _: null;
 		}
 	}

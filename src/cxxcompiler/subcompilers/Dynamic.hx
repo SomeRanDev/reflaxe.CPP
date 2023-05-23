@@ -290,6 +290,22 @@ ${content.tab(2)}
 			throw "Impossible";
 		}
 
+		if(classType.hasMeta(Meta.DynamicArrayAccess)) {
+			getProps.push('if(name == "[]") {
+	return Dynamic::makeFunc<$valueTypeWParams>(d, []($valueTypeWParams* o, std::deque<Dynamic> args) {
+		return makeDynamic(o->operator[](args[0].asType<long>()));
+	});
+}');
+
+			setProps.push('if(name == "[]") {
+	return Dynamic::makeFunc<$valueTypeWParams>(d, [value]($valueTypeWParams* o, std::deque<Dynamic> args) {
+		auto result = args[0].asType<T>();
+		o->operator[](value.asType<long>()) = result;
+		return makeDynamic(result);
+	});
+}');
+		}
+
 		final getArgs = getProps.length > 0 ? "Dynamic& d, std::string name" : "Dynamic&, std::string";
 		final setArgs = setProps.length > 0 ? "Dynamic& d, std::string name, Dynamic value" : "Dynamic&, std::string, Dynamic";
 
