@@ -530,6 +530,10 @@ public:
 		return _innerType.value() == std::type_index(typeid(T));
 	}
 
+	bool isBool() const {
+		return isType<bool>();
+	}
+
 	bool isInt() const {
 		return isType<long>();
 	}
