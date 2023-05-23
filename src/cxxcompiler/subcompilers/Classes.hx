@@ -598,6 +598,10 @@ class Classes extends SubCompiler {
 		// Function SUFFIX attributes
 		ctx.suffixSpecifiers = [];
 
+		if(field.hasMeta(Meta.Const)) {
+			specifiers.push("const");
+		}
+
 		if(field.hasMeta(Meta.NoExcept)) {
 			specifiers.push("noexcept");
 		}
@@ -956,7 +960,7 @@ class Classes extends SubCompiler {
 	function generateOutput() {
 		if(!isExtern) {
 			// Auto-generated content
-			if(hasConstructor && !noAutogen) {
+			if(hasComparisonOperators(classType)) {
 				IComp.addHaxeUtilHeader(true);
 				addFunction("HX_COMPARISON_OPERATORS(" + classNameWParams + ")");
 			}
@@ -976,6 +980,14 @@ class Classes extends SubCompiler {
 		}
 
 		generateReflection();
+	}
+
+	/**
+		Returns `true` if the provided `ClassType` will have comparison
+		operators generated.
+	**/
+	public static function hasComparisonOperators(classType: ClassType) {
+		return !classType.isExtern && classType.constructor != null && !classType.hasMeta(Meta.NoAutogen);
 	}
 
 	/**

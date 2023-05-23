@@ -130,6 +130,7 @@ class HxArray {
 @:filename("HxArray")
 @:dynamicCompatible
 @:dynamicArrayAccess
+@:dynamicEquality
 @:allow(HxArray)
 extern class Array<T> {
 	// ----------------------------

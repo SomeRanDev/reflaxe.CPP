@@ -89,6 +89,7 @@ class Dynamic_ extends SubCompiler {
 	var dynamicName: String = "";
 
 	var getProps: Array<String> = [];
+	var getPropsConst: Array<String> = [];
 	var setProps: Array<String> = [];
 
 	/**
@@ -105,6 +106,7 @@ class Dynamic_ extends SubCompiler {
 		dynamicName = "Dynamic_" + StringTools.replace(valueType, "::", "_");
 
 		getProps = [];
+		getPropsConst = [];
 		setProps = [];
 	}
 
@@ -153,7 +155,7 @@ class Dynamic_ extends SubCompiler {
 		if((v.read == AccNormal || v.read == AccNo) && getDynAcc != "never" && getDynAcc != "get") {
 			final cpp = makeGetExpr(v.field);
 			if(cpp != null) {
-				getProps.push('if(name == "${name}") {
+				getPropsConst.push('if(name == "${name}") {
 	return Dynamic::unwrap<$valueTypeWParams>(d, []($valueTypeWParams* o) {
 		return makeDynamic(${cpp});
 	});
@@ -307,11 +309,12 @@ class Dynamic_ extends SubCompiler {
 				'$end;\nreturn Dynamic();';
 			}
 
+			final isConst = f.field.hasMeta(Meta.Const);
 			final isPtr = mmt == UnsafePtr;
 			final dynFuncName = isPtr ? "makeFunc" : "makeFuncShared";
 			final cppType = isPtr ? '$valueTypeWParams*' : 'std::shared_ptr<$valueTypeWParams>';
 
-			getProps.push('if(name == "${name}") {
+			(isConst ? getPropsConst : getProps).push('if(name == "${name}") {
 	return Dynamic::$dynFuncName<$valueTypeWParams>(d, []($cppType o, std::deque<Dynamic> args) {
 ${content.tab(2)}
 	});
@@ -331,7 +334,7 @@ ${content.tab(2)}
 
 		// Setup properties for array access if enabled
 		if(classType.hasMeta(Meta.DynamicArrayAccess)) {
-			getProps.push('if(name == "[]") {
+			getPropsConst.push('if(name == "[]") {
 	return Dynamic::makeFunc<$valueTypeWParams>(d, []($valueTypeWParams* o, std::deque<Dynamic> args) {
 		return makeDynamic(o->operator[](args[0].asType<long>()));
 	});
@@ -346,8 +349,16 @@ ${content.tab(2)}
 }');
 		}
 
+		if(Classes.hasComparisonOperators(classType) || classType.hasMeta(Meta.DynamicEquality)) {
+			getPropsConst.push('if(name == "==") {
+	return Dynamic::makeFunc<$valueTypeWParams>(d, []($valueTypeWParams* o, std::deque<Dynamic> args) {
+		return makeDynamic((*o) == (args[0].asType<$valueTypeWParams>()));
+	});
+}');
+		}
+
 		// Remove names from arguments if unnecessary to fix C++ warning
-		final getArgs = getProps.length > 0 ? "Dynamic& d, std::string name" : "Dynamic&, std::string";
+		final getArgsConst = getPropsConst.length > 0 ? "Dynamic const& d, std::string name" : "Dynamic const&, std::string";
 		final setArgs = setProps.length > 0 ? "Dynamic& d, std::string name, Dynamic value" : "Dynamic&, std::string, Dynamic";
 
 		// Handle type params
@@ -380,7 +391,12 @@ namespace haxe {
 $prefix
 class ${name} {
 public:
-	static Dynamic getProp(${getArgs}) {${getProps.length > 0 ? ("\n" + getProps.join(" else ").tab(2)) : ""}
+	static Dynamic getProp(Dynamic& d, std::string name) {${getProps.length > 0 ? ("\n" + getProps.join(" else ").tab(2)) : ""}
+		// call const version if none found here
+		return getProp(static_cast<Dynamic const&>(d), name);
+	}
+
+	static Dynamic getProp(${getArgsConst}) {${getPropsConst.length > 0 ? ("\n" + getPropsConst.join(" else ").tab(2)) : ""}
 		return Dynamic();
 	}
 
@@ -465,6 +481,7 @@ public:
 
 	std::function<Dynamic(std::deque<Dynamic>)> func;
 	std::function<Dynamic(Dynamic&,std::string)> getFunc;
+	std::function<Dynamic(Dynamic const&,std::string)> getFuncConst;
 	std::function<Dynamic(Dynamic&,std::string,Dynamic)> setFunc;
 
 	Dynamic(): id(getId()) {
@@ -475,21 +492,23 @@ public:
 	Dynamic(T obj): id(getId()) {
 		using inner = typename _mm_type<T>::inner;
 
-		if constexpr(std::is_integral_v<T>) {
+		if constexpr(std::is_same_v<inner, bool>) {
+			_anyObj = static_cast<bool>(obj);
+			_innerType = std::type_index(typeid(bool));
+		} else if constexpr(std::is_integral_v<T>) {
 			long l = static_cast<long>(obj);
 			_anyObj = l;
 			_innerType = std::type_index(typeid(long));
-			_dynType = Value;
 		} else if constexpr(std::is_floating_point_v<T>) {
 			long d = static_cast<double>(obj);
 			_anyObj = d;
 			_innerType = std::type_index(typeid(double));
-			_dynType = Value;
 		} else {
 			_anyObj = obj;
 			_innerType = std::type_index(typeid(inner));
-			_dynType = _mm_type<T>::type;
 		}
+
+		_dynType = _mm_type<T>::type;
 
 		// We cannot copy or move `std::unique_ptr`s
 		if(_dynType == UniquePtr) {
@@ -501,6 +520,7 @@ public:
 		if constexpr(haxe::_class<inner>::data.has_dyn) {
 			using Dyn = typename haxe::_class<inner>::Dyn;
 			getFunc = [](Dynamic& d, std::string name) { return Dyn::getProp(d, name); };
+			getFuncConst = [](Dynamic const& d, std::string name) { return Dyn::getProp(d, name); };
 			setFunc = [](Dynamic& d, std::string name, Dynamic value) { return Dyn::setProp(d, name, value); };
 		}
 	}
@@ -530,6 +550,10 @@ public:
 		return _innerType.value() == std::type_index(typeid(T));
 	}
 
+	bool isBool() const {
+		return isType<bool>();
+	}
+
 	bool isInt() const {
 		return isType<long>();
 	}
@@ -556,7 +580,9 @@ public:
 		}
 
 		// Check number types
-		if constexpr(std::is_integral_v<T>) {
+		if constexpr(std::is_same_v<T, bool>) {
+			return std::any_cast<bool>(_anyObj);
+		} else if constexpr(std::is_integral_v<T>) {
 			return static_cast<T>(std::any_cast<long>(_anyObj));
 		} else if constexpr(std::is_floating_point_v<T>) {
 			if(isInt()) {
@@ -617,8 +643,23 @@ public:
 	}
 
 	std::string toString() {
-		if(getFunc != nullptr) {
-			Dynamic toString = getFunc(*this, \"toString\");
+		return _toStringImpl<Dynamic&>(*this);
+	}
+
+	std::string toString() const {
+		return _toStringImpl<Dynamic const&>(*this);
+	}
+
+	// Implementation for both \"toString()\" and \"toString() const\"
+	// T should only be \"Dynamic&\" or \"Dynamic const&\"
+	template<typename T>
+	static std::string _toStringImpl(T self) {
+		using remove_c_T = std::remove_cv_t<T>;
+		constexpr bool isDyn = std::is_same_v<Dynamic&, remove_c_T> || std::is_same_v<const Dynamic&, remove_c_T>;
+		static_assert(isDyn, \"T must be Dynamic& or Dynamic const&\");
+
+		if(self.hasCustomProps()) {
+			Dynamic toString = self.getPropSafe(\"toString\");
 			if(toString.isFunction()) {
 				Dynamic result = toString();
 				if(result.isString()) {
@@ -626,29 +667,43 @@ public:
 				}
 			}
 		}
-		switch(_dynType) {
+		switch(self._dynType) {
 			case Empty: return std::string(\"Dynamic(Undefined)\");
 			case Null: return std::string(\"Dynamic(null)\");
 			case Function: return std::string(\"Dynamic(Function)\");
 			default: break;
 		}
-		if(isInt()) {
-			return std::to_string(asType<long>());
-		} else if(isFloat()) {
-			return std::to_string(asType<double>());
+		if(self.isInt()) {
+			return std::to_string(self.template asType<long>());
+		} else if(self.isFloat()) {
+			return std::to_string(self.template asType<double>());
+		} else if(self.isBool()) {
+			return self.template asType<bool>() ? std::string(\"true\") : std::string(\"false\");
 		}
 		return std::string(\"Dynamic\");
 	}
 
+	// If \"getFunc\" is defined, both \"getFuncConst\" and \"setFunc\" are also guaranteed.
+	bool hasCustomProps() const {
+		return getFunc != nullptr;
+	}
+
 	Dynamic getPropSafe(std::string name) {
-		if(getFunc != nullptr) {
+		if(hasCustomProps()) {
 			return getFunc(*this, name);
 		}
 		return Dynamic();
 	}
 
+	Dynamic getPropSafe(std::string name) const {
+		if(hasCustomProps()) {
+			return getFuncConst(*this, name);
+		}
+		return Dynamic();
+	}
+
 	Dynamic setPropSafe(std::string name, Dynamic value) {
-		if(setFunc != nullptr) {
+		if(hasCustomProps()) {
 			return setFunc(*this, name, value);
 		}
 		return Dynamic();
@@ -689,8 +744,12 @@ public:
 	}
 
 	bool operator==(Dynamic const& other) const {
-		if(_dynType != other._dynType) {
-			return false;
+		Dynamic equalsOp = getPropSafe(\"==\");
+		if(equalsOp.isFunction()) {
+			auto result = equalsOp(other);
+			if(result.isBool()) {
+				return result.asType<bool>();
+			}
 		}
 
 		if(isInt() && other.isInt()) {
@@ -729,7 +788,13 @@ public:
 	}
 
 	template<typename T>
-	static Dynamic makeFunc(Dynamic& d, std::function<Dynamic(T*, std::deque<Dynamic>)> callback) {
+	static Dynamic unwrap(Dynamic const& d, std::function<Dynamic(T*)> callback) {
+		DYN_GETPTR(d, T)
+		return callback(p);
+	}
+
+	template<typename T>
+	static Dynamic makeFunc(Dynamic const& d, std::function<Dynamic(T*, std::deque<Dynamic>)> callback) {
 		Dynamic result;
 		result._dynType = Function;
 		result.func = [callback, d](std::deque<Dynamic> args) {

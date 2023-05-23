@@ -175,6 +175,11 @@ enum abstract Meta(String) from String to String {
 	// if the return value is unused.
 	var NoDiscard = ":noDiscard";
 
+	// @:const
+	//
+	// Adds the const specifier to the field or expression.
+	var Const = ":const";
+
 	// @:constExpr
 	//
 	// Adds the constexpr specifier to the field or expression.
@@ -345,6 +350,13 @@ enum abstract Meta(String) from String to String {
 	// If used on a class, allows for array access to be used on this class
 	// when Dynamic.
 	var DynamicArrayAccess = ":dynamicArrayAccess";
+
+	// @:dynamicArrayAccess
+	//
+	// If used on an extern class, the class's operator== will be used for
+	// equality between Dynamic objects. This is unnecessary for classes
+	// generated from Haxe code.
+	var DynamicEquality = ":dynamicEquality";
 
 	// @:dontGenerateDynamic
 	//
