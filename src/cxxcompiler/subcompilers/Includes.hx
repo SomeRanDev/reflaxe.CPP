@@ -322,17 +322,19 @@ class Includes extends SubCompiler {
 				}
 				if(!cd.isExtern) {
 					addInclude(Compiler.getFileNameFromModuleData(cd) + Compiler.HeaderExt, header, false);
-				} else {
-					switch(mt) {
-						case TClassDecl(_.get() => cls): {
-							addLazyInclude(function() {
-								if(DComp.enabled) {
-									addInclude(Classes.getDynamicFileName(cls), false, false);
-								}
-							});
-						}
-						case _:
+				}
+			}
+			if(cd.isExtern) {
+				switch(mt) {
+					case TClassDecl(_.get() => cls) if(cls.hasMeta(Meta.DynamicCompatible)): {
+						final dynFilename = Classes.getReflectionFileName(cls);
+						addLazyInclude(function() {
+							if(DComp.enabled) {
+								addInclude(dynFilename, false, false);
+							}
+						});
 					}
+					case _:
 				}
 			}
 
