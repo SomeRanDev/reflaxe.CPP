@@ -155,7 +155,6 @@ extern class Array<T> {
 
 	public function resize(len: Int): Void;
 
-	public function lastIndexOf(x: T, ?fromIndex: Int): Int;
 	// ----------
 	// @:runtime inline
 	@:runtime public inline function push(x: T): Int {
