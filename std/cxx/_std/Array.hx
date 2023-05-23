@@ -6,7 +6,7 @@ import haxe.iterators.ArrayKeyValueIterator;
 @:unreflective
 @:filename("HxArray")
 class HxArray {
-	public static function concat<T>(a: Array<T>, other: Array<T>): Array<T> {
+	public static function concat<T>(a: cxx.Ptr<Array<T>>, other: cxx.Ptr<Array<T>>): Array<T> {
 		final result = a.copy();
 		for(o in other) {
 			result.push(o);
@@ -14,7 +14,7 @@ class HxArray {
 		return result;
 	}
 
-	public static function join<T>(a: Array<T>, sep: String): String {
+	public static function join<T>(a: cxx.Ptr<Array<T>>, sep: String): String {
 		var result = "";
 		for(i in 0...a.length) {
 			if(i > 0) result += sep;
@@ -23,7 +23,7 @@ class HxArray {
 		return result;
 	}
 
-	public static function slice<T>(a: Array<T>, pos: Int, end: Null<Int> = null): Array<T> {
+	public static function slice<T>(a: cxx.Ptr<Array<T>>, pos: Int, end: Null<Int> = null): Array<T> {
 		// if pos is negative, its value is calculated from the end of the array
 		if(pos < 0) pos += a.length;
 
@@ -49,7 +49,7 @@ class HxArray {
 		return result;
 	}
 
-	public static function splice<T>(a: cxx.Ref<Array<T>>, pos: Int, len: Int): Array<T> {
+	public static function splice<T>(a: cxx.Ptr<Array<T>>, pos: Int, len: Int): Array<T> {
 		// if pos is negative, its value is calculated from the end of the array
 		if(pos < 0) pos += a.length;
 
@@ -76,7 +76,7 @@ class HxArray {
 		return result;
 	}
 
-	public static function insert<T>(a: cxx.Ref<Array<T>>, pos: Int, x: T) {
+	public static function insert<T>(a: cxx.Ptr<Array<T>>, pos: Int, x: T) {
 		if(pos < 0) {
 			final it: cxx.Auto = untyped a.end() + pos + 1;
 			untyped a.cppInsert(it, x);
@@ -86,7 +86,7 @@ class HxArray {
 		}
 	}
 
-	public static function indexOf<T>(a: Array<T>, x: T, fromIndex: Int  = 0): Int {
+	public static function indexOf<T>(a: cxx.Ptr<Array<T>>, x: T, fromIndex: Int = 0): Int {
 		final it: cxx.Auto = untyped __cpp__("std::find({0}, {1}, {2})", a.begin(), a.end(), x);
 		return if(untyped it != a.end()) {
 			cxx.Stdlib.ccast(untyped it - a.begin());
@@ -109,11 +109,11 @@ class HxArray {
 		return [for (v in a) f(v)];
 	}
 
-	public static function filter<T>(a: Array<T>, f: (T) -> Bool): Array<T> {
+	public static function filter<T>(a: cxx.Ptr<Array<T>>, f: (T) -> Bool): Array<T> {
 		return [for (v in a) if (f(v)) v];
 	}
 
-	public static function toString<T>(a: Array<T>): String {
+	public static function toString<T>(a: cxx.Ptr<Array<T>>): String {
 		var result = "[";
 		for(i in 0...a.length) {
 			result += (i != 0 ? ", " : "") + Std.string(a[i]);
@@ -156,7 +156,6 @@ extern class Array<T> {
 	public function resize(len: Int): Void;
 
 	public function lastIndexOf(x: T, ?fromIndex: Int): Int;
-
 	// ----------
 	// @:runtime inline
 	@:runtime public inline function push(x: T): Int {
