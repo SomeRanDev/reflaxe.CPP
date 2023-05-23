@@ -34,10 +34,15 @@ using cxxcompiler.helpers.Error;
 @:allow(cxxcompiler.Compiler)
 @:access(cxxcompiler.Compiler)
 class Dynamic_ extends SubCompiler {
+	/**
+		Is set to `true` if Dynamic features are enabled because
+		`Dynamic` was encountered somewhere.
+	**/
 	public var enabled(default, null): Bool = false;
 
-	public var exceptionType: Null<haxe.macro.Type>;
-
+	/**
+		The function called to enable `Dynamic`.
+	**/
 	public function enableDynamic(blamePosition: Position) {
 		if(!enabled) {
 			// dynamic/Dynamic.h requires this
@@ -51,6 +56,21 @@ class Dynamic_ extends SubCompiler {
 			// Call `onDynamicEnabled` for Class compiler
 			CComp.onDynamicEnabled();
 		}
+	}
+
+	/**
+		Track the base exception type (haxe.Exception) required for `Dynamic`.
+	**/
+	var exceptionType: Null<haxe.macro.Type>;
+
+	/**
+		Include haxe.Exception.
+	**/
+	public function includeException() {
+		if(exceptionType == null) {
+			exceptionType = Context.getType("haxe.Exception");
+		}
+		IComp.addIncludeFromType(exceptionType, false);
 	}
 
 	/**
@@ -78,6 +98,7 @@ class Dynamic_ extends SubCompiler {
 	public function reset(valueType: String, valueTypeWParams: String, classType: ClassType, type: Type) {
 		this.valueType = valueType;
 		this.valueTypeWParams = valueTypeWParams;
+
 		this.classType = classType;
 		this.type = type;
 
@@ -104,6 +125,7 @@ class Dynamic_ extends SubCompiler {
 	function makeGetExpr(field: ClassField): Null<String> {
 		if(type == null) return null;
 
+		// Generate the expression
 		final thisType = TAbstract(Main.getPtrType(), [type]);
 		final thisExpr = genTypedExpr(TConst(TThis), thisType);
 		final exprDef = switch(type) {
@@ -112,6 +134,8 @@ class Dynamic_ extends SubCompiler {
 		}
 		final expr = genTypedExpr(exprDef, field.type);
 
+		// Compile the expression.
+		// Dynamic wrappers supply a pointer named "o", so use that for "this".
 		XComp.setThisOverride(genTypedExpr(TIdent("o"), thisType));
 		XComp.compilingInHeader = true;
 		final cpp = Main.compileExpression(expr);
@@ -205,14 +229,24 @@ class Dynamic_ extends SubCompiler {
 		return result;
 	}
 
+	/**
+		Compile unknown template args as Dynamic.
+		Useful for functions that require type parameters.
+	**/
 	function restrictTypeParams(f: ClassFuncData) {
 		TComp.setAllowedTypeParamNames(f.classType.params.map(p -> p.name));
 	}
 
+	/**
+		Finish compiling the argument types.
+	**/
 	function unrestrictTypeParams() {
 		TComp.allowAllTypeParamNames();
 	}
 
+	/**
+		Check if function is extern inline or @:runtime inline.
+	**/
 	function isExternInline(f: ClassFuncData): Bool {
 		return (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline));
 	}
@@ -231,21 +265,22 @@ class Dynamic_ extends SubCompiler {
 			}
 		}
 
+		// Compile the argument types
 		restrictTypeParams(f);
 		final cppArgs = args.map(t -> TComp.compileType(t, f.field.pos, false, true));
 		unrestrictTypeParams();
 
+		// Generate the argument getter expressions
 		final hasRet = !f.ret.isVoid();
 		final args = [];
 		final typedArgs = [];
-		//final exprArgs = [];
 		for(i in 0...cppArgs.length) {
 			final a = 'args[${i}].asType<${cppArgs[i]}>()';
 			args.push(a);
 			typedArgs.push(genTypedExpr(TIdent(a), f.args[i].type));
-			//exprArgs.push(macro untyped __cpp__($v{a}));
 		}
 
+		// Determine which type of memory management to extract
 		var mmt = UnsafePtr;
 		if(isExternInline(f) && f.field.hasMeta(Meta.RequireMemoryManagement)) {
 			final ident = f.field.meta.extractIdentifierFromFirstMeta(Meta.RequireMemoryManagement, 0);
@@ -259,7 +294,10 @@ class Dynamic_ extends SubCompiler {
 			}
 		}
 
+		// Generate C++ code for the call
 		final cpp = makeCallExpr(f, typedArgs, mmt);
+
+		// Put it all together and generate a callback for the getters
 		if(cpp != null && cpp.length > 0) {
 			final end = cpp[cpp.length - 1];
 			final prefixCode = (cpp.length > 1 ? (cpp.slice(0, -1).join("\n") + "\n") : "");
@@ -286,10 +324,12 @@ ${content.tab(2)}
 		Generate the Dynamic wrapper class.
 	**/
 	public function getDynamicContent() {
+		// Ensure classType exists
 		if(classType == null) {
 			throw "Impossible";
 		}
 
+		// Setup properties for array access if enabled
 		if(classType.hasMeta(Meta.DynamicArrayAccess)) {
 			getProps.push('if(name == "[]") {
 	return Dynamic::makeFunc<$valueTypeWParams>(d, []($valueTypeWParams* o, std::deque<Dynamic> args) {
@@ -306,9 +346,11 @@ ${content.tab(2)}
 }');
 		}
 
+		// Remove names from arguments if unnecessary to fix C++ warning
 		final getArgs = getProps.length > 0 ? "Dynamic& d, std::string name" : "Dynamic&, std::string";
 		final setArgs = setProps.length > 0 ? "Dynamic& d, std::string name, Dynamic value" : "Dynamic&, std::string, Dynamic";
 
+		// Handle type params
 		final hasTypeParams = classType.params.length > 0;
 
 		final prefix = if(hasTypeParams) {
@@ -325,8 +367,14 @@ ${content.tab(2)}
 			dynamicName;
 		}
 
+		// If this is a Dynamic wrapper for an extern class, place the #includes here.
+		// This is necessary because the extern class does not have its own header file.
+		//
+		// Normally, all the necessary #includes are made available automatically since the
+		// file is included in the class's own header file which already has them.
 		final includes = classType.isExtern ? '\n${IComp.compileHeaderIncludes()}\n' : "";
 
+		// Put it all together to make the Dynamic wrapper
 		return '$includes
 namespace haxe {
 $prefix
