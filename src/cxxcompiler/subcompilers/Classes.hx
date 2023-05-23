@@ -181,13 +181,14 @@ class Classes extends SubCompiler {
 	**/
 	public function compileClass(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>, maybeClassRef: Null<Ref<ClassType>> = null): Null<String> {
 		// Handle extern classes
-		if(classType.isExtern) {
+		if(classType.isExtern && maybeClassRef == null) {
 			if(classType.hasMeta(Meta.DynamicCompatible)) {
 				// If Dynamic isn't confirmed to be used, let's
 				// delay generating extern compatibility wrappers.
 				if(!DComp.enabled) {
 					final clsRef = findClassTypeRef();
 					dynamicCompatibleExterns.push({ classType: clsRef, varFields: varFields, funcFields: funcFields });
+					return null;
 				}
 			} else {
 				return null;
@@ -315,14 +316,14 @@ class Classes extends SubCompiler {
 		`Dynamic` wrappers generated for.
 	**/
 	public function onDynamicEnabled() {
-		for(cls in dynamicCompatibleExterns) {
-			// Extern classes will return `null` anyway, so we can ignore.
-			compileClass(cls.classType.get(), cls.varFields, cls.funcFields, cls.classType);
-		}
-
-		// No longer needed
 		if(dynamicCompatibleExterns.length > 0) {
+			final externs = dynamicCompatibleExterns.copy();
 			dynamicCompatibleExterns = [];
+
+			for(cls in externs) {
+				// Extern classes will return `null` anyway, so we can ignore.
+				compileClass(cls.classType.get(), cls.varFields, cls.funcFields, cls.classType);
+			}
 		}
 	}
 
