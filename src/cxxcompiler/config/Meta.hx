@@ -367,4 +367,13 @@ enum abstract Meta(String) from String to String {
 	// generated for a C++ class if possible. This metadata will disable
 	// this behavior for the class it's used on.
 	var DontGenerateDefaultConstructor = ":dontGenerateDefaultConstructor";
+
+	// @:requireMemoryManagement(mmt: helpers.MetaHelper.MemoryManagementType)
+	//
+	// Used on extern inline functions to notify the Dynamic compiler
+	// that a certain memory management type is required.
+	//
+	// By default, extern inline uses an unsafe pointer, which may not
+	// be compatible with statements that require smart pointers.
+	var RequireMemoryManagement = ":requireMemoryManagement";
 }

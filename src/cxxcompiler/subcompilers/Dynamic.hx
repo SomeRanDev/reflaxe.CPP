@@ -21,12 +21,15 @@ import reflaxe.data.ClassVarData;
 import reflaxe.data.ClassFuncData;
 import reflaxe.helpers.PositionHelper;
 
-import cxxcompiler.config.Meta;
-
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
+
+import cxxcompiler.config.Meta;
+import cxxcompiler.helpers.MetaHelper;
+
+using cxxcompiler.helpers.Error;
 
 @:allow(cxxcompiler.Compiler)
 @:access(cxxcompiler.Compiler)
@@ -189,7 +192,20 @@ class Dynamic_ extends SubCompiler {
 			//exprArgs.push(macro untyped __cpp__($v{a}));
 		}
 
-		final cpp = makeCallExpr(v, typedArgs);
+		var mmt = UnsafePtr;
+		if(isExternInline(f) && f.field.hasMeta(Meta.RequireMemoryManagement)) {
+			final ident = f.field.meta.extractIdentifierFromFirstMeta(Meta.RequireMemoryManagement, 0);
+			switch(ident) {
+				case "UnsafePtr":
+					mmt = UnsafePtr;
+				case "SharedPtr":
+					mmt = SharedPtr;
+				case _:
+					f.field.meta.getFirstPosition(Meta.RequireMemoryManagement)?.makeError(UnsupportedRequireMMT);
+			}
+		}
+
+		final cpp = makeCallExpr(f, typedArgs, mmt);
 		if(cpp != null && cpp.length > 0) {
 			final end = cpp[cpp.length - 1];
 			final prefixCode = (cpp.length > 1 ? (cpp.slice(0, -1).join("\n") + "\n") : "");
@@ -198,9 +214,13 @@ class Dynamic_ extends SubCompiler {
 			} else {
 				'$end;\nreturn Dynamic();';
 			}
-	
+
+			final isPtr = mmt == UnsafePtr;
+			final dynFuncName = isPtr ? "makeFunc" : "makeFuncShared";
+			final cppType = isPtr ? '$valueTypeWParams*' : 'std::shared_ptr<$valueTypeWParams>';
+
 			getProps.push('if(name == "${name}") {
-	return Dynamic::makeFunc<$valueTypeWParams>(d, []($valueTypeWParams* o, std::deque<Dynamic> args) {
+	return Dynamic::$dynFuncName<$valueTypeWParams>(d, []($cppType o, std::deque<Dynamic> args) {
 ${content.tab(2)}
 	});
 }');
@@ -510,6 +530,24 @@ public:
 				p = v.operator->();
 			} else {
 				p = d.asType<T*>();
+			}
+			return callback(p, args);
+		};
+		return result;
+	}
+
+	template<typename T>
+	static Dynamic makeFuncShared(Dynamic& d, std::function<Dynamic(std::shared_ptr<T>, std::deque<Dynamic>)> callback) {
+		Dynamic result;
+		result._dynType = Function;
+		result.func = [callback, d](std::deque<Dynamic> args) {
+			std::shared_ptr<T> p = nullptr;
+			if(d._dynType == Value || d._dynType == Pointer) {
+				p = std::make_shared<T>(d.asType<T>());
+			} else if(d._dynType == SharedPtr) {
+				p = std::any_cast<std::shared_ptr<T>>(d._anyObj);
+			} else {
+				makeError(\"Cannot use unique pointer for this property\");
 			}
 			return callback(p, args);
 		};
