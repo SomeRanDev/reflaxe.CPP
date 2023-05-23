@@ -761,10 +761,11 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		Compiles the {this} expression for @:nativeFunctionCode.
 	**/
 	public override function compileNFCThisExpression(expr: TypedExpr, meta: Null<MetaAccess>): String {
+		final val = meta.maybeHas(Meta.MakeThisValue);
 		return if(meta.maybeHas(Meta.MakeThisNotNull)) {
-			XComp.compileExpressionNotNull(expr);
+			val ? XComp.compileExpressionNotNullAsValue(expr) : XComp.compileExpressionNotNull(expr);
 		} else {
-			compileExpressionOrError(expr); 
+			val ? XComp.compileExpressionAsValue(expr) : compileExpressionOrError(expr); 
 		}
 	}
 

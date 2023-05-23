@@ -83,12 +83,17 @@ extern class String {
 	@:nativeFunctionCode("std::string(1, {arg0})")
 	public static function fromCharCode(code: Int): String;
 
+	@:makeThisValue
+	@:makeThisNotNull
 	@:nativeFunctionCode("std::string(1, {this}[{arg0}])")
 	public function charAt(index: Int): String;
 
+	@:makeThisValue
 	@:nativeFunctionCode("{this}")
 	public function toString(): String;
 
+	@:makeThisValue
+	@:makeThisNotNull
 	@:nativeFunctionCode("{this}[{arg0}]")
 	public function charCodeAt(index: Int): Null<Int>;
 

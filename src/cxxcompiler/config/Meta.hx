@@ -266,6 +266,12 @@ enum abstract Meta(String) from String to String {
 	// is compiled as "not null".
 	var MakeThisNotNull = ":makeThisNotNull";
 
+	// @:makeThisValue
+	//
+	// Used with @:nativeFunctionCode. Ensures {this} expression
+	// is compiled as a value type.
+	var MakeThisValue = ":makeThisValue";
+
 	// @:appendContent(code: String)
 	//
 	// Appends arbitrary C++ code to the declaration of the 
