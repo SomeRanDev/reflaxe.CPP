@@ -332,6 +332,14 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				}
 			}
 
+			// For some reason, Haxe imposes some weird typing with dyn[i][j]?
+			// Dynamic[] will always return Dynamic, so we can safely assume here.
+			case TArray(e1, _): {
+				final f1 = getExprType(e1);
+				if(f1.isDynamic()) f1;
+				else e.t;
+			}
+
 			// Redirect "tvar" type
 			case TLocal(tvar): getTVarType(tvar);
 
