@@ -336,9 +336,21 @@ public:
 	Dynamic(T obj) {
 		using inner = typename _mm_type<T>::inner;
 
-		_anyObj = obj;
-		_innerType = std::type_index(typeid(inner));
-		_dynType = _mm_type<T>::type;
+		if constexpr(std::is_integral_v<T>) {
+			long l = static_cast<long>(obj);
+			_anyObj = l;
+			_innerType = std::type_index(typeid(long));
+			_dynType = Value;
+		} else if constexpr(std::is_floating_point_v<T>) {
+			long d = static_cast<double>(obj);
+			_anyObj = d;
+			_innerType = std::type_index(typeid(double));
+			_dynType = Value;
+		} else {
+			_anyObj = obj;
+			_innerType = std::type_index(typeid(inner));
+			_dynType = _mm_type<T>::type;
+		}
 
 		// We cannot copy or move `std::unique_ptr`s
 		if(_dynType == UniquePtr) {
@@ -380,11 +392,15 @@ public:
 	}
 
 	bool isInt() const {
-		return isType<int>();
+		return isType<long>();
 	}
 
 	bool isFloat() const {
 		return isType<double>();
+	}
+
+	bool isNumber() const {
+		return isInt() || isFloat();
 	}
 
 	bool isString() const {
@@ -394,6 +410,17 @@ public:
 	template<typename T>
 	T asType() const {
 		using In = typename _mm_type<T>::inner;
+
+		// Check number types
+		if constexpr(std::is_integral_v<T>) {
+			return static_cast<T>(std::any_cast<long>(_anyObj));
+		} else if constexpr(std::is_floating_point_v<T>) {
+			if(isInt()) {
+				return static_cast<T>(std::any_cast<long>(_anyObj));
+			} else if(isFloat()) {
+				return static_cast<T>(std::any_cast<double>(_anyObj));
+			}
+		}
 		if constexpr(_mm_type<T>::type == Value) {
 			switch(_dynType) {
 				case Value: return std::any_cast<T>(_anyObj);
@@ -448,7 +475,7 @@ public:
 			default: break;
 		}
 		if(isInt()) {
-			return std::to_string(asType<int>());
+			return std::to_string(asType<long>());
 		} else if(isFloat()) {
 			return std::to_string(asType<double>());
 		}
