@@ -210,10 +210,14 @@ extern class Array<T> {
 		return result;
 	}
 
+	@:requireMemoryManagement(SharedPtr)
+	@:requireReturnTypeHasConstructor
 	@:runtime public inline function iterator(): haxe.iterators.ArrayIterator<T> {
 		return new haxe.iterators.ArrayIterator(this);
 	}
 
+	@:requireMemoryManagement(SharedPtr)
+	@:requireReturnTypeHasConstructor
 	@:pure @:runtime public inline function keyValueIterator() : ArrayKeyValueIterator<T> {
 		return new ArrayKeyValueIterator(this);
 	}

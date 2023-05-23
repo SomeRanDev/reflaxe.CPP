@@ -49,7 +49,9 @@ class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
 		return values.iterator();
 	}
 
-	@:runtime public inline function keyValueIterator():KeyValueIterator<K, V> {
+	@:requireMemoryManagement(SharedPtr)
+	@:requireReturnTypeHasConstructor
+	@:runtime public inline function keyValueIterator(): KeyValueIterator<K, V> {
 		return new haxe.iterators.MapKeyValueIterator(this);
 	}
 
