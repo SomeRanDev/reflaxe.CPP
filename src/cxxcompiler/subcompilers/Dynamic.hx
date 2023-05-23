@@ -321,19 +321,23 @@ struct _mm_type<std::unique_ptr<T>> { using inner = T; constexpr static DynamicT
 class Dynamic {
 public:
 	DynamicType _dynType;
+
+	long id;
+	static long getId() { static long maxId = 0; return maxId++; }
+
 	std::optional<std::type_index> _innerType;
 	std::any _anyObj;
-	std::function<Dynamic(std::deque<Dynamic>)> func;
 
+	std::function<Dynamic(std::deque<Dynamic>)> func;
 	std::function<Dynamic(Dynamic&,std::string)> getFunc;
 	std::function<Dynamic(Dynamic&,std::string,Dynamic)> setFunc;
 
-	Dynamic() {
+	Dynamic(): id(getId()) {
 		_dynType = Empty;
 	}
 
 	template<typename T>
-	Dynamic(T obj) {
+	Dynamic(T obj): id(getId()) {
 		using inner = typename _mm_type<T>::inner;
 
 		if constexpr(std::is_integral_v<T>) {
@@ -526,6 +530,20 @@ public:
 			return func(args);
 		}
 		makeError(\"Cannot call this Dynamic\");
+	}
+
+	bool operator==(Dynamic const& other) const {
+		if(_dynType != other._dynType) {
+			return false;
+		}
+
+		if(isInt() && other.isInt()) {
+			return asType<long>() == other.asType<long>();
+		} else if(isNumber() && other.isNumber()) {
+			return asType<double>() == other.asType<double>();
+		}
+
+		return id == other.id;
 	}
 
 	// helpers
