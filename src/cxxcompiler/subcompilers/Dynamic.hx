@@ -39,16 +39,14 @@ class Dynamic_ extends SubCompiler {
 	public var exceptionType: Null<haxe.macro.Type>;
 
 	public function enableDynamic(blamePosition: Position) {
-		// dynamic/Dynamic.h requires this
-		if(exceptionType == null) {
-			exceptionType = Context.getType("haxe.Exception");
-			Main.onTypeEncountered(exceptionType, true, blamePosition);
+		if(!enabled) {
+			// dynamic/Dynamic.h requires this
+
+			enabled = true;
+
+			// Call `onDynamicEnabled` for Class compiler
+			CComp.onDynamicEnabled();
 		}
-
-		enabled = true;
-
-		// Call `onDynamicEnabled` for Class compiler
-		CComp.onDynamicEnabled();
 	}
 
 	/**
@@ -102,15 +100,18 @@ class Dynamic_ extends SubCompiler {
 	function makeGetExpr(field: ClassField): Null<String> {
 		if(type == null) return null;
 
-		final thisExpr = genTypedExpr(TConst(TThis), type);
+		final thisType = TAbstract(Main.getPtrType(), [type]);
+		final thisExpr = genTypedExpr(TConst(TThis), thisType);
 		final exprDef = switch(type) {
 			case TInst(clsRef, params): TField(thisExpr, FInstance(clsRef, params, { get: () -> field, toString: () -> "" }));
 			case _: throw "Unsupported";
 		}
 		final expr = genTypedExpr(exprDef, field.type);
 
-		XComp.setThisOverride(genTypedExpr(TIdent("o"), TAbstract(Main.getPtrType(), [type])));
+		XComp.setThisOverride(genTypedExpr(TIdent("o"), thisType));
+		XComp.compilingInHeader = true;
 		final cpp = Main.compileExpression(expr);
+		XComp.compilingInHeader = false;
 		XComp.clearThisOverride();
 
 		return cpp;
@@ -146,20 +147,39 @@ class Dynamic_ extends SubCompiler {
 	/**
 		Generate code to call function given its data.
 	**/
-	function makeCallExpr(f: ClassFuncData, el: Array<TypedExpr>): Null<Array<String>> {
+	function makeCallExpr(f: ClassFuncData, el: Array<TypedExpr>, mmt: MemoryManagementType): Null<Array<String>> {
 		if(type == null) return null;
 		if(f.isStatic) return null;
 
-		final isInlineExtern = (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline));
-		if(isInlineExtern && f.expr != null) {
-			XComp.setThisOverride(genTypedExpr(TIdent("o"), type));
-			final cpp = ['auto result = [o, args] ${Main.compileExpression(f.expr)};', "result()"];
-			XComp.clearThisOverride();
+		restrictTypeParams(f);
 
-			return cpp;
+		// Only two mmt types supported atm. See `Error.ErrorType.UnsupportedRequireMMT`.
+		// Also `mmt` will always be `UnsafePtr` unless it's an extern inline function.
+		final ptrType = mmt == UnsafePtr ? Main.getPtrType() : Main.getSharedPtrType();
+		final thisType = TAbstract(ptrType, [type]);
+		final result = if(isExternInline(f) && f.expr != null) {
+			var argCpp = "";
+			for(i in 0...f.args.length) {
+				final e = switch(el[i].expr) { case TIdent(s): s; case _: throw "Impossible"; }
+				argCpp += '\tauto ${f.args[i].name} = $e;\n';
+			}
+
+			XComp.setThisOverride(genTypedExpr(TIdent("o"), thisType));
+			XComp.compilingInHeader = true;
+			final exprCpp = Main.compileExpression(f.expr);
+			if(exprCpp != null) {
+				final body = el.length > 0 ? '{\n$argCpp${exprCpp.tab()}\n}' : exprCpp;
+				final cpp = ['auto result = [o, args] $body;', "result()"];
+				XComp.compilingInHeader = false;
+				XComp.clearThisOverride();
+
+				cpp;
+			} else {
+				null;
+			}
 		} else {
 			final field = f.field;
-			final thisExpr = genTypedExpr(TConst(TThis), type);
+			final thisExpr = genTypedExpr(TConst(TThis), thisType);
 			final exprDef = switch(type) {
 				case TInst(clsRef, params): TField(thisExpr, FInstance(clsRef, params, { get: () -> field, toString: () -> "" }));
 				case _: throw "Unsupported";
@@ -167,28 +187,58 @@ class Dynamic_ extends SubCompiler {
 			final expr = genTypedExpr(exprDef, field.type);
 			final t = genTypedExpr(TCall(expr, el), f.ret);
 			
-			XComp.setThisOverride(genTypedExpr(TIdent("o"), TAbstract(Main.getPtrType(), [type])));
+			XComp.setThisOverride(genTypedExpr(TIdent("o"), thisType));
+			XComp.compilingInHeader = true;
 			final cpp = Main.compileExpression(t);
+			XComp.compilingInHeader = false;
 			XComp.clearThisOverride();
 
-			return cpp != null ? [cpp] : null;
+			cpp != null ? [cpp] : null;
 		}
+
+		unrestrictTypeParams();
+
+		return result;
+	}
+
+	function restrictTypeParams(f: ClassFuncData) {
+		TComp.setAllowedTypeParamNames(f.classType.params.map(p -> p.name));
+	}
+
+	function unrestrictTypeParams() {
+		TComp.allowAllTypeParamNames();
+	}
+
+	function isExternInline(f: ClassFuncData): Bool {
+		return (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline));
 	}
 
 	/**
 		Add a function.
 	**/
-	public function addFunc(v: ClassFuncData, cppArgs: Array<String>, name: String) {
-		if(v.field.name == "new") return;
+	public function addFunc(f: ClassFuncData, args: Array<Type>, name: String) {
+		if(f.field.name == "new") return;
 
-		final hasRet = !v.ret.isVoid();
+		// Check if the return type has a constructor if necessary.
+		if(f.field.hasMeta(Meta.RequireReturnTypeHasConstructor)) {
+			switch(f.ret) {
+				case TInst(_.get() => cls, _) if(cls.constructor == null): return;
+				case _:
+			}
+		}
+
+		restrictTypeParams(f);
+		final cppArgs = args.map(t -> TComp.compileType(t, f.field.pos, false, true));
+		unrestrictTypeParams();
+
+		final hasRet = !f.ret.isVoid();
 		final args = [];
 		final typedArgs = [];
 		//final exprArgs = [];
 		for(i in 0...cppArgs.length) {
 			final a = 'args[${i}].asType<${cppArgs[i]}>()';
 			args.push(a);
-			typedArgs.push(genTypedExpr(TIdent(a), v.args[i].type));
+			typedArgs.push(genTypedExpr(TIdent(a), f.args[i].type));
 			//exprArgs.push(macro untyped __cpp__($v{a}));
 		}
 
@@ -255,7 +305,9 @@ ${content.tab(2)}
 			dynamicName;
 		}
 
-		return '
+		final includes = classType.isExtern ? '\n${IComp.compileHeaderIncludes()}\n' : "";
+
+		return '$includes
 namespace haxe {
 $prefix
 class ${name} {
