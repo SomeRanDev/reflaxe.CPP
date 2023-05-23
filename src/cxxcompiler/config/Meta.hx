@@ -382,4 +382,14 @@ enum abstract Meta(String) from String to String {
 	// By default, extern inline uses an unsafe pointer, which may not
 	// be compatible with statements that require smart pointers.
 	var RequireMemoryManagement = ":requireMemoryManagement";
+
+	// @:requireReturnTypeHasConstructor
+	//
+	// Used on extern inline functions to notify the Dynamic compiler
+	// that the Dynamic wrapper should only generate this field
+	// if its return type has a constructor.
+	//
+	// This is to bypass issues with Haxe's DCE not generating iterators
+	// if they could not have possibly been used.
+	var RequireReturnTypeHasConstructor = ":requireReturnTypeHasConstructor";
 }
