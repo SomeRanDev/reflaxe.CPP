@@ -95,7 +95,17 @@ class HxArray {
 		}
 	}
 
-	public static function map<T, S>(a: Array<T>, f: (T) -> S): Array<S> {
+	public static function lastIndexOf<T>(a: cxx.Ptr<Array<T>>, x: T, fromIndex: Int = -1): Int {
+		final offset = fromIndex < 0 ? 0 : (a.length - (fromIndex + 1));
+		final it: cxx.Auto = untyped __cpp__("std::find({0}, {1}, {2})", a.rbegin() + offset, a.rend(), x);
+		return if(untyped it != a.rend()) {
+			cxx.Stdlib.ccast(untyped it - a.rbegin());
+		} else {
+			-1;
+		}
+	}
+
+	public static function map<T, S>(a: cxx.Ptr<Array<T>>, f: (T) -> S): Array<S> {
 		return [for (v in a) f(v)];
 	}
 
@@ -236,6 +246,10 @@ extern class Array<T> {
 
 	@:runtime public inline function indexOf(x: T, fromIndex: Int = 0): Int {
 		return HxArray.indexOf(this, x, fromIndex);
+	}
+
+	@:runtime public inline function lastIndexOf(x: T, fromIndex: Int = 0): Int {
+		return HxArray.lastIndexOf(this, x, fromIndex);
 	}
 
 	@:runtime public inline function map<S>(f: (T) -> S): Array<S> {
