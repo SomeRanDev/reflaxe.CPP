@@ -6,15 +6,7 @@ namespace haxe {
 class Dynamic_haxe_Exception {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
-		if(name == "_message") {
-			return Dynamic::unwrap<haxe::Exception>(d, [](haxe::Exception* o) {
-				return makeDynamic(o->_message);
-			});
-		} else if(name == "_previous") {
-			return Dynamic::unwrap<haxe::Exception>(d, [](haxe::Exception* o) {
-				return makeDynamic(o->_previous);
-			});
-		} else if(name == "get_message") {
+		if(name == "get_message") {
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->get_message());
 			});
@@ -41,6 +33,24 @@ public:
 		} else if(name == "details") {
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->details());
+			});
+		}
+		// call const version if none found here
+		return getProp(static_cast<Dynamic const&>(d), name);
+	}
+
+	static Dynamic getProp(Dynamic const& d, std::string name) {
+		if(name == "_message") {
+			return Dynamic::unwrap<haxe::Exception>(d, [](haxe::Exception* o) {
+				return makeDynamic(o->_message);
+			});
+		} else if(name == "_previous") {
+			return Dynamic::unwrap<haxe::Exception>(d, [](haxe::Exception* o) {
+				return makeDynamic(o->_previous);
+			});
+		} else if(name == "==") {
+			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
+				return makeDynamic((*o) == (args[0].asType<haxe::Exception>()));
 			});
 		}
 		return Dynamic();

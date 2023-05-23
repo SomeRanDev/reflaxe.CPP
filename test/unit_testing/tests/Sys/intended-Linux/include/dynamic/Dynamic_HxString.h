@@ -12,11 +12,7 @@ namespace haxe {
 class Dynamic_std_string {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
-		if(name == "length") {
-			return Dynamic::unwrap<std::string>(d, [](std::string* o) {
-				return makeDynamic(o->size());
-			});
-		} else if(name == "indexOf") {
+		if(name == "indexOf") {
 			return Dynamic::makeFunc<std::string>(d, [](std::string* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->find(args[0].asType<std::string>(), (std::size_t)(args[1].asType<int>())));
 			});
@@ -96,6 +92,20 @@ public:
 		} else if(name == "at") {
 			return Dynamic::makeFunc<std::string>(d, [](std::string* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->at(args[0].asType<int>()));
+			});
+		}
+		// call const version if none found here
+		return getProp(static_cast<Dynamic const&>(d), name);
+	}
+
+	static Dynamic getProp(Dynamic const& d, std::string name) {
+		if(name == "length") {
+			return Dynamic::unwrap<std::string>(d, [](std::string* o) {
+				return makeDynamic(o->size());
+			});
+		} else if(name == "==") {
+			return Dynamic::makeFunc<std::string>(d, [](std::string* o, std::deque<Dynamic> args) {
+				return makeDynamic((*o) == (args[0].asType<std::string>()));
 			});
 		}
 		return Dynamic();

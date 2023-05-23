@@ -6,6 +6,11 @@ namespace haxe {
 class Dynamic_Main {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
+		// call const version if none found here
+		return getProp(static_cast<Dynamic const&>(d), name);
+	}
+
+	static Dynamic getProp(Dynamic const& d, std::string name) {
 		if(name == "a") {
 			return Dynamic::unwrap<Main>(d, [](Main* o) {
 				return makeDynamic(o->a);
@@ -13,6 +18,10 @@ public:
 		} else if(name == "returnCode") {
 			return Dynamic::unwrap<Main>(d, [](Main* o) {
 				return makeDynamic(o->returnCode);
+			});
+		} else if(name == "==") {
+			return Dynamic::makeFunc<Main>(d, [](Main* o, std::deque<Dynamic> args) {
+				return makeDynamic((*o) == (args[0].asType<Main>()));
 			});
 		}
 		return Dynamic();

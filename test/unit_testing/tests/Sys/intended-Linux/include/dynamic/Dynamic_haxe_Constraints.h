@@ -52,6 +52,11 @@ public:
 				return Dynamic();
 			});
 		}
+		// call const version if none found here
+		return getProp(static_cast<Dynamic const&>(d), name);
+	}
+
+	static Dynamic getProp(Dynamic const&, std::string) {
 		return Dynamic();
 	}
 

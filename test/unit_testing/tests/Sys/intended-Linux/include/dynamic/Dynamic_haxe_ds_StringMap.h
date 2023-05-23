@@ -9,11 +9,7 @@ template<typename T>
 class Dynamic_haxe_ds_StringMap<haxe::ds::StringMap<T>> {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
-		if(name == "m") {
-			return Dynamic::unwrap<haxe::ds::StringMap<T>>(d, [](haxe::ds::StringMap<T>* o) {
-				return makeDynamic(o->m);
-			});
-		} else if(name == "set") {
+		if(name == "set") {
 			return Dynamic::makeFunc<haxe::ds::StringMap<T>>(d, [](haxe::ds::StringMap<T>* o, std::deque<Dynamic> args) {
 				o->set(args[0].asType<std::string>(), args[1].asType<T>());
 				return Dynamic();
@@ -57,6 +53,20 @@ public:
 			return Dynamic::makeFunc<haxe::ds::StringMap<T>>(d, [](haxe::ds::StringMap<T>* o, std::deque<Dynamic> args) {
 				o->clear();
 				return Dynamic();
+			});
+		}
+		// call const version if none found here
+		return getProp(static_cast<Dynamic const&>(d), name);
+	}
+
+	static Dynamic getProp(Dynamic const& d, std::string name) {
+		if(name == "m") {
+			return Dynamic::unwrap<haxe::ds::StringMap<T>>(d, [](haxe::ds::StringMap<T>* o) {
+				return makeDynamic(o->m);
+			});
+		} else if(name == "==") {
+			return Dynamic::makeFunc<haxe::ds::StringMap<T>>(d, [](haxe::ds::StringMap<T>* o, std::deque<Dynamic> args) {
+				return makeDynamic((*o) == (args[0].asType<haxe::ds::StringMap<T>>()));
 			});
 		}
 		return Dynamic();

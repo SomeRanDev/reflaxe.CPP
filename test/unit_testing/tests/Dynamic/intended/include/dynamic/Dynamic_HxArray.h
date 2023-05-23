@@ -19,11 +19,7 @@ template<typename T>
 class Dynamic_std_deque<std::deque<T>> {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
-		if(name == "length") {
-			return Dynamic::unwrap<std::deque<T>>(d, [](std::deque<T>* o) {
-				return makeDynamic(o->size());
-			});
-		} else if(name == "unshift") {
+		if(name == "unshift") {
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
 				o->push_front(args[0].asType<T>());
 				return Dynamic();
@@ -259,9 +255,23 @@ public:
 				};
 				return makeDynamic(result());
 			});
+		}
+		// call const version if none found here
+		return getProp(static_cast<Dynamic const&>(d), name);
+	}
+
+	static Dynamic getProp(Dynamic const& d, std::string name) {
+		if(name == "length") {
+			return Dynamic::unwrap<std::deque<T>>(d, [](std::deque<T>* o) {
+				return makeDynamic(o->size());
+			});
 		} else if(name == "[]") {
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->operator[](args[0].asType<long>()));
+			});
+		} else if(name == "==") {
+			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
+				return makeDynamic((*o) == (args[0].asType<std::deque<T>>()));
 			});
 		}
 		return Dynamic();

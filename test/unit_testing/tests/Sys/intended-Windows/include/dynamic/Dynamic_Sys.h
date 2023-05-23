@@ -5,7 +5,12 @@ namespace haxe {
 
 class Dynamic_Sys_GetEnv {
 public:
-	static Dynamic getProp(Dynamic&, std::string) {
+	static Dynamic getProp(Dynamic& d, std::string name) {
+		// call const version if none found here
+		return getProp(static_cast<Dynamic const&>(d), name);
+	}
+
+	static Dynamic getProp(Dynamic const&, std::string) {
 		return Dynamic();
 	}
 
@@ -19,7 +24,12 @@ namespace haxe {
 
 class Dynamic_Sys_Environment {
 public:
-	static Dynamic getProp(Dynamic&, std::string) {
+	static Dynamic getProp(Dynamic& d, std::string name) {
+		// call const version if none found here
+		return getProp(static_cast<Dynamic const&>(d), name);
+	}
+
+	static Dynamic getProp(Dynamic const&, std::string) {
 		return Dynamic();
 	}
 
@@ -34,6 +44,11 @@ namespace haxe {
 class Dynamic_Sys_Args {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
+		// call const version if none found here
+		return getProp(static_cast<Dynamic const&>(d), name);
+	}
+
+	static Dynamic getProp(Dynamic const& d, std::string name) {
 		if(name == "_args") {
 			return Dynamic::unwrap<Sys_Args>(d, [](Sys_Args* o) {
 				return makeDynamic(o->_args);
@@ -59,6 +74,11 @@ namespace haxe {
 class Dynamic_Sys_CpuTime {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
+		// call const version if none found here
+		return getProp(static_cast<Dynamic const&>(d), name);
+	}
+
+	static Dynamic getProp(Dynamic const& d, std::string name) {
 		if(name == "_startTime") {
 			return Dynamic::unwrap<Sys_CpuTime>(d, [](Sys_CpuTime* o) {
 				return makeDynamic(o->_startTime);
