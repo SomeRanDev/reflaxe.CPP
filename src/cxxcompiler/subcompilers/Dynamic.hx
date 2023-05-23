@@ -41,6 +41,10 @@ class Dynamic_ extends SubCompiler {
 	public function enableDynamic(blamePosition: Position) {
 		if(!enabled) {
 			// dynamic/Dynamic.h requires this
+			if(exceptionType == null) {
+				exceptionType = Context.getType("haxe.Exception");
+				Main.onTypeEncountered(exceptionType, true, blamePosition);
+			}
 
 			enabled = true;
 
