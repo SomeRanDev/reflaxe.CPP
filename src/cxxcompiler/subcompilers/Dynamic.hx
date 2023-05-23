@@ -475,21 +475,23 @@ public:
 	Dynamic(T obj): id(getId()) {
 		using inner = typename _mm_type<T>::inner;
 
-		if constexpr(std::is_integral_v<T>) {
+		if constexpr(std::is_same_v<inner, bool>) {
+			_anyObj = static_cast<bool>(obj);
+			_innerType = std::type_index(typeid(bool));
+		} else if constexpr(std::is_integral_v<T>) {
 			long l = static_cast<long>(obj);
 			_anyObj = l;
 			_innerType = std::type_index(typeid(long));
-			_dynType = Value;
 		} else if constexpr(std::is_floating_point_v<T>) {
 			long d = static_cast<double>(obj);
 			_anyObj = d;
 			_innerType = std::type_index(typeid(double));
-			_dynType = Value;
 		} else {
 			_anyObj = obj;
 			_innerType = std::type_index(typeid(inner));
-			_dynType = _mm_type<T>::type;
 		}
+
+		_dynType = _mm_type<T>::type;
 
 		// We cannot copy or move `std::unique_ptr`s
 		if(_dynType == UniquePtr) {
@@ -640,6 +642,8 @@ public:
 			return std::to_string(asType<long>());
 		} else if(isFloat()) {
 			return std::to_string(asType<double>());
+		} else if(isBool()) {
+			return asType<bool>() ? std::string(\"true\") : std::string(\"false\");
 		}
 		return std::string(\"Dynamic\");
 	}
