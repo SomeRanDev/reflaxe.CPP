@@ -43,6 +43,7 @@ enum ErrorType {
 	MainPrependOnNonStatic;
 	MainPrependWrongArguments;
 	InvalidCStr;
+	UnsupportedRequireMMT;
 
 	// Memory Management Conversion
 	UnsafeToShared;
@@ -117,6 +118,9 @@ class Error {
 			}
 			case InvalidCStr: {
 				"Invalid use of @:cstr. Must be used on a constant String expresszion.";
+			}
+			case UnsupportedRequireMMT: {
+				"UnsafePtr and SharedPtr are the only arguments supported at the moment.";
 			}
 
 			// Memory Management Conversion
