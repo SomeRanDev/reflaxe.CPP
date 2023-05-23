@@ -151,7 +151,8 @@ extern class Array<T> {
 	public function unshift(x: T): Void;
 
 	@:nativeName("insert")
-	private function cppInsert(pos: Int, x: T): Void;
+	@:dontGenerateDynamic
+	private function cppInsert(pos: Dynamic, x: T): Void;
 
 	public function resize(len: Int): Void;
 
