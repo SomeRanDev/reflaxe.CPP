@@ -5,6 +5,7 @@ package;
 @:headerInclude("algorithm", true)
 @:headerInclude("cctype", true)
 @:dontGenerateDynamic
+@:unreflective
 @:filename("HxString")
 @:headerOnly
 class HxString {
@@ -50,6 +51,7 @@ class HxString {
 @:nativeName("std::string")
 @:include("string", true)
 @:valueType
+@:dynamicCompatible
 @:filename("HxString")
 extern class String {
 	// ----------------------------
@@ -65,6 +67,8 @@ extern class String {
 	// @:nativeName
 	@:nativeName("size()")
 	@:redirectType("length_type")
+	@:dynamicAccessors("default", "never")
+	@:noDiscard(true)
 	public var length(default, null): Int;
 
 	@:nativeName("find")
