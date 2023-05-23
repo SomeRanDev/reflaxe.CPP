@@ -47,6 +47,8 @@ function main() {
 		trace(arr[4][1] = 333);
 		trace(arr[4][0]);
 		trace(arr[4]);
+
+		trace(arr[4] == [1, 333]);
 	} catch(e) {
 		trace(e.message);
 	}
