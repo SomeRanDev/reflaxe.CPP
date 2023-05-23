@@ -585,15 +585,7 @@ public:
 
 	template<typename T>
 	static Dynamic unwrap(Dynamic& d, std::function<Dynamic(T*)> callback) {
-		std::optional<T> v;
-		if(d._dynType == Value) v = std::any_cast<T>(d._anyObj);
-		else v = std::nullopt;
-		T* p = nullptr;
-		if(d._dynType == Value) {
-			p = v.operator->();
-		} else {
-			p = d.asType<T*>();
-		}
+		DYN_GETPTR(d, T)
 		return callback(p);
 	}
 
