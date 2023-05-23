@@ -1012,7 +1012,7 @@ class Classes extends SubCompiler {
 	}
 
 	function shouldGenerateHeader() {
-		return fieldsCompiled > 0 || classType.hasMeta(":used");
+		return fieldsCompiled > 0 || classType.hasMeta(":used") || classType.hasMeta(":keep");
 	}
 
 	function getHeaderFilename() {
