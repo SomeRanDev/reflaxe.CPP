@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <deque>
 #include <dynamic/Dynamic.h>
 #include <functional>

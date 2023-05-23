@@ -27,6 +27,7 @@ include/haxe_Exception.h
 include/haxe_Constraints.h
 include/haxe_CallStack.h
 include/dynamic/Dynamic_haxe_iterators_MapKeyValueIterator.h
+include/dynamic/Dynamic_haxe_iterators_ArrayKeyValueIterator.h
 include/dynamic/Dynamic_haxe_iterators_ArrayIterator.h
 include/dynamic/Dynamic_haxe_io_Output.h
 include/dynamic/Dynamic_haxe_io_Bytes.h
@@ -42,6 +43,7 @@ include/dynamic/Dynamic_Sys.h
 include/dynamic/Dynamic_StringBuf.h
 include/dynamic/Dynamic_Std.h
 include/dynamic/Dynamic_Main.h
+include/dynamic/Dynamic_HxString.h
 include/dynamic/Dynamic_HxArray.h
 include/dynamic/Dynamic.h
 include/cxx_io_NativeOutput.h
@@ -56,4 +58,5 @@ include/StdTypes.h
 include/Std.h
 include/Map.h
 include/Main.h
+include/HxString.h
 include/HxArray.h
