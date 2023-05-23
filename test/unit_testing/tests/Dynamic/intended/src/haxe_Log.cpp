@@ -6,6 +6,8 @@
 #include <memory>
 #include <string>
 #include "cxx_DynamicToString.h"
+#include "HxArray.h"
+#include "HxString.h"
 #include "Std.h"
 
 using namespace std::string_literals;

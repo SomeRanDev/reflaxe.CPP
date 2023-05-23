@@ -1,9 +1,12 @@
 #include "haxe_Exception.h"
 
+#include <deque>
 #include <iostream>
 #include <memory>
 #include <string>
 #include "haxe_CallStack.h"
+#include "HxArray.h"
+#include "HxString.h"
 #include "Std.h"
 
 using namespace std::string_literals;

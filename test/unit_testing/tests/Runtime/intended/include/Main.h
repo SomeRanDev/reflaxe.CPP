@@ -3,6 +3,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include "_AnonUtils.h"
 #include "haxe_Constraints.h"
 #include "haxe_ds_StringMap.h"
 

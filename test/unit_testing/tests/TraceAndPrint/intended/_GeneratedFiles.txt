@@ -3,7 +3,6 @@ src/_main_.cpp
 src/Main.cpp
 src/EReg.cpp
 include/haxe_iterators_MapKeyValueIterator.h
-include/haxe_iterators_ArrayKeyValueIterator.h
 include/haxe_iterators_ArrayIterator.h
 include/haxe_ds_IntMap.h
 include/haxe_PosInfos.h
@@ -17,5 +16,4 @@ include/StdTypes.h
 include/Std.h
 include/Main.h
 include/HxString.h
-include/HxArray.h
 include/EReg.h

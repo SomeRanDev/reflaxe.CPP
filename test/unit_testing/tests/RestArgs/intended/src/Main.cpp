@@ -49,7 +49,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 	};
 	
 	Main::assert((*tempLeft) == (*std::make_shared<std::deque<int>>(std::deque<int>{ 1, 2, 3 })), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 18, "oneTwoThree"s));
-	Main::assert(HxArray::toString<int>(numbers) == "[1, 2, 3]"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 19, "oneTwoThree"s));
+	Main::assert(HxArray::toString<int>(numbers.get()) == "[1, 2, 3]"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 19, "oneTwoThree"s));
 	
 	std::shared_ptr<std::deque<int>> tempArray;
 	
@@ -75,7 +75,7 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 	};
 	
 	tempArray->push_back(123);
-	Main::assert(HxArray::toString<int>(tempArray) == "[1, 2, 3, 123]"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 24, "oneTwoThree"s));
+	Main::assert(HxArray::toString<int>(tempArray.get()) == "[1, 2, 3, 123]"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/RestArgs/Main.hx"s, 24, "oneTwoThree"s));
 	
 	int i = 1;
 	int _g_current = 0;

@@ -1,6 +1,7 @@
 #include "Main.h"
 
 #include <cstdlib>
+#include <deque>
 #include <iostream>
 #include <memory>
 #include <string>

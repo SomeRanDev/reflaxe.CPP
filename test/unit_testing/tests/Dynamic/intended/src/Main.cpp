@@ -4,7 +4,10 @@
 #include "cxx_DynamicToString.h"
 #include "haxe_Exception.h"
 #include "haxe_Log.h"
+#include "HxArray.h"
+#include "HxString.h"
 #include "Std.h"
+#include <deque>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -25,7 +28,7 @@ void _Main::Main_Fields_::main() {
 	haxe::Log::trace(d2.getProp("getT")(), haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 29, "main"s));
 	
 	try {
-		d2.getProp("bla")();
+	
 	} catch(haxe::Exception& e) {
 		haxe::DynamicToString v = e.details();
 		
@@ -34,11 +37,17 @@ void _Main::Main_Fields_::main() {
 	try {
 		haxe::Dynamic arr = std::make_shared<std::deque<haxe::Dynamic>>(std::deque<haxe::Dynamic>{ 1, 2, 3 });
 		
-		arr.getProp("push")(32);
-		haxe::Log::trace(arr.getProp("length"), haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 43, "main"s));
-		haxe::Log::trace(arr, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 44, "main"s));
+		arr.getProp("push")("Test"s);
+		arr.getProp("push")(std::make_shared<std::deque<int>>(std::deque<int>{ 1, 2 }));
+		haxe::Log::trace(arr.getProp("length"), haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 44, "main"s));
+		haxe::Log::trace(arr, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 45, "main"s));
+		haxe::Log::trace(arr[2], haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 46, "main"s));
+		arr[4].setProp("[]", 1)(333);
+		haxe::Log::trace(arr[4][1], haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 47, "main"s));
+		haxe::Log::trace(arr[4][0], haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 48, "main"s));
+		haxe::Log::trace(arr[4], haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 49, "main"s));
 	} catch(haxe::Exception& e) {
-		haxe::Log::trace(e.get_message(), haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 46, "main"s));
+		haxe::Log::trace(e.get_message(), haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 51, "main"s));
 	};
 }
 Test::Test():

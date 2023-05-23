@@ -133,7 +133,7 @@ std::string StringTools::htmlUnescape(std::string s) {
 									{
 										std::shared_ptr<std::deque<std::string>> _this = HxString::split(s, "&gt;"s);
 										
-										tempString3 = HxArray::join<std::string>(_this, ">"s);
+										tempString3 = HxArray::join<std::string>(_this.get(), ">"s);
 									};
 									
 									std::string _this = tempString3;
@@ -141,7 +141,7 @@ std::string StringTools::htmlUnescape(std::string s) {
 									tempArray3 = HxString::split(_this, "&lt;"s);
 								};
 								
-								tempString2 = HxArray::join<std::string>(tempArray3, "<"s);
+								tempString2 = HxArray::join<std::string>(tempArray3.get(), "<"s);
 							};
 							
 							std::string _this = tempString2;
@@ -149,7 +149,7 @@ std::string StringTools::htmlUnescape(std::string s) {
 							tempArray2 = HxString::split(_this, "&quot;"s);
 						};
 						
-						tempString1 = HxArray::join<std::string>(tempArray2, "\""s);
+						tempString1 = HxArray::join<std::string>(tempArray2.get(), "\""s);
 					};
 					
 					std::string _this = tempString1;
@@ -157,7 +157,7 @@ std::string StringTools::htmlUnescape(std::string s) {
 					tempArray1 = HxString::split(_this, "&#039;"s);
 				};
 				
-				tempString = HxArray::join<std::string>(tempArray1, "'"s);
+				tempString = HxArray::join<std::string>(tempArray1.get(), "'"s);
 			};
 			
 			std::string _this = tempString;
@@ -165,7 +165,7 @@ std::string StringTools::htmlUnescape(std::string s) {
 			tempArray = HxString::split(_this, "&amp;"s);
 		};
 		
-		tempResult = HxArray::join<std::string>(tempArray, "&"s);
+		tempResult = HxArray::join<std::string>(tempArray.get(), "&"s);
 	};
 	
 	return tempResult;
@@ -254,7 +254,7 @@ std::string StringTools::rpad(std::string s, std::string c, int l) {
 
 std::string StringTools::replace(std::string s, std::string sub, std::string by) {
 	std::shared_ptr<std::deque<std::string>> _this = HxString::split(s, sub);
-	std::string tempResult = HxArray::join<std::string>(_this, by);
+	std::string tempResult = HxArray::join<std::string>(_this.get(), by);
 	
 	return tempResult;
 }

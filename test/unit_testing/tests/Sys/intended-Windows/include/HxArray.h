@@ -10,7 +10,7 @@
 class HxArray {
 public:
 	template<typename T>
-	static std::shared_ptr<std::deque<T>> concat(std::shared_ptr<std::deque<T>> a, std::shared_ptr<std::deque<T>> other) {
+	static std::shared_ptr<std::deque<T>> concat(std::deque<T>* a, std::deque<T>* other) {
 		std::shared_ptr<std::deque<T>> tempArray;
 		
 		{
@@ -18,9 +18,10 @@ public:
 			
 			{
 				int _g = 0;
+				std::deque<T>* _g1 = a;
 				
-				while(_g < (int)(a->size())) {
-					T obj = (*a)[_g];
+				while(_g < (int)(_g1->size())) {
+					T obj = (*_g1)[_g];
 					
 					++_g;
 					
@@ -32,25 +33,21 @@ public:
 			
 			tempArray = result;
 		};
-		{
-			int _g = 0;
+		
+		int _g_current = 0;
+		std::deque<T>* _g_array = other;
+		
+		while(_g_current < (int)(_g_array->size())) {
+			T o = (*_g_array)[_g_current++];
 			
-			while(_g < (int)(other->size())) {
-				T o = (*other)[_g];
-				
-				++_g;
-				
-				{
-					tempArray->push_back(o);
-				};
-			};
+			tempArray->push_back(o);
 		};
 		
 		return tempArray;
 	}
 	
 	template<typename T>
-	static std::string join(std::shared_ptr<std::deque<T>> a, std::string sep) {
+	static std::string join(std::deque<T>* a, std::string sep) {
 		std::string result = std::string("");
 		int _g = 0;
 		int _g1 = (int)(a->size());
@@ -69,7 +66,7 @@ public:
 	}
 	
 	template<typename T>
-	static std::shared_ptr<std::deque<T>> slice(std::shared_ptr<std::deque<T>> a, int pos, std::optional<int> end = std::nullopt) {
+	static std::shared_ptr<std::deque<T>> slice(std::deque<T>* a, int pos, std::optional<int> end = std::nullopt) {
 		if(pos < 0) {
 			pos += (int)(a->size());
 		};
@@ -103,7 +100,7 @@ public:
 	}
 	
 	template<typename T>
-	static std::shared_ptr<std::deque<T>> splice(std::shared_ptr<std::deque<T>>& a, int pos, int len) {
+	static std::shared_ptr<std::deque<T>> splice(std::deque<T>* a, int pos, int len) {
 		if(pos < 0) {
 			pos += (int)(a->size());
 		};
@@ -138,7 +135,7 @@ public:
 	}
 	
 	template<typename T>
-	static void insert(std::shared_ptr<std::deque<T>>& a, int pos, T x) {
+	static void insert(std::deque<T>* a, int pos, T x) {
 		if(pos < 0) {
 			auto it = a->end() + pos + 1;
 			
@@ -151,7 +148,7 @@ public:
 	}
 	
 	template<typename T>
-	static int indexOf(std::shared_ptr<std::deque<T>> a, T x, int fromIndex = 0) {
+	static int indexOf(std::deque<T>* a, T x, int fromIndex = 0) {
 		auto it = std::find(a->begin(), a->end(), x);
 		int tempResult;
 		
@@ -164,16 +161,37 @@ public:
 		return tempResult;
 	}
 	
-	template<typename T, typename S>
-	static std::shared_ptr<std::deque<S>> map(std::shared_ptr<std::deque<T>> a, std::function<S(T)> f) {
-		std::shared_ptr<std::deque<S>> _g = std::make_shared<std::deque<S>>(std::deque<S>{});
-		int _g1 = 0;
+	template<typename T>
+	static int lastIndexOf(std::deque<T>* a, T x, int fromIndex = -1) {
+		int tempNumber;
 		
-		while(_g1 < (int)(a->size())) {
-			T v = (*a)[_g1];
-			
-			++_g1;
-			
+		if(fromIndex < 0) {
+			tempNumber = 0;
+		} else {
+			tempNumber = (int)(a->size() - (fromIndex + 1));
+		};
+		
+		int offset = tempNumber;
+		auto it = std::find(a->rbegin() + offset, a->rend(), x);
+		int tempResult;
+		
+		if(it != a->rend()) {
+			tempResult = ((int)(it - a->rbegin()));
+		} else {
+			tempResult = -1;
+		};
+		
+		return tempResult;
+	}
+	
+	template<typename T, typename S>
+	static std::shared_ptr<std::deque<S>> map(std::deque<T>* a, std::function<S(T)> f) {
+		std::shared_ptr<std::deque<S>> _g = std::make_shared<std::deque<S>>(std::deque<S>{});
+		int _g_current = 0;
+		std::deque<T>* _g_array = a;
+		
+		while(_g_current < (int)(_g_array->size())) {
+			T v = (*_g_array)[_g_current++];
 			S x = f(v);
 			
 			_g->push_back(x);
@@ -183,14 +201,13 @@ public:
 	}
 	
 	template<typename T>
-	static std::shared_ptr<std::deque<T>> filter(std::shared_ptr<std::deque<T>> a, std::function<bool(T)> f) {
+	static std::shared_ptr<std::deque<T>> filter(std::deque<T>* a, std::function<bool(T)> f) {
 		std::shared_ptr<std::deque<T>> _g = std::make_shared<std::deque<T>>(std::deque<T>{});
-		int _g1 = 0;
+		int _g_current = 0;
+		std::deque<T>* _g_array = a;
 		
-		while(_g1 < (int)(a->size())) {
-			T v = (*a)[_g1];
-			
-			++_g1;
+		while(_g_current < (int)(_g_array->size())) {
+			T v = (*_g_array)[_g_current++];
 			
 			if(f(v)) {
 				_g->push_back(v);
@@ -201,7 +218,7 @@ public:
 	}
 	
 	template<typename T>
-	static std::string toString(std::shared_ptr<std::deque<T>> a) {
+	static std::string toString(std::deque<T>* a) {
 		std::string result = std::string("[");
 		int _g = 0;
 		int _g1 = (int)(a->size());
@@ -226,7 +243,6 @@ public:
 
 
 #include "dynamic/Dynamic_HxArray.h"
-#include "dynamic/Dynamic_HxArray.h"
 
 
 // Reflection info
@@ -237,17 +253,7 @@ namespace haxe {
 		using Dyn = haxe::Dynamic_std_deque<std::deque<T>>;
 		constexpr static _class_data<25, 0> data {
 			"Array",
-			{ "length", "unshift", "cppInsert", "resize", "lastIndexOf", "push", "pop", "reverse", "shift", "sort", "remove", "contains", "copy", "iterator", "keyValueIterator", "concat", "join", "slice", "splice", "toString", "insert", "indexOf", "map", "filter", "length_type" },
-			{},
-			true
-			};
-	};
-	template<typename T> struct _class<std::deque<T>> {
-		DEFINE_CLASS_TOSTRING
-		using Dyn = haxe::Dynamic_std_deque<std::deque<T>>;
-		constexpr static _class_data<25, 0> data {
-			"Array",
-			{ "length", "unshift", "cppInsert", "resize", "lastIndexOf", "push", "pop", "reverse", "shift", "sort", "remove", "contains", "copy", "iterator", "keyValueIterator", "concat", "join", "slice", "splice", "toString", "insert", "indexOf", "map", "filter", "length_type" },
+			{ "length", "unshift", "cppInsert", "resize", "push", "pop", "reverse", "shift", "sort", "remove", "contains", "copy", "iterator", "keyValueIterator", "concat", "join", "slice", "splice", "toString", "insert", "indexOf", "lastIndexOf", "map", "filter", "length_type" },
 			{},
 			true
 			};

@@ -1,5 +1,6 @@
 #include "haxe_Exception.h"
 
+#include <deque>
 #include <iostream>
 #include <memory>
 #include <string>

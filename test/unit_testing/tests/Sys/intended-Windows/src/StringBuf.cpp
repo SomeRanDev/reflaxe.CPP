@@ -1,6 +1,7 @@
 #include "StringBuf.h"
 
 #include <string>
+#include "HxString.h"
 
 using namespace std::string_literals;
 

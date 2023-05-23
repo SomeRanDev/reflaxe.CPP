@@ -3,6 +3,8 @@
 #include <deque>
 #include <memory>
 #include <string>
+#include "HxArray.h"
+#include "HxString.h"
 #include "Std.h"
 #include "StringBuf.h"
 

@@ -1,9 +1,11 @@
 #include "Main.h"
 
+#include <deque>
 #include <iostream>
 #include <memory>
 #include <string>
 #include "_AnonStructs.h"
+#include "cxx_DynamicToString.h"
 #include "haxe_Constraints.h"
 #include "haxe_ds_StringMap.h"
 #include "haxe_Log.h"

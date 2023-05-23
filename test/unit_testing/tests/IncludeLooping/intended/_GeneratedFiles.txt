@@ -3,8 +3,6 @@ src/_main_.cpp
 src/Other2.cpp
 src/Other.cpp
 src/Main.cpp
-include/haxe_iterators_ArrayKeyValueIterator.h
-include/haxe_iterators_ArrayIterator.h
 include/haxe_PosInfos.h
 include/haxe_Log.h
 include/cxx_DynamicToString.h
@@ -15,6 +13,5 @@ include/Std.h
 include/Other2.h
 include/Other.h
 include/Main.h
-include/HxArray.h
 include/EnumLoop2.h
 include/EnumLoop1.h

@@ -44,28 +44,59 @@ struct _mm_type<std::unique_ptr<T>> { using inner = T; constexpr static DynamicT
 
 // ---
 
+// Use within the Dynamic to extract a pointer type
+// from a Dynamic into a local variable `p`.
+#define DYN_GETPTR(name, t) \
+	std::optional<t> v;\
+	if(name._dynType == Value) v = std::any_cast<t>(name._anyObj);\
+	else v = std::nullopt;\
+	t* p = nullptr;\
+	if(name._dynType == Value) {\
+		p = v.operator->();\
+	} else {\
+		p = name.asType<t*>();\
+	}
+
+// ---
+
 // The class used for Haxe's `Dynamic` type.
 class Dynamic {
 public:
 	DynamicType _dynType;
+
+	long id;
+	static long getId() { static long maxId = 0; return maxId++; }
+
 	std::optional<std::type_index> _innerType;
 	std::any _anyObj;
-	std::function<Dynamic(std::deque<Dynamic>)> func;
 
+	std::function<Dynamic(std::deque<Dynamic>)> func;
 	std::function<Dynamic(Dynamic&,std::string)> getFunc;
 	std::function<Dynamic(Dynamic&,std::string,Dynamic)> setFunc;
 
-	Dynamic() {
+	Dynamic(): id(getId()) {
 		_dynType = Empty;
 	}
 
 	template<typename T>
-	Dynamic(T obj) {
+	Dynamic(T obj): id(getId()) {
 		using inner = typename _mm_type<T>::inner;
 
-		_anyObj = obj;
-		_innerType = std::type_index(typeid(inner));
-		_dynType = _mm_type<T>::type;
+		if constexpr(std::is_integral_v<T>) {
+			long l = static_cast<long>(obj);
+			_anyObj = l;
+			_innerType = std::type_index(typeid(long));
+			_dynType = Value;
+		} else if constexpr(std::is_floating_point_v<T>) {
+			long d = static_cast<double>(obj);
+			_anyObj = d;
+			_innerType = std::type_index(typeid(double));
+			_dynType = Value;
+		} else {
+			_anyObj = obj;
+			_innerType = std::type_index(typeid(inner));
+			_dynType = _mm_type<T>::type;
+		}
 
 		// We cannot copy or move `std::unique_ptr`s
 		if(_dynType == UniquePtr) {
@@ -107,11 +138,15 @@ public:
 	}
 
 	bool isInt() const {
-		return isType<int>();
+		return isType<long>();
 	}
 
 	bool isFloat() const {
 		return isType<double>();
+	}
+
+	bool isNumber() const {
+		return isInt() || isFloat();
 	}
 
 	bool isString() const {
@@ -121,6 +156,24 @@ public:
 	template<typename T>
 	T asType() const {
 		using In = typename _mm_type<T>::inner;
+
+		// as Dynamic
+		if constexpr(std::is_same_v<In, Dynamic>) {
+			return (*this);
+		}
+
+		// Check number types
+		if constexpr(std::is_integral_v<T>) {
+			return static_cast<T>(std::any_cast<long>(_anyObj));
+		} else if constexpr(std::is_floating_point_v<T>) {
+			if(isInt()) {
+				return static_cast<T>(std::any_cast<long>(_anyObj));
+			} else if(isFloat()) {
+				return static_cast<T>(std::any_cast<double>(_anyObj));
+			}
+		}
+
+		// Check objects
 		if constexpr(_mm_type<T>::type == Value) {
 			switch(_dynType) {
 				case Value: return std::any_cast<T>(_anyObj);
@@ -129,19 +182,17 @@ public:
 				// Cannot store references in `std::any`.
 				// case Reference: return std::any_cast<T&>(_anyObj);
 
-				// Cannot store `unique_ptr`.
-				// case UniquePtr: return *std::any_cast<std::unique_ptr<T>>(_anyObj);
-
+				case UniquePtr: return **std::any_cast<std::unique_ptr<T>>(&_anyObj);
 				case SharedPtr: return *std::any_cast<std::shared_ptr<T>>(_anyObj);
 				default: break;
 			}
 		} else if constexpr(_mm_type<T>::type == Pointer) {
 			switch(_dynType) {
+				// Cannot do this in "const" version of function.
+				// case Value: return std::any_cast<In>(&_anyObj);
+
 				case Pointer: return std::any_cast<In*>(_anyObj);
-
-				// Cannot store `unique_ptr`.
-				// case 3: return std::any_cast<std::unique_ptr<In>>(_anyObj).get();
-
+				case UniquePtr: return std::any_cast<std::unique_ptr<In>>(&_anyObj)->get();
 				case SharedPtr: return std::any_cast<std::shared_ptr<In>>(_anyObj).get();
 				default: break;
 			}
@@ -156,6 +207,20 @@ public:
 		}
 		
 		makeError("Bad Dynamic cast");
+	}
+
+	template<typename T>
+	T asType() {
+		using In = typename _mm_type<T>::inner;
+
+		// Perform conversions that can only occur outside of "const" function.
+		if constexpr(_mm_type<T>::type == Pointer) {
+			if(_dynType == Value) {
+				return std::any_cast<In>(&_anyObj);
+			}
+		}
+
+		return static_cast<Dynamic const*>(this)->asType<T>();
 	}
 
 	std::string toString() {
@@ -175,7 +240,7 @@ public:
 			default: break;
 		}
 		if(isInt()) {
-			return std::to_string(asType<int>());
+			return std::to_string(asType<long>());
 		} else if(isFloat()) {
 			return std::to_string(asType<double>());
 		}
@@ -208,6 +273,8 @@ public:
 		makeError("Property does not exist");
 	}
 
+	// operators
+
 	Dynamic operator()() {
 		if(_dynType == Function) {
 			return func({});
@@ -228,19 +295,43 @@ public:
 		makeError("Cannot call this Dynamic");
 	}
 
+	bool operator==(Dynamic const& other) const {
+		if(_dynType != other._dynType) {
+			return false;
+		}
+
+		if(isInt() && other.isInt()) {
+			return asType<long>() == other.asType<long>();
+		} else if(isNumber() && other.isNumber()) {
+			return asType<double>() == other.asType<double>();
+		}
+
+		return id == other.id;
+	}
+
+	Dynamic operator[](int index) {
+		if(getFunc != nullptr) {
+			Dynamic arrayAccess = getFunc(*this, "[]");
+			if(arrayAccess.isFunction()) {
+				return arrayAccess(index);
+			}
+		}
+
+		try {
+			DYN_GETPTR((*this), std::deque<Dynamic>)
+			if(p != nullptr) {
+				return p->operator[](index);
+			}
+		} catch(...) {
+		}
+		return Dynamic();
+	}
+
 	// helpers
 
 	template<typename T>
 	static Dynamic unwrap(Dynamic& d, std::function<Dynamic(T*)> callback) {
-		std::optional<T> v;
-		if(d._dynType == Value) v = std::any_cast<T>(d._anyObj);
-		else v = std::nullopt;
-		T* p = nullptr;
-		if(d._dynType == Value) {
-			p = v.operator->();
-		} else {
-			p = d.asType<T*>();
-		}
+		DYN_GETPTR(d, T)
 		return callback(p);
 	}
 
@@ -257,6 +348,24 @@ public:
 				p = v.operator->();
 			} else {
 				p = d.asType<T*>();
+			}
+			return callback(p, args);
+		};
+		return result;
+	}
+
+	template<typename T>
+	static Dynamic makeFuncShared(Dynamic& d, std::function<Dynamic(std::shared_ptr<T>, std::deque<Dynamic>)> callback) {
+		Dynamic result;
+		result._dynType = Function;
+		result.func = [callback, d](std::deque<Dynamic> args) {
+			std::shared_ptr<T> p = nullptr;
+			if(d._dynType == Value || d._dynType == Pointer) {
+				p = std::make_shared<T>(d.asType<T>());
+			} else if(d._dynType == SharedPtr) {
+				p = std::any_cast<std::shared_ptr<T>>(d._anyObj);
+			} else {
+				makeError("Cannot use unique pointer for this property");
 			}
 			return callback(p, args);
 		};

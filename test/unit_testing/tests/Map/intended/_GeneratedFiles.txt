@@ -1,7 +1,6 @@
 src/_main_.cpp
 src/Main.cpp
 include/haxe_iterators_MapKeyValueIterator.h
-include/haxe_iterators_ArrayKeyValueIterator.h
 include/haxe_iterators_ArrayIterator.h
 include/haxe_ds_IntMap.h
 include/haxe_PosInfos.h
@@ -14,4 +13,3 @@ include/StdTypes.h
 include/Std.h
 include/Map.h
 include/Main.h
-include/HxArray.h
