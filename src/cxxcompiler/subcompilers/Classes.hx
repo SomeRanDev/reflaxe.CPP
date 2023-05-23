@@ -598,6 +598,10 @@ class Classes extends SubCompiler {
 		// Function SUFFIX attributes
 		ctx.suffixSpecifiers = [];
 
+		if(field.hasMeta(Meta.Const)) {
+			specifiers.push("const");
+		}
+
 		if(field.hasMeta(Meta.NoExcept)) {
 			specifiers.push("noexcept");
 		}

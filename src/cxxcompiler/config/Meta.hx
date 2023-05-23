@@ -175,6 +175,11 @@ enum abstract Meta(String) from String to String {
 	// if the return value is unused.
 	var NoDiscard = ":noDiscard";
 
+	// @:const
+	//
+	// Adds the const specifier to the field or expression.
+	var Const = ":const";
+
 	// @:constExpr
 	//
 	// Adds the constexpr specifier to the field or expression.
