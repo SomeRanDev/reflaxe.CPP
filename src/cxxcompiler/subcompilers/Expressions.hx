@@ -213,6 +213,7 @@ class Expressions extends SubCompiler {
 				result = AComp.compileObjectDecl(Main.getExprType(expr), fields, expr, compilingInHeader);
 			}
 			case TArrayDecl(el): {
+				Main.onTypeEncountered(expr.t, compilingInHeader, expr.pos);
 				IComp.addInclude("memory", compilingInHeader, true);
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
 				final t = TComp.compileType(arrayType, expr.pos);
@@ -963,6 +964,9 @@ class Expressions extends SubCompiler {
 					case _:
 						null;
 				}
+			}
+			case TArray(e1, eIndex) if(Main.getExprType(e1).isDynamic()): {
+				'${Main.compileExpressionOrError(e1)}.setProp("[]", ${Main.compileExpressionOrError(eIndex)})(${Main.compileExpressionOrError(e2)})';
 			}
 			case _: null;
 		}

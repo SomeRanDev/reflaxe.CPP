@@ -266,6 +266,12 @@ enum abstract Meta(String) from String to String {
 	// is compiled as "not null".
 	var MakeThisNotNull = ":makeThisNotNull";
 
+	// @:makeThisValue
+	//
+	// Used with @:nativeFunctionCode. Ensures {this} expression
+	// is compiled as a value type.
+	var MakeThisValue = ":makeThisValue";
+
 	// @:appendContent(code: String)
 	//
 	// Appends arbitrary C++ code to the declaration of the 
@@ -334,6 +340,12 @@ enum abstract Meta(String) from String to String {
 	// that will allow it to be used with the `Dynamic` type.
 	var DynamicCompatible = ":dynamicCompatible";
 
+	// @:dynamicArrayAccess
+	//
+	// If used on a class, allows for array access to be used on this class
+	// when Dynamic.
+	var DynamicArrayAccess = ":dynamicArrayAccess";
+
 	// @:dontGenerateDynamic
 	//
 	// If used on a field, this field will not be generated in the Dynamic
@@ -361,4 +373,23 @@ enum abstract Meta(String) from String to String {
 	// generated for a C++ class if possible. This metadata will disable
 	// this behavior for the class it's used on.
 	var DontGenerateDefaultConstructor = ":dontGenerateDefaultConstructor";
+
+	// @:requireMemoryManagement(mmt: helpers.MetaHelper.MemoryManagementType)
+	//
+	// Used on extern inline functions to notify the Dynamic compiler
+	// that a certain memory management type is required.
+	//
+	// By default, extern inline uses an unsafe pointer, which may not
+	// be compatible with statements that require smart pointers.
+	var RequireMemoryManagement = ":requireMemoryManagement";
+
+	// @:requireReturnTypeHasConstructor
+	//
+	// Used on extern inline functions to notify the Dynamic compiler
+	// that the Dynamic wrapper should only generate this field
+	// if its return type has a constructor.
+	//
+	// This is to bypass issues with Haxe's DCE not generating iterators
+	// if they could not have possibly been used.
+	var RequireReturnTypeHasConstructor = ":requireReturnTypeHasConstructor";
 }

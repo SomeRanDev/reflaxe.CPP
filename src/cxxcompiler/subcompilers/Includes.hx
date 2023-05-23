@@ -322,17 +322,19 @@ class Includes extends SubCompiler {
 				}
 				if(!cd.isExtern) {
 					addInclude(Compiler.getFileNameFromModuleData(cd) + Compiler.HeaderExt, header, false);
-				} else {
-					switch(mt) {
-						case TClassDecl(_.get() => cls): {
-							addLazyInclude(function() {
-								if(DComp.enabled) {
-									addInclude(Classes.getDynamicFileName(cls), false, false);
-								}
-							});
-						}
-						case _:
+				}
+			}
+			if(cd.isExtern) {
+				switch(mt) {
+					case TClassDecl(_.get() => cls) if(cls.hasMeta(Meta.DynamicCompatible)): {
+						final dynFilename = Classes.getReflectionFileName(cls);
+						addLazyInclude(function() {
+							if(DComp.enabled) {
+								addInclude(dynFilename, false, false);
+							}
+						});
 					}
+					case _:
 				}
 			}
 
@@ -390,7 +392,7 @@ class Includes extends SubCompiler {
 		return defaultOverrided;
 	}
 
-	function compileHeaderIncludes(): String {
+	public function compileHeaderIncludes(): String {
 		var result = compileIncludes(headerIncludes);
 		if(forwardDeclares.length > 0) {
 			if(forwardDeclares.length > 0) result += "\n\n";
@@ -399,7 +401,7 @@ class Includes extends SubCompiler {
 		return result;
 	}
 
-	function compileCppIncludes(): String {
+	public function compileCppIncludes(): String {
 		var result = compileIncludes(cppIncludes);
 		if(cppUsings.length > 0) {
 			if(result.length > 0) result += "\n\n";

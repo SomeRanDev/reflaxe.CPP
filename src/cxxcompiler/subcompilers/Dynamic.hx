@@ -21,12 +21,15 @@ import reflaxe.data.ClassVarData;
 import reflaxe.data.ClassFuncData;
 import reflaxe.helpers.PositionHelper;
 
-import cxxcompiler.config.Meta;
-
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
+
+import cxxcompiler.config.Meta;
+import cxxcompiler.helpers.MetaHelper;
+
+using cxxcompiler.helpers.Error;
 
 @:allow(cxxcompiler.Compiler)
 @:access(cxxcompiler.Compiler)
@@ -36,16 +39,18 @@ class Dynamic_ extends SubCompiler {
 	public var exceptionType: Null<haxe.macro.Type>;
 
 	public function enableDynamic(blamePosition: Position) {
-		// dynamic/Dynamic.h requires this
-		if(exceptionType == null) {
-			exceptionType = Context.getType("haxe.Exception");
-			Main.onTypeEncountered(exceptionType, true, blamePosition);
+		if(!enabled) {
+			// dynamic/Dynamic.h requires this
+			if(exceptionType == null) {
+				exceptionType = Context.getType("haxe.Exception");
+				Main.onTypeEncountered(exceptionType, true, blamePosition);
+			}
+
+			enabled = true;
+
+			// Call `onDynamicEnabled` for Class compiler
+			CComp.onDynamicEnabled();
 		}
-
-		enabled = true;
-
-		// Call `onDynamicEnabled` for Class compiler
-		CComp.onDynamicEnabled();
 	}
 
 	/**
@@ -99,15 +104,18 @@ class Dynamic_ extends SubCompiler {
 	function makeGetExpr(field: ClassField): Null<String> {
 		if(type == null) return null;
 
-		final thisExpr = genTypedExpr(TConst(TThis), type);
+		final thisType = TAbstract(Main.getPtrType(), [type]);
+		final thisExpr = genTypedExpr(TConst(TThis), thisType);
 		final exprDef = switch(type) {
 			case TInst(clsRef, params): TField(thisExpr, FInstance(clsRef, params, { get: () -> field, toString: () -> "" }));
 			case _: throw "Unsupported";
 		}
 		final expr = genTypedExpr(exprDef, field.type);
 
-		XComp.setThisOverride(genTypedExpr(TIdent("o"), TAbstract(Main.getPtrType(), [type])));
+		XComp.setThisOverride(genTypedExpr(TIdent("o"), thisType));
+		XComp.compilingInHeader = true;
 		final cpp = Main.compileExpression(expr);
+		XComp.compilingInHeader = false;
 		XComp.clearThisOverride();
 
 		return cpp;
@@ -143,20 +151,39 @@ class Dynamic_ extends SubCompiler {
 	/**
 		Generate code to call function given its data.
 	**/
-	function makeCallExpr(f: ClassFuncData, el: Array<TypedExpr>): Null<Array<String>> {
+	function makeCallExpr(f: ClassFuncData, el: Array<TypedExpr>, mmt: MemoryManagementType): Null<Array<String>> {
 		if(type == null) return null;
 		if(f.isStatic) return null;
 
-		final isInlineExtern = (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline));
-		if(isInlineExtern && f.expr != null) {
-			XComp.setThisOverride(genTypedExpr(TIdent("o"), type));
-			final cpp = ['auto result = [o, args] ${Main.compileExpression(f.expr)};', "result()"];
-			XComp.clearThisOverride();
+		restrictTypeParams(f);
 
-			return cpp;
+		// Only two mmt types supported atm. See `Error.ErrorType.UnsupportedRequireMMT`.
+		// Also `mmt` will always be `UnsafePtr` unless it's an extern inline function.
+		final ptrType = mmt == UnsafePtr ? Main.getPtrType() : Main.getSharedPtrType();
+		final thisType = TAbstract(ptrType, [type]);
+		final result = if(isExternInline(f) && f.expr != null) {
+			var argCpp = "";
+			for(i in 0...f.args.length) {
+				final e = switch(el[i].expr) { case TIdent(s): s; case _: throw "Impossible"; }
+				argCpp += '\tauto ${f.args[i].name} = $e;\n';
+			}
+
+			XComp.setThisOverride(genTypedExpr(TIdent("o"), thisType));
+			XComp.compilingInHeader = true;
+			final exprCpp = Main.compileExpression(f.expr);
+			if(exprCpp != null) {
+				final body = el.length > 0 ? '{\n$argCpp${exprCpp.tab()}\n}' : exprCpp;
+				final cpp = ['auto result = [o, args] $body;', "result()"];
+				XComp.compilingInHeader = false;
+				XComp.clearThisOverride();
+
+				cpp;
+			} else {
+				null;
+			}
 		} else {
 			final field = f.field;
-			final thisExpr = genTypedExpr(TConst(TThis), type);
+			final thisExpr = genTypedExpr(TConst(TThis), thisType);
 			final exprDef = switch(type) {
 				case TInst(clsRef, params): TField(thisExpr, FInstance(clsRef, params, { get: () -> field, toString: () -> "" }));
 				case _: throw "Unsupported";
@@ -164,32 +191,75 @@ class Dynamic_ extends SubCompiler {
 			final expr = genTypedExpr(exprDef, field.type);
 			final t = genTypedExpr(TCall(expr, el), f.ret);
 			
-			XComp.setThisOverride(genTypedExpr(TIdent("o"), TAbstract(Main.getPtrType(), [type])));
+			XComp.setThisOverride(genTypedExpr(TIdent("o"), thisType));
+			XComp.compilingInHeader = true;
 			final cpp = Main.compileExpression(t);
+			XComp.compilingInHeader = false;
 			XComp.clearThisOverride();
 
-			return cpp != null ? [cpp] : null;
+			cpp != null ? [cpp] : null;
 		}
+
+		unrestrictTypeParams();
+
+		return result;
+	}
+
+	function restrictTypeParams(f: ClassFuncData) {
+		TComp.setAllowedTypeParamNames(f.classType.params.map(p -> p.name));
+	}
+
+	function unrestrictTypeParams() {
+		TComp.allowAllTypeParamNames();
+	}
+
+	function isExternInline(f: ClassFuncData): Bool {
+		return (f.field.isExtern || f.field.hasMeta(":runtime")) && f.field.kind.equals(FMethod(MethInline));
 	}
 
 	/**
 		Add a function.
 	**/
-	public function addFunc(v: ClassFuncData, cppArgs: Array<String>, name: String) {
-		if(v.field.name == "new") return;
+	public function addFunc(f: ClassFuncData, args: Array<Type>, name: String) {
+		if(f.field.name == "new") return;
 
-		final hasRet = !v.ret.isVoid();
+		// Check if the return type has a constructor if necessary.
+		if(f.field.hasMeta(Meta.RequireReturnTypeHasConstructor)) {
+			switch(f.ret) {
+				case TInst(_.get() => cls, _) if(cls.constructor == null): return;
+				case _:
+			}
+		}
+
+		restrictTypeParams(f);
+		final cppArgs = args.map(t -> TComp.compileType(t, f.field.pos, false, true));
+		unrestrictTypeParams();
+
+		final hasRet = !f.ret.isVoid();
 		final args = [];
 		final typedArgs = [];
 		//final exprArgs = [];
 		for(i in 0...cppArgs.length) {
 			final a = 'args[${i}].asType<${cppArgs[i]}>()';
 			args.push(a);
-			typedArgs.push(genTypedExpr(TIdent(a), v.args[i].type));
+			typedArgs.push(genTypedExpr(TIdent(a), f.args[i].type));
 			//exprArgs.push(macro untyped __cpp__($v{a}));
 		}
 
-		final cpp = makeCallExpr(v, typedArgs);
+		var mmt = UnsafePtr;
+		if(isExternInline(f) && f.field.hasMeta(Meta.RequireMemoryManagement)) {
+			final ident = f.field.meta.extractIdentifierFromFirstMeta(Meta.RequireMemoryManagement, 0);
+			switch(ident) {
+				case "UnsafePtr":
+					mmt = UnsafePtr;
+				case "SharedPtr":
+					mmt = SharedPtr;
+				case _:
+					f.field.meta.getFirstPosition(Meta.RequireMemoryManagement)?.makeError(UnsupportedRequireMMT);
+			}
+		}
+
+		final cpp = makeCallExpr(f, typedArgs, mmt);
 		if(cpp != null && cpp.length > 0) {
 			final end = cpp[cpp.length - 1];
 			final prefixCode = (cpp.length > 1 ? (cpp.slice(0, -1).join("\n") + "\n") : "");
@@ -198,9 +268,13 @@ class Dynamic_ extends SubCompiler {
 			} else {
 				'$end;\nreturn Dynamic();';
 			}
-	
+
+			final isPtr = mmt == UnsafePtr;
+			final dynFuncName = isPtr ? "makeFunc" : "makeFuncShared";
+			final cppType = isPtr ? '$valueTypeWParams*' : 'std::shared_ptr<$valueTypeWParams>';
+
 			getProps.push('if(name == "${name}") {
-	return Dynamic::makeFunc<$valueTypeWParams>(d, []($valueTypeWParams* o, std::deque<Dynamic> args) {
+	return Dynamic::$dynFuncName<$valueTypeWParams>(d, []($cppType o, std::deque<Dynamic> args) {
 ${content.tab(2)}
 	});
 }');
@@ -214,6 +288,22 @@ ${content.tab(2)}
 	public function getDynamicContent() {
 		if(classType == null) {
 			throw "Impossible";
+		}
+
+		if(classType.hasMeta(Meta.DynamicArrayAccess)) {
+			getProps.push('if(name == "[]") {
+	return Dynamic::makeFunc<$valueTypeWParams>(d, []($valueTypeWParams* o, std::deque<Dynamic> args) {
+		return makeDynamic(o->operator[](args[0].asType<long>()));
+	});
+}');
+
+			setProps.push('if(name == "[]") {
+	return Dynamic::makeFunc<$valueTypeWParams>(d, [value]($valueTypeWParams* o, std::deque<Dynamic> args) {
+		auto result = args[0].asType<T>();
+		o->operator[](value.asType<long>()) = result;
+		return makeDynamic(result);
+	});
+}');
 		}
 
 		final getArgs = getProps.length > 0 ? "Dynamic& d, std::string name" : "Dynamic&, std::string";
@@ -235,7 +325,9 @@ ${content.tab(2)}
 			dynamicName;
 		}
 
-		return '
+		final includes = classType.isExtern ? '\n${IComp.compileHeaderIncludes()}\n' : "";
+
+		return '$includes
 namespace haxe {
 $prefix
 class ${name} {
@@ -297,28 +389,59 @@ struct _mm_type<std::unique_ptr<T>> { using inner = T; constexpr static DynamicT
 
 // ---
 
+// Use within the Dynamic to extract a pointer type
+// from a Dynamic into a local variable `p`.
+#define DYN_GETPTR(name, t) \\
+	std::optional<t> v;\\
+	if(name._dynType == Value) v = std::any_cast<t>(name._anyObj);\\
+	else v = std::nullopt;\\
+	t* p = nullptr;\\
+	if(name._dynType == Value) {\\
+		p = v.operator->();\\
+	} else {\\
+		p = name.asType<t*>();\\
+	}
+
+// ---
+
 // The class used for Haxe's `Dynamic` type.
 class Dynamic {
 public:
 	DynamicType _dynType;
+
+	long id;
+	static long getId() { static long maxId = 0; return maxId++; }
+
 	std::optional<std::type_index> _innerType;
 	std::any _anyObj;
-	std::function<Dynamic(std::deque<Dynamic>)> func;
 
+	std::function<Dynamic(std::deque<Dynamic>)> func;
 	std::function<Dynamic(Dynamic&,std::string)> getFunc;
 	std::function<Dynamic(Dynamic&,std::string,Dynamic)> setFunc;
 
-	Dynamic() {
+	Dynamic(): id(getId()) {
 		_dynType = Empty;
 	}
 
 	template<typename T>
-	Dynamic(T obj) {
+	Dynamic(T obj): id(getId()) {
 		using inner = typename _mm_type<T>::inner;
 
-		_anyObj = obj;
-		_innerType = std::type_index(typeid(inner));
-		_dynType = _mm_type<T>::type;
+		if constexpr(std::is_integral_v<T>) {
+			long l = static_cast<long>(obj);
+			_anyObj = l;
+			_innerType = std::type_index(typeid(long));
+			_dynType = Value;
+		} else if constexpr(std::is_floating_point_v<T>) {
+			long d = static_cast<double>(obj);
+			_anyObj = d;
+			_innerType = std::type_index(typeid(double));
+			_dynType = Value;
+		} else {
+			_anyObj = obj;
+			_innerType = std::type_index(typeid(inner));
+			_dynType = _mm_type<T>::type;
+		}
 
 		// We cannot copy or move `std::unique_ptr`s
 		if(_dynType == UniquePtr) {
@@ -360,11 +483,15 @@ public:
 	}
 
 	bool isInt() const {
-		return isType<int>();
+		return isType<long>();
 	}
 
 	bool isFloat() const {
 		return isType<double>();
+	}
+
+	bool isNumber() const {
+		return isInt() || isFloat();
 	}
 
 	bool isString() const {
@@ -374,6 +501,24 @@ public:
 	template<typename T>
 	T asType() const {
 		using In = typename _mm_type<T>::inner;
+
+		// as Dynamic
+		if constexpr(std::is_same_v<In, Dynamic>) {
+			return (*this);
+		}
+
+		// Check number types
+		if constexpr(std::is_integral_v<T>) {
+			return static_cast<T>(std::any_cast<long>(_anyObj));
+		} else if constexpr(std::is_floating_point_v<T>) {
+			if(isInt()) {
+				return static_cast<T>(std::any_cast<long>(_anyObj));
+			} else if(isFloat()) {
+				return static_cast<T>(std::any_cast<double>(_anyObj));
+			}
+		}
+
+		// Check objects
 		if constexpr(_mm_type<T>::type == Value) {
 			switch(_dynType) {
 				case Value: return std::any_cast<T>(_anyObj);
@@ -382,19 +527,17 @@ public:
 				// Cannot store references in `std::any`.
 				// case Reference: return std::any_cast<T&>(_anyObj);
 
-				// Cannot store `unique_ptr`.
-				// case UniquePtr: return *std::any_cast<std::unique_ptr<T>>(_anyObj);
-
+				case UniquePtr: return **std::any_cast<std::unique_ptr<T>>(&_anyObj);
 				case SharedPtr: return *std::any_cast<std::shared_ptr<T>>(_anyObj);
 				default: break;
 			}
 		} else if constexpr(_mm_type<T>::type == Pointer) {
 			switch(_dynType) {
+				// Cannot do this in \"const\" version of function.
+				// case Value: return std::any_cast<In>(&_anyObj);
+
 				case Pointer: return std::any_cast<In*>(_anyObj);
-
-				// Cannot store `unique_ptr`.
-				// case 3: return std::any_cast<std::unique_ptr<In>>(_anyObj).get();
-
+				case UniquePtr: return std::any_cast<std::unique_ptr<In>>(&_anyObj)->get();
 				case SharedPtr: return std::any_cast<std::shared_ptr<In>>(_anyObj).get();
 				default: break;
 			}
@@ -409,6 +552,20 @@ public:
 		}
 		
 		makeError(\"Bad Dynamic cast\");
+	}
+
+	template<typename T>
+	T asType() {
+		using In = typename _mm_type<T>::inner;
+
+		// Perform conversions that can only occur outside of \"const\" function.
+		if constexpr(_mm_type<T>::type == Pointer) {
+			if(_dynType == Value) {
+				return std::any_cast<In>(&_anyObj);
+			}
+		}
+
+		return static_cast<Dynamic const*>(this)->asType<T>();
 	}
 
 	std::string toString() {
@@ -428,7 +585,7 @@ public:
 			default: break;
 		}
 		if(isInt()) {
-			return std::to_string(asType<int>());
+			return std::to_string(asType<long>());
 		} else if(isFloat()) {
 			return std::to_string(asType<double>());
 		}
@@ -461,6 +618,8 @@ public:
 		makeError(\"Property does not exist\");
 	}
 
+	// operators
+
 	Dynamic operator()() {
 		if(_dynType == Function) {
 			return func({});
@@ -481,19 +640,43 @@ public:
 		makeError(\"Cannot call this Dynamic\");
 	}
 
+	bool operator==(Dynamic const& other) const {
+		if(_dynType != other._dynType) {
+			return false;
+		}
+
+		if(isInt() && other.isInt()) {
+			return asType<long>() == other.asType<long>();
+		} else if(isNumber() && other.isNumber()) {
+			return asType<double>() == other.asType<double>();
+		}
+
+		return id == other.id;
+	}
+
+	Dynamic operator[](int index) {
+		if(getFunc != nullptr) {
+			Dynamic arrayAccess = getFunc(*this, \"[]\");
+			if(arrayAccess.isFunction()) {
+				return arrayAccess(index);
+			}
+		}
+
+		try {
+			DYN_GETPTR((*this), std::deque<Dynamic>)
+			if(p != nullptr) {
+				return p->operator[](index);
+			}
+		} catch(...) {
+		}
+		return Dynamic();
+	}
+
 	// helpers
 
 	template<typename T>
 	static Dynamic unwrap(Dynamic& d, std::function<Dynamic(T*)> callback) {
-		std::optional<T> v;
-		if(d._dynType == Value) v = std::any_cast<T>(d._anyObj);
-		else v = std::nullopt;
-		T* p = nullptr;
-		if(d._dynType == Value) {
-			p = v.operator->();
-		} else {
-			p = d.asType<T*>();
-		}
+		DYN_GETPTR(d, T)
 		return callback(p);
 	}
 
@@ -510,6 +693,24 @@ public:
 				p = v.operator->();
 			} else {
 				p = d.asType<T*>();
+			}
+			return callback(p, args);
+		};
+		return result;
+	}
+
+	template<typename T>
+	static Dynamic makeFuncShared(Dynamic& d, std::function<Dynamic(std::shared_ptr<T>, std::deque<Dynamic>)> callback) {
+		Dynamic result;
+		result._dynType = Function;
+		result.func = [callback, d](std::deque<Dynamic> args) {
+			std::shared_ptr<T> p = nullptr;
+			if(d._dynType == Value || d._dynType == Pointer) {
+				p = std::make_shared<T>(d.asType<T>());
+			} else if(d._dynType == SharedPtr) {
+				p = std::any_cast<std::shared_ptr<T>>(d._anyObj);
+			} else {
+				makeError(\"Cannot use unique pointer for this property\");
 			}
 			return callback(p, args);
 		};

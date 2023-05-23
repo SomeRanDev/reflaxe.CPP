@@ -3,6 +3,8 @@ package cxx;
 @:cxxStd
 @:native("auto")
 @:valueType
+@:dontGenerateDynamic
+@:unreflective
 extern class IAuto {
 }
 

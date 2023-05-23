@@ -76,7 +76,17 @@ class CppTypeHelper {
 			case _:
 		}
 
-		return #if macro Context.unify(t, other) #else false #end;
+		return {
+			#if macro
+				if(!Context.unify(t, other)) {
+					Context.unify(getInternalType(t), getInternalType(other));
+				} else {
+					true;
+				}
+			#else
+				false;
+			#end
+		}
 	}
 
 	// ----------------------------

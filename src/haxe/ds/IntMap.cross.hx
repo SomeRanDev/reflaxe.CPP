@@ -49,7 +49,9 @@ class IntMap<T> implements haxe.Constraints.IMap<Int, T> {
 		return values.iterator();
 	}
 
-	@:runtime public inline function keyValueIterator():KeyValueIterator<Int, T> {
+	@:requireMemoryManagement(SharedPtr)
+	@:requireReturnTypeHasConstructor
+	@:runtime public inline function keyValueIterator(): KeyValueIterator<Int, T> {
 		return new haxe.iterators.MapKeyValueIterator(this);
 	}
 

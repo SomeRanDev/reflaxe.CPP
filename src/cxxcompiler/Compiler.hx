@@ -332,6 +332,14 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				}
 			}
 
+			// For some reason, Haxe imposes some weird typing with dyn[i][j]?
+			// Dynamic[] will always return Dynamic, so we can safely assume here.
+			case TArray(e1, _): {
+				final f1 = getExprType(e1);
+				if(f1.isDynamic()) f1;
+				else e.t;
+			}
+
 			// Redirect "tvar" type
 			case TLocal(tvar): getTVarType(tvar);
 
@@ -761,10 +769,11 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		Compiles the {this} expression for @:nativeFunctionCode.
 	**/
 	public override function compileNFCThisExpression(expr: TypedExpr, meta: Null<MetaAccess>): String {
+		final val = meta.maybeHas(Meta.MakeThisValue);
 		return if(meta.maybeHas(Meta.MakeThisNotNull)) {
-			XComp.compileExpressionNotNull(expr);
+			val ? XComp.compileExpressionNotNullAsValue(expr) : XComp.compileExpressionNotNull(expr);
 		} else {
-			compileExpressionOrError(expr); 
+			val ? XComp.compileExpressionAsValue(expr) : compileExpressionOrError(expr); 
 		}
 	}
 

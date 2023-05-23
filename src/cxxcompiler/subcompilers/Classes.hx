@@ -181,13 +181,14 @@ class Classes extends SubCompiler {
 	**/
 	public function compileClass(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>, maybeClassRef: Null<Ref<ClassType>> = null): Null<String> {
 		// Handle extern classes
-		if(classType.isExtern) {
+		if(classType.isExtern && maybeClassRef == null) {
 			if(classType.hasMeta(Meta.DynamicCompatible)) {
 				// If Dynamic isn't confirmed to be used, let's
 				// delay generating extern compatibility wrappers.
 				if(!DComp.enabled) {
 					final clsRef = findClassTypeRef();
 					dynamicCompatibleExterns.push({ classType: clsRef, varFields: varFields, funcFields: funcFields });
+					return null;
 				}
 			} else {
 				return null;
@@ -315,14 +316,14 @@ class Classes extends SubCompiler {
 		`Dynamic` wrappers generated for.
 	**/
 	public function onDynamicEnabled() {
-		for(cls in dynamicCompatibleExterns) {
-			// Extern classes will return `null` anyway, so we can ignore.
-			compileClass(cls.classType.get(), cls.varFields, cls.funcFields, cls.classType);
-		}
-
-		// No longer needed
 		if(dynamicCompatibleExterns.length > 0) {
+			final externs = dynamicCompatibleExterns.copy();
 			dynamicCompatibleExterns = [];
+
+			for(cls in externs) {
+				// Extern classes will return `null` anyway, so we can ignore.
+				compileClass(cls.classType.get(), cls.varFields, cls.funcFields, cls.classType);
+			}
 		}
 	}
 
@@ -458,7 +459,7 @@ class Classes extends SubCompiler {
 			}
 		}
 
-		if(!field.hasMeta(Meta.DontGenerateDynamic)) {
+		if(!classType.hasMeta(Meta.DontGenerateDynamic) && !field.hasMeta(Meta.DontGenerateDynamic)) {
 			DComp.addVar(v, type, varName);
 		}
 
@@ -738,8 +739,8 @@ class Classes extends SubCompiler {
 		Also registers the function with the Dynamic compiler.
 	**/
 	function compileArguments(ctx: FunctionCompileContext): Array<String> {
-		final argCpp = [];
 		final argTypes = [];
+		final argCpp = [];
 		for(arg in ctx.f.args) {
 			var type = arg.type;
 
@@ -751,13 +752,13 @@ class Classes extends SubCompiler {
 				Main.setTVarType(arg.tvar, type);
 			}
 
+			argTypes.push(type);
 			argCpp.push(Main.compileFunctionArgumentData(type, arg.name, arg.expr, ctx.field.pos, arg.isFrontOptional(), false, true));
-			argTypes.push(TComp.compileType(type, ctx.field.pos, false, true));
 		}
 
 		// -----------------
 		// Register this function to Dynamic compiler
-		if(!ctx.field.hasMeta(Meta.DontGenerateDynamic)) {
+		if(!classType.hasMeta(Meta.DontGenerateDynamic) && !ctx.field.hasMeta(Meta.DontGenerateDynamic)) {
 			DComp.addFunc(ctx.f, argTypes, ctx.name);
 		}
 
@@ -1012,7 +1013,7 @@ class Classes extends SubCompiler {
 	}
 
 	function shouldGenerateHeader() {
-		return fieldsCompiled > 0 || classType.hasMeta(":used");
+		return fieldsCompiled > 0 || classType.hasMeta(":used") || classType.hasMeta(":keep");
 	}
 
 	function getHeaderFilename() {
@@ -1125,6 +1126,13 @@ class Classes extends SubCompiler {
 		}
 
 		Main.addReflectionCpp(headerFilename, classTypeRef.trustMe());
+	}
+
+	/**
+		Name for header file with reflection info.
+	**/
+	public static function getReflectionFileName(classType: ClassType) {
+		return Compiler.getFileNameFromModuleData(classType) + Compiler.HeaderExt;
 	}
 
 	/**
