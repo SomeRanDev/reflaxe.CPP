@@ -334,7 +334,7 @@ ${content.tab(2)}
 
 		// Setup properties for array access if enabled
 		if(classType.hasMeta(Meta.DynamicArrayAccess)) {
-			getProps.push('if(name == "[]") {
+			getPropsConst.push('if(name == "[]") {
 	return Dynamic::makeFunc<$valueTypeWParams>(d, []($valueTypeWParams* o, std::deque<Dynamic> args) {
 		return makeDynamic(o->operator[](args[0].asType<long>()));
 	});
