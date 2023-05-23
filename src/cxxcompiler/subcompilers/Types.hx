@@ -30,6 +30,27 @@ using cxxcompiler.helpers.CppTypeHelper;
 @:access(cxxcompiler.Compiler)
 @:access(cxxcompiler.subcompilers.Includes)
 class Types extends SubCompiler {
+	/**
+		If defined, only type parameters with these names will be compiled.
+		The rest are compiled as `Dynamic`. Used when compiling expressions
+		for Dynamic wrappers to support functions with type parameters.
+	**/
+	var allowedTypeParamNames: Null<Array<String>> = null;
+
+	/**
+		See `allowedTypeParamNames`.
+	**/
+	public function setAllowedTypeParamNames(names: Array<String>) {
+		allowedTypeParamNames = names;
+	}
+
+	/**
+		Clears `allowedTypeParamNames`, enabling all type parameters.
+	**/
+	public function allowAllTypeParamNames() {
+		allowedTypeParamNames = null;
+	}
+
 	// ----------------------------
 	// Compiles the provided type.
 	// Position must be provided for error reporting.
@@ -279,6 +300,11 @@ class Types extends SubCompiler {
 		switch(cls.kind) {
 			case KTypeParameter(_): {
 				final result = cls.name;
+				if(allowedTypeParamNames != null) {
+					if(!allowedTypeParamNames.contains(result)) {
+						return DComp.compileDynamicTypeName();
+					}
+				}
 				addDynamicTemplate(result);
 				return result;
 			}
