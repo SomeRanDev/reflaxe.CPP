@@ -392,7 +392,7 @@ class Includes extends SubCompiler {
 		return defaultOverrided;
 	}
 
-	function compileHeaderIncludes(): String {
+	public function compileHeaderIncludes(): String {
 		var result = compileIncludes(headerIncludes);
 		if(forwardDeclares.length > 0) {
 			if(forwardDeclares.length > 0) result += "\n\n";
@@ -401,7 +401,7 @@ class Includes extends SubCompiler {
 		return result;
 	}
 
-	function compileCppIncludes(): String {
+	public function compileCppIncludes(): String {
 		var result = compileIncludes(cppIncludes);
 		if(cppUsings.length > 0) {
 			if(result.length > 0) result += "\n\n";
