@@ -440,6 +440,8 @@ public:
 				return static_cast<T>(std::any_cast<double>(_anyObj));
 			}
 		}
+
+		// Check objects
 		if constexpr(_mm_type<T>::type == Value) {
 			switch(_dynType) {
 				case Value: return std::any_cast<T>(_anyObj);
@@ -448,19 +450,17 @@ public:
 				// Cannot store references in `std::any`.
 				// case Reference: return std::any_cast<T&>(_anyObj);
 
-				// Cannot store `unique_ptr`.
-				// case UniquePtr: return *std::any_cast<std::unique_ptr<T>>(_anyObj);
-
+				case UniquePtr: return **std::any_cast<std::unique_ptr<T>>(&_anyObj);
 				case SharedPtr: return *std::any_cast<std::shared_ptr<T>>(_anyObj);
 				default: break;
 			}
 		} else if constexpr(_mm_type<T>::type == Pointer) {
 			switch(_dynType) {
+				// Cannot do this in \"const\" version of function.
+				// case Value: return std::any_cast<In>(&_anyObj);
+
 				case Pointer: return std::any_cast<In*>(_anyObj);
-
-				// Cannot store `unique_ptr`.
-				// case 3: return std::any_cast<std::unique_ptr<In>>(_anyObj).get();
-
+				case UniquePtr: return std::any_cast<std::unique_ptr<In>>(&_anyObj)->get();
 				case SharedPtr: return std::any_cast<std::shared_ptr<In>>(_anyObj).get();
 				default: break;
 			}
@@ -475,6 +475,20 @@ public:
 		}
 		
 		makeError(\"Bad Dynamic cast\");
+	}
+
+	template<typename T>
+	T asType() {
+		using In = typename _mm_type<T>::inner;
+
+		// Perform conversions that can only occur outside of \"const\" function.
+		if constexpr(_mm_type<T>::type == Pointer) {
+			if(_dynType == Value) {
+				return std::any_cast<In>(&_anyObj);
+			}
+		}
+
+		return static_cast<Dynamic const*>(this)->asType<T>();
 	}
 
 	std::string toString() {
