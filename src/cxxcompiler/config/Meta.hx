@@ -351,6 +351,13 @@ enum abstract Meta(String) from String to String {
 	// when Dynamic.
 	var DynamicArrayAccess = ":dynamicArrayAccess";
 
+	// @:dynamicArrayAccess
+	//
+	// If used on an extern class, the class's operator== will be used for
+	// equality between Dynamic objects. This is unnecessary for classes
+	// generated from Haxe code.
+	var DynamicEquality = ":dynamicEquality";
+
 	// @:dontGenerateDynamic
 	//
 	// If used on a field, this field will not be generated in the Dynamic

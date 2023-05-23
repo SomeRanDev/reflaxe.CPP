@@ -52,6 +52,7 @@ class HxString {
 @:include("string", true)
 @:valueType
 @:dynamicCompatible
+@:dynamicEquality
 @:filename("HxString")
 extern class String {
 	// ----------------------------

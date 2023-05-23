@@ -349,6 +349,14 @@ ${content.tab(2)}
 }');
 		}
 
+		if(Classes.hasComparisonOperators(classType) || classType.hasMeta(Meta.DynamicEquality)) {
+			getPropsConst.push('if(name == "==") {
+	return Dynamic::makeFunc<$valueTypeWParams>(d, []($valueTypeWParams* o, std::deque<Dynamic> args) {
+		return makeDynamic((*o) == (args[0].asType<$valueTypeWParams>()));
+	});
+}');
+		}
+
 		// Remove names from arguments if unnecessary to fix C++ warning
 		final getArgsConst = getPropsConst.length > 0 ? "Dynamic const& d, std::string name" : "Dynamic const&, std::string";
 		final setArgs = setProps.length > 0 ? "Dynamic& d, std::string name, Dynamic value" : "Dynamic&, std::string, Dynamic";
@@ -732,8 +740,12 @@ public:
 	}
 
 	bool operator==(Dynamic const& other) const {
-		if(_dynType != other._dynType) {
-			return false;
+		Dynamic equalsOp = getPropSafe(\"==\");
+		if(equalsOp.isFunction()) {
+			auto result = equalsOp(other);
+			if(result.isBool()) {
+				return result.asType<bool>();
+			}
 		}
 
 		if(isInt() && other.isInt()) {
@@ -778,7 +790,7 @@ public:
 	}
 
 	template<typename T>
-	static Dynamic makeFunc(Dynamic& d, std::function<Dynamic(T*, std::deque<Dynamic>)> callback) {
+	static Dynamic makeFunc(Dynamic const& d, std::function<Dynamic(T*, std::deque<Dynamic>)> callback) {
 		Dynamic result;
 		result._dynType = Function;
 		result.func = [callback, d](std::deque<Dynamic> args) {
