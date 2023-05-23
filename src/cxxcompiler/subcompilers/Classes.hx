@@ -459,7 +459,7 @@ class Classes extends SubCompiler {
 			}
 		}
 
-		if(!field.hasMeta(Meta.DontGenerateDynamic)) {
+		if(!classType.hasMeta(Meta.DontGenerateDynamic) && !field.hasMeta(Meta.DontGenerateDynamic)) {
 			DComp.addVar(v, type, varName);
 		}
 
@@ -758,7 +758,7 @@ class Classes extends SubCompiler {
 
 		// -----------------
 		// Register this function to Dynamic compiler
-		if(!ctx.field.hasMeta(Meta.DontGenerateDynamic)) {
+		if(!classType.hasMeta(Meta.DontGenerateDynamic) && !ctx.field.hasMeta(Meta.DontGenerateDynamic)) {
 			DComp.addFunc(ctx.f, argTypes, ctx.name);
 		}
 
