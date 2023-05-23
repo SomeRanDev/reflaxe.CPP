@@ -317,6 +317,21 @@ struct _mm_type<std::unique_ptr<T>> { using inner = T; constexpr static DynamicT
 
 // ---
 
+// Use within the Dynamic to extract a pointer type
+// from a Dynamic into a local variable `p`.
+#define DYN_GETPTR(name, t) \\
+	std::optional<t> v;\\
+	if(name._dynType == Value) v = std::any_cast<t>(name._anyObj);\\
+	else v = std::nullopt;\\
+	t* p = nullptr;\\
+	if(name._dynType == Value) {\\
+		p = v.operator->();\\
+	} else {\\
+		p = name.asType<t*>();\\
+	}
+
+// ---
+
 // The class used for Haxe's `Dynamic` type.
 class Dynamic {
 public:
@@ -512,6 +527,8 @@ public:
 		makeError(\"Property does not exist\");
 	}
 
+	// operators
+
 	Dynamic operator()() {
 		if(_dynType == Function) {
 			return func({});
@@ -544,6 +561,24 @@ public:
 		}
 
 		return id == other.id;
+	}
+
+	Dynamic operator[](int index) {
+		if(getFunc != nullptr) {
+			Dynamic arrayAccess = getFunc(*this, \"[]\");
+			if(arrayAccess.isFunction()) {
+				return arrayAccess(index);
+			}
+		}
+
+		try {
+			DYN_GETPTR((*this), std::deque<Dynamic>)
+			if(p != nullptr) {
+				return p->operator[](index);
+			}
+		} catch(...) {
+		}
+		return Dynamic();
 	}
 
 	// helpers
