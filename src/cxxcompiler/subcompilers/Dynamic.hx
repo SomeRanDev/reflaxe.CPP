@@ -654,6 +654,10 @@ public:
 	// T should only be \"Dynamic&\" or \"Dynamic const&\"
 	template<typename T>
 	static std::string _toStringImpl(T self) {
+		using remove_c_T = std::remove_cv_t<T>;
+		constexpr bool isDyn = std::is_same_v<Dynamic&, remove_c_T> || std::is_same_v<const Dynamic&, remove_c_T>;
+		static_assert(isDyn, \"T must be Dynamic& or Dynamic const&\");
+
 		if(self.hasCustomProps()) {
 			Dynamic toString = self.getPropSafe(\"toString\");
 			if(toString.isFunction()) {
