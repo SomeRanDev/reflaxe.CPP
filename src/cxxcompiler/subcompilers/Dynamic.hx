@@ -572,7 +572,9 @@ public:
 		}
 
 		// Check number types
-		if constexpr(std::is_integral_v<T>) {
+		if constexpr(std::is_same_v<T, bool>) {
+			return std::any_cast<bool>(_anyObj);
+		} else if constexpr(std::is_integral_v<T>) {
 			return static_cast<T>(std::any_cast<long>(_anyObj));
 		} else if constexpr(std::is_floating_point_v<T>) {
 			if(isInt()) {
