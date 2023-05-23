@@ -674,11 +674,11 @@ public:
 			default: break;
 		}
 		if(self.isInt()) {
-			return std::to_string(self.asType<long>());
+			return std::to_string(self.template asType<long>());
 		} else if(self.isFloat()) {
-			return std::to_string(self.asType<double>());
+			return std::to_string(self.template asType<double>());
 		} else if(self.isBool()) {
-			return self.asType<bool>() ? std::string(\"true\") : std::string(\"false\");
+			return self.template asType<bool>() ? std::string(\"true\") : std::string(\"false\");
 		}
 		return std::string(\"Dynamic\");
 	}
