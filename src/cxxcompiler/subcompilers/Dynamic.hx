@@ -430,6 +430,11 @@ public:
 	T asType() const {
 		using In = typename _mm_type<T>::inner;
 
+		// as Dynamic
+		if constexpr(std::is_same_v<In, Dynamic>) {
+			return (*this);
+		}
+
 		// Check number types
 		if constexpr(std::is_integral_v<T>) {
 			return static_cast<T>(std::any_cast<long>(_anyObj));
