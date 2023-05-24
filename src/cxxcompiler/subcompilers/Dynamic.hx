@@ -831,8 +831,59 @@ public:
 	}
 };
 
+// ---
+// Operators
+// ---
+
 inline Dynamic operator+(Dynamic first, std::string second) { return first.toString() + second; }
 inline Dynamic operator+(std::string first, Dynamic second) { return operator+(second, first); }
+
+#define OP_ASSIGN_FUN(arg, op) inline Dynamic& operator op=(Dynamic& first, arg second) {\\
+	first = operator op(first, second);\\
+	return first;\\
+}
+
+#define OP_REV(arg, op) inline Dynamic operator op(arg first, Dynamic second) { return operator op(second, first); }
+
+#define OP_ADD_FUN(arg) inline Dynamic operator+(Dynamic first, arg second) {\\
+	if(first.isString()) return first.toString() + std::to_string(second);\\
+	return first.asType<double>() + static_cast<double>(second);\\
+}\\
+OP_ASSIGN_FUN(arg, +)\\
+OP_REV(arg, +)
+
+#define OP_FUN(arg, op) inline Dynamic operator op(Dynamic first, arg second) {\\
+	return first.asType<double>() op static_cast<double>(second);\\
+}\\
+OP_ASSIGN_FUN(arg, op)\\
+OP_REV(arg, op)
+
+#define OP_NUM(arg)\\
+	OP_ADD_FUN(arg)\\
+	OP_FUN(arg, -)\\
+	OP_FUN(arg, *)\\
+	OP_FUN(arg, /)
+
+OP_NUM(char)
+OP_NUM(unsigned char)
+OP_NUM(short)
+OP_NUM(unsigned short)
+OP_NUM(int)
+OP_NUM(unsigned int)
+OP_NUM(long)
+OP_NUM(unsigned long)
+OP_NUM(float)
+OP_NUM(double)
+
+#undef OP_ASSIGN_FUN
+#undef OP_REV
+#undef OP_ADD_FUN
+#undef OP_FUN
+#undef OP_NUM
+
+// ---
+// makeDynamic
+// ---
 
 template<typename T>
 Dynamic makeDynamic(T obj) {
