@@ -68,14 +68,18 @@ void _Main::Main_Fields_::main() {
 	_Main::Main_Fields_::assert(num - 10 == 0, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 73, "main"s));
 	_Main::Main_Fields_::assert(num * 5 == 50, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 74, "main"s));
 	_Main::Main_Fields_::assert(num / 5 == 2, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 75, "main"s));
+	_Main::Main_Fields_::assert(10 + num == 20, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 77, "main"s));
+	_Main::Main_Fields_::assert(10 - num == 0, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 78, "main"s));
+	_Main::Main_Fields_::assert(5 * num == 50, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 79, "main"s));
+	_Main::Main_Fields_::assert(20 / num == 2, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 80, "main"s));
 	num += 0;
-	_Main::Main_Fields_::assert(num == 10, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 78, "main"s));
+	_Main::Main_Fields_::assert(num == 10, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 83, "main"s));
 	num -= 2;
-	_Main::Main_Fields_::assert(num == 8, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 81, "main"s));
+	_Main::Main_Fields_::assert(num == 8, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 86, "main"s));
 	num *= 2;
-	_Main::Main_Fields_::assert(num == 16, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 84, "main"s));
+	_Main::Main_Fields_::assert(num == 16, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 89, "main"s));
 	num /= 2;
-	_Main::Main_Fields_::assert(num == 8, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 87, "main"s));
+	_Main::Main_Fields_::assert(num == 8, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 92, "main"s));
 }
 Test::Test():
 	_order_id(generate_order_id())
