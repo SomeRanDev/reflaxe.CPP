@@ -61,7 +61,28 @@ function main() {
 	assert(Std.string(arr[4]) == "[1, 333]");
 
 	// Test String
-	final str: Dynamic = "Hello!";
+	var str: Dynamic = "Hello!";
 	assert(str == "Hello!");
 	assert((str + " Goodbye!") == "Hello! Goodbye!");
+	str += " Goodbye!";
+	assert(str == "Hello! Goodbye!");
+
+	// Test numbers
+	var num: Dynamic = 10;
+	assert(num + 10 == 20);
+	assert(num - 10 == 0);
+	assert(num * 5 == 50);
+	assert(num / 5 == 2);
+
+	num += 0;
+	assert(num == 10);
+
+	num -= 2;
+	assert(num == 8);
+
+	num *= 2;
+	assert(num == 16);
+
+	num /= 2;
+	assert(num == 8);
 }
