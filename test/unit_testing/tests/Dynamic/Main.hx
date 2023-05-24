@@ -90,4 +90,14 @@ function main() {
 
 	num /= 2;
 	assert(num == 8);
+
+	// Test booleans
+	var bool: Dynamic = true;
+	assert(bool);
+	assert(!!bool);
+	if(bool) {
+		assert(true);
+	} else {
+		assert(false);
+	}
 }

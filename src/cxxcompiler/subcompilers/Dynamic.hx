@@ -736,6 +736,13 @@ public:
 		return Dynamic();
 	}
 
+	bool operator!() const {
+		return !toBool();
+	}
+
+	operator bool() const {
+		return toBool();
+	}
 
 	// simple conversions
 
@@ -857,7 +864,7 @@ public:
 	}
 
 	// ---
-	// Operators
+	// Numeric Operators
 	// ---
 
 	// String + Dynamic
@@ -901,7 +908,8 @@ public:
 		OP_ASSIGN_FUN_ADD(arg)\\
 		OP_ASSIGN_FUN(arg, -, -=)\\
 		OP_ASSIGN_FUN(arg, *, *=)\\
-		OP_ASSIGN_FUN(arg, /, /=)
+		OP_ASSIGN_FUN(arg, /, /=)\\
+		bool operator==(arg num) const { return asType<arg>() == num; }
 
 	// Implement for every number type
 	OP_NUM(char)
