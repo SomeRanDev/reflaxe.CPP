@@ -582,9 +582,7 @@ public:
 		// Check number types
 		if constexpr(std::is_same_v<T, bool>) {
 			return std::any_cast<bool>(_anyObj);
-		} else if constexpr(std::is_integral_v<T>) {
-			return static_cast<T>(std::any_cast<long>(_anyObj));
-		} else if constexpr(std::is_floating_point_v<T>) {
+		} else if constexpr(std::is_arithmetic_v<T>) {
 			if(isInt()) {
 				return static_cast<T>(std::any_cast<long>(_anyObj));
 			} else if(isFloat()) {
@@ -834,28 +832,39 @@ public:
 	// Operators
 	// ---
 
+	// String + Dynamic
 	Dynamic operator+(std::string second) const { return toString() + second; }
+	friend Dynamic operator+(std::string first, Dynamic second) { return first + second.toString(); }
 
-	#define OP_FUN(arg, op) Dynamic operator op(arg test) const {\\
-		return asType<double>() op static_cast<double>(test);\\
+	// Number - Dynamic | Number * Dynamic | Number / Dynamic
+	#define OP_FUN(arg, op) Dynamic operator op(arg num) const { return asType<arg>() op num; }\\
+	friend Dynamic operator op(arg first, Dynamic second) { return first op second.asType<arg>(); }
+
+	// Number + Dynamic
+	#define OP_FUN_ADD(arg) Dynamic operator+(arg num) const {\\
+		if(isString()) return toString() + std::to_string(num);\\
+		return asType<double>() + static_cast<double>(num);\\
+	}\\
+	\\
+	friend Dynamic operator+(arg first, Dynamic second) {\\
+		if(second.isString()) return std::to_string(first) + second.toString();\\
+		return first + static_cast<arg>(second.asType<double>());\\
 	}
 
-	#define OP_FUN_ADD(arg) Dynamic operator+(arg test) const {\\
-		if(isString()) return toString() + std::to_string(test);\\
-		return asType<double>() + static_cast<double>(test);\\
-	}
-
+	// Dynamic -= *= /=
 	#define OP_ASSIGN_FUN(arg, op, op2) Dynamic& operator op2(arg second) {\\
 		(*this) = asType<double>() op static_cast<double>(second);\\
 		return (*this);\\
 	}
 
+	// Dynamic +=
 	#define OP_ASSIGN_FUN_ADD(arg) Dynamic& operator+=(arg second) {\\
 		if(isString()) (*this) = toString() + std::to_string(second);\\
 		else (*this) = asType<double>() + static_cast<double>(second);\\
 		return (*this);\\
 	}
 
+	// Implement all operators for a type
 	#define OP_NUM(arg)\\
 		OP_FUN_ADD(arg)\\
 		OP_FUN(arg, -)\\
@@ -866,6 +875,7 @@ public:
 		OP_ASSIGN_FUN(arg, *, *=)\\
 		OP_ASSIGN_FUN(arg, /, /=)
 
+	// Implement for every number type
 	OP_NUM(char)
 	OP_NUM(unsigned char)
 	OP_NUM(short)
@@ -877,6 +887,7 @@ public:
 	OP_NUM(float)
 	OP_NUM(double)
 
+	// Clean up all macros
 	#undef OP_FUN
 	#undef OP_FUN_ADD
 	#undef OP_ASSIGN_FUN
