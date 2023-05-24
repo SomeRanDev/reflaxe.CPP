@@ -1388,7 +1388,8 @@ class Expressions extends SubCompiler {
 
 	// Compiles if statement (TIf).
 	function compileIf(econd: TypedExpr, ifExpr: TypedExpr, elseExpr: Null<TypedExpr>, constexpr: Bool = false): String {
-		var result = "if" + (constexpr ? " constexpr" : "") + "(" + XComp.compileExpressionForType(econd.unwrapParenthesis(), Context.getType("Bool")) + ") {\n";
+		final nullableBoolT = TAbstract(Main.getNullType(), [Context.getType("Bool")]);
+		var result = "if" + (constexpr ? " constexpr" : "") + "(" + XComp.compileExpressionForType(econd.unwrapParenthesis(), nullableBoolT) + ") {\n";
 		result += toIndentedScope(ifExpr);
 		if(elseExpr != null) {
 			switch(elseExpr.expr) {
