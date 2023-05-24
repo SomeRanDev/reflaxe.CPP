@@ -831,6 +831,9 @@ public:
 	}
 };
 
+inline Dynamic operator+(Dynamic first, std::string second) { return first.toString() + second; }
+inline Dynamic operator+(std::string first, Dynamic second) { return operator+(second, first); }
+
 template<typename T>
 Dynamic makeDynamic(T obj) {
 	return Dynamic(obj);
