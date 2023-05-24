@@ -74,6 +74,11 @@ function main() {
 	assert(num * 5 == 50);
 	assert(num / 5 == 2);
 
+	assert(10 + num == 20);
+	assert(10 - num == 0);
+	assert(5 * num == 50);
+	assert(20 / num == 2);
+
 	num += 0;
 	assert(num == 10);
 
