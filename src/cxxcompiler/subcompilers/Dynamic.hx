@@ -500,7 +500,7 @@ public:
 			_anyObj = l;
 			_innerType = std::type_index(typeid(long));
 		} else if constexpr(std::is_floating_point_v<T>) {
-			long d = static_cast<double>(obj);
+			double d = static_cast<double>(obj);
 			_anyObj = d;
 			_innerType = std::type_index(typeid(double));
 		} else {
