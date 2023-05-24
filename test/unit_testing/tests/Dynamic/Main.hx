@@ -14,42 +14,54 @@ class HasParam<T> {
 	public function getT(): T return t;
 }
 
+var returnCode = 0;
+function assert(b: Bool, infos: Null<haxe.PosInfos> = null) {
+	if(!b) {
+		haxe.Log.trace("Assert failed", infos);
+		returnCode = 1;
+	}
+}
+
 function main() {
 	final d: Dynamic = new Test();
 	d.test();
 
-	trace(d);
+	// Test toString
+	assert(Std.string(d) == "this is toString");
 
-	trace(d.a);
+	// Test Dynamic props
+	assert(d.a == 0);
 	d.a = 123;
-	trace(d.a);
+	assert(d.a == 123);
 
+	// Test Dynamic functions
 	final d2: Dynamic = new HasParam<Int>(333);
-	trace(d2);
-	trace(d2.getT());
+	assert(Std.string(d2) == "Dynamic");
+	assert(d2.getT() == 333);
 
+	// Test property not found
 	try {
-		//d2.bla();
+		d2.bla();
 	} catch(e) {
 		// You won't get callstack without uncommenting 
 		// `-D cxx_callstack` from Test.hxml
-		Sys.println(e.details());
+		assert(e.message == "Property does not exist");
 	}
 
-	// Test extern types
-	try {
-		final arr: Dynamic = [1, 2, 3];
-		arr.push("Test");
-		arr.push([1, 2]);
-		trace(arr.length);
-		trace(arr);
-		trace(arr[2]);
-		trace(arr[4][1] = 333);
-		trace(arr[4][0]);
-		trace(arr[4]);
+	// Test extern types (Array is extern)
+	final arr: Dynamic = [1, 2, 3];
+	arr.push("Test");
+	arr.push([1, 2]);
+	assert(arr.length == 5);
+	assert(Std.string(arr) == "[1, 2, 3, Test, [1, 2]]");
+	assert(arr[2] == 3);
+	assert((arr[4][1] = 333) == 333);
+	assert(arr[4][0] == 1);
+	assert(arr[4] == [1, 333]);
+	assert(Std.string(arr[4]) == "[1, 333]");
 
-		trace(arr[4] == [1, 333]);
-	} catch(e) {
-		trace(e.message);
-	}
+	// Test String
+	final str: Dynamic = "Hello!";
+	assert(str == "Hello!");
+	assert((str + " Goodbye!") == "Hello! Goodbye!");
 }
