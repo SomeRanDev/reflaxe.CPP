@@ -95,9 +95,12 @@ fn main() -> std::io::Result<()> {
         }
     }
 
-    // Count the number of tests completed and failured
+    // Count the number of tests completed and failed
     let complete_count = Arc::new(AtomicUsize::new(0));
     let fail_count = Arc::new(AtomicUsize::new(0));
+
+    // Track names of failed tests to print later
+    let failed_tests: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(vec!()));
 
     // Store the stderr here
     let error_str: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
@@ -129,6 +132,7 @@ fn main() -> std::io::Result<()> {
         // Clone all Arcs to move into thread
         let fc = fail_count.clone();
         let cc = complete_count.clone();
+        let ft = failed_tests.clone();
         let es = error_str.clone();
 
         // Create thread.
@@ -161,6 +165,8 @@ fn main() -> std::io::Result<()> {
                     let mut data = es.lock().unwrap();
                     *data += &err;
                 }
+                let mut fail_list = ft.lock().unwrap();
+                fail_list.push(test_string.clone());
                 fc.fetch_add(1, Ordering::SeqCst);
             }
         });
@@ -181,8 +187,14 @@ fn main() -> std::io::Result<()> {
     println!("{}", error_str.lock().unwrap());
 
     // Print number of tests passed
-    let tests_passed = test_len - fail_count.load(Ordering::SeqCst);
+    let fail_count_num = fail_count.load(Ordering::SeqCst);
+    let tests_passed = test_len - fail_count_num;
     println!("{:?} / {:?} tests passed! 🚀", tests_passed, test_len);
+
+    if fail_count_num > 0 {
+        let fail_list_str = failed_tests.lock().unwrap().join(", ");
+        println!("Failed tests: [{:?}]", fail_list_str);
+    }
 
     // okay
     Ok(())
