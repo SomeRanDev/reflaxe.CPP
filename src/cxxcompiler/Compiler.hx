@@ -426,7 +426,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	var nullType: Null<Ref<AbstractType>> = null;
 	public function getNullType(): Ref<AbstractType> {
 		if(nullType == null) {
-			switch(Context.getModule("Null")[0]) {
+			switch(Context.getType("Null")) {
 				case TAbstract(abRef, _): {
 					nullType = abRef;
 				}
