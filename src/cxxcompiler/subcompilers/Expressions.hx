@@ -335,7 +335,8 @@ class Expressions extends SubCompiler {
 				result = compileIf(econd, ifExpr, elseExpr);
 			}
 			case TWhile(econd, blockExpr, normalWhile): {
-				final cppCond = Main.compileExpressionOrError(econd.unwrapParenthesis());
+				final nullableBoolT = TAbstract(Main.getNullType(), [Context.getType("Bool")]);
+				final cppCond = XComp.compileExpressionForType(econd.unwrapParenthesis(), nullableBoolT);
 				if(normalWhile) {
 					result = "while(" + cppCond + ") {\n";
 					result += toIndentedScope(blockExpr);
