@@ -10,11 +10,22 @@ public:
 		return getProp(static_cast<Dynamic const&>(d), name);
 	}
 
-	static Dynamic getProp(Dynamic const&, std::string) {
+	static Dynamic getProp(Dynamic const& d, std::string name) {
+		if(name == "returnCode") {
+			return Dynamic::unwrap<_Main::Main_Fields_>(d, [](_Main::Main_Fields_* o) {
+				return makeDynamic(o->returnCode);
+			});
+		}
 		return Dynamic();
 	}
 
-	static Dynamic setProp(Dynamic&, std::string, Dynamic) {
+	static Dynamic setProp(Dynamic& d, std::string name, Dynamic value) {
+		if(name == "returnCode") {
+			return Dynamic::unwrap<_Main::Main_Fields_>(d, [value](_Main::Main_Fields_* o) {
+				o->returnCode = value.asType<int>();
+				return value;
+			});
+		}
 		return Dynamic();
 	}
 };

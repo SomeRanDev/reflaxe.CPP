@@ -1,11 +1,12 @@
 #pragma once
 
-#include "_AnonUtils.h"
 #include "_HaxeUtils.h"
 #include "_TypeUtils.h"
 #include "haxe_Exception.h"
+#include "haxe_PosInfos.h"
 #include <dynamic/Dynamic.h>
 #include <iostream>
+#include <memory>
 #include <optional>
 #include <string>
 
@@ -28,10 +29,16 @@ namespace _Main {
 
 class Main_Fields_ {
 public:
+	static int returnCode;
+
+	static void assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt);
+	
 	static void main();
 };
 
 }
+
+
 template<typename T>
 class HasParam {
 public:
@@ -67,7 +74,7 @@ namespace haxe {
 	template<> struct _class<_Main::Main_Fields_> {
 		DEFINE_CLASS_TOSTRING
 		using Dyn = haxe::Dynamic__Main_Main_Fields_;
-		constexpr static _class_data<0, 1> data {"Main_Fields_", {}, { "main" }, true};
+		constexpr static _class_data<0, 3> data {"Main_Fields_", {}, { "returnCode", "assert", "main" }, true};
 	};
 	template<> struct _class<Test> {
 		DEFINE_CLASS_TOSTRING
