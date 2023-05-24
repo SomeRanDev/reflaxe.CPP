@@ -80,6 +80,17 @@ void _Main::Main_Fields_::main() {
 	_Main::Main_Fields_::assert(num == 16, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 89, "main"s));
 	num /= 2;
 	_Main::Main_Fields_::assert(num == 8, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 92, "main"s));
+	
+	haxe::Dynamic _bool = true;
+	
+	_Main::Main_Fields_::assert(_bool, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 96, "main"s));
+	_Main::Main_Fields_::assert(!(!_bool), haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 97, "main"s));
+	
+	if(_bool) {
+		_Main::Main_Fields_::assert(true, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 99, "main"s));
+	} else {
+		_Main::Main_Fields_::assert(false, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 101, "main"s));
+	};
 }
 Test::Test():
 	_order_id(generate_order_id())

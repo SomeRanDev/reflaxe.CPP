@@ -231,47 +231,6 @@ public:
 		return static_cast<Dynamic const*>(this)->asType<T>();
 	}
 
-	std::string toString() {
-		return _toStringImpl<Dynamic&>(*this);
-	}
-
-	std::string toString() const {
-		return _toStringImpl<Dynamic const&>(*this);
-	}
-
-	// Implementation for both "toString()" and "toString() const"
-	// T should only be "Dynamic&" or "Dynamic const&"
-	template<typename T>
-	static std::string _toStringImpl(T self) {
-		using remove_c_T = std::remove_cv_t<T>;
-		constexpr bool isDyn = std::is_same_v<Dynamic&, remove_c_T> || std::is_same_v<const Dynamic&, remove_c_T>;
-		static_assert(isDyn, "T must be Dynamic& or Dynamic const&");
-
-		if(self.hasCustomProps()) {
-			Dynamic toString = self.getPropSafe("toString");
-			if(toString.isFunction()) {
-				Dynamic result = toString();
-				if(result.isString()) {
-					return result.asType<std::string>();
-				}
-			}
-		}
-		switch(self._dynType) {
-			case Empty: return std::string("Dynamic(Undefined)");
-			case Null: return std::string("Dynamic(null)");
-			case Function: return std::string("Dynamic(Function)");
-			default: break;
-		}
-		if(self.isInt()) {
-			return std::to_string(self.template asType<long>());
-		} else if(self.isFloat()) {
-			return std::to_string(self.template asType<double>());
-		} else if(self.isBool()) {
-			return self.template asType<bool>() ? std::string("true") : std::string("false");
-		}
-		return std::string("Dynamic");
-	}
-
 	// If "getFunc" is defined, both "getFuncConst" and "setFunc" are also guaranteed.
 	bool hasCustomProps() const {
 		return getFunc != nullptr;
@@ -368,6 +327,82 @@ public:
 		return Dynamic();
 	}
 
+	bool operator!() const {
+		return !toBool();
+	}
+
+	operator bool() const {
+		return toBool();
+	}
+
+	// simple conversions
+
+	bool toBool() const {
+		if(isBool()) {
+			return asType<bool>();
+		}
+		return false;
+	}
+
+	long toInt() const {
+		if(isInt()) {
+			return asType<long>();
+		} else if(isFloat()) {
+			return static_cast<long>(asType<double>());
+		}
+		return 0;
+	}
+
+	double toFloat() const {
+		if(isInt()) {
+			return asType<long>();
+		} else if(isFloat()) {
+			return asType<double>();
+		}
+		return 0.0;
+	}
+
+	std::string toString() {
+		return _toStringImpl<Dynamic&>(*this);
+	}
+
+	std::string toString() const {
+		return _toStringImpl<Dynamic const&>(*this);
+	}
+
+	// Implementation for both "toString()" and "toString() const"
+	// T should only be "Dynamic&" or "Dynamic const&"
+	template<typename T>
+	static std::string _toStringImpl(T self) {
+		using remove_c_T = std::remove_cv_t<T>;
+		constexpr bool isDyn = std::is_same_v<Dynamic&, remove_c_T> || std::is_same_v<const Dynamic&, remove_c_T>;
+		static_assert(isDyn, "T must be Dynamic& or Dynamic const&");
+
+		if(self.hasCustomProps()) {
+			Dynamic toString = self.getPropSafe("toString");
+			if(toString.isFunction()) {
+				Dynamic result = toString();
+				if(result.isString()) {
+					return result.asType<std::string>();
+				}
+			}
+		}
+		switch(self._dynType) {
+			case Empty: return std::string("Dynamic(Undefined)");
+			case Null: return std::string("Dynamic(null)");
+			case Function: return std::string("Dynamic(Function)");
+			default: break;
+		}
+		if(self.isInt()) {
+			return std::to_string(self.template asType<long>());
+		} else if(self.isFloat()) {
+			return std::to_string(self.template asType<double>());
+		} else if(self.isBool()) {
+			return self.template asType<bool>() ? std::string("true") : std::string("false");
+		}
+		return std::string("Dynamic");
+	}
+
 	// helpers
 
 	template<typename T>
@@ -420,7 +455,7 @@ public:
 	}
 
 	// ---
-	// Operators
+	// Numeric Operators
 	// ---
 
 	// String + Dynamic
@@ -464,7 +499,8 @@ public:
 		OP_ASSIGN_FUN_ADD(arg)\
 		OP_ASSIGN_FUN(arg, -, -=)\
 		OP_ASSIGN_FUN(arg, *, *=)\
-		OP_ASSIGN_FUN(arg, /, /=)
+		OP_ASSIGN_FUN(arg, /, /=)\
+		bool operator==(arg num) const { return asType<arg>() == num; }
 
 	// Implement for every number type
 	OP_NUM(char)
