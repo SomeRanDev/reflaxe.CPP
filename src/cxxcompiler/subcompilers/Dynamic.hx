@@ -500,7 +500,7 @@ public:
 			_anyObj = l;
 			_innerType = std::type_index(typeid(long));
 		} else if constexpr(std::is_floating_point_v<T>) {
-			long d = static_cast<double>(obj);
+			double d = static_cast<double>(obj);
 			_anyObj = d;
 			_innerType = std::type_index(typeid(double));
 		} else {
@@ -829,7 +829,65 @@ public:
 		};
 		return result;
 	}
+
+	// ---
+	// Operators
+	// ---
+
+	Dynamic operator+(std::string second) const { return toString() + second; }
+
+	#define OP_FUN(arg, op) Dynamic operator op(arg test) const {\\
+		return asType<double>() op static_cast<double>(test);\\
+	}
+
+	#define OP_FUN_ADD(arg) Dynamic operator+(arg test) const {\\
+		if(isString()) return toString() + std::to_string(test);\\
+		return asType<double>() + static_cast<double>(test);\\
+	}
+
+	#define OP_ASSIGN_FUN(arg, op, op2) Dynamic& operator op2(arg second) {\\
+		(*this) = asType<double>() op static_cast<double>(second);\\
+		return (*this);\\
+	}
+
+	#define OP_ASSIGN_FUN_ADD(arg) Dynamic& operator+=(arg second) {\\
+		if(isString()) (*this) = toString() + std::to_string(second);\\
+		else (*this) = asType<double>() + static_cast<double>(second);\\
+		return (*this);\\
+	}
+
+	#define OP_NUM(arg)\\
+		OP_FUN_ADD(arg)\\
+		OP_FUN(arg, -)\\
+		OP_FUN(arg, *)\\
+		OP_FUN(arg, /)\\
+		OP_ASSIGN_FUN_ADD(arg)\\
+		OP_ASSIGN_FUN(arg, -, -=)\\
+		OP_ASSIGN_FUN(arg, *, *=)\\
+		OP_ASSIGN_FUN(arg, /, /=)
+
+	OP_NUM(char)
+	OP_NUM(unsigned char)
+	OP_NUM(short)
+	OP_NUM(unsigned short)
+	OP_NUM(int)
+	OP_NUM(unsigned int)
+	OP_NUM(long)
+	OP_NUM(unsigned long)
+	OP_NUM(float)
+	OP_NUM(double)
+
+	#undef OP_FUN
+	#undef OP_FUN_ADD
+	#undef OP_ASSIGN_FUN
+	#undef OP_ASSIGN_FUN_ADD
+	#undef OP_NUM
 };
+
+
+// ---
+// makeDynamic
+// ---
 
 template<typename T>
 Dynamic makeDynamic(T obj) {
