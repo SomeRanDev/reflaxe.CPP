@@ -196,7 +196,6 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 
 	for(hxml in hxmlFiles) {
 		final absPath = haxe.io.Path.join([testDir, hxml]);
-		final systemNameDefine = Sys.systemName().toLowerCase();
 		final args = [
 			"--no-opt",
 			"-cp std",
@@ -207,7 +206,6 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"-cp " + testDir,
 			"-D message-reporting=pretty",
 			"-D cpp-output=" + haxe.io.Path.join([testDir, noIntended ? OUT_DIR : getOutputDirectory(testDir)]),
-			"-D " + systemNameDefine,
 			"\"" + absPath + "\""
 		];
 

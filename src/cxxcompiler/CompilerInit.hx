@@ -2,6 +2,7 @@ package cxxcompiler;
 
 #if (macro || cxx_runtime)
 
+import haxe.macro.Compiler as HaxeCompiler;
 import haxe.macro.Context;
 
 import reflaxe.ReflectCompiler;
@@ -19,6 +20,11 @@ class CompilerInit {
 		#if (haxe_ver < "4.3.0")
 		Sys.println("Reflaxe/C++ requires Haxe version 4.3.0 or greater.");
 		return;
+		#end
+
+		// Define platform for API usage
+		#if macro
+		HaxeCompiler.define("reflaxe_cpp_" + Sys.systemName().toLowerCase());
 		#end
 
 		ReflectCompiler.AddCompiler(new Compiler(), {
@@ -44,7 +50,7 @@ class CompilerInit {
 
 		// Ensure the Haxe compiler keeps every IMap field.
 		#if macro
-		haxe.macro.Compiler.addMetadata("@:keep", "haxe.IMap");
+		HaxeCompiler.addMetadata("@:keep", "haxe.IMap");
 		// haxe.macro.Compiler.addMetadata("@:noCallstack", "haxe.CallStack", "callStack", true);
 		#end
 	}

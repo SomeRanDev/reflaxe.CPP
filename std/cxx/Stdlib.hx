@@ -20,7 +20,7 @@ extern class Stdlib {
 	@:include("string", true)
 	public static extern function intToString(i: Int): String;
 
-	#if windows
+	#if reflaxe_cpp_windows
 
 	@:native("getenv_s")
 	@:include("stdlib.h", true)
@@ -30,7 +30,7 @@ extern class Stdlib {
 	@:include("stdlib.h", true)
 	public static extern function putEnv(name: cxx.ConstCharPtr, input: cxx.ConstCharPtr): Int;
 
-	#elseif (linux || mac)
+	#elseif (reflaxe_cpp_linux || reflaxe_cpp_mac)
 
 	@:native("std::getenv")
 	@:include("cstdlib", true)
