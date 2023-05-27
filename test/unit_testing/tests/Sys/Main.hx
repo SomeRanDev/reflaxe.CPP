@@ -37,7 +37,7 @@ class Main {
 		// Not consistent enough to test, so we'll just print and see if it crashes.
 		trace(Sys.getCwd());
 
-		#if windows
+		#if reflaxe_cpp_windows
 		Sys.setCwd("C:/");
 		assert(Sys.getCwd() == "C:\\");
 		#end
