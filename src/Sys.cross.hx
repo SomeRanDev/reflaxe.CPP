@@ -89,7 +89,7 @@ final class Sys_GetEnv {
 		Unfortunately, the windows implementation of this function is massive.
 	**/
 	public static function getEnv(s: String): Null<String> {
-		#if windows
+		#if reflaxe_cpp_windows
 		// Based on:
 		// https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getenv-s-wgetenv-s?view=msvc-170#example
 
@@ -168,9 +168,9 @@ extern class Sys {
 	}
 
 	public static extern inline function putEnv(s: String, v: Null<String>): Void {
-		#if windows
+		#if reflaxe_cpp_windows
 		cxx.Stdlib.putEnv(@:privateAccess s.c_str(), @:privateAccess (v ?? "").c_str());
-		#elseif (mac || linux)
+		#elseif (reflaxe_cpp_mac || reflaxe_cpp_linux)
 		if(v == null || v.length == 0) {
 			cxx.Stdlib.unsetEnv(@:privateAccess s.c_str());
 		} else {
@@ -224,7 +224,7 @@ extern class Sys {
 		return programPath();
 	}
 
-	#if windows
+	#if reflaxe_cpp_windows
 
 	public static extern inline function programPath(): String {
 		untyped __include__("windows.h", true);
@@ -233,7 +233,7 @@ extern class Sys {
 		return cast(path.data(), cxx.ConstCharPtr).toString();
 	}
 
-	#elseif linux
+	#elseif reflaxe_cpp_linux
 
 	public static extern inline function programPath(): String {
 		untyped __include__("unistd.h", true);
