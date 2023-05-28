@@ -2,4 +2,5 @@ test/sample_project/out
 test/sample_project/obj
 test/sample_project/bin
 _Submit
+_Build
 Submit.bat
