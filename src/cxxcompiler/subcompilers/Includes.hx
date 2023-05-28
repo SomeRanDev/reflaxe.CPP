@@ -43,6 +43,12 @@ enum abstract ExtraFlag(String) from String to String {
 @:access(cxxcompiler.Compiler)
 class Includes extends SubCompiler {
 	// ----------------------------
+	// C++ STD Includes
+	public static var StringInclude = "string";
+	public static var ArrayInclude = "deque";
+	public static var AnyInclude = "any";
+
+	// ----------------------------
 	// Store list of includes.
 	var headerIncludes: Array<String> = [];
 	var cppIncludes: Array<String> = [];

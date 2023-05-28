@@ -14,6 +14,15 @@ import sys.FileSystem;
 **/
 @:cxxStd
 class Compiler {
+	/**
+		Override the standard library type by their `@:nativeName` ID.
+	**/
+	public static function setNativeNameOverride(id: String, cppType: String) {
+		reflaxe.helpers.NameMetaHelper.setNativeNameOverride(id, cppType);
+	}
+
+	// ----------------------------------------------------
+
 	static var extraCppDirectories: Array<{ path: String, recursive: Bool }> = [];
 	static var extraHeaderFiles: Array<String> = [];
 	static var extraSourceFiles: Array<String> = [];

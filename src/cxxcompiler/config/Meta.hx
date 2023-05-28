@@ -216,7 +216,7 @@ enum abstract Meta(String) from String to String {
 	// or class in the C++ output.
 	var TopLevel = ":topLevel";
 
-	// @:nativeName(name: String)
+	// @:nativeName(name: String, overrideId: String = "")
 	//
 	// If defined on a field, this will replace the field name that
 	// is generated. This is different from @:native as that meta

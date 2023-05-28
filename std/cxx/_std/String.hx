@@ -48,7 +48,7 @@ class HxString {
 }
 
 @:coreApi
-@:nativeName("std::string")
+@:nativeName("std::string", "String")
 @:include("string", true)
 @:valueType
 @:dynamicCompatible

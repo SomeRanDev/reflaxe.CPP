@@ -793,10 +793,12 @@ class Expressions extends SubCompiler {
 		// Add backslash to all quotes and backslashes.
 		var result = stringToLiteralCpp(s);
 
-		if(compilingInHeader) {
+		final strCppOverride = NameMetaHelper.getNativeNameOverride("String");
+		if(strCppOverride != null || compilingInHeader) {
 			// If compiling in header, we don't want to taint the global namespace with "using namespace",
 			// so we just wrap the const char* in std::string(...).
-			result = "std::string(" + result + ")";
+			final cppStringType = strCppOverride ?? "std::string";
+			result = cppStringType + "(" + result + ")";
 		} else {
 			// If compiling in source file, std::string literal can be used with the "s" suffix.
 			// Just make sure "using namespace std::string_literals" is added.
@@ -805,7 +807,7 @@ class Expressions extends SubCompiler {
 		}
 
 		// Ensure string is included
-		IComp.addInclude("string", compilingInHeader, true);
+		IComp.addInclude(Includes.StringInclude, compilingInHeader, true);
 
 		return result;
 	}

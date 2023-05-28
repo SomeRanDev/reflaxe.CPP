@@ -1,7 +1,7 @@
 package cxx;
 
 @:cxxStd
-@:nativeName("std::map")
+@:nativeName("std::map", "Map")
 @:noHaxeNamespaces
 @:include("map", true)
 @:valueType

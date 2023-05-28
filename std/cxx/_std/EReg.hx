@@ -1,7 +1,7 @@
 package;
 
 @:cxxStd
-@:native("std::regex")
+@:native("std::regex", "Regex")
 @:include("regex", true)
 @:valueType
 extern enum abstract SyntaxOptionType(Int) to Int {
