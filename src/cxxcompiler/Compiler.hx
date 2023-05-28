@@ -67,27 +67,27 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 	// ----------------------------
 	// The C++ classes used for nullability and memory management.
-	static final OptionalClassCpp: String = "std::optional";
-	static final SharedPtrClassCpp: String = "std::shared_ptr";
-	static final UniquePtrClassCpp: String = "std::unique_ptr";
+	static var OptionalClassCpp: String = "std::optional";
+	static var SharedPtrClassCpp: String = "std::shared_ptr";
+	static var UniquePtrClassCpp: String = "std::unique_ptr";
 
 	// ----------------------------
 	// The C++ functions used for generating smart pointers.
-	static final SharedPtrMakeCpp: String = "std::make_shared";
-	static final UniquePtrMakeCpp: String = "std::make_unique";
+	static var SharedPtrMakeCpp: String = "std::make_shared";
+	static var UniquePtrMakeCpp: String = "std::make_unique";
 
 	// ----------------------------
 	// The include params used upon requiring the above C++ classes.
-	static final OptionalInclude: Dynamic = ["optional", true];
-	static final SharedPtrInclude: Dynamic = ["memory", true];
-	static final UniquePtrInclude: Dynamic = ["memory", true];
+	static var OptionalInclude: Dynamic = ["optional", true];
+	static var SharedPtrInclude: Dynamic = ["memory", true];
+	static var UniquePtrInclude: Dynamic = ["memory", true];
 
 	// ----------------------------
 	// The name of the header file generated for the anonymous structs.
-	static final HaxeUtilsHeaderFile: String = "_HaxeUtils";
-	static final AnonStructHeaderFile: String = "_AnonStructs";
-	static final AnonUtilsHeaderFile: String = "_AnonUtils";
-	static final TypeUtilsHeaderFile: String = "_TypeUtils";
+	static var HaxeUtilsHeaderFile: String = "_HaxeUtils";
+	static var AnonStructHeaderFile: String = "_AnonStructs";
+	static var AnonUtilsHeaderFile: String = "_AnonUtils";
+	static var TypeUtilsHeaderFile: String = "_TypeUtils";
 
 	// ----------------------------
 	// Required for adding semicolons at the end of each line.

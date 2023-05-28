@@ -14,6 +14,7 @@ import haxe.macro.Type;
 
 import reflaxe.BaseCompiler;
 import reflaxe.data.EnumOptionData;
+import reflaxe.helpers.NameMetaHelper;
 
 using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.PositionHelper;
@@ -223,7 +224,8 @@ class Enums extends SubCompiler {
 
 		// toString
 		final toStringContent = "switch(index) {\n" + toStringCases.join("\n") + "\n}\nreturn \"\";";
-		declaration += "\n\n" + ("std::string toString() {\n" + toStringContent.tab() + "\n}").tab();
+		final cppStringType = NameMetaHelper.getNativeNameOverride("String") ?? "std::string";
+		declaration += "\n\n" + (cppStringType + " toString() {\n" + toStringContent.tab() + "\n}").tab();
 
 		// Finish C++ class
 		declaration += "\n};";

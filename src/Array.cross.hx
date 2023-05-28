@@ -124,7 +124,7 @@ class HxArray {
 
 @:cxxStd
 @:coreApi
-@:nativeName("std::deque")
+@:nativeName("std::deque", "Array")
 @:include("deque", true)
 @:valueEquality
 @:filename("HxArray")

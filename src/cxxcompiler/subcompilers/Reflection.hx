@@ -86,11 +86,13 @@ class Reflection extends SubCompiler {
 	}
 
 	public function typeUtilHeaderContent() {
+		final stringCppType = NameMetaHelper.getNativeNameOverride("String") ?? "std::string";
+
 		IComp.addInclude("array", true, true);
-		IComp.addInclude("string", true, true);
+		IComp.addInclude(Includes.StringInclude, true, true);
 		IComp.addInclude("memory", true, true);
 
-		return "// ---------------------------------------------------------------------
+		return '// ---------------------------------------------------------------------
 // haxe::_class<T>
 //
 // A class used to access reflection information regarding Haxe types.
@@ -113,8 +115,8 @@ struct _class_data {
 };
 
 #define DEFINE_CLASS_TOSTRING\\
-	std::string toString() {\\
-		return std::string(\"Class<\") + data.name + \">\";\\
+	$stringCppType toString() {\\
+		return $stringCppType(\"Class<\") + data.name + \">\";\\
 	}
 
 template<typename T> struct _class {
@@ -143,7 +145,7 @@ struct _unwrap_class<_class<T>> {
 	constexpr static bool iscls = true;
 };
 
-}";
+}';
 	}
 }
 

@@ -412,7 +412,15 @@ public:
 		Generate the `dynamic/Dynamic.h` file.
 	**/
 	public function dynamicTypeContent() {
-		final includes = ["any", "deque", "functional", "memory", "optional", "string", "typeindex"];
+		final includes = [
+			Includes.AnyInclude,
+			Includes.ArrayInclude,
+			"functional",
+			Compiler.SharedPtrInclude[0],
+			Compiler.OptionalInclude[0],
+			Includes.StringInclude,
+			"typeindex"
+		];
 		for(i in includes) {
 			IComp.addInclude(i, true, true);
 		}
