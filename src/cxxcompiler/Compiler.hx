@@ -51,43 +51,43 @@ using cxxcompiler.helpers.CppTypeHelper;
 class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// ----------------------------
 	// The extension for the generated header files.
-	static final HeaderExt: String = ".h";
+	public static final HeaderExt: String = ".h";
 
 	// ----------------------------
 	// The extension for the generated source files.
-	static final SourceExt: String = ".cpp";
+	public static final SourceExt: String = ".cpp";
 
 	// ----------------------------
 	// The folder all the header files are placed into.
-	static final HeaderFolder: String = "include";
+	public static final HeaderFolder: String = "include";
 
 	// ----------------------------
 	// The folder all the source files are placed into.
-	static final SourceFolder: String = "src";
+	public static final SourceFolder: String = "src";
 
 	// ----------------------------
 	// The C++ classes used for nullability and memory management.
-	static var OptionalClassCpp: String = "std::optional";
-	static var SharedPtrClassCpp: String = "std::shared_ptr";
-	static var UniquePtrClassCpp: String = "std::unique_ptr";
+	public static var OptionalClassCpp: String = "std::optional";
+	public static var SharedPtrClassCpp: String = "std::shared_ptr";
+	public static var UniquePtrClassCpp: String = "std::unique_ptr";
 
 	// ----------------------------
 	// The C++ functions used for generating smart pointers.
-	static var SharedPtrMakeCpp: String = "std::make_shared";
-	static var UniquePtrMakeCpp: String = "std::make_unique";
+	public static var SharedPtrMakeCpp: String = "std::make_shared";
+	public static var UniquePtrMakeCpp: String = "std::make_unique";
 
 	// ----------------------------
 	// The include params used upon requiring the above C++ classes.
-	static var OptionalInclude: Dynamic = ["optional", true];
-	static var SharedPtrInclude: Dynamic = ["memory", true];
-	static var UniquePtrInclude: Dynamic = ["memory", true];
+	public static var OptionalInclude: Dynamic = ["optional", true];
+	public static var SharedPtrInclude: Dynamic = ["memory", true];
+	public static var UniquePtrInclude: Dynamic = ["memory", true];
 
 	// ----------------------------
 	// The name of the header file generated for the anonymous structs.
-	static var HaxeUtilsHeaderFile: String = "_HaxeUtils";
-	static var AnonStructHeaderFile: String = "_AnonStructs";
-	static var AnonUtilsHeaderFile: String = "_AnonUtils";
-	static var TypeUtilsHeaderFile: String = "_TypeUtils";
+	public static var HaxeUtilsHeaderFile: String = "_HaxeUtils";
+	public static var AnonStructHeaderFile: String = "_AnonStructs";
+	public static var AnonUtilsHeaderFile: String = "_AnonUtils";
+	public static var TypeUtilsHeaderFile: String = "_TypeUtils";
 
 	// ----------------------------
 	// Required for adding semicolons at the end of each line.
