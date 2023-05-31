@@ -149,6 +149,11 @@ class Types extends SubCompiler {
 			}
 			case TDynamic(t3): {
 				if(t3 == null) {
+					#if (macro || display)
+					if(!cxx.Compiler.dynamicTypeEnabled) {
+						Context.error("Dynamic type disabled.", pos);
+					} else
+					#end
 					if(isAccumulatingDynamicToTemplate()) {
 						final result = generateDynamicTemplateName();
 						addDynamicTemplate(result);

@@ -33,6 +33,23 @@ class Compiler {
 	// ----------------------------------------------------
 
 	/**
+		Dictates whether the compiler should allow Haxe's
+		`Dynamic` type and generate `dynamic/` classes.
+
+		Modify this using `setExceptionHandlingEnabled`.
+	**/
+	public static var dynamicTypeEnabled(default, null): Bool = true;
+
+	/**
+		Set whether the generated C++ can use `haxe::Dynamic`.
+	**/
+	public static function setDynamicTypeEnabled(enabled: Bool = true) {
+		dynamicTypeEnabled = enabled;
+	}
+
+	// ----------------------------------------------------
+
+	/**
 		Override the standard library type by their `@:nativeName` ID.
 	**/
 	public static function setNativeNameOverride(id: String, cppType: String) {
