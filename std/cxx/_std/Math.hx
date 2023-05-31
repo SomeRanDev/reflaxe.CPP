@@ -1,6 +1,7 @@
 package;
 
 @:cxxStd
+@:haxeStd
 @:pseudoCoreApi
 @:pure
 extern class Math {

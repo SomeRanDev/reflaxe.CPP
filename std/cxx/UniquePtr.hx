@@ -1,6 +1,7 @@
 package cxx;
 
 @:cxxStd
+@:cppStd
 @:arrowAccess
 @:overrideMemoryManagement
 @:uniquePtrType

@@ -1,5 +1,7 @@
 package cxx.std;
 
+@:cxxStd
+@:cppStd
 @:nativeTypeCode("std::array<{type0}, {type1}>")
 @:include("array", true)
 extern class Array<T, @:const Count: Int>  {

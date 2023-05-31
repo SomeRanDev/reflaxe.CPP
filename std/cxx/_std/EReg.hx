@@ -1,6 +1,7 @@
 package;
 
 @:cxxStd
+@:haxeStd
 @:native("std::regex", "Regex")
 @:include("regex", true)
 @:valueType

@@ -1,6 +1,7 @@
 package haxe.ds;
 
 @:cxxStd
+@:haxeStd
 @:coreApi
 class IntMap<T> implements haxe.Constraints.IMap<Int, T> {
 	var m: cxx.StdMap<Int, T>;

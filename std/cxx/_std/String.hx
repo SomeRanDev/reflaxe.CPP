@@ -1,6 +1,7 @@
 package;
 
 @:cxxStd
+@:haxeStd
 @:pseudoCoreApi
 @:headerInclude("algorithm", true)
 @:headerInclude("cctype", true)
@@ -48,6 +49,8 @@ class HxString {
 }
 
 @:coreApi
+@:cxxStd
+@:haxeStd
 @:nativeName("std::string", "String")
 @:include("string", true)
 @:valueType

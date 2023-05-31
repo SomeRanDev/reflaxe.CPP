@@ -59,6 +59,7 @@ struct DynamicToString: public std::string {
 
 }")
 @:cxxStd
+@:haxeStd
 @:headerInclude("type_traits", true)
 @:headerInclude("deque", true)
 @:headerInclude("memory", true)

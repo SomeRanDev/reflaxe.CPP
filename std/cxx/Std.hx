@@ -1,6 +1,7 @@
 package cxx;
 
 @:cxxStd
+@:cppStd
 extern class Std {
 	@:native("std::cin")
 	@:include("iostream", true)

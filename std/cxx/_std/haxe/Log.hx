@@ -1,6 +1,7 @@
 package haxe;
 
 @:cxxStd
+@:haxeStd
 @:pseudoCoreApi
 @:headerInclude("iostream", true)
 class Log {

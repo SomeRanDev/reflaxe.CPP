@@ -1,6 +1,7 @@
 package cxx.std;
 
 @:cxxStd
+@:cppStd
 @:nativeName("std::pair")
 @:noHaxeNamespaces
 @:include("utility", true)

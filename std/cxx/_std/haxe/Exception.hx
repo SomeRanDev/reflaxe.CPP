@@ -1,6 +1,7 @@
 package haxe;
 
 @:cxxStd
+@:haxeStd
 @:coreApi
 @:valueType
 class Exception extends cxx.std.Exception {

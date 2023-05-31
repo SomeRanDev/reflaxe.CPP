@@ -5,6 +5,7 @@ package cxx.std.ios;
 	https://cplusplus.com/reference/sstream/stringstream/
 **/
 @:cxxStd
+@:cppStd
 @:include("sstream", true)
 @:native("std::stringstream")
 extern class StringStream extends IOStream {

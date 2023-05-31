@@ -1,6 +1,7 @@
 package haxe.ds;
 
 @:cxxStd
+@:haxeStd
 @:coreApi
 class StringMap<T> implements haxe.Constraints.IMap<String, T> {
 	var m: cxx.StdMap<String, T>;
