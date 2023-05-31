@@ -1,7 +1,7 @@
 package cxx;
 
 @:cxxStd
-@:native("const char*")
+@:nativeTypeCode("const char*")
 @:valueType
 extern class ConstCharPtr {
 	@:nativeFunctionCode("std::string({this})")
