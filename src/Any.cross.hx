@@ -1,6 +1,7 @@
 package;
 
 @:cxxStd
+@:haxeStd
 @:nativeName("std::any", "Any")
 @:include("any", true)
 @:forward.variance

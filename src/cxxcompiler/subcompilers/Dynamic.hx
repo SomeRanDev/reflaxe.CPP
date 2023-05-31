@@ -312,7 +312,7 @@ class Dynamic_ extends SubCompiler {
 			final isConst = f.field.hasMeta(Meta.Const);
 			final isPtr = mmt == UnsafePtr;
 			final dynFuncName = isPtr ? "makeFunc" : "makeFuncShared";
-			final cppType = isPtr ? '$valueTypeWParams*' : 'std::shared_ptr<$valueTypeWParams>';
+			final cppType = isPtr ? '$valueTypeWParams*' : '${Compiler.SharedPtrClassCpp}<$valueTypeWParams>';
 
 			(isConst ? getPropsConst : getProps).push('if(name == "${name}") {
 	return Dynamic::$dynFuncName<$valueTypeWParams>(d, []($cppType o, std::deque<Dynamic> args) {
@@ -425,7 +425,7 @@ public:
 			IComp.addInclude(i, true, true);
 		}
 
-		return "namespace haxe {
+		return 'namespace haxe {
 
 [[noreturn]]
 void makeError(const char* msg);
@@ -448,14 +448,14 @@ template<typename T>
 struct _mm_type<T*> { using inner = T; constexpr static DynamicType type = Pointer; };
 
 template<typename T>
-struct _mm_type<std::shared_ptr<T>> { using inner = T; constexpr static DynamicType type = SharedPtr; };
+struct _mm_type<${Compiler.SharedPtrClassCpp}<T>> { using inner = T; constexpr static DynamicType type = SharedPtr; };
 
-// Unwrap references as they're incompatible with `std::any`.
+// Unwrap references as they\'re incompatible with `std::any`.
 template<typename T>
 struct _mm_type<T&> { using inner = typename _mm_type<T>::inner; constexpr static DynamicType type = _mm_type<T>::type; };
 
 // Due to their nature, `unique_ptr` cannot be stored in `Dynamic`.
-// But let's track anyway for error reporting.
+// But let\'s track anyway for error reporting.
 template<typename T>
 struct _mm_type<std::unique_ptr<T>> { using inner = T; constexpr static DynamicType type = UniquePtr; };
 
@@ -464,10 +464,10 @@ struct _mm_type<std::unique_ptr<T>> { using inner = T; constexpr static DynamicT
 // Use within the Dynamic to extract a pointer type
 // from a Dynamic into a local variable `p`.
 #define DYN_GETPTR(name, t) \\
-	std::optional<t> v;\\
+	${Compiler.OptionalClassCpp}<t> v;\\
 	if(name._dynType == Value) v = std::any_cast<t>(name._anyObj);\\
-	else v = std::nullopt;\\
-	t* p = nullptr;\\
+	else v = ${Compiler.OptionalNullCpp};\\
+	t* p = ${Compiler.PointerNullCpp};\\
 	if(name._dynType == Value) {\\
 		p = v.operator->();\\
 	} else {\\
@@ -476,7 +476,7 @@ struct _mm_type<std::unique_ptr<T>> { using inner = T; constexpr static DynamicT
 
 // ---
 
-// The class used for Haxe's `Dynamic` type.
+// The class used for Haxe\'s `Dynamic` type.
 class Dynamic {
 public:
 	DynamicType _dynType;
@@ -484,7 +484,7 @@ public:
 	long id;
 	static long getId() { static long maxId = 0; return maxId++; }
 
-	std::optional<std::type_index> _innerType;
+	${Compiler.OptionalClassCpp}<std::type_index> _innerType;
 	std::any _anyObj;
 
 	std::function<Dynamic(std::deque<Dynamic>)> func;
@@ -608,7 +608,7 @@ public:
 				// case Reference: return std::any_cast<T&>(_anyObj);
 
 				case UniquePtr: return **std::any_cast<std::unique_ptr<T>>(&_anyObj);
-				case SharedPtr: return *std::any_cast<std::shared_ptr<T>>(_anyObj);
+				case SharedPtr: return *std::any_cast<${Compiler.SharedPtrClassCpp}<T>>(_anyObj);
 				default: break;
 			}
 		} else if constexpr(_mm_type<T>::type == Pointer) {
@@ -618,7 +618,7 @@ public:
 
 				case Pointer: return std::any_cast<In*>(_anyObj);
 				case UniquePtr: return std::any_cast<std::unique_ptr<In>>(&_anyObj)->get();
-				case SharedPtr: return std::any_cast<std::shared_ptr<In>>(_anyObj).get();
+				case SharedPtr: return std::any_cast<${Compiler.SharedPtrClassCpp}<In>>(_anyObj).get();
 				default: break;
 			}
 		} else if constexpr(_mm_type<T>::type == Reference) {
@@ -627,7 +627,7 @@ public:
 			makeError(\"Cannot cast Dynamic to std::unique_ptr\");
 		} else if constexpr(_mm_type<T>::type == SharedPtr) {
 			if(_dynType == SharedPtr) {
-				return std::any_cast<std::shared_ptr<In>>(_anyObj);
+				return std::any_cast<${Compiler.SharedPtrClassCpp}<In>>(_anyObj);
 			}
 		}
 		
@@ -650,7 +650,7 @@ public:
 
 	// If \"getFunc\" is defined, both \"getFuncConst\" and \"setFunc\" are also guaranteed.
 	bool hasCustomProps() const {
-		return getFunc != nullptr;
+		return getFunc != ${Compiler.PointerNullCpp};
 	}
 
 	Dynamic getPropSafe(std::string name) {
@@ -727,7 +727,7 @@ public:
 	}
 
 	Dynamic operator[](int index) {
-		if(getFunc != nullptr) {
+		if(getFunc != ${Compiler.PointerNullCpp}) {
 			Dynamic arrayAccess = getFunc(*this, \"[]\");
 			if(arrayAccess.isFunction()) {
 				return arrayAccess(index);
@@ -736,7 +736,7 @@ public:
 
 		try {
 			DYN_GETPTR((*this), std::deque<Dynamic>)
-			if(p != nullptr) {
+			if(p != ${Compiler.PointerNullCpp}) {
 				return p->operator[](index);
 			}
 		} catch(...) {
@@ -839,10 +839,10 @@ public:
 		Dynamic result;
 		result._dynType = Function;
 		result.func = [callback, d](std::deque<Dynamic> args) {
-			std::optional<T> v;
+			${Compiler.OptionalClassCpp}<T> v;
 			if(d._dynType == Value) v = std::any_cast<T>(d._anyObj);
-			else v = std::nullopt;
-			T* p = nullptr;
+			else v = ${Compiler.OptionalNullCpp};
+			T* p = ${Compiler.PointerNullCpp};
 			if(d._dynType == Value) {
 				p = v.operator->();
 			} else {
@@ -854,15 +854,15 @@ public:
 	}
 
 	template<typename T>
-	static Dynamic makeFuncShared(Dynamic& d, std::function<Dynamic(std::shared_ptr<T>, std::deque<Dynamic>)> callback) {
+	static Dynamic makeFuncShared(Dynamic& d, std::function<Dynamic(${Compiler.SharedPtrClassCpp}<T>, std::deque<Dynamic>)> callback) {
 		Dynamic result;
 		result._dynType = Function;
 		result.func = [callback, d](std::deque<Dynamic> args) {
-			std::shared_ptr<T> p = nullptr;
+			${Compiler.SharedPtrClassCpp}<T> p = ${Compiler.PointerNullCpp};
 			if(d._dynType == Value || d._dynType == Pointer) {
-				p = std::make_shared<T>(d.asType<T>());
+				p = ${Compiler.SharedPtrMakeCpp}<T>(d.asType<T>());
 			} else if(d._dynType == SharedPtr) {
-				p = std::any_cast<std::shared_ptr<T>>(d._anyObj);
+				p = std::any_cast<${Compiler.SharedPtrClassCpp}<T>>(d._anyObj);
 			} else {
 				makeError(\"Cannot use unique pointer for this property\");
 			}
@@ -949,7 +949,7 @@ Dynamic makeDynamic(T obj) {
 	return Dynamic(obj);
 }
 
-}";
+}';
 	}
 }
 

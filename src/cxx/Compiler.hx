@@ -1,6 +1,6 @@
 package cxx;
 
-#if macro
+#if (macro || display)
 
 import sys.FileSystem;
 
@@ -14,6 +14,58 @@ import sys.FileSystem;
 **/
 @:cxxStd
 class Compiler {
+	/**
+		Dictates whether the compiler should assume C++
+		exception handling is allowed.
+
+		Modify this using `setExceptionHandlingEnabled`.
+	**/
+	public static var exceptionHandlingEnabled(default, null): Bool = true;
+
+	/**
+		Set whether the generated C++ can use exception
+		handling features like try/catch and throw.
+	**/
+	public static function setExceptionHandlingEnabled(enabled: Bool = true) {
+		exceptionHandlingEnabled = enabled;
+	}
+
+	// ----------------------------------------------------
+
+	/**
+		Dictates whether the compiler should allow Haxe's
+		`Dynamic` type and generate `dynamic/` classes.
+
+		Modify this using `setExceptionHandlingEnabled`.
+	**/
+	public static var dynamicTypeEnabled(default, null): Bool = true;
+
+	/**
+		Set whether the generated C++ can use `haxe::Dynamic`.
+	**/
+	public static function setDynamicTypeEnabled(enabled: Bool = true) {
+		dynamicTypeEnabled = enabled;
+	}
+
+	// ----------------------------------------------------
+
+	/**
+		Dictates whether String literals should be wrapped
+		with string or stay as const char*.
+
+		Modify this using `setRetainConstCharLiterals`.
+	**/
+	public static var retainConstCharLiterals(default, null): Bool = false;
+
+	/**
+		Set whether String literals are compiled as const char*.
+	**/
+	public static function setRetainConstCharLiterals(enabled: Bool = true) {
+		retainConstCharLiterals = enabled;
+	}
+
+	// ----------------------------------------------------
+
 	/**
 		Override the standard library type by their `@:nativeName` ID.
 	**/

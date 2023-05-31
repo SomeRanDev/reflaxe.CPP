@@ -1,6 +1,7 @@
 import haxe.iterators.ArrayKeyValueIterator;
 
 @:cxxStd
+@:haxeStd
 @:pseudoCoreApi
 @:dontGenerateDynamic
 @:unreflective
@@ -123,6 +124,7 @@ class HxArray {
 }
 
 @:cxxStd
+@:haxeStd
 @:coreApi
 @:nativeName("std::deque", "Array")
 @:include("deque", true)

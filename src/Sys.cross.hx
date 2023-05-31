@@ -4,6 +4,7 @@ package;
 	A class containing the implementation for `Sys.environment`.
 **/
 @:cxxStd
+@:haxeStd
 final class Sys_Environment {
 	public static function environment(): Map<String, String> {
 		var strings: Array<String> = [];
@@ -35,6 +36,7 @@ final class Sys_Environment {
 	A class containing the implementation for `Sys.systemName`.
 **/
 @:cxxStd
+@:haxeStd
 final class Sys_SystemName {
 	public static function systemName(): String {
 		untyped __cpp__("#if defined(_WIN32)
@@ -57,6 +59,7 @@ return \"Mac\";
 	Stores the args at the start of the program for later access.
 **/
 @:cxxStd
+@:haxeStd
 final class Sys_Args {
 	/**
 		Store program arguments.
@@ -84,6 +87,7 @@ final class Sys_Args {
 	A class containing the implementation for `Sys.getEnv`.
 **/
 @:cxxStd
+@:haxeStd
 final class Sys_GetEnv {
 	/**
 		Unfortunately, the windows implementation of this function is massive.
@@ -125,6 +129,7 @@ final class Sys_GetEnv {
 	Records the time the program starts to calculate the program time later.
 **/
 @:cxxStd
+@:haxeStd
 final class Sys_CpuTime {
 	/**
 		Store when the program started.
@@ -147,6 +152,7 @@ final class Sys_CpuTime {
 }
 
 @:cxxStd
+@:haxeStd
 @:require(sys)
 extern class Sys {
 	public static extern inline function print(v: cxx.DynamicToString): Void {

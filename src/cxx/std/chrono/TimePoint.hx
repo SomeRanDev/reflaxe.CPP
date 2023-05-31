@@ -1,6 +1,7 @@
 package cxx.std.chrono;
 
 @:cxxStd
+@:cppStd
 @:nativeTypeCode("std::chrono::time_point<{type0}>")
 @:include("chrono", true)
 @:valueType

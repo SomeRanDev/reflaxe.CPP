@@ -5,6 +5,7 @@ package;
 #end
 
 @:cxxStd
+@:haxeStd
 @:includeTypeUtils
 @:pseudoCoreApi
 @:dontGenerateDynamic
@@ -20,6 +21,7 @@ class StdImpl {
 }
 
 @:cxxStd
+@:haxeStd
 @:pseudoCoreApi
 @:headerOnly
 @:headerInclude("string", true)

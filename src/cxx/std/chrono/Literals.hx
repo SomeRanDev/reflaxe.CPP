@@ -1,6 +1,7 @@
 package cxx.std.chrono;
 
 @:cxxStd
+@:cppStd
 extern class Literals {
 	@:include("chrono", true)
 	@:nativeFunctionCode("std::chrono::milliseconds({arg0})")

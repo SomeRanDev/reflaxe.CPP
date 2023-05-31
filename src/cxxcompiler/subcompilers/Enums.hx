@@ -142,7 +142,7 @@ class Enums extends SubCompiler {
 
 				final funcArgs = [];
 				for(i in 0...args.length) {
-					funcArgs.push(args[i][0] + " _" + args[i][1] + (o.args[i].opt ? " = std::nullopt" : ""));
+					funcArgs.push(args[i][0] + " _" + args[i][1] + (o.args[i].opt ? " = " + Compiler.OptionalNullCpp : ""));
 				}
 				var construct = "";
 				construct += "static " + TComp.compileType(enumType, o.field.pos) + " " + o.name + "(" + funcArgs.join(", ") + ") {\n";

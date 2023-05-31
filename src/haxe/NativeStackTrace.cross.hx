@@ -21,6 +21,7 @@ extern class NativeStackItem {
 }
 
 @:dox(hide)
+@:haxeStd
 @:noCompletion
 @:headerCode("
 #define HCXX_STACK_METHOD(...) \\

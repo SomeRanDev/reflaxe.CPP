@@ -1,6 +1,7 @@
 package cxx.io;
 
 @:cxxStd
+@:haxeStd
 @:valueType
 class NativeOutput extends haxe.io.Output {
 	var stream: Null<cxx.Ptr<cxx.std.ios.OStream>>;

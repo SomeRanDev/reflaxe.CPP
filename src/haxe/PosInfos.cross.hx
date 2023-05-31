@@ -1,6 +1,7 @@
 package haxe;
 
 @:cxxStd
+@:haxeStd
 @:coreApi
 typedef PosInfos = {
 	var fileName: String;

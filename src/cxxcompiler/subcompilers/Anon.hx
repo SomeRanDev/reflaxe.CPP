@@ -198,7 +198,7 @@ class Anon extends SubCompiler {
 			final t = TComp.compileType(f.type, f.pos ?? reflaxe.helpers.PositionHelper.unknownPos());
 			final v = t + " " + f.name;
 			fields.push(v);
-			constructorParams.push(v + (f.optional ? " = std::nullopt" : ""));
+			constructorParams.push(v + (f.optional ? " = " + Compiler.OptionalNullCpp : ""));
 			constructorAssigns.push("result." + f.name + " = " + f.name);
 
 			switch(f.type) {
@@ -368,7 +368,7 @@ namespace haxe {
 // ---------------------------------------------------------------------
 
 // haxe::optional_info
-// Returns information about std::optional<T> types.
+// Returns information about ${Compiler.OptionalClassCpp}<T> types.
 namespace haxe {
 
 	template <typename T>
@@ -378,7 +378,7 @@ namespace haxe {
 	};
 
 	template <typename T>
-	struct optional_info<std::optional<T>> {
+	struct optional_info<${Compiler.OptionalClassCpp}<T>> {
 		using inner = typename optional_info<T>::inner;
 		static constexpr bool isopt = true;
 	};
@@ -415,10 +415,10 @@ namespace haxe {
 	};
 
 	template<typename T>
-	struct _unwrap_mm<std::shared_ptr<T>> {
+	struct _unwrap_mm<${Compiler.SharedPtrClassCpp}<T>> {
 		using inner = typename _unwrap_mm<T>::inner;
 		constexpr static bool can_deref = true;
-		static inline inner& get(std::shared_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
+		static inline inner& get(${Compiler.SharedPtrClassCpp}<T> in) { return _unwrap_mm<T>::get(*in); }
 	};
 
 	template<typename T>
@@ -441,7 +441,7 @@ namespace haxe {
 // Given any object, it checks whether that object has a field of the same name
 // and type as the class this function is a member of (using `haxe::optional_info`).
 //
-// If it does, it returns the object\'s field\'s value; otherwise, it returns `std::nullopt`.
+// If it does, it returns the object\'s field\'s value; otherwise, it returns `${Compiler.OptionalNullCpp}`.
 //
 // Useful for extracting values for optional parameters for anonymous structure
 // classes since the input object may or may not have the field.
@@ -454,7 +454,7 @@ static auto extract_##fieldName(T other) {\\
 	} else if constexpr(std::is_same<U,haxe::optional_info<decltype(fieldName)>::inner>::value) {\\
 		return other.customParam;\\
 	} else {\\
-		return std::nullopt;\\
+		return ${Compiler.OptionalNullCpp};\\
 	}\\
 }';
 	}

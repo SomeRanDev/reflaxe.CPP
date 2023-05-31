@@ -1,6 +1,7 @@
 package haxe.ds;
 
 @:cxxStd
+@:haxeStd
 @:coreApi
 class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
 	var m: cxx.StdMap<K, V>;

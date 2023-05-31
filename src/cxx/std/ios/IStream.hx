@@ -4,6 +4,8 @@ package cxx.std.ios;
 	Incomplete. Feel free to contribute needed fields:
 	https://cplusplus.com/reference/istream/istream/
 **/
+@:cxxStd
+@:cppStd
 @:native("std::istream")
 @:include("istream", true)
 extern class IStream {
