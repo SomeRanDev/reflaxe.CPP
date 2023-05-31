@@ -193,7 +193,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 		#if (cxx_disable_haxe_std || display)
 		final cd = mt.getCommonData();
-		if(cd.meta.maybeHas(":cxxStd")) {
+		if(cd.meta.maybeHas(":cxxStd") && cd.globalName() != "String") {
 			Context.error("Using Haxe std type when disallowed.", blamePosition);
 		}
 		#end
@@ -267,7 +267,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		final mt = t.toModuleType();
 		if(mt != null) {
 			final cd = mt.getCommonData();
-			if(cd.meta.maybeHas(":haxeStd")) {
+			if(cd.meta.maybeHas(":haxeStd") && cd.globalName() != "String") {
 				Context.error("Using Haxe std type when disallowed.", blamePosition);
 			}
 		}
@@ -344,7 +344,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	public function getExprType(e: TypedExpr, ignoreCast: Bool = true): Type {
 		return switch(e.expr) {
 			#if (cxx_disable_haxe_std || display)
-			case TConst(TString): {
+			case TConst(TString(_)): {
 				static var ccp = Context.getType("cxx.ConstCharPtr");
 				ccp;
 			}
