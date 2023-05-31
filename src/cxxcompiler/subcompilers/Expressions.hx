@@ -801,6 +801,10 @@ class Expressions extends SubCompiler {
 		// Add backslash to all quotes and backslashes.
 		var result = stringToLiteralCpp(s);
 
+		if(#if macro cxx.Compiler.retainConstCharLiterals #else false #end) {
+			return result;
+		}
+
 		final strCppOverride = NameMetaHelper.getNativeNameOverride("String");
 		if(strCppOverride != null || compilingInHeader) {
 			// If compiling in header, we don't want to taint the global namespace with "using namespace",

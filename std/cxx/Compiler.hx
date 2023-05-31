@@ -50,6 +50,23 @@ class Compiler {
 	// ----------------------------------------------------
 
 	/**
+		Dictates whether String literals should be wrapped
+		with string or stay as const char*.
+
+		Modify this using `setRetainConstCharLiterals`.
+	**/
+	public static var retainConstCharLiterals(default, null): Bool = false;
+
+	/**
+		Set whether String literals are compiled as const char*.
+	**/
+	public static function setRetainConstCharLiterals(enabled: Bool = true) {
+		retainConstCharLiterals = enabled;
+	}
+
+	// ----------------------------------------------------
+
+	/**
 		Override the standard library type by their `@:nativeName` ID.
 	**/
 	public static function setNativeNameOverride(id: String, cppType: String) {
