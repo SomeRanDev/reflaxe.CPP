@@ -185,7 +185,7 @@ class Expressions extends SubCompiler {
 				}
 			}
 			case TBinop(op, e1, e2): {
-				result = binopToCpp(op, e1, e2);
+				result = binopToCpp(op, e1, e2, expr.pos);
 			}
 			case TField(e, fa): {
 				result = fieldAccessToCpp(e, fa, expr);
@@ -218,7 +218,7 @@ class Expressions extends SubCompiler {
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
 				final t = TComp.compileType(arrayType, expr.pos);
 				final d = "std::deque<" + t + ">";
-				result = "std::make_shared<" + d + ">(" + d + ({
+				result = Compiler.SharedPtrMakeCpp + "<" + d + ">(" + d + ({
 					if(el.length > 0) {
 						final cppList: Array<String> = el.map(e -> compileExpressionForType(e, arrayType).trustMe());
 						var newLines = false;
@@ -484,7 +484,7 @@ class Expressions extends SubCompiler {
 			final t = Main.getExprType(expr);
 			if(t.isNull() && !expr.isNullExpr()) {
 				final isValue = t.getInternalType().isTypeParameter() || Types.getMemoryManagementTypeFromType(t) == Value;
-				result = ensureSafeToAccess(result) + (isValue ? ".value()" : ".value_or(nullptr)");
+				result = ensureSafeToAccess(result) + (isValue ? ".value()" : '.value_or(${Compiler.PointerNullCpp})');
 			}
 		}
 
@@ -616,7 +616,7 @@ class Expressions extends SubCompiler {
 			// This is true if `null` is not allowed, but the source expression is nullable.
 			final nullToNotNull = !allowNull && nullToValue && !expr.isNullExpr();
 			if(nullMMConvert || nullToNotNull) {
-				return ensureSafeToAccess(cpp) + (pointerType ? ".value_or(nullptr)" : ".value()");
+				return ensureSafeToAccess(cpp) + (pointerType ? '.value_or(${Compiler.PointerNullCpp})' : ".value()");
 			}
 			return cpp;
 		}
@@ -638,7 +638,7 @@ class Expressions extends SubCompiler {
 			switch(expr.expr) {
 				case TConst(TThis) if(thisOverride == null && tmmt == SharedPtr): {
 					IComp.setExtraFlag(ExtraFlag.SharedFromThis);
-					result = "this->weak_from_this().expired() ? std::make_shared<" + TComp.compileType(Main.getExprType(expr), expr.pos, true) + ">(*this) : this->shared_from_this()";
+					result = "this->weak_from_this().expired() ? " + Compiler.SharedPtrMakeCpp + "<" + TComp.compileType(Main.getExprType(expr), expr.pos, true) + ">(*this) : this->shared_from_this()";
 				}
 				case TConst(TThis) if(thisOverride == null && tmmt == UniquePtr): {
 					expr.pos.makeError(ThisToUnique);
@@ -671,7 +671,7 @@ class Expressions extends SubCompiler {
 							// Otherwise, we have to repeat the `cpp` code when checking for value.
 							final condVar = hasAlias ? "v" : cpp;
 							final tCpp = TComp.compileType(targetType ?? Main.getExprType(expr), expr.pos, true);
-							result = '${condVar}.has_value() ? (${tCpp})${result} : std::nullopt';
+							result = '${condVar}.has_value() ? (${tCpp})${result} : ${Compiler.OptionalNullCpp}';
 						}
 					}
 				}
@@ -768,7 +768,7 @@ class Expressions extends SubCompiler {
 			case TString(s): stringToCpp(s);
 			case TBool(b): b ? "true" : "false";
 			case TNull: {
-				final nullExpr = useUntypedNull ? "nullptr" : "std::nullopt";
+				final nullExpr = useUntypedNull ? Compiler.PointerNullCpp : Compiler.OptionalNullCpp;
 				final cppType = TComp.maybeCompileType(Main.getExprType(originalExpr), originalExpr.pos);
 				if(explicitNull && cppType != null) {
 					"static_cast<" + cppType + ">(" + nullExpr + ")";
@@ -801,6 +801,10 @@ class Expressions extends SubCompiler {
 		// Add backslash to all quotes and backslashes.
 		var result = stringToLiteralCpp(s);
 
+		#if cxx_disable_haxe_std
+		return result;
+		#end
+
 		if(#if macro cxx.Compiler.retainConstCharLiterals #else false #end) {
 			return result;
 		}
@@ -827,7 +831,7 @@ class Expressions extends SubCompiler {
 	/**
 		Generates the C++ code for a Haxe infix operator expression.
 	**/
-	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr): String {
+	function binopToCpp(op: Binop, e1: TypedExpr, e2: TypedExpr, opPos: Position): String {
 		// Check for Dynamic property assignment
 		if(op.isAssignDirect()) {
 			final dynSetCpp = checkDynamicSet(e1, e2);
@@ -905,6 +909,11 @@ class Expressions extends SubCompiler {
 
 		// Wrap primitives with std::to_string(...) when added with String
 		if(op.isAddition()) {
+			#if (cxx_disable_haxe_std || display)
+			if(Main.getExprType(e1).isString() || Main.getExprType(e2).isString()) {
+				Context.error("Cannot add Strings without Haxe Std.", opPos);
+			}
+			#end
 			if(checkForPrimitiveStringAddition(e1, e2)) cppExpr2 = "std::to_string(" + cppExpr2 + ")";
 			if(checkForPrimitiveStringAddition(e2, e1)) cppExpr1 = "std::to_string(" + cppExpr1 + ")";
 		}

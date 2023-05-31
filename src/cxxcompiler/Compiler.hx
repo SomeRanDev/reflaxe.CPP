@@ -72,6 +72,11 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	public static var UniquePtrClassCpp: String = "std::unique_ptr";
 
 	// ----------------------------
+	// The C++ code for a `null` value. (Specifically for the type defined for OptionalClassCpp)
+	public static var OptionalNullCpp: String = "std::nullopt";
+	public static var PointerNullCpp: String = "nullptr";
+
+	// ----------------------------
 	// The C++ functions used for generating smart pointers.
 	public static var SharedPtrMakeCpp: String = "std::make_shared";
 	public static var UniquePtrMakeCpp: String = "std::make_unique";
@@ -186,6 +191,13 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		final t = TypeHelper.fromModuleType(mt);
 		if(t.isExprClass()) return;
 
+		#if (cxx_disable_haxe_std || display)
+		final cd = mt.getCommonData();
+		if(cd.meta.maybeHas(":cxxStd")) {
+			Context.error("Using Haxe std type when disallowed.", blamePosition);
+		}
+		#end
+
 		// Add include only if NOT in header OR no forward declare.
 		if(!addToHeader || !checkForForwardDeclare(t, blamePosition)) {
 			if(addToHeader) {
@@ -250,6 +262,16 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// ensure it is #included.
 	public function onTypeEncountered(t: Type, addToHeader: Bool, blamePosition: Position) {
 		if(t.isExprClass()) return;
+
+		#if (cxx_disable_haxe_std || display)
+		final mt = t.toModuleType();
+		if(mt != null) {
+			final cd = mt.getCommonData();
+			if(cd.meta.maybeHas(":haxeStd")) {
+				Context.error("Using Haxe std type when disallowed.", blamePosition);
+			}
+		}
+		#end
 
 		// Add include only if NOT in header OR no forward declare.
 		if(!addToHeader || !checkForForwardDeclare(t, blamePosition)) {
@@ -321,6 +343,13 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 	public function getExprType(e: TypedExpr, ignoreCast: Bool = true): Type {
 		return switch(e.expr) {
+			#if (cxx_disable_haxe_std || display)
+			case TConst(TString): {
+				static var ccp = Context.getType("cxx.ConstCharPtr");
+				ccp;
+			}
+			#end
+
 			// Get "this" type"
 			case TConst(TThis): {
 				if(XComp.thisOverride != null) {
@@ -687,7 +716,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// Copies files configured to be added
 	// to the output using `cxx.Compiler`.
 	function copyAdditionalFiles() {
-		#if macro
+		#if (macro || display)
 		for(file in cxx.Compiler.findAllExtraFiles()) {
 			final fp = file.path;
 			if(sys.FileSystem.exists(fp)) {
