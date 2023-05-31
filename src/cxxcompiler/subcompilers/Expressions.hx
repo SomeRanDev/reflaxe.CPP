@@ -422,14 +422,22 @@ class Expressions extends SubCompiler {
 			case TContinue: {
 				result = "continue";
 			}
-			case TThrow(expr): {
-				final e = Main.compileExpressionOrError(expr);
-				result = if(Main.getExprType(expr).isString()) {
-					IComp.addInclude("haxe_Exception.h", compilingInHeader);
-					"throw haxe::Exception(" + e + ")";
+			case TThrow(thrownExpr): {
+				#if macro
+				if(cxx.Compiler.exceptionHandlingEnabled) {
+				#end
+					final e = Main.compileExpressionOrError(thrownExpr);
+					result = if(Main.getExprType(thrownExpr).isString()) {
+						Main.onTypeEncountered(Context.getType("haxe.Exception"), compilingInHeader, expr.pos);
+						"throw haxe::Exception(" + e + ")";
+					} else {
+						"throw " + e;
+					}
+				#if macro
 				} else {
-					"throw " + e;
+					result = "exit(1)";
 				}
+				#end
 			}
 			case TCast(e, maybeModuleType): {
 				result = compileCast(e, expr, maybeModuleType);

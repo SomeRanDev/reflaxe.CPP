@@ -1,6 +1,6 @@
 package cxx;
 
-#if macro
+#if (macro || display)
 
 import sys.FileSystem;
 
@@ -14,6 +14,24 @@ import sys.FileSystem;
 **/
 @:cxxStd
 class Compiler {
+	/**
+		Dictates whether the compiler should assume C++
+		exception handling is allowed.
+
+		Modify this using `setExceptionHandlingEnabled`.
+	**/
+	public static var exceptionHandlingEnabled(default, null): Bool = true;
+
+	/**
+		Set whether the generated C++ can use exception
+		handling features like try/catch and throw.
+	**/
+	public static function setExceptionHandlingEnabled(enabled: Bool = true) {
+		exceptionHandlingEnabled = enabled;
+	}
+
+	// ----------------------------------------------------
+
 	/**
 		Override the standard library type by their `@:nativeName` ID.
 	**/
