@@ -47,7 +47,7 @@ struct DynamicToString: public std::string {
 			return std::string(s);
 		} else if constexpr(has_to_string<T>::value) {
 			return s.toString();
-		} else if constexpr(haxe::_unwrap_mm<T>::can_deref) {
+		} else if constexpr(haxe::_unwrap_mm<T>::can_deref && std::is_trivially_copy_assignable_v<std::remove_reference_t<decltype(*std::declval<T>())>>) {
 			return ToString(*s);
 		} else if constexpr(is_deque<T>::value) {
 			std::string result = "[";
