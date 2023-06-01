@@ -69,18 +69,18 @@ namespace haxe {
 	};
 
 	template<typename T>
-	struct _unwrap_mm<std::shared_ptr<T>> {
-		using inner = typename _unwrap_mm<T>::inner;
-		constexpr static bool can_deref = true;
-		static inline inner& get(std::shared_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
-	};
+struct _unwrap_mm<std::shared_ptr<T>> {
+	using inner = typename _unwrap_mm<T>::inner;
+	constexpr static bool can_deref = true;
+	static inline inner& get(std::shared_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
+};
 
-	template<typename T>
-	struct _unwrap_mm<std::unique_ptr<T>> {
-		using inner = typename _unwrap_mm<T>::inner;
-		constexpr static bool can_deref = true;
-		static inline inner& get(std::unique_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
-	};
+template<typename T>
+struct _unwrap_mm<std::unique_ptr<T>> {
+	using inner = typename _unwrap_mm<T>::inner;
+	constexpr static bool can_deref = true;
+	static inline inner& get(std::unique_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
+};
 
 	template<typename T, typename U = typename _unwrap_mm<T>::inner>
 	static inline U& unwrap(T in) { return _unwrap_mm<T>::get(in); }
