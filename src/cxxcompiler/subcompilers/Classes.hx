@@ -942,21 +942,20 @@ class Classes extends SubCompiler {
 	}
 
 	function generateDefaultConstructor(ctx: FunctionCompileContext, topLevel: Bool) {
-		return;
-		final shouldGenDefaultConstructor = ctx.f.args.length > 0 && hasDefaultConstructor(classType);
-		if(shouldGenDefaultConstructor) {
-			if(topLevel) throw "Impossible"; // Constructors should never be top level
-			final funcDeclaration = generateHeaderDecl(ctx, ctx.name, ctx.ret, "()", topLevel);
-			final pos = PositionHelper.unknownPos();
-			final defaultArgs: Array<TypedExpr> = ctx.f.replacePadNullsWithDefaults(ctx.f.args.map(a -> { expr: TConst(TNull), t: a.type, pos: pos }));
-			final argsCpp = defaultArgs.map(Main.compileExpressionOrError).join(", ");
-			if(ctx.addToCpp) {
-				addFunction(funcDeclaration + ";", ctx.section);
-				cppFunctions.push('$classNameNS${ctx.name}${ctx.covariance.name}(): ${ctx.name}($argsCpp) {}');
-			} else {
-				addFunction('$funcDeclaration: ${ctx.name}($argsCpp) {}', ctx.section);
-			}
-		}
+		// final shouldGenDefaultConstructor = ctx.f.args.length > 0 && hasDefaultConstructor(classType);
+		// if(shouldGenDefaultConstructor) {
+		// 	if(topLevel) throw "Impossible"; // Constructors should never be top level
+		// 	final funcDeclaration = generateHeaderDecl(ctx, ctx.name, ctx.ret, "()", topLevel);
+		// 	final pos = PositionHelper.unknownPos();
+		// 	final defaultArgs: Array<TypedExpr> = ctx.f.replacePadNullsWithDefaults(ctx.f.args.map(a -> { expr: TConst(TNull), t: a.type, pos: pos }));
+		// 	final argsCpp = defaultArgs.map(Main.compileExpressionOrError).join(", ");
+		// 	if(ctx.addToCpp) {
+		// 		addFunction(funcDeclaration + ";", ctx.section);
+		// 		cppFunctions.push('$classNameNS${ctx.name}${ctx.covariance.name}(): ${ctx.name}($argsCpp) {}');
+		// 	} else {
+		// 		addFunction('$funcDeclaration: ${ctx.name}($argsCpp) {}', ctx.section);
+		// 	}
+		// }
 	}
 
 	/**
