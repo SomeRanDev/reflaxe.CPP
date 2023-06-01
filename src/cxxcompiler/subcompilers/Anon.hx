@@ -446,7 +446,7 @@ namespace haxe {
 		static inline inner& get(T& in) { return _unwrap_mm<T>::get(in); }
 	};
 
-	${unwrapMMSmartPtr}
+${unwrapMMSmartPtr.tab()}
 
 	template<typename T, typename U = typename _unwrap_mm<T>::inner>
 	static inline U& unwrap(T in) { return _unwrap_mm<T>::get(in); }
