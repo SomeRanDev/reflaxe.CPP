@@ -127,6 +127,11 @@ class Types extends SubCompiler {
 			case TEnum(enumRef, params): {
 				compileEnumName(enumRef, pos, params, true, asValue, dependent);
 			}
+			#if (cxx_disable_haxe_std || display)
+			case TInst(_.get() => { name: "String", module: "String" }, []): {
+				return "const char*";
+			}
+			#end
 			case TInst(clsRef, params): {
 				switch(clsRef.get().kind) {
 					case KExpr(e): {
@@ -144,7 +149,11 @@ class Types extends SubCompiler {
 				if(asValue) {
 					internal;
 				} else {
+					#if cxx_smart_ptr_disabled
+					internal;
+					#else
 					Compiler.SharedPtrClassCpp + "<" + internal + ">";
+					#end
 				}
 			}
 			case TDynamic(t3): {
@@ -285,6 +294,11 @@ class Types extends SubCompiler {
 			final prefix = (useNS ? typeData.pack.join("::") + (typeData.pack.length > 0 ? "::" : "") : "");
 			final innerClass = compileTypeNameWithParams(prefix + typeData.getNameOrNativeName(), pos, params);
 			final mmType = overrideMM ?? typeData.getMemoryManagementType();
+			#if cxx_smart_ptr_disabled
+			if(mmType == SharedPtr || mmType == UniquePtr) {
+				Context.error("Smart pointer memory management types are disabled. Compiling type: " + innerClass, pos);
+			}
+			#end
 			applyMemoryManagementWrapper(innerClass, mmType);
 		}
 	}
@@ -438,7 +452,11 @@ class Types extends SubCompiler {
 				getMemoryManagementTypeFromType(Compiler.getTypedefInner(t));
 			}
 			case TAnonymous(a): {
+				#if cxx_smart_ptr_disabled
+				Value;
+				#else
 				SharedPtr;
+				#end
 			}
 			case TDynamic(t): {
 				if(t == null) {

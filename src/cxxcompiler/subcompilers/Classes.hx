@@ -558,11 +558,16 @@ class Classes extends SubCompiler {
 		} else {
 			final covariant = ClassHierarchyTracker.funcGetCovariantBaseType(classType, field, ctx.isStatic);
 			if(covariant != null) {
-				ctx.covariance.isCovariant = true;
-				ctx.covariance.name = ctx.name;
-				ctx.name += "OG";
-				ctx.covariance.ret = TComp.compileType(covariant, field.pos, false, true);
-				ctx.covariance.retVal = TComp.compileType(covariant, field.pos, true, true);
+				final covariantMMT = Types.getMemoryManagementTypeFromType(covariant);
+				if(covariantMMT == Value) {
+					Context.error("Covariance must use pointer-like type.", f.field.pos);
+				} else {
+					ctx.covariance.isCovariant = true;
+					ctx.covariance.name = ctx.name;
+					ctx.name += "OG";
+					ctx.covariance.ret = TComp.compileType(covariant, field.pos, false, true);
+					ctx.covariance.retVal = TComp.compileType(covariant, field.pos, true, true);
+				}
 			}
 			TComp.compileType(f.ret, field.pos, false, true);
 		}

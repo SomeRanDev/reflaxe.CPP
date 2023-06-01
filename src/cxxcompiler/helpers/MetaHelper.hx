@@ -53,8 +53,14 @@ class MetaHelper {
 			UnsafePtr;
 		} else if(meta.hasMeta(ValueType.UniquePtrType)) {
 			UniquePtr;
-		} else {
+		} else if(meta.hasMeta(Meta.SharedPtrType)) {
 			SharedPtr;
+		} else {
+			#if cxx_smart_ptr_disabled
+			Value;
+			#else
+			SharedPtr;
+			#end
 		}
 	}
 
