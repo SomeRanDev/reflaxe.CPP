@@ -905,6 +905,15 @@ class Expressions extends SubCompiler {
 			}
 		}
 
+		#if (cxx_disable_haxe_std || display)
+		if(op.isEqualityCheck()) {
+			if(Main.getExprType(e1).isString() || Main.getExprType(e2).isString()) {
+				IComp.addInclude("cstring", compilingInHeader, true);
+				return 'strcmp($cppExpr1, $cppExpr2)' + (op.isEquals() ? " == 0" : " != 0");
+			}
+		}
+		#end
+
 		final operatorStr = OperatorHelper.binopToString(op);
 
 		// Wrap primitives with std::to_string(...) when added with String
@@ -1640,6 +1649,11 @@ class Expressions extends SubCompiler {
 						final clsConstruct = {
 							final clsName = TComp.compileType(e1InternalType, callExpr.pos, true);
 							final tmmt = Types.getMemoryManagementTypeFromType(e1InternalType);
+							#if cxx_smart_ptr_disabled
+							if(tmmt == SharedPtr || tmmt == UniquePtr) {
+								Context.error("Smart pointer memory management types are disabled.", callExpr.pos);
+							}
+							#end
 							AComp.applyAnonMMConversion(clsName, ["\"\"", stringToCpp(file), Std.string(line), "\"\""], tmmt);
 						};
 						piCpp + ".value_or(" + clsConstruct + ")";

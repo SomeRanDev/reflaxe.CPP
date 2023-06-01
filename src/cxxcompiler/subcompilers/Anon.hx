@@ -9,6 +9,7 @@ package cxxcompiler.subcompilers;
 
 #if (macro || cxx_runtime)
 
+import reflaxe.helpers.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
@@ -94,6 +95,11 @@ class Anon extends SubCompiler {
 		}
 		if(internalType == null) throw "Expected type";
 		final tmmt = Types.getMemoryManagementTypeFromType(internalType);
+		#if cxx_smart_ptr_disabled
+		if(tmmt == SharedPtr || tmmt == UniquePtr) {
+			Context.error("Smart pointer memory management types are disabled. Compiling anonymous type: " + Std.string(internalType), originalExpr.pos);
+		}
+		#end
 		return applyAnonMMConversion(name, cppArgs, tmmt);
 	}
 
@@ -353,7 +359,26 @@ class Anon extends SubCompiler {
 	}
 
 	function optionalInfoContent() {
-		return '// haxe::shared_anon | haxe::unique_anon
+		// haxe::_unwrap_mm for smart pointers
+		final unwrapMMSmartPtr = #if cxx_smart_ptr_disabled "" #else
+'template<typename T>
+struct _unwrap_mm<${Compiler.SharedPtrClassCpp}<T>> {
+	using inner = typename _unwrap_mm<T>::inner;
+	constexpr static bool can_deref = true;
+	static inline inner& get(${Compiler.SharedPtrClassCpp}<T> in) { return _unwrap_mm<T>::get(*in); }
+};
+
+template<typename T>
+struct _unwrap_mm<std::unique_ptr<T>> {
+	using inner = typename _unwrap_mm<T>::inner;
+	constexpr static bool can_deref = true;
+	static inline inner& get(std::unique_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
+};'
+		#end;
+
+		// haxe::shared_anon and haxe::unique_anon
+		final anonGenFunctions = #if cxx_smart_ptr_disabled "" #else
+'// haxe::shared_anon | haxe::unique_anon
 // Helper functions for generating "anonymous struct" smart pointers.
 namespace haxe {
 
@@ -367,7 +392,10 @@ namespace haxe {
 		return ${Compiler.UniquePtrMakeCpp}<Anon>(Anon::make(args...));
 	}
 
-}
+}'
+		#end;
+
+		return '${anonGenFunctions}
 
 // ---------------------------------------------------------------------
 
@@ -418,19 +446,7 @@ namespace haxe {
 		static inline inner& get(T& in) { return _unwrap_mm<T>::get(in); }
 	};
 
-	template<typename T>
-	struct _unwrap_mm<${Compiler.SharedPtrClassCpp}<T>> {
-		using inner = typename _unwrap_mm<T>::inner;
-		constexpr static bool can_deref = true;
-		static inline inner& get(${Compiler.SharedPtrClassCpp}<T> in) { return _unwrap_mm<T>::get(*in); }
-	};
-
-	template<typename T>
-	struct _unwrap_mm<std::unique_ptr<T>> {
-		using inner = typename _unwrap_mm<T>::inner;
-		constexpr static bool can_deref = true;
-		static inline inner& get(std::unique_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
-	};
+	${unwrapMMSmartPtr}
 
 	template<typename T, typename U = typename _unwrap_mm<T>::inner>
 	static inline U& unwrap(T in) { return _unwrap_mm<T>::get(in); }
