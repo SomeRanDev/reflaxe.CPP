@@ -194,6 +194,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		#if (cxx_disable_haxe_std || display)
 		final cd = mt.getCommonData();
 		if(cd.meta.maybeHas(":cxxStd") && cd.globalName() != "String") {
+			trace(haxe.CallStack.toString(haxe.CallStack.callStack()));
 			Context.error("Using Haxe std type when disallowed.", blamePosition);
 		}
 		#end
@@ -396,7 +397,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				switch(calledExpr.expr) {
 					case TField(_, fa): {
 						switch(fa) {
-							case FInstance(_, _, cfRef) if(cfRef.get().hasMeta(Meta.RedirectType)): {
+							case FInstance(_, _, _) | FStatic(_, _): {
 								getExprType(calledExpr).getTFunReturn() ?? e.t;
 							}
 							case _: e.t;
