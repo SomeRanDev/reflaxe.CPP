@@ -332,7 +332,11 @@ class Anon extends SubCompiler {
 		final key = if(a.type.isTypeParameter()) {
 			"__TypeParam__";
 		} else {
-			Std.string(a.type);
+			// TODO:
+			// Compiling types here might cause troubles?
+			// Originally, this was simply the Type output:
+			// Std.string(a.type);
+			TComp.compileType(a.type, a.pos ?? PositionHelper.unknownPos());
 		}
 		return a.name + ":" + key + (a.optional ? "?" : "");
 	}
