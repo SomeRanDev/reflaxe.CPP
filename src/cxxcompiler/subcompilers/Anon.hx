@@ -342,7 +342,7 @@ class Anon extends SubCompiler {
 			// Compiling types here might cause troubles?
 			// Originally, this was simply the Type output:
 			// Std.string(a.type);
-			TComp.compileType(a.type, a.pos ?? PositionHelper.unknownPos());
+			TComp.maybeCompileType(a.type, a.pos ?? PositionHelper.unknownPos()) ?? Std.string(a.type);
 		}
 		return a.name + ":" + key + (a.optional ? "?" : "");
 	}
