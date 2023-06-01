@@ -112,15 +112,15 @@ void Main::main() {
 	std::size_t count = readlink("/proc/self/exe", path.data(), path.size());
 	
 	if((int)(count) != -1) {
-		const char* tempConstchar;
+		const char* tempConstCharPtr;
 		
 		{
 			char* p = path.data();
 			
-			tempConstchar = p;
+			tempConstCharPtr = p;
 		};
 		
-		tempString = std::string(tempConstchar);
+		tempString = std::string(tempConstCharPtr);
 	} else {
 		tempString = ""s;
 	};
