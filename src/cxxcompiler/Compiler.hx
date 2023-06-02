@@ -740,9 +740,16 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 			// includes so they are all found.
 			final cpp = compileExpressionOrError(mainExpr);
 			final prependsCpp = prependExpressions.map(compileExpressionOrError);
+			final hasExtraExpressions = prependExpressions.length > 0;
 
 			var content = IComp.compileCppIncludes() + "\n\n";
-			content += "int main(int argc, const char* argv[]) {\n";
+			content += "int main(";
+			content += if(hasExtraExpressions) {
+				"int argc, const char* argv[]";
+			} else {
+				"int, const char**";
+			}
+			content += ") {\n";
 			for(pcpp in prependsCpp) {
 				content += pcpp.tab() + ";\n";
 			}
@@ -845,8 +852,9 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	}
 
 	function compileFunctionArgumentData(t: Type, name: String, expr: Null<TypedExpr>, pos: Position, noDefaultValue: Bool = false, compilingInCpp: Bool = false, dependent: Bool = false) {
-		var result = TComp.compileType(t, pos, false, dependent) + " " + compileVarName(name);
-		if(!noDefaultValue && expr != null) {
+		final noName = name == "_";
+		var result = TComp.compileType(t, pos, false, dependent) + (noName ? "" : (" " + compileVarName(name)));
+		if(!noName && !noDefaultValue && expr != null) {
 			XComp.compilingInHeader = !compilingInCpp;
 			result += " = " + compileExpressionOrError(expr);
 			XComp.compilingInHeader = false;
