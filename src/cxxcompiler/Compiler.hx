@@ -408,12 +408,13 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 			case TField(_, fa): {
 				// Implements @:redirectType behavior
+				var cls: Null<ClassType> = null;
 				switch(fa) {
 					case FInstance(clsRef, _, cfRef): {
+						cls = clsRef.get();
 						final cf = cfRef.get();
 						if(cf.hasMeta(Meta.RedirectType)) {
 							final fieldName = cf.meta.extractStringFromFirstMeta(Meta.RedirectType);
-							final cls = clsRef.get();
 							for(f in cls.fields.get()) {
 								if(f.name == fieldName)
 									return f.type;
@@ -440,7 +441,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				// If there are any type parameters, `e.t` is more accurate
 				// because it has the actual parameters filled in.
 				// Maybe find a way to fill in the decl type?
-				if(t != null && t.params.length == 0) {
+				if(t != null && (cls == null || cls.params.length == 0) && t.params.length == 0) {
 					t.type;
 				} else {
 					e.t;
