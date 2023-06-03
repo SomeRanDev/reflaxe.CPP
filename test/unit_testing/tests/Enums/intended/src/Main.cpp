@@ -25,7 +25,6 @@ void Main::main() {
 	std::shared_ptr<MyEnum> c = MyEnum::Entry3("Test"s);
 	
 	switch(b->index) {
-	
 		case 0: {
 			Main::assert(false, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Enums/Main.hx"s, 26, "main"s));
 			break;
@@ -50,7 +49,6 @@ void Main::main() {
 		}
 	};
 	switch(c->index) {
-	
 		case 0: {
 			Main::assert(false, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Enums/Main.hx"s, 34, "main"s));
 			break;

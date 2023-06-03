@@ -64,7 +64,6 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 		int code = tempNumber;
 		
 		switch(code) {
-		
 			case 34: {
 				if(quotes) {
 					buf_b += Std::string("&quot;"s);

@@ -86,7 +86,6 @@ void Main::main() {
 				int _g = index++;
 				
 				switch(_g) {
-				
 					case 0: {
 						Main::assert(test_key == 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 51, "main"s));
 						Main::assert(test_value == 123, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Map/Main.hx"s, 52, "main"s));

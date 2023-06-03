@@ -26,7 +26,6 @@ std::string haxe::_CallStack::CallStack_Impl_::toString(std::shared_ptr<std::deq
 
 void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> b, std::shared_ptr<haxe::StackItem> s) {
 	switch(s->index) {
-	
 		case 0: {
 			b->b += Std::string("a C function"s);
 			break;
