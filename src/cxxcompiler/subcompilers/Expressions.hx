@@ -348,22 +348,7 @@ class Expressions extends SubCompiler {
 				}
 			}
 			case TSwitch(e, cases, edef): {
-				result = "switch(" + Main.compileExpressionOrError(e.unwrapParenthesis()) + ") {\n";
-				for(c in cases) {
-					result += "\n";
-					result += "\tcase " + c.values.map(v -> Main.compileExpressionOrError(v)).join(", ") + ": {\n";
-					result += toIndentedScope(c.expr).tab();
-					result += "\n\t\tbreak;";
-					result += "\n\t}";
-				}
-				if(edef != null) {
-					result += "\n";
-					result += "\tdefault: {\n";
-					result += toIndentedScope(edef).tab();
-					result += "\n\t\tbreak;";
-					result += "\n\t}";
-				}
-				result += "\n}";
+				result = compileSwitch(e, cases, edef);
 			}
 			case TTry(e, catches): {
 				final tryContent = toIndentedScope(e);
@@ -1436,6 +1421,120 @@ class Expressions extends SubCompiler {
 				}
 			}
 		} else {
+			result += "\n}";
+		}
+		return result;
+	}
+
+	function compileSwitch(e: TypedExpr, cases: Array<{ values:Array<TypedExpr>, expr:TypedExpr }>, edef: Null<TypedExpr>) {
+		var result = "";
+		final eType = Main.getExprType(e);
+		final cpp = Main.compileExpressionOrError(e.unwrapParenthesis());
+
+		if(eType.isCppNumberType()) {
+			result = compileSwitchAsSwitch(cpp, cases, edef);
+		} else if(isStringLiteralSwitch(eType, cases)) {
+			result = compileSwitchOptimizedForStrings(cpp, eType, cases, edef);
+		} else {
+			result = compileSwitchAsIfs(cpp, eType, cases, edef);
+		}
+
+		return result;
+	}
+
+	function isStringLiteralSwitch(type: Type, cases: Array<{ values:Array<TypedExpr>, expr:TypedExpr }>) {
+		if(!type.isString()) {
+			return false;
+		}
+		final stringLiteralCases = cases.filter(function(c) {
+			return if(c.values.length == 1) {
+				switch(c.values[0].expr) {
+					case TConst(TString(_)): true;
+					case _: false;
+				}
+			} else {
+				false;
+			}
+		});
+		return stringLiteralCases.length == cases.length;
+	}
+
+	function compileDefaultCase(edef: TypedExpr): String {
+		var result = "\n";
+		result += "\tdefault: {\n";
+		result += toIndentedScope(edef).tab();
+		result += "\n\t\tbreak;";
+		result += "\n\t}";
+		return result;
+	}
+
+	function compileSwitchAsSwitch(cpp: String, cases: Array<{ values:Array<TypedExpr>, expr:TypedExpr }>, edef: Null<TypedExpr>) {
+		var result = "switch(" + cpp + ") {";
+		for(c in cases) {
+			result += "\n";
+			result += "\tcase " + c.values.map(v -> Main.compileExpressionOrError(v)).join(", ") + ": {\n";
+			result += toIndentedScope(c.expr).tab();
+			result += "\n\t\tbreak;";
+			result += "\n\t}";
+		}
+		if(edef != null) {
+			result += compileDefaultCase(edef);
+		}
+		result += "\n}";
+		return result;
+	}
+
+	function compileSwitchOptimizedForStrings(cpp: String, eType: Type, cases: Array<{ values:Array<TypedExpr>, expr:TypedExpr }>, edef: Null<TypedExpr>) {
+		final lengths: Map<Int, Array<{ values:Array<TypedExpr>, expr:TypedExpr }>> = [];
+		for(c in cases) {
+			final str = switch(c.values[0].expr) {
+				case TConst(TString(s)): s;
+				case _: throw "Impossible";
+			}
+			
+			if(!lengths.exists(str.length)) {
+				lengths.set(str.length, []);
+			}
+			lengths.get(str.length)?.push(c);
+		}
+
+		var result = "auto __temp = " + cpp + ";\n";
+		result += "switch(" + ({
+			#if cxx_disable_haxe_std
+			IComp.addInclude("cstring", compilingInheader, true);
+			"strlen(__temp)";
+			#else
+			"__temp.size()";
+			#end
+		}) + ") {";
+		for(length => lengthCases in lengths) {
+			result += "\n\tcase " + length + ": {\n";
+			result += compileSwitchAsIfs("__temp", eType, lengthCases, null, false).tab(2);
+			result += "\n\t\tbreak;";
+			result += "\n\t}";
+		}
+		if(edef != null) {
+			result += compileDefaultCase(edef);
+		}
+		result += "\n}";
+		return result;
+	}
+
+	function compileSwitchAsIfs(cpp: String, eType: Type, cases: Array<{values:Array<TypedExpr>, expr:TypedExpr}>, edef: Null<TypedExpr>, initTemp: Bool = true) {
+		var result = initTemp ? "auto __temp = " + cpp + ";\n" : "";
+		for(i in 0...cases.length) {
+			final c = cases[i];
+			final isFirst = i == 0;
+			final compCpp = c.values.map(function(v) {
+				return binopToCpp(OpEq, { expr: TIdent("__temp"), pos: v.pos, t: eType }, v, v.pos);
+			});
+			result += (isFirst ? "" : " else ") + "if(" + compCpp.join(" && ") + ") {\n";
+			result += toIndentedScope(c.expr);
+			result += "\n}";
+		}
+		if(edef != null) {
+			result += " else {\n";
+			result += toIndentedScope(edef);
 			result += "\n}";
 		}
 		return result;
