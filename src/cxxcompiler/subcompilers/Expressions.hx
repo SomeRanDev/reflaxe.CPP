@@ -1501,7 +1501,7 @@ class Expressions extends SubCompiler {
 		var result = "auto __temp = " + cpp + ";\n";
 		result += "switch(" + ({
 			#if cxx_disable_haxe_std
-			IComp.addInclude("cstring", compilingInheader, true);
+			IComp.addInclude("cstring", compilingInHeader, true);
 			"strlen(__temp)";
 			#else
 			"__temp.size()";
