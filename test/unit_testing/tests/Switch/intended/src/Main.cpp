@@ -29,6 +29,7 @@ void _Main::Main_Fields_::main() {
 			_Main::Main_Fields_::assert(true);
 			break;
 		}
+	default: {}
 	};
 	switch(a) {
 		case 1: {
@@ -71,6 +72,7 @@ void _Main::Main_Fields_::main() {
 			}
 			break;
 		}
+	default: {}
 	};
 	
 	if(_Main::Main_Fields_::returnCode != 0) {
