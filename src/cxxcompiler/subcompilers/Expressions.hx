@@ -1476,13 +1476,17 @@ class Expressions extends SubCompiler {
 		return stringLiteralCases.length == cases.length;
 	}
 
-	function compileDefaultCase(edef: TypedExpr): String {
-		var result = "\n";
-		result += "\tdefault: {\n";
-		result += toIndentedScope(edef).tab();
-		result += "\n\t\tbreak;";
-		result += "\n\t}";
-		return result;
+	function compileDefaultCase(edef: Null<TypedExpr>): String {
+		if(edef != null) {
+			var result = "\n";
+			result += "\tdefault: {\n";
+			result += toIndentedScope(edef).tab();
+			result += "\n\t\tbreak;";
+			result += "\n\t}";
+			return result;
+		} else {
+			return "\ndefault: {}";
+		}
 	}
 
 	function compileSwitchAsSwitch(cpp: String, cases: Array<{ values:Array<TypedExpr>, expr:TypedExpr }>, edef: Null<TypedExpr>) {
@@ -1494,9 +1498,7 @@ class Expressions extends SubCompiler {
 			result += "\n\t\tbreak;";
 			result += "\n\t}";
 		}
-		if(edef != null) {
-			result += compileDefaultCase(edef);
-		}
+		result += compileDefaultCase(edef);
 		result += "\n}";
 		return result;
 	}
@@ -1530,9 +1532,7 @@ class Expressions extends SubCompiler {
 			result += "\n\t\tbreak;";
 			result += "\n\t}";
 		}
-		if(edef != null) {
-			result += compileDefaultCase(edef);
-		}
+		result += compileDefaultCase(edef);
 		result += "\n}";
 		return result;
 	}
