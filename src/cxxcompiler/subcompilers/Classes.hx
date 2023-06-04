@@ -560,7 +560,7 @@ class Classes extends SubCompiler {
 			if(covariant != null) {
 				final covariantMMT = Types.getMemoryManagementTypeFromType(covariant);
 				if(covariantMMT == Value) {
-					Context.error("Covariance must use pointer-like type.", f.field.pos);
+					f.field.pos.makeError(CovarianceRequiresPtrLikeType);
 				} else {
 					ctx.covariance.isCovariant = true;
 					ctx.covariance.name = ctx.name;
