@@ -60,7 +60,7 @@ class Types extends SubCompiler {
 		}
 		final result = maybeCompileType(t, pos, asValue, dependent);
 		if(result == null) {
-			Context.error("Could not compile type: " + t, pos);
+			pos.makeError(CouldNotCompileType(t));
 		}
 		return result.trustMe();
 	}
@@ -160,7 +160,7 @@ class Types extends SubCompiler {
 				if(t3 == null) {
 					#if (macro || display)
 					if(!cxx.Compiler.dynamicTypeEnabled) {
-						Context.error("Dynamic type disabled.", pos);
+						pos.makeError(DisallowedDynamic);
 					} else
 					#end
 					if(isAccumulatingDynamicToTemplate()) {
@@ -296,7 +296,7 @@ class Types extends SubCompiler {
 			final mmType = overrideMM ?? typeData.getMemoryManagementType();
 			#if cxx_smart_ptr_disabled
 			if(mmType == SharedPtr || mmType == UniquePtr) {
-				Context.error("Smart pointer memory management types are disabled. Compiling type: " + innerClass, pos);
+				pos.makeError(DisallowedSmartPointerType(innerClass));
 			}
 			#end
 			applyMemoryManagementWrapper(innerClass, mmType);

@@ -28,12 +28,23 @@ enum WarningType {
 **/
 enum ErrorType {
 	// General
+	CouldNotCompileType(t: Null<haxe.macro.Type>);
 	CannotCompileNullType;
 	DynamicUnsupported;
 	OMMIncorrectParamCount;
 	ValueSelfRef;
 	ValueAssignedNull;
 	InfiniteReference(stackDetails: String);
+	InitializedTypeRequiresValue;
+	CovarianceRequiresPtrLikeType;
+
+	// Disabled Features
+	DisallowedHaxeStd;
+	DisallowedSmartPointers;
+	DisallowedDynamic;
+	DisallowedSmartPointerTypeName(typeString: String);
+	DisallowedSmartPointerAnonymous(type: haxe.macro.Type);
+	NoStringAddWOHaxeStd;
 
 	// Meta
 	CannotUseOnExternClass;
@@ -78,6 +89,9 @@ class Error {
 	public static function makeError(pos: Position, err: ErrorType): Dynamic {
 		final msg = switch(err) {
 			// General
+			case CouldNotCompileType(t): {
+				"Could not compile type: " + t;
+			}
 			case CannotCompileNullType: {
 				"Compiler.compileTypeSafe was passed 'null'. Unknown type detected?";
 			}
@@ -95,6 +109,32 @@ class Error {
 			}
 			case InfiniteReference(stackDetails): {
 				"[Reflaxe/C++ error] Infinite reference encountered!\nPlease find a way to break the chain:\n" + stackDetails;
+			}
+			case InitializedTypeRequiresValue: {
+				"This Haxe code generates an uninitialized variable in C++ for a type that requires a value.";
+			}
+			case CovarianceRequiresPtrLikeType: {
+				"Covariance must use pointer-like type.";
+			}
+
+			// Disabled Features
+			case DisallowedHaxeStd: {
+				"Using Haxe std type when disallowed.";
+			}
+			case DisallowedSmartPointers: {
+				"Smart pointer memory management types are disabled.";
+			}
+			case DisallowedDynamic: {
+				"Dynamic type disabled.";
+			}
+			case DisallowedSmartPointerTypeName(typeString): {
+				"Smart pointer memory management types are disabled. Compiling type: " + typeString;
+			}
+			case DisallowedSmartPointerAnonymous(type): {
+				"Smart pointer memory management types are disabled. Compiling anonymous type: " + Std.string(type);
+			}
+			case NoStringAddWOHaxeStd: {
+				"Cannot add Strings without Haxe Std.";
 			}
 
 			// Meta

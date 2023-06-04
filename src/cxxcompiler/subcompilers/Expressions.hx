@@ -298,7 +298,7 @@ class Expressions extends SubCompiler {
 				Main.onTypeEncountered(t, compilingInHeader, expr.pos);
 
 				if(t.requiresValue() && maybeExpr == null) {
-					Context.error("This Haxe code generates an uninitialized variable in C++ for a type that requires a value.", expr.pos);
+					expr.pos.makeError(InitializedTypeRequiresValue);
 				}
 
 				final typeCpp = if(t.isUnresolvedMonomorph()) {
@@ -911,7 +911,7 @@ class Expressions extends SubCompiler {
 		if(op.isAddition()) {
 			#if (cxx_disable_haxe_std || display)
 			if(Main.getExprType(e1).isString() || Main.getExprType(e2).isString()) {
-				Context.error("Cannot add Strings without Haxe Std.", opPos);
+				opPos.makeError(NoStringAddWOHaxeStd);
 			}
 			#end
 			if(checkForPrimitiveStringAddition(e1, e2)) cppExpr2 = "std::to_string(" + cppExpr2 + ")";
@@ -1756,7 +1756,7 @@ class Expressions extends SubCompiler {
 							final tmmt = Types.getMemoryManagementTypeFromType(e1InternalType);
 							#if cxx_smart_ptr_disabled
 							if(tmmt == SharedPtr || tmmt == UniquePtr) {
-								Context.error("Smart pointer memory management types are disabled.", callExpr.pos);
+								callExpr.pos.makeError(DisallowedSmartPointers);
 							}
 							#end
 							AComp.applyAnonMMConversion(clsName, ["\"\"", stringToCpp(file), Std.string(line), "\"\""], tmmt);

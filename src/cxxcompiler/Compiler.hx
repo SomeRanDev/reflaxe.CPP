@@ -45,6 +45,7 @@ import cxxcompiler.config.Meta;
 import cxxcompiler.other.DependencyTracker;
 
 using cxxcompiler.helpers.DefineHelper;
+using cxxcompiler.helpers.Error;
 using cxxcompiler.helpers.MetaHelper;
 using cxxcompiler.helpers.CppTypeHelper;
 
@@ -194,7 +195,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		#if (cxx_disable_haxe_std || display)
 		final cd = mt.getCommonData();
 		if(cd.meta.maybeHas(":cxxStd") && cd.globalName() != "String") {
-			Context.error("Using Haxe std type when disallowed.", blamePosition);
+			blamePosition.makeError(DisallowedHaxeStd);
 		}
 		#end
 
@@ -268,7 +269,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		if(mt != null) {
 			final cd = mt.getCommonData();
 			if(cd.meta.maybeHas(":haxeStd") && cd.globalName() != "String") {
-				Context.error("Using Haxe std type when disallowed.", blamePosition);
+				blamePosition.makeError(DisallowedHaxeStd);
 			}
 		}
 		#end

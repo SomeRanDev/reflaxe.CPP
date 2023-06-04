@@ -97,7 +97,7 @@ class Anon extends SubCompiler {
 		final tmmt = Types.getMemoryManagementTypeFromType(internalType);
 		#if cxx_smart_ptr_disabled
 		if(tmmt == SharedPtr || tmmt == UniquePtr) {
-			Context.error("Smart pointer memory management types are disabled. Compiling anonymous type: " + Std.string(internalType), originalExpr.pos);
+			originalExpr.pos.makeError(DisallowedSmartPointerAnonymous(internalType));
 		}
 		#end
 		return applyAnonMMConversion(name, cppArgs, tmmt);
