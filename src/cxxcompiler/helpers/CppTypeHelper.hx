@@ -148,12 +148,25 @@ class CppTypeHelper {
 	}
 
 	// ----------------------------
-	// Returns true is this is the cxx.Ref typedef
-	public static function isRef(t: Type): Bool {
+	// Returns true is this is the cxx.Ref or cxx.ConstRef typedef
+	public static function isRefOrConstRef(t: Type): Bool {
 		return switch(t) {
 			case TType(defRef, params) if(params.length == 1): {
 				final defType = defRef.get();
-				defType.name == "Ref" && defType.module == "cxx.Ref";
+				(defType.name == "Ref" && defType.module == "cxx.Ref") ||
+				(defType.name == "ConstRef" && defType.module == "cxx.ConstRef");
+			}
+			case _: false;
+		}
+	}
+
+	// ----------------------------
+	// Returns true is this is specifically cxx.ConstRef
+	public static function isConstRef(t: Type): Bool {
+		return switch(t) {
+			case TType(defRef, params) if(params.length == 1): {
+				final defType = defRef.get();
+				defType.name == "ConstRef" && defType.module == "cxx.ConstRef";
 			}
 			case _: false;
 		}

@@ -237,8 +237,8 @@ class Types extends SubCompiler {
 				compileType(Context.follow(t), pos, asValue, dependent);
 			}
 			case TType(defRef, params): {
-				if(t.isRef()) {
-					compileType(params[0], pos) + "&";
+				if(t.isRefOrConstRef()) {
+					(t.isConstRef() ? "const " : "") + compileType(params[0], pos) + "&";
 				} else {
 					compileDefName(defRef, pos, params, true, asValue);
 				}
@@ -445,7 +445,7 @@ class Types extends SubCompiler {
 					}
 				}
 			}
-			case TType(defRef, params) if(t.isRef()): {
+			case TType(defRef, params) if(t.isRefOrConstRef()): {
 				getMemoryManagementTypeFromType(params[0]);
 			}
 			case TType(defRef, params): {

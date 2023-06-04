@@ -577,7 +577,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 						// This is so if Haxe generates secret variables, they still
 						// modify the original object. For example, a static variable
 						// using a value type should be modified, NOT a copy modified.
-						case Value if(!tvarType.isRef()):
+						case Value if(!tvarType.isRefOrConstRef()):
 							TType(getRefType(), [wrapWithMMType(tvarType, Value)]);
 						case UnsafePtr | SharedPtr | UniquePtr:
 							wrapWithMMType(tvarType, tmmt);
