@@ -173,6 +173,13 @@ class CppTypeHelper {
 	}
 
 	// ----------------------------
+	// Returns true variables of this type MUST contain
+	// a value upon being declared.
+	public static function requiresValue(t: Type): Bool {
+		return isRefOrConstRef(t);
+	}
+
+	// ----------------------------
 	// Sometimes the type of the `null` being passed is
 	// ambiguous in C++ (like being passed to std::any 
 	// function when there is template alternative).

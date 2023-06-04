@@ -296,6 +296,11 @@ class Expressions extends SubCompiler {
 				Main.determineTVarType(tvar, maybeExpr);
 				final t = Main.getTVarType(tvar);
 				Main.onTypeEncountered(t, compilingInHeader, expr.pos);
+
+				if(t.requiresValue() && maybeExpr == null) {
+					Context.error("This Haxe code generates an uninitialized variable in C++ for a type that requires a value.", expr.pos);
+				}
+
 				final typeCpp = if(t.isUnresolvedMonomorph()) {
 					// TODO: Why use std::any instead of auto?
 					// I must have originally made this resolve to Any for a reason?
@@ -308,6 +313,7 @@ class Expressions extends SubCompiler {
 				} else {
 					TComp.compileType(t, expr.pos);
 				}
+
 				result = typeCpp + " " + Main.compileVarName(tvar.name, expr);
 				if(maybeExpr != null) {
 					final cpp = switch(maybeExpr.expr) {
