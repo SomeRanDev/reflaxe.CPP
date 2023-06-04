@@ -18,6 +18,7 @@ using reflaxe.helpers.PositionHelper;
 using reflaxe.helpers.SyntaxHelper;
 using reflaxe.helpers.TypeHelper;
 
+using cxxcompiler.helpers.Error;
 using cxxcompiler.helpers.Sort;
 
 import cxxcompiler.helpers.MetaHelper.MemoryManagementType;

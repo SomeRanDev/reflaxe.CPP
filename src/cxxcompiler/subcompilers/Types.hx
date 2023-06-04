@@ -296,7 +296,7 @@ class Types extends SubCompiler {
 			final mmType = overrideMM ?? typeData.getMemoryManagementType();
 			#if cxx_smart_ptr_disabled
 			if(mmType == SharedPtr || mmType == UniquePtr) {
-				pos.makeError(DisallowedSmartPointerType(innerClass));
+				pos.makeError(DisallowedSmartPointerTypeName(innerClass));
 			}
 			#end
 			applyMemoryManagementWrapper(innerClass, mmType);
