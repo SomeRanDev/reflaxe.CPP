@@ -433,10 +433,21 @@ class Expressions extends SubCompiler {
 			case TCast(e, maybeModuleType): {
 				result = compileCast(e, expr, maybeModuleType);
 			}
-			case TMeta(metadataEntry, nextExpr): {
+			case TMeta(_, _): {
 				final unwrappedInfo = unwrapMetaExpr(expr).trustMe();
-				final cpp = compileExprWithMultipleMeta(unwrappedInfo.meta, expr, unwrappedInfo.internalExpr);
-				result = cpp ?? Main.compileExpression(unwrappedInfo.internalExpr);
+
+				var ignore = false;
+				for(m in unwrappedInfo.meta) {
+					if(m.name == ":ignore") {
+						ignore = true;
+						break;
+					}
+				}
+
+				if(!ignore) {
+					final cpp = compileExprWithMultipleMeta(unwrappedInfo.meta, expr, unwrappedInfo.internalExpr);
+					result = cpp ?? Main.compileExpression(unwrappedInfo.internalExpr);
+				}
 			}
 			case TEnumParameter(expr, enumField, index): {
 				IComp.addIncludeFromMetaAccess(enumField.meta, compilingInHeader);
