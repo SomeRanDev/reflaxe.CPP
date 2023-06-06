@@ -35,7 +35,7 @@ class MetaHelper {
 		return meta.hasMeta(Meta.ArrowAccess);
 	}
 
-	public static function isOverrideMemoryManagement(meta: NameAndMeta): Bool {
+	public static function metaIsOverrideMemoryManagement(meta: NameAndMeta): Bool {
 		return meta.hasMeta(Meta.OverrideMemoryManagement);
 	}
 

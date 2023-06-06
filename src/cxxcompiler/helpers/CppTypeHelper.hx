@@ -95,12 +95,15 @@ class CppTypeHelper {
 	// Bypasses all Null<T> outside the overrider class.
 	public static function getInternalType(t: Type): Type {
 		switch(t) {
+			case TType(defRef, [inner]) if(isConst(t)): {
+				return getInternalType(inner);
+			}
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
 				if(abs.name == "Null" && params.length == 1) {
 					return getInternalType(params[0]);
 				}
-				if(abs.isOverrideMemoryManagement() && params.length == 1) {
+				if(abs.metaIsOverrideMemoryManagement() && params.length == 1) {
 					return params[0];
 				}
 			}
@@ -112,12 +115,15 @@ class CppTypeHelper {
 	// ----------------------------
 	public static function replaceInternalType(t: Type, replacement: Type): Type {
 		switch(t) {
+			case TType(defRef, [inner]) if(isConst(t)): {
+				return TType(defRef, [replaceInternalType(inner, replacement)]);
+			}
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
 				if(abs.name == "Null" && params.length == 1) {
 					return TAbstract(absRef, [replaceInternalType(params[0], replacement)]);
 				}
-				if(abs.isOverrideMemoryManagement() && params.length == 1) {
+				if(abs.metaIsOverrideMemoryManagement() && params.length == 1) {
 					return TAbstract(absRef, [replaceInternalType(params[0], replacement)]);
 				}
 			}
@@ -133,6 +139,24 @@ class CppTypeHelper {
 			return true;
 		}
 		return #if macro Context.follow(it).isAnonStruct() #else false #end;
+	}
+
+	// ----------------------------
+	public static function isOverrideMemoryManagement(t: Type): Bool {
+		return switch(t) {
+			case TAbstract(absRef, _) if(absRef.get().metaIsOverrideMemoryManagement()): true;
+			case TType(_, [inner]) if(isConst(t)): isOverrideMemoryManagement(inner);
+			case _: false;
+		}
+	}
+
+	// ----------------------------
+	// `true` if cxx.Const
+	public static function isConst(t: Type): Bool {
+		return switch(t) {
+			case TType(_.get() => { name: "Const", module: "cxx.Const" }, _): true;
+			case _: false;
+		}
 	}
 
 	// ----------------------------

@@ -208,7 +208,7 @@ class Types extends SubCompiler {
 						return compileModuleTypeName(abs, pos, params, true, asValue ? Value : getMemoryManagementTypeFromType(inner));
 					}
 
-					if(!asValue && abs.isOverrideMemoryManagement() && params.length == 1) {
+					if(!asValue && abs.metaIsOverrideMemoryManagement() && params.length == 1) {
 						return applyMemoryManagementWrapper(compileType(params[0], pos, true, dependent), abs.getMemoryManagementType());
 					}
 
@@ -230,10 +230,13 @@ class Types extends SubCompiler {
 					}
 				}
 			}
+			case TType(defRef, [inner]) if(t.isConst()): {
+				"const " + compileType(inner, pos, asValue, dependent);
+			}
 			case TType(defRef, params) if(t.isAnonStructOrNamedStruct()): {
 				compileDefName(defRef, pos, params, true, asValue);
 			}
-			case TType(defRef, params) if(t.isMultitype()): {
+			case TType(_, _) if(t.isMultitype()): {
 				compileType(Context.follow(t), pos, asValue, dependent);
 			}
 			case TType(defRef, params): {
@@ -415,10 +418,13 @@ class Types extends SubCompiler {
 		}
 
 		final mmt = switch(t) {
-			case TAbstract(absRef, params) if(params.length == 1 && absRef.get().name == "Null"): {
-				getMemoryManagementTypeFromType(params[0]);
+			case TType(_, [inner]) if(t.isConst()): {
+				getMemoryManagementTypeFromType(inner);
 			}
-			case TAbstract(absRef, params) if(!absRef.get().isOverrideMemoryManagement()): {
+			case TAbstract(absRef, [inner]) if(absRef.get().name == "Null"): {
+				getMemoryManagementTypeFromType(inner);
+			}
+			case TAbstract(absRef, params) if(!absRef.get().metaIsOverrideMemoryManagement()): {
 				final abs = absRef.get();
 				final result = if(params.length == 0) {
 					switch(abs.name) {
