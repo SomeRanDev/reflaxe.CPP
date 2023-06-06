@@ -849,7 +849,7 @@ class Classes extends SubCompiler {
 			// -----------------
 			// Generate bigger pieces
 			final constructorInitFieldsStr = constructorInitFields.length > 0 ? (":\n\t" + constructorInitFields.join(", ") + "\n") : "";
-			final suffixSpecifiersStr = ctx.suffixSpecifiers.length > 0 ? (" " + ctx.suffixSpecifiers.join(" ") + " ") : "";
+			final suffixSpecifiersStr = getSuffixSpecifiers(ctx, true);
 			final space = constructorInitFieldsStr.length == 0 && suffixSpecifiersStr.length == 0 ? " " : "";
 
 			// -----------------
@@ -863,6 +863,10 @@ class Classes extends SubCompiler {
 			funcDeclaration: funcDeclaration,
 			content: content
 		};
+	}
+
+	function getSuffixSpecifiers(ctx: FunctionCompileContext, endSpace: Bool = false) {
+		return ctx.suffixSpecifiers.length > 0 ? (" " + ctx.suffixSpecifiers.join(" ") + (endSpace ? " " : "")) : "";
 	}
 
 	/**
@@ -897,7 +901,7 @@ class Classes extends SubCompiler {
 			generateDefaultConstructor(ctx, topLevel);
 		}
 
-		final suffixSpecifiersStr = ctx.suffixSpecifiers.length > 0 ? (" " + ctx.suffixSpecifiers.join(" ")) : "";
+		final suffixSpecifiersStr = getSuffixSpecifiers(ctx);
 		final headerContent = ctx.prependFieldContent + funcDeclaration + suffixSpecifiersStr + ";" + ctx.appendFieldContent;
 		if(topLevel) {
 			topLevelFunctions.push(headerContent);
@@ -928,12 +932,26 @@ class Classes extends SubCompiler {
 		Generate a function in C++ for a header file.
 	**/
 	function generateFunctionOutputForHeader(ctx: FunctionCompileContext, funcDeclaration: String, content: String, templateDecl: String, argDecl: String, topLevel: Bool) {
-		final content = ctx.prependFieldContent + templateDecl + funcDeclaration + (ctx.isAbstract ? " = 0;" : content) + ctx.appendFieldContent;
+		final content = (
+			ctx.prependFieldContent +
+			templateDecl +
+			funcDeclaration +
+			getSuffixSpecifiers(ctx) +
+			(ctx.isAbstract ? " = 0;" : content) +
+			ctx.appendFieldContent
+		);
 		addFunction(content, ctx.section);
 
 		if(ctx.covariance.isCovariant) {
 			final decl = generateHeaderDecl(ctx, ctx.covariance.name, ctx.covariance.ret, argDecl, topLevel);
-			final covarContent = ctx.prependFieldContent + templateDecl + decl + (ctx.isAbstract ? " = 0;" : covariantContent(ctx)) + ctx.appendFieldContent;
+			final covarContent = (
+				ctx.prependFieldContent +
+				templateDecl +
+				decl +
+				getSuffixSpecifiers(ctx) +
+				(ctx.isAbstract ? " = 0;" : covariantContent(ctx)) +
+				ctx.appendFieldContent
+			);
 			addFunction(covarContent, ctx.section);
 		}
 
