@@ -1388,7 +1388,7 @@ class Expressions extends SubCompiler {
 
 	function compileClassConstruction(type: Type, cd: BaseType, params: Array<Type>, pos: Position, overrideMMT: Null<MemoryManagementType> = null): String {
 		var mmt = cd.getMemoryManagementType();
-		var typeSource = if(cd.isOverrideMemoryManagement()) {
+		var typeSource = if(cd.metaIsOverrideMemoryManagement()) {
 			if(params.length != 1) {
 				pos.makeError(OMMIncorrectParamCount);
 			}

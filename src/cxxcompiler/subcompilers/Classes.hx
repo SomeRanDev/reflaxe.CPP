@@ -604,11 +604,11 @@ class Classes extends SubCompiler {
 		ctx.suffixSpecifiers = [];
 
 		if(field.hasMeta(Meta.Const)) {
-			specifiers.push("const");
+			ctx.suffixSpecifiers.push("const");
 		}
 
 		if(field.hasMeta(Meta.NoExcept)) {
-			specifiers.push("noexcept");
+			ctx.suffixSpecifiers.push("noexcept");
 		}
 
 		// -----------------
@@ -849,7 +849,7 @@ class Classes extends SubCompiler {
 			// -----------------
 			// Generate bigger pieces
 			final constructorInitFieldsStr = constructorInitFields.length > 0 ? (":\n\t" + constructorInitFields.join(", ") + "\n") : "";
-			final suffixSpecifiersStr = ctx.suffixSpecifiers.length > 0 ? (ctx.suffixSpecifiers.join(" ") + " ") : "";
+			final suffixSpecifiersStr = ctx.suffixSpecifiers.length > 0 ? (" " + ctx.suffixSpecifiers.join(" ") + " ") : "";
 			final space = constructorInitFieldsStr.length == 0 && suffixSpecifiersStr.length == 0 ? " " : "";
 
 			// -----------------
@@ -897,14 +897,15 @@ class Classes extends SubCompiler {
 			generateDefaultConstructor(ctx, topLevel);
 		}
 
-		final headerContent = ctx.prependFieldContent + funcDeclaration + ";" + ctx.appendFieldContent;
+		final suffixSpecifiersStr = ctx.suffixSpecifiers.length > 0 ? (" " + ctx.suffixSpecifiers.join(" ")) : "";
+		final headerContent = ctx.prependFieldContent + funcDeclaration + suffixSpecifiersStr + ";" + ctx.appendFieldContent;
 		if(topLevel) {
 			topLevelFunctions.push(headerContent);
 		} else {
 			addFunction(headerContent, ctx.section);
 			if(ctx.covariance.isCovariant) {
 				final decl = generateHeaderDecl(ctx, ctx.covariance.name, ctx.covariance.ret, argDecl, topLevel);
-				addFunction(ctx.prependFieldContent + decl + ";" + ctx.appendFieldContent, ctx.section);
+				addFunction(ctx.prependFieldContent + decl + suffixSpecifiersStr + ";" + ctx.appendFieldContent, ctx.section);
 			}
 		}
 

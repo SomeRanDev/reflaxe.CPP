@@ -403,6 +403,12 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 							case _: e.t;
 						}
 					}
+					case TLocal(tvar): {
+						switch(getTVarType(tvar)) {
+							case TFun(_, ret): ret;
+							case _: e.t;
+						}
+					}
 					case _: e.t;
 				}
 			}
@@ -570,7 +576,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 			// Check if variable doesn't have explicit memory management type.
 			final mt = tvarType.toModuleType();
-			if(mt != null && !mt.getCommonData().isOverrideMemoryManagement()) {
+			if(mt != null && !tvarType.isOverrideMemoryManagement()) {
 				final cmmt = Types.getMemoryManagementTypeFromType(tvarType);
 				if(cmmt != tmmt && exprType.valueTypesEqual(tvarType)) {
 					final newType = switch(tmmt) {
