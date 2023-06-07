@@ -30,6 +30,10 @@ using cxxcompiler.helpers.CppTypeHelper;
 @:access(cxxcompiler.Compiler)
 @:access(cxxcompiler.subcompilers.Includes)
 class Types extends SubCompiler {
+	var intCpp: Null<String>;
+	var floatCpp: Null<String>;
+	var singleCpp: Null<String>;
+
 	/**
 		If defined, only type parameters with these names will be compiled.
 		The rest are compiled as `Dynamic`. Used when compiling expressions
@@ -186,9 +190,21 @@ class Types extends SubCompiler {
 				final prim = if(params.length == 0) {
 					switch(abs.name) {
 						case "Void": "void";
-						case "Int": "int";
-						case "Float": "double";
-						case "Single": "float";
+						case "Int": intCpp ?? {
+							final cpp = Context.definedValue("int_cpp") ?? "";
+							intCpp = cpp.length == 0 ? "int" : cpp;
+							intCpp;
+						}
+						case "Float": floatCpp ?? {
+							final cpp = Context.definedValue("float_cpp") ?? "";
+							floatCpp = cpp.length == 0 ? "double" : cpp;
+							floatCpp;
+						}
+						case "Single": singleCpp ?? {
+							final cpp = Context.definedValue("single_cpp") ?? "";
+							singleCpp = cpp.length == 0 ? "float" : cpp;
+							singleCpp;
+						}
 						case "Bool": "bool";
 						case "Any": {
 							IComp.addInclude("any", true, true);
