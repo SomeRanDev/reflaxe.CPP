@@ -30,9 +30,39 @@ using cxxcompiler.helpers.CppTypeHelper;
 @:access(cxxcompiler.Compiler)
 @:access(cxxcompiler.subcompilers.Includes)
 class Types extends SubCompiler {
-	var intCpp: Null<String>;
-	var floatCpp: Null<String>;
-	var singleCpp: Null<String>;
+	/**
+		The output for the Haxe `Int` type.
+	**/
+	public static var IntCpp = "int";
+
+	/**
+		If not `null`, this should be a `Dynamic` array with the structure:
+		[ IncludePath: String, triangleBrackets: Bool ]
+	**/
+	public static var IntInclude: Null<Dynamic> = null;
+
+
+	/**
+		The output for the Haxe `Float` type.
+	**/
+	public static var FloatCpp = "double";
+
+	/**
+		If not `null`, this should be a `Dynamic` array with the structure:
+		[ IncludePath: String, triangleBrackets: Bool ]
+	**/
+	public static var FloatInclude: Null<Dynamic> = null;
+
+	/**
+		The output for the Haxe `Single` type.
+	**/
+	public static var SingleCpp = "float";
+
+	/**
+		If not `null`, this should be a `Dynamic` array with the structure:
+		[ IncludePath: String, triangleBrackets: Bool ]
+	**/
+	public static var SingleInclude: Null<Dynamic> = null;
 
 	/**
 		If defined, only type parameters with these names will be compiled.
@@ -190,20 +220,23 @@ class Types extends SubCompiler {
 				final prim = if(params.length == 0) {
 					switch(abs.name) {
 						case "Void": "void";
-						case "Int": intCpp ?? {
-							final cpp = Context.definedValue("int_cpp") ?? "";
-							intCpp = cpp.length == 0 ? "int" : cpp;
-							intCpp;
+						case "Int": {
+							if(IntInclude != null) {
+								IComp.addInclude(IntInclude[0], true, IntInclude[1]);
+							}
+							IntCpp;
 						}
-						case "Float": floatCpp ?? {
-							final cpp = Context.definedValue("float_cpp") ?? "";
-							floatCpp = cpp.length == 0 ? "double" : cpp;
-							floatCpp;
+						case "Float": {
+							if(FloatInclude != null) {
+								IComp.addInclude(FloatInclude[0], true, FloatInclude[1]);
+							}
+							FloatCpp;
 						}
-						case "Single": singleCpp ?? {
-							final cpp = Context.definedValue("single_cpp") ?? "";
-							singleCpp = cpp.length == 0 ? "float" : cpp;
-							singleCpp;
+						case "Single": {
+							if(SingleInclude != null) {
+								IComp.addInclude(SingleInclude[0], true, SingleInclude[1]);
+							}
+							SingleCpp;
 						}
 						case "Bool": "bool";
 						case "Any": {
