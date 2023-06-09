@@ -9,13 +9,13 @@ using namespace std::string_literals;
 void _Main::Main_Fields_::main() {
 	Bla a = Bla();
 	const Bla* b = &a;
-	
+
 	b->check();
-	
+
 	std::function<const Bla*()> getA = [&]() mutable {
 		return &a;
 	};
-	
+
 	getA()->check();
 }
 Bla::Bla():

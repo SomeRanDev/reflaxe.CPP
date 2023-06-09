@@ -11,7 +11,7 @@ public:
 	std::shared_ptr<Other2> main;
 
 	Other(std::optional<std::shared_ptr<Other2>> main = std::nullopt);
-	
+
 	HX_COMPARISON_OPERATORS(Other)
 };
 

@@ -13,15 +13,11 @@ public:
 	std::optional<std::ostream*> stream;
 
 	NativeOutput(std::ostream* stream);
-	
 	void writeByte(int c);
-	
 	void close();
-	
 	void flush();
-	
 	void prepare(int nbytes);
-	
+
 	HX_COMPARISON_OPERATORS(NativeOutput)
 };
 

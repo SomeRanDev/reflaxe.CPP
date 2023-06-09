@@ -17,7 +17,7 @@ public:
 		} else if constexpr(std::is_base_of<typename haxe::_unwrap_class<_Type>::inner, typename haxe::_unwrap_mm<_Value>::inner>::value) {
 			return true;
 		};
-		
+
 		return false;
 	}
 };
@@ -29,16 +29,14 @@ public:
 	static std::string string(haxe::DynamicToString s) {
 		return s;
 	}
-	
 	static std::optional<int> parseInt(std::string x) {
 		try { return std::stoi(x); } catch(...) {};
-		
+
 		return std::nullopt;
 	}
-	
 	static double parseFloat(std::string x) {
 		try { return std::stof(x); } catch(...) {};
-		
+
 		return std::numeric_limits<double>::quiet_NaN();
 	}
 };

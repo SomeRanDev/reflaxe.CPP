@@ -67,7 +67,7 @@ public:
 					auto endIndex = args[1].asType<int>();
 					{
 						std::string tempResult;
-						
+
 						{
 							if(endIndex < 0) {
 								tempResult = o->substr(startIndex);
@@ -75,7 +75,7 @@ public:
 								tempResult = o->substr(startIndex, endIndex - startIndex);
 							};
 						};
-						
+
 						return tempResult;
 					}
 				};

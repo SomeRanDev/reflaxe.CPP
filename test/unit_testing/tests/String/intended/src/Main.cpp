@@ -25,7 +25,7 @@ void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) 
 
 void Main::main() {
 	std::string str = "Test"s;
-	
+
 	Main::assert(str == "Test"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 17, "main"s));
 	Main::assert((int)(str.size()) == 4, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 18, "main"s));
 	Main::assert(str == "Test"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 19, "main"s));
@@ -46,55 +46,55 @@ void Main::main() {
 		" how are"s,
 		"you?"s
 	})), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 36, "main"s));
-	
+
 	std::string str2 = "Hello, World!"s;
-	
+
 	Main::assert(str2.substr(7, 5) == "World"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 39, "main"s));
-	
+
 	std::string tempLeft;
-	
+
 	if(12 < 0) {
 		tempLeft = str2.substr(7);
 	} else {
 		tempLeft = str2.substr(7, 12 - 7);
 	};
-	
+
 	Main::assert(tempLeft == "World"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 40, "main"s));
 	Main::assert(HxString::toLowerCase(str2) == "hello, world!"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 42, "main"s));
 	Main::assert(HxString::toUpperCase(str2) == "HELLO, WORLD!"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 43, "main"s));
-	
+
 	std::string toolsStr = "Hello world!"s;
-	
+
 	Main::assert((int)(toolsStr.find("world"s)) != -1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 48, "main"s));
 	Main::assert(StringTools::endsWith(toolsStr, "world!"s), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 49, "main"s));
-	
+
 	int tempLeft1;
-	
+
 	if((0 < 0) || (0 >= (int)(toolsStr.size()))) {
 		tempLeft1 = -1;
 	} else {
 		tempLeft1 = toolsStr.at(0);
 	};
-	
+
 	Main::assert(tempLeft1 == 72, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 51, "main"s));
-	
+
 	int tempLeft2;
-	
+
 	if((99 < 0) || (99 >= (int)(toolsStr.size()))) {
 		tempLeft2 = -1;
 	} else {
 		tempLeft2 = toolsStr.at(99);
 	};
-	
+
 	Main::assert(tempLeft2 == -1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 52, "main"s));
 	Main::assert(StringTools::hex(0, std::nullopt) == "0"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 54, "main"s));
 	Main::assert(StringTools::hex(12, std::nullopt) == "C"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 55, "main"s));
 	Main::assert(StringTools::hex(-24, std::nullopt) == "FFFFFFE8"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 56, "main"s));
 	Main::assert(StringTools::hex(12, 4) == "000C"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 57, "main"s));
 	Main::assert(StringTools::hex(100, 4) == "0064"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 58, "main"s));
-	
+
 	std::string html = "<button onclick=\"doThing()\">My Button ✨</button>"s;
-	
+
 	Main::assert(StringTools::htmlEscape(html, std::nullopt) == "&lt;button onclick=\"doThing()\"&gt;My Button ✨&lt;/button&gt;"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 61, "main"s));
 	Main::assert(StringTools::htmlEscape(html, true) == "&lt;button onclick=&quot;doThing()&quot;&gt;My Button ✨&lt;/button&gt;"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 62, "main"s));
 	Main::assert(StringTools::htmlUnescape("&amp;"s) == "&"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 64, "main"s));
@@ -107,29 +107,29 @@ void Main::main() {
 	Main::assert(StringTools::isSpace("\n"s, 0), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 74, "main"s));
 	Main::assert(StringTools::isSpace("\r"s, 0), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 75, "main"s));
 	Main::assert(StringTools::isSpace("Hello world!"s, 5), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 76, "main"s));
-	
+
 	{
 		int it_offset = 0;
 		std::string it_s = "Hello"s;
 		std::string result = ""s;
-		
+
 		while(it_offset < (int)(it_s.size())) {
 			int tempRight;
-			
+
 			{
 				std::string s = it_s;
 				int index = it_offset++;
-				
+
 				if((index < 0) || (index >= (int)(s.size()))) {
 					tempRight = -1;
 				} else {
 					tempRight = s.at(index);
 				};
 			};
-			
+
 			result += tempRight;
 		};
-		
+
 		Main::assert(result == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 84, "main"s));
 	};
 	{
@@ -137,35 +137,35 @@ void Main::main() {
 		std::string it_s = "Hello"s;
 		int count = 0;
 		std::string result = ""s;
-		
+
 		while(it_offset < (int)(it_s.size())) {
 			int n_value;
 			int n_key;
-			
+
 			n_key = it_offset;
-			
+
 			int tempRight1;
-			
+
 			{
 				std::string s = it_s;
 				int index = it_offset++;
-				
+
 				if((index < 0) || (index >= (int)(s.size()))) {
 					tempRight1 = -1;
 				} else {
 					tempRight1 = s.at(index);
 				};
 			};
-			
+
 			n_value = tempRight1;
 			count += n_key;
 			result += n_value;
 		};
-		
+
 		Main::assert(count == 10, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 96, "main"s));
 		Main::assert(result == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 97, "main"s));
 	};
-	
+
 	Main::assert(StringTools::lpad("Hello"s, "-"s, 10) == "-----Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 100, "main"s));
 	Main::assert(StringTools::lpad("Hello"s, "-="s, 10) == "-=-=-=Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 101, "main"s));
 	Main::assert(StringTools::lpad("Hello"s, ""s, 100) == "Hello"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 102, "main"s));
@@ -182,7 +182,7 @@ void Main::main() {
 	Main::assert(StringTools::replace("Hello world!"s, "Greetings"s, "Goodbye"s) == "Hello world!"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 116, "main"s));
 	Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 124, "main"s));
 	Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 125, "main"s));
-	
+
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
 	};

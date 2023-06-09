@@ -15,7 +15,7 @@ struct PosInfos {
 
 	// default constructor
 	PosInfos() {}
-	
+
 	// auto-construct from any object's fields
 	template<typename T>
 	PosInfos(T o):
@@ -25,7 +25,7 @@ struct PosInfos {
 		methodName(haxe::unwrap(o).methodName),
 		customParams(extract_customParams(haxe::unwrap(o)))
 	{}
-	
+
 	// construct fields directly
 	static PosInfos make(std::string className, std::string fileName, int lineNumber, std::string methodName, std::optional<std::shared_ptr<std::deque<haxe::DynamicToString>>> customParams = std::nullopt) {
 		PosInfos result;

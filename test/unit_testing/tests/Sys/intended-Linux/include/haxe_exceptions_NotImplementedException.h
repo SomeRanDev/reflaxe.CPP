@@ -13,7 +13,7 @@ namespace haxe::exceptions {
 class NotImplementedException: public haxe::exceptions::PosException {
 public:
 	NotImplementedException(std::string message = std::string("Not implemented"), std::optional<haxe::Exception> previous = std::nullopt, std::optional<std::shared_ptr<haxe::PosInfos>> pos = std::nullopt);
-	
+
 	HX_COMPARISON_OPERATORS(NotImplementedException)
 };
 

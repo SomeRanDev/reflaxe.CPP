@@ -23,5 +23,5 @@ void cxx::io::NativeOutput::flush() {
 }
 
 void cxx::io::NativeOutput::prepare(int nbytes) {
-	
+
 }

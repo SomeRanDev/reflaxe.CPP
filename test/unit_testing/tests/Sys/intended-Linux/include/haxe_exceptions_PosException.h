@@ -14,9 +14,8 @@ public:
 	std::shared_ptr<haxe::PosInfos> posInfos;
 
 	PosException(std::string message, std::optional<haxe::Exception> previous = std::nullopt, std::optional<std::shared_ptr<haxe::PosInfos>> pos = std::nullopt);
-	
 	std::string toString();
-	
+
 	HX_COMPARISON_OPERATORS(PosException)
 };
 

@@ -12,18 +12,18 @@ using namespace std::string_literals;
 std::optional<std::string> Sys_GetEnv::getEnv(std::string s) {
 	char* result = std::getenv(s.c_str());
 	std::optional<std::string> tempResult;
-	
+
 	if(result == nullptr) {
 		tempResult = std::nullopt;
 	} else {
 		tempResult = std::string(result);
 	};
-	
+
 	return tempResult;
 }
 std::shared_ptr<haxe::ds::StringMap<std::string>> Sys_Environment::environment() {
 	std::shared_ptr<std::deque<std::string>> strings = std::make_shared<std::deque<std::string>>(std::deque<std::string>{});
-	
+
 	char** env;
 	#if defined(WIN) && (_MSC_VER >= 1900)
 		env = *__p__environ();
@@ -34,25 +34,25 @@ std::shared_ptr<haxe::ds::StringMap<std::string>> Sys_Environment::environment()
 		for (; *env; ++env) {
 			strings->push_back(*env);
 		};
-	
+
 	std::shared_ptr<haxe::ds::StringMap<std::string>> result = std::make_shared<haxe::ds::StringMap<std::string>>();
 	int _g = 0;
-	
+
 	while(_g < (int)(strings->size())) {
 		std::string en = (*strings)[_g];
-		
+
 		++_g;
-		
+
 		int index = (int)(en.find("="s));
-		
+
 		if(index >= 0) {
 			std::string key = en.substr(0, index);
 			std::string value = en.substr(index + 1);
-			
+
 			result->set(key, value);
 		};
 	};
-	
+
 	return result;
 }
 std::deque<std::string> Sys_Args::_args = (*std::make_shared<std::deque<std::string>>(std::deque<std::string>{}));
@@ -60,12 +60,12 @@ std::deque<std::string> Sys_Args::_args = (*std::make_shared<std::deque<std::str
 void Sys_Args::setupArgs(int argCount, const char** args) {
 	int _g = 0;
 	int _g1 = argCount;
-	
+
 	while(_g < _g1) {
 		int i = _g++;
 		std::deque<std::string>& _this = Sys_Args::_args;
 		std::string x = std::string(args[i]);
-		
+
 		_this.push_back(x);
 	};
 }

@@ -13,10 +13,8 @@ public:
 	// Returns an int of value 123
 	[[nodiscard]] static int getValue();
 	// Comment after the function
-	
 	[[nodiscard]]
 	static std::string getValue2();
-	
 	static void main();
 };
 // End of Main class

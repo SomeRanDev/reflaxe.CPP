@@ -18,11 +18,9 @@ public:
 	virtual ~Base() {}
 
 	Base();
-	
 	virtual int getVal();
-	
 	int getVal2();
-	
+
 	HX_COMPARISON_OPERATORS(Base)
 };
 
@@ -31,9 +29,8 @@ public:
 class Child: public Base {
 public:
 	Child();
-	
 	int getVal();
-	
+
 	HX_COMPARISON_OPERATORS(Child)
 };
 

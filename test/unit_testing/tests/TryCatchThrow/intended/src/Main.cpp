@@ -20,7 +20,7 @@ void _Main::Main_Fields_::main() {
 		};
 	};
 	std::string msg = "a message"s;
-	
+
 	try {
 		throw haxe::Exception(msg);
 	} catch(haxe::Exception& e) {
@@ -32,7 +32,7 @@ void _Main::Main_Fields_::main() {
 		assert(e.get_message() == msg);
 	};
 	try {
-		
+
 		throw std::runtime_error("test");
 	} catch(std::exception& e) {
 		assert(std::string(e.what()) == "test"s);

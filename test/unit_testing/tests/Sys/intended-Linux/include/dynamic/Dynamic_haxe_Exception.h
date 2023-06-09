@@ -40,13 +40,13 @@ public:
 	}
 
 	static Dynamic getProp(Dynamic const& d, std::string name) {
-		if(name == "_message") {
-			return Dynamic::unwrap<haxe::Exception>(d, [](haxe::Exception* o) {
-				return makeDynamic(o->_message);
-			});
-		} else if(name == "_previous") {
+		if(name == "_previous") {
 			return Dynamic::unwrap<haxe::Exception>(d, [](haxe::Exception* o) {
 				return makeDynamic(o->_previous);
+			});
+		} else if(name == "_message") {
+			return Dynamic::unwrap<haxe::Exception>(d, [](haxe::Exception* o) {
+				return makeDynamic(o->_message);
 			});
 		} else if(name == "==") {
 			return Dynamic::makeFunc<haxe::Exception>(d, [](haxe::Exception* o, std::deque<Dynamic> args) {
@@ -57,14 +57,14 @@ public:
 	}
 
 	static Dynamic setProp(Dynamic& d, std::string name, Dynamic value) {
-		if(name == "_message") {
-			return Dynamic::unwrap<haxe::Exception>(d, [value](haxe::Exception* o) {
-				o->_message = value.asType<std::string>();
-				return value;
-			});
-		} else if(name == "_previous") {
+		if(name == "_previous") {
 			return Dynamic::unwrap<haxe::Exception>(d, [value](haxe::Exception* o) {
 				o->_previous = value.asType<std::optional<std::shared_ptr<haxe::Exception>>>();
+				return value;
+			});
+		} else if(name == "_message") {
+			return Dynamic::unwrap<haxe::Exception>(d, [value](haxe::Exception* o) {
+				o->_message = value.asType<std::string>();
 				return value;
 			});
 		}

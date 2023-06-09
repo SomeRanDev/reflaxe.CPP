@@ -31,14 +31,14 @@ public:
 		result.index = 0;
 		return std::make_shared<MyEnum>(result);
 	}
-	
+
 	static std::shared_ptr<MyEnum> Entry2(int _i) {
 		MyEnum result;
 		result.index = 1;
 		result.data = dEntry2Impl{ _i };
 		return std::make_shared<MyEnum>(result);
 	}
-	
+
 	static std::shared_ptr<MyEnum> Entry3(std::string _s) {
 		MyEnum result;
 		result.index = 2;
@@ -49,7 +49,7 @@ public:
 	dEntry2Impl getEntry2() {
 		return std::get<0>(data);
 	}
-	
+
 	dEntry3Impl getEntry3() {
 		return std::get<1>(data);
 	}
@@ -78,7 +78,6 @@ public:
 	static int returnCode;
 
 	static void assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt);
-	
 	static void main();
 };
 

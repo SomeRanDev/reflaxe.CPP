@@ -14,15 +14,15 @@ std::string haxe::_CallStack::CallStack_Impl_::toString(std::shared_ptr<std::deq
 	std::shared_ptr<StringBuf> b = std::make_shared<StringBuf>();
 	int _g = 0;
 	std::shared_ptr<std::deque<std::shared_ptr<haxe::StackItem>>> _g1 = stack;
-	
+
 	while(_g < (int)(_g1->size())) {
 		std::shared_ptr<haxe::StackItem> s = (*_g1)[_g];
-		
+
 		++_g;
 		b->b += Std::string("\nCalled from "s);
 		haxe::_CallStack::CallStack_Impl_::itemToString(b, s);
 	};
-	
+
 	return b->b;
 }
 
@@ -35,7 +35,7 @@ void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> 
 		case 1: {
 			std::string _g = s->getModule().m;
 			std::string m = _g;
-			
+
 			b->b += Std::string("module "s);
 			b->b += Std::string(m);
 			break;
@@ -49,16 +49,16 @@ void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> 
 			std::string file = _g1;
 			int line = _g2;
 			std::optional<int> col = _g3;
-			
+
 			if(s2.has_value()) {
 				haxe::_CallStack::CallStack_Impl_::itemToString(b, s2.value_or(nullptr));
 				b->b += Std::string(" ("s);
 			};
-			
+
 			b->b += Std::string(file);
 			b->b += Std::string(" line "s);
 			b->b += Std::string(line);
-			
+
 			if(col.has_value()) {
 				b->b += Std::string(" column "s);
 				b->b += Std::string(col);
@@ -74,13 +74,13 @@ void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> 
 			std::optional<std::string> cname = _g;
 			std::string meth = _g1;
 			std::optional<std::string> tempMaybeString;
-			
+
 			if(!cname.has_value()) {
 				tempMaybeString = "<unknown>"s;
 			} else {
 				tempMaybeString = cname;
 			};
-			
+
 			b->b += Std::string(tempMaybeString);
 			b->b += Std::string("."s);
 			b->b += Std::string(meth);
@@ -89,7 +89,7 @@ void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> 
 		case 4: {
 			std::optional<int> _g = s->getLocalFunction().v;
 			std::optional<int> n = _g;
-			
+
 			b->b += Std::string("local function #"s);
 			b->b += Std::string(n);
 			break;

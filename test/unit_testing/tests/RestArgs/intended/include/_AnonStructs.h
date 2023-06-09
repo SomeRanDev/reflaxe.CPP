@@ -12,13 +12,13 @@ struct AnonStruct0 {
 
 	// default constructor
 	AnonStruct0() {}
-	
+
 	// auto-construct from any object's fields
 	template<typename T>
 	AnonStruct0(T o):
 		data(extract_data(haxe::unwrap(o)))
 	{}
-	
+
 	// construct fields directly
 	static AnonStruct0 make(std::optional<std::any> data = std::nullopt) {
 		AnonStruct0 result;
@@ -38,13 +38,13 @@ struct AnonStruct1 {
 
 	// default constructor
 	AnonStruct1() {}
-	
+
 	// auto-construct from any object's fields
 	template<typename T>
 	AnonStruct1(T o):
 		data(extract_data(haxe::unwrap(o)))
 	{}
-	
+
 	// construct fields directly
 	static AnonStruct1 make(std::optional<int> data = std::nullopt) {
 		AnonStruct1 result;

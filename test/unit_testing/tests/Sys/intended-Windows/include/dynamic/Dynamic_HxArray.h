@@ -36,7 +36,7 @@ public:
 					auto x = args[0].asType<T>();
 					{
 						o->push_back(x);
-						
+
 						return o->size();
 					}
 				};
@@ -46,9 +46,9 @@ public:
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
 				auto result = [o, args] {
 					std::optional<T> result = o->back();
-					
+
 					o->pop_back();
-					
+
 					return result;
 				};
 				return makeDynamic(result());
@@ -65,9 +65,9 @@ public:
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
 				auto result = [o, args] {
 					std::optional<T> result = o->front();
-					
+
 					o->pop_front();
-					
+
 					return result;
 				};
 				return makeDynamic(result());
@@ -91,21 +91,21 @@ public:
 					auto x = args[0].asType<T>();
 					{
 						int tempNumber;
-						
+
 						{
 							int fromIndex = 0;
-							
+
 							tempNumber = HxArray::indexOf<T>(o, x, fromIndex);
 						};
-						
+
 						int index = tempNumber;
-						
+
 						if(index < 0) {
 							return false;
 						};
-						
+
 						o->erase(o->begin() + index);
-						
+
 						return true;
 					}
 				};
@@ -116,7 +116,7 @@ public:
 				auto result = [o, args] {
 					auto x = args[0].asType<T>();
 					{
-						
+
 						return (std::find(o->begin(), o->end(), x) != o->end());
 					}
 				};
@@ -126,22 +126,22 @@ public:
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
 				auto result = [o, args] {
 					std::shared_ptr<std::deque<T>> result = std::make_shared<std::deque<T>>(std::deque<T>{});
-					
+
 					{
 						int _g = 0;
 						std::deque<T>* _g1 = o;
-						
+
 						while(_g < (int)(_g1->size())) {
 							T obj = (*_g1)[_g];
-							
+
 							++_g;
-							
+
 							{
 								result->push_back(obj);
 							};
 						};
 					};
-					
+
 					return result;
 				};
 				return makeDynamic(result());

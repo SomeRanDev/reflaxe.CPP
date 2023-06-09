@@ -64,12 +64,12 @@ void Main::main() {
 	Main::testMixedOpt(101, "test"s, true, -1);
 	Main::testMixedOpt(100, "test"s, true, -1);
 	Main::testMixedOpt(102, "test"s, true, -1);
-	
+
 	std::shared_ptr<Base> a = std::static_pointer_cast<Base>(std::make_shared<Child>());
-	
+
 	a->doThing(100, "other"s);
 	a->doThing2(std::nullopt, "other"s);
-	
+
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
 	};
@@ -77,7 +77,7 @@ void Main::main() {
 Base::Base():
 	_order_id(generate_order_id())
 {
-	
+
 }
 
 void Base::doThing(int num, std::string other) {
@@ -87,14 +87,14 @@ void Base::doThing(int num, std::string other) {
 
 void Base::doThing2(std::optional<int> num, std::string other) {
 	if(!num) num = 100;
-	
+
 	Main::assert(other == "other"s, haxe::shared_anon<haxe::PosInfos>("Base"s, "test/unit_testing/tests/OptionalArguments/Main.hx"s, 80, "doThing2"s));
 	Main::assert(num == 100, haxe::shared_anon<haxe::PosInfos>("Base"s, "test/unit_testing/tests/OptionalArguments/Main.hx"s, 81, "doThing2"s));
 }
 Child::Child():
 	Base(), _order_id(generate_order_id())
 {
-	
+
 }
 
 void Child::doThing(int num, std::string other) {
@@ -104,7 +104,7 @@ void Child::doThing(int num, std::string other) {
 
 void Child::doThing2(std::optional<int> num, std::string other) {
 	if(!num) num = 200;
-	
+
 	Main::assert(other == "other"s, haxe::shared_anon<haxe::PosInfos>("Child"s, "test/unit_testing/tests/OptionalArguments/Main.hx"s, 93, "doThing2"s));
 	Main::assert(num == 200, haxe::shared_anon<haxe::PosInfos>("Child"s, "test/unit_testing/tests/OptionalArguments/Main.hx"s, 94, "doThing2"s));
 }

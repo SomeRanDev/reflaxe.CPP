@@ -10,14 +10,14 @@ struct Iterator {
 
 	// default constructor
 	Iterator() {}
-	
+
 	// auto-construct from any object's fields
 	template<typename T_>
 	Iterator(T_ o) {
 		hasNext = [=]() { return haxe::unwrap(o).hasNext(); };
 		next = [=]() { return haxe::unwrap(o).next(); };
 	}
-	
+
 	// construct fields directly
 	static Iterator make(std::function<bool()> hasNext, std::function<T()> next) {
 		Iterator result;

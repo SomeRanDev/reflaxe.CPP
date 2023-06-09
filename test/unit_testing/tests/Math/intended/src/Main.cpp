@@ -54,7 +54,7 @@ void Main::main() {
 	Main::assertFloat(log((double)(10)), 2.30258, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 48, "main"s));
 	Main::assert(sqrt((double)(25)) == 5, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 50, "main"s));
 	Main::assert(sqrt((double)(100)) == 10, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Math/Main.hx"s, 51, "main"s));
-	
+
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
 	};

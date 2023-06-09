@@ -35,19 +35,19 @@ public:
 		result.index = 0;
 		return std::make_shared<haxe::io::Error>(result);
 	}
-	
+
 	static std::shared_ptr<haxe::io::Error> Overflow() {
 		Error result;
 		result.index = 1;
 		return std::make_shared<haxe::io::Error>(result);
 	}
-	
+
 	static std::shared_ptr<haxe::io::Error> OutsideBounds() {
 		Error result;
 		result.index = 2;
 		return std::make_shared<haxe::io::Error>(result);
 	}
-	
+
 	static std::shared_ptr<haxe::io::Error> Custom(haxe::Dynamic _e) {
 		Error result;
 		result.index = 3;

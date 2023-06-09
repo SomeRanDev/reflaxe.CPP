@@ -17,7 +17,7 @@ public:
 		result.index = 0;
 		return std::make_shared<haxe::io::Encoding>(result);
 	}
-	
+
 	static std::shared_ptr<haxe::io::Encoding> RawNative() {
 		Encoding result;
 		result.index = 1;

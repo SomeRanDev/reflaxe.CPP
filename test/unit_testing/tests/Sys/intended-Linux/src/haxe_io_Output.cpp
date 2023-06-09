@@ -18,27 +18,27 @@ int haxe::io::Output::writeBytes(std::shared_ptr<haxe::io::Bytes> s, int pos, in
 	if(((pos < 0) || (len < 0)) || (pos + len > s->length)) {
 		throw haxe::io::Error::OutsideBounds();
 	};
-	
+
 	std::shared_ptr<haxe::io::BytesData> b = s->b;
 	int k = len;
-	
+
 	while(k > 0) {
 		this->writeByte((*b)[pos]);
 		pos++;
 		k--;
 	};
-	
+
 	return len;
 }
 
 void haxe::io::Output::flush() {
-	
+
 }
 
 void haxe::io::Output::writeFullBytes(std::shared_ptr<haxe::io::Bytes> s, int pos, int len) {
 	while(len > 0) {
 		int k = this->writeBytes(s, pos, len);
-		
+
 		pos += k;
 		len -= k;
 	};
@@ -46,6 +46,6 @@ void haxe::io::Output::writeFullBytes(std::shared_ptr<haxe::io::Bytes> s, int po
 
 void haxe::io::Output::writeString(std::string s, std::optional<std::shared_ptr<haxe::io::Encoding>> encoding) {
 	std::shared_ptr<haxe::io::Bytes> b = haxe::io::Bytes::ofString(s, encoding);
-	
+
 	this->writeFullBytes(b, 0, b->length);
 }

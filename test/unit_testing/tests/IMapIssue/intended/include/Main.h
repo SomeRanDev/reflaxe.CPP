@@ -12,11 +12,9 @@ public:
 	std::shared_ptr<haxe::ds::StringMap<int>> testMap;
 
 	Main();
-	
 	void bla();
-	
 	static void main();
-	
+
 	HX_COMPARISON_OPERATORS(Main)
 };
 

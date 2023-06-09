@@ -7,7 +7,6 @@ public:
 	static int returnCode;
 
 	static void assert(bool b);
-	
 	static void main();
 };
 

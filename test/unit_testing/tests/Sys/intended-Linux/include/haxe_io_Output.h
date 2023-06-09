@@ -13,13 +13,9 @@ public:
 	virtual ~Output() {}
 
 	virtual void writeByte(int c);
-	
 	int writeBytes(std::shared_ptr<haxe::io::Bytes> s, int pos, int len);
-	
 	virtual void flush();
-	
 	void writeFullBytes(std::shared_ptr<haxe::io::Bytes> s, int pos, int len);
-	
 	void writeString(std::string s, std::optional<std::shared_ptr<haxe::io::Encoding>> encoding = std::nullopt);
 };
 

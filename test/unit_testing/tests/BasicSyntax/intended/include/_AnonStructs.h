@@ -11,14 +11,14 @@ struct AnonStruct0 {
 
 	// default constructor
 	AnonStruct0() {}
-	
+
 	// auto-construct from any object's fields
 	template<typename T>
 	AnonStruct0(T o):
 		len(haxe::unwrap(o).len),
 		pos(haxe::unwrap(o).pos)
 	{}
-	
+
 	// construct fields directly
 	static AnonStruct0 make(int len, int pos) {
 		AnonStruct0 result;

@@ -17,9 +17,8 @@ public:
 	int a;
 
 	Bla();
-	
 	void check() const;
-	
+
 	HX_COMPARISON_OPERATORS(Bla)
 };
 

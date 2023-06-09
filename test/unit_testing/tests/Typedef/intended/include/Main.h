@@ -10,7 +10,7 @@ public:
 	int val;
 
 	ValueClass();
-	
+
 	HX_COMPARISON_OPERATORS(ValueClass)
 };
 
@@ -19,7 +19,7 @@ public:
 class NormalClass {
 public:
 	NormalClass();
-	
+
 	HX_COMPARISON_OPERATORS(NormalClass)
 };
 
@@ -38,7 +38,6 @@ public:
 	static int exitCode;
 
 	static void assert(bool cond, std::optional<std::shared_ptr<haxe::PosInfos>> pos = std::nullopt);
-	
 	static void main();
 };
 

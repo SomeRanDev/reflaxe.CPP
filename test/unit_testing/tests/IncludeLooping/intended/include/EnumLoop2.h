@@ -27,7 +27,7 @@ public:
 		result.index = 0;
 		return std::make_shared<EnumLoop2>(result);
 	}
-	
+
 	static std::shared_ptr<EnumLoop2> Thing(std::shared_ptr<EnumLoop1> _obj) {
 		EnumLoop2 result;
 		result.index = 1;

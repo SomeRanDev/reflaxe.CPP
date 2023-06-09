@@ -9,7 +9,7 @@
 class BaseClass {
 public:
 	BaseClass();
-	
+
 	HX_COMPARISON_OPERATORS(BaseClass)
 };
 
@@ -18,7 +18,7 @@ public:
 class ChildClass: public BaseClass {
 public:
 	ChildClass();
-	
+
 	HX_COMPARISON_OPERATORS(ChildClass)
 };
 
@@ -27,9 +27,8 @@ public:
 class AnotherClass {
 public:
 	AnotherClass();
-	
 	std::string toString();
-	
+
 	HX_COMPARISON_OPERATORS(AnotherClass)
 };
 
@@ -40,9 +39,7 @@ public:
 	static int returnCode;
 
 	static void assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt);
-	
 	static void assertFloat(double a, double b, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt);
-	
 	static void main();
 };
 
@@ -51,7 +48,7 @@ public:
 	int number;
 
 	ClassWInt();
-	
+
 	HX_COMPARISON_OPERATORS(ClassWInt)
 };
 

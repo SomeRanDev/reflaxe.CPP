@@ -20,7 +20,7 @@ public:
 	Other other;
 
 	Main();
-	
+
 	HX_COMPARISON_OPERATORS(Main)
 };
 

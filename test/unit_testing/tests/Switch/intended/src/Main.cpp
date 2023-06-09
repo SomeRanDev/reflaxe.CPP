@@ -15,7 +15,7 @@ void _Main::Main_Fields_::assert(bool b) {
 
 void _Main::Main_Fields_::main() {
 	int a = 123;
-	
+
 	switch(a) {
 		case 1: {
 			_Main::Main_Fields_::assert(false);
@@ -49,9 +49,9 @@ void _Main::Main_Fields_::main() {
 			break;
 		}
 	};
-	
+
 	std::string str = "Hello"s;
-	
+
 	auto __temp = str;
 	switch(__temp.size()) {
 		case 9: {
@@ -74,7 +74,7 @@ void _Main::Main_Fields_::main() {
 		}
 	default: {}
 	};
-	
+
 	if(_Main::Main_Fields_::returnCode != 0) {
 		exit(_Main::Main_Fields_::returnCode);
 	};

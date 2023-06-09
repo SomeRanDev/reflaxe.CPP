@@ -13,35 +13,35 @@ haxe::io::Bytes::Bytes(int length, std::shared_ptr<haxe::io::BytesData> b):
 std::shared_ptr<haxe::io::Bytes> haxe::io::Bytes::ofString(std::string s, std::optional<std::shared_ptr<haxe::io::Encoding>> encoding) {
 	std::shared_ptr<std::deque<int>> a = std::make_shared<std::deque<int>>();
 	int i = 0;
-	
+
 	while(i < (int)(s.size())) {
 		int tempNumber;
-		
+
 		{
 			int index = i++;
-			
+
 			if((index < 0) || (index >= (int)(s.size()))) {
 				tempNumber = -1;
 			} else {
 				tempNumber = s.at(index);
 			};
 		};
-		
+
 		int c = tempNumber;
-		
+
 		if((55296 <= c) && (c <= 56319)) {
 			int tempLeft;
-			
+
 			{
 				int index = i++;
-				
+
 				if((index < 0) || (index >= (int)(s.size()))) {
 					tempLeft = -1;
 				} else {
 					tempLeft = s.at(index);
 				};
 			};
-			
+
 			c = (((c - 55232) << 10) | (tempLeft & 1023));
 		};
 		if(c <= 127) {
@@ -60,6 +60,6 @@ std::shared_ptr<haxe::io::Bytes> haxe::io::Bytes::ofString(std::string s, std::o
 			a->push_back(128 | (c & 63));
 		};
 	};
-	
+
 	return std::make_shared<haxe::io::Bytes>((int)(a->size()), a);
 }

@@ -15,11 +15,9 @@ public:
 	int a;
 
 	Test();
-	
 	void test();
-	
 	std::string toString();
-	
+
 	HX_COMPARISON_OPERATORS(Test)
 };
 
@@ -32,7 +30,6 @@ public:
 	static int returnCode;
 
 	static void assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos = std::nullopt);
-	
 	static void main();
 };
 
@@ -49,15 +46,13 @@ public:
 	{
 		this->t = t;
 	}
-	
 	void test() {
 		std::cout << std::string("test/unit_testing/tests/Dynamic/Main.hx:13: Hello!") << std::endl;
 	}
-	
 	T getT() {
 		return this->t;
 	}
-	
+
 	HX_COMPARISON_OPERATORS(HasParam<T>)
 };
 

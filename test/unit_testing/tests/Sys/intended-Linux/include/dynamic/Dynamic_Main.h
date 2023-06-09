@@ -11,13 +11,13 @@ public:
 	}
 
 	static Dynamic getProp(Dynamic const& d, std::string name) {
-		if(name == "a") {
-			return Dynamic::unwrap<Main>(d, [](Main* o) {
-				return makeDynamic(o->a);
-			});
-		} else if(name == "returnCode") {
+		if(name == "returnCode") {
 			return Dynamic::unwrap<Main>(d, [](Main* o) {
 				return makeDynamic(o->returnCode);
+			});
+		} else if(name == "a") {
+			return Dynamic::unwrap<Main>(d, [](Main* o) {
+				return makeDynamic(o->a);
 			});
 		} else if(name == "==") {
 			return Dynamic::makeFunc<Main>(d, [](Main* o, std::deque<Dynamic> args) {
@@ -28,14 +28,14 @@ public:
 	}
 
 	static Dynamic setProp(Dynamic& d, std::string name, Dynamic value) {
-		if(name == "a") {
-			return Dynamic::unwrap<Main>(d, [value](Main* o) {
-				o->a = value.asType<int>();
-				return value;
-			});
-		} else if(name == "returnCode") {
+		if(name == "returnCode") {
 			return Dynamic::unwrap<Main>(d, [value](Main* o) {
 				o->returnCode = value.asType<int>();
+				return value;
+			});
+		} else if(name == "a") {
+			return Dynamic::unwrap<Main>(d, [value](Main* o) {
+				o->a = value.asType<int>();
 				return value;
 			});
 		}

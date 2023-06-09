@@ -7,7 +7,7 @@ public:
 	int a;
 
 	Test();
-	
+
 	HX_COMPARISON_OPERATORS(Test)
 };
 
@@ -20,7 +20,6 @@ public:
 	static Test t;
 
 	static void main();
-	
 	static Test* getTest();
 };
 

@@ -8,7 +8,7 @@ public:
 	std::string b;
 
 	StringBuf();
-	
+
 	HX_COMPARISON_OPERATORS(StringBuf)
 };
 

@@ -13,15 +13,15 @@ haxe::Exception::Exception(std::string message, std::optional<haxe::Exception> p
 	std::exception(), _order_id(generate_order_id())
 {
 	this->_message = message;
-	
+
 	std::optional<std::shared_ptr<haxe::Exception>> tempRight;
-	
+
 	if(previous.has_value()) {
 		tempRight = std::make_shared<haxe::Exception>(previous.value());
 	} else {
 		tempRight = std::nullopt;
 	};
-	
+
 	this->_previous = tempRight;
 }
 
@@ -31,7 +31,7 @@ std::string haxe::Exception::get_message() {
 
 std::shared_ptr<std::deque<std::shared_ptr<haxe::StackItem>>> haxe::Exception::get_stack() {
 	std::cout << Std::string("Call stack features must be enabled using -D cxx_callstack."s) << std::endl;
-	
+
 	return std::make_shared<std::deque<std::shared_ptr<haxe::StackItem>>>(std::deque<std::shared_ptr<haxe::StackItem>>{});
 }
 
@@ -58,7 +58,7 @@ std::string haxe::Exception::details() {
 
 haxe::Exception haxe::Exception::caught(std::any value) {
 	std::string tempString = "<Any("s + Std::string(value.type().name()) + ")>"s;
-	
+
 	return haxe::Exception(tempString, std::nullopt, std::nullopt);
 }
 

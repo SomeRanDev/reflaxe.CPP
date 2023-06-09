@@ -37,16 +37,16 @@ void Main::main() {
 	std::shared_ptr<BaseClass> base = std::make_shared<BaseClass>();
 	std::shared_ptr<ChildClass> child = std::make_shared<ChildClass>();
 	std::shared_ptr<AnotherClass> another = std::make_shared<AnotherClass>();
-	
+
 	Main::assert(StdImpl::isOfType<std::shared_ptr<ChildClass>, haxe::_class<ChildClass>>(child, haxe::_class<ChildClass>()), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 47, "main"s));
 	Main::assert(StdImpl::isOfType<std::shared_ptr<ChildClass>, haxe::_class<BaseClass>>(child, haxe::_class<BaseClass>()), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 48, "main"s));
 	Main::assert(!StdImpl::isOfType<std::shared_ptr<ChildClass>, haxe::_class<AnotherClass>>(child, haxe::_class<AnotherClass>()), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 49, "main"s));
 	Main::assert(!StdImpl::isOfType<std::shared_ptr<AnotherClass>, haxe::_class<ChildClass>>(another, haxe::_class<ChildClass>()), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 51, "main"s));
 	Main::assert(!StdImpl::isOfType<std::shared_ptr<AnotherClass>, haxe::_class<BaseClass>>(another, haxe::_class<BaseClass>()), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 52, "main"s));
 	Main::assert(StdImpl::isOfType<std::shared_ptr<AnotherClass>, haxe::_class<AnotherClass>>(another, haxe::_class<AnotherClass>()), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 53, "main"s));
-	
+
 	std::optional<int> a = std::nullopt;
-	
+
 	Main::assert(Std::string(a) == "null"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 57, "main"s));
 	a = 123;
 	Main::assert(Std::string(a) == "123"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 60, "main"s));
@@ -54,18 +54,18 @@ void Main::main() {
 	Main::assert(Std::string(haxe::_class<Std>()) == "Class<Std>"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 63, "main"s));
 	Main::assert(Std::string(another) == "another class as string"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 65, "main"s));
 	Main::assert(Std::string(another) == another->toString(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 66, "main"s));
-	
+
 	AnotherClass anotherVal = AnotherClass();
-	
+
 	Main::assert(Std::string(anotherVal) == anotherVal.toString(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 69, "main"s));
 	Main::assert(StringTools::startsWith(Std::string(base), "<unknown(address:"s), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 71, "main"s));
-	
+
 	BaseClass baseVal = BaseClass();
-	
+
 	Main::assert(StringTools::startsWith(Std::string(baseVal), "<unknown(address:"s), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 74, "main"s));
-	
+
 	ClassWInt numVal = ClassWInt();
-	
+
 	Main::assert(StringTools::startsWith(Std::string(numVal), "<unknown(address:"s), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 77, "main"s));
 	Main::assert(4 == 4, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 80, "main"s));
 	Main::assert(0 == 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 81, "main"s));
@@ -81,24 +81,24 @@ void Main::main() {
 	Main::assertFloat(Std::parseFloat("0.0001"s), 0.0001, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 95, "main"s));
 	Main::assert(std::isnan(Std::parseFloat("another number!"s)), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 96, "main"s));
 	Main::assert(!std::isnan(Std::parseFloat("0"s)), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 97, "main"s));
-	
+
 	int _g = 0;
-	
+
 	while(_g < 1000) {
 		_g++;
 		int tempNumber;
-		
+
 		if(10 <= 1) {
 			tempNumber = 0;
 		} else {
 			tempNumber = static_cast<int>(floor((((float)rand()) / RAND_MAX) * 10));
 		};
-		
+
 		int v = tempNumber;
-		
+
 		Main::assert((v >= 0) && (v < 10), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Std/Main.hx"s, 103, "main"s));
 	};
-	
+
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
 	};
@@ -106,17 +106,17 @@ void Main::main() {
 BaseClass::BaseClass():
 	_order_id(generate_order_id())
 {
-	
+
 }
 ChildClass::ChildClass():
 	BaseClass(), _order_id(generate_order_id())
 {
-	
+
 }
 AnotherClass::AnotherClass():
 	_order_id(generate_order_id())
 {
-	
+
 }
 
 std::string AnotherClass::toString() {

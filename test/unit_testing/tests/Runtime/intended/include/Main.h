@@ -12,7 +12,6 @@ namespace _Main {
 class Main_Fields_ {
 public:
 	static void main();
-	
 	static std::shared_ptr<haxe::ds::StringMap<std::string>> bla();
 };
 
