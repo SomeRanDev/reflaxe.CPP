@@ -146,6 +146,9 @@ class Expressions extends SubCompiler {
 		// Check TypedExprDef
 		var result: Null<String> = null;
 		switch(expr.expr) {
+			case TConst(_) if(topLevel): {
+				result = null;
+			}
 			case TConst(constant): {
 				result = constantToCpp(constant, expr);
 			}
