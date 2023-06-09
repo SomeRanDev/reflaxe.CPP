@@ -477,7 +477,8 @@ static auto extract_##fieldName(T other) {\\
 	} else {\\
 		return ${Compiler.OptionalNullCpp};\\
 	}\\
-}';
+}
+';
 	}
 }
 
