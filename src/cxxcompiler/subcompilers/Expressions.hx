@@ -328,6 +328,8 @@ class Expressions extends SubCompiler {
 						}
 					}
 					result += " = " + cpp;
+				} else if(t.isPtr()) {
+					result += " = nullptr";
 				}
 			}
 			case TBlock(_): {
