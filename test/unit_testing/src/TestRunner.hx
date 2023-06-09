@@ -383,8 +383,8 @@ function compareFiles(fileA: String, fileB: String): Null<String> {
 			for(i in 0...linesA.length) {
 				if(linesA[i] != linesB[i]) {
 					var comp = "* Line " + (i + 1) + "\n";
-					comp += "[int] " + linesA[i] + "\n";
-					comp += "[out] " + (i < linesB.length ? linesB[i] : "<empty>");
+					comp += "[int] (" + linesA[i].length + ") `" + linesA[i] + "`\n";
+					comp += "[out] (" + linesB[i].length + ") `" + (i < linesB.length ? linesB[i] : "<empty>") + "`";
 					result.push(comp);
 				}
 			}
