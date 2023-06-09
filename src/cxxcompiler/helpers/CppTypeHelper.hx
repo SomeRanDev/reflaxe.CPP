@@ -160,6 +160,15 @@ class CppTypeHelper {
 	}
 
 	// ----------------------------
+	// `true` if cxx.Ptr
+	public static function isPtr(t: Type): Bool {
+		return switch(t) {
+			case TAbstract(_.get() => { name: "Ptr", module: "cxx.Ptr" }, _): true;
+			case _: false;
+		}
+	}
+
+	// ----------------------------
 	// If "t" is Null<T> and "target" is T, returns true.
 	// Returns false otherwise.
 	public static function isNullOfType(t: Type, target: Type): Bool {

@@ -31,6 +31,7 @@ import cxxcompiler.config.Define;
 import cxxcompiler.config.Meta;
 import cxxcompiler.other.DependencyTracker;
 
+using cxxcompiler.helpers.CppTypeHelper;
 using cxxcompiler.helpers.DefineHelper;
 using cxxcompiler.helpers.Error;
 using cxxcompiler.helpers.MetaHelper;
@@ -434,6 +435,8 @@ class Classes extends SubCompiler {
 			XComp.compilingForTopLevel = false;
 
 			result ?? "";
+		} else if(field.type.isPtr()) {
+			"nullptr";
 		} else {
 			"";
 		}
