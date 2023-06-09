@@ -22,6 +22,32 @@ using cxxcompiler.helpers.MetaHelper;
 
 class CppTypeHelper {
 	// ----------------------------
+	// Get priority of a type in a class declaration.
+	//
+	// Higher values appear higher in the class declaration.
+	public static function typePriority(t: Type): Float {
+		t = t.unwrapNullTypeOrSelf();
+
+		if(isPtr(t)) {
+			return 64.5;
+		}
+
+		if(isRefOrConstRef(t)) {
+			return 64.25;
+		}
+
+		if(isCppNumberType(t)) {
+			return getNumberTypeSize(t);
+		}
+
+		if(t.isBool()) {
+			return 1;
+		}
+
+		return 999;
+	}
+
+	// ----------------------------
 	// Returns true if the two types are the same even if
 	// they have different memory management overrides.
 	public static function valueTypesEqual(t: Type, other: Type, followTypes: Bool = false) {
@@ -160,9 +186,18 @@ class CppTypeHelper {
 	}
 
 	// ----------------------------
+	// Unwraps all cxx.Const<...> from Type
+	public static function unwrapConst(t: Type): Type {
+		return switch(t) {
+			case TType(_, [inner]) if(isConst(t)): unwrapConst(inner);
+			case _: t;
+		}
+	}
+
+	// ----------------------------
 	// `true` if cxx.Ptr
 	public static function isPtr(t: Type): Bool {
-		return switch(t) {
+		return switch(unwrapConst(t)) {
 			case TAbstract(_.get() => { name: "Ptr", module: "cxx.Ptr" }, _): true;
 			case _: false;
 		}

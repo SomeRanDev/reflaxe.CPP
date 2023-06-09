@@ -272,7 +272,16 @@ class Classes extends SubCompiler {
 		}
 
 		// Instance vars
-		for(v in varFields) {
+		final orderedVarFields = varFields.copy();
+		orderedVarFields.sort(function(varData1, varData2) {
+			final p1 = varData1.field.type.typePriority();
+			final p2 = varData2.field.type.typePriority();
+			if(p1 == p2) {
+				return varData1.field.name < varData2.field.name ? 1 : -1;
+			}
+			return p1 - p2 < 0 ? 1 : -1;
+		});
+		for(v in orderedVarFields) {
 			compileVar(v);
 		}
 
@@ -985,7 +994,7 @@ class Classes extends SubCompiler {
 			// Auto-generated content
 			if(hasComparisonOperators(classType)) {
 				IComp.addHaxeUtilHeader(true);
-				addFunction("HX_COMPARISON_OPERATORS(" + classNameWParams + ")");
+				addFunction("\nHX_COMPARISON_OPERATORS(" + classNameWParams + ")");
 			}
 
 			addExtensionClasses();
@@ -1091,7 +1100,7 @@ class Classes extends SubCompiler {
 			if(variables.exists(key)) {
 				final v = variables.get(key).trustMe();
 				if(v.length > 0) {
-					result += v.join("\n\n").tab() + "\n";
+					result += v.join("\n").tab() + "\n";
 					varsExist = true;
 				}
 			}
@@ -1100,7 +1109,7 @@ class Classes extends SubCompiler {
 				final f = functions.get(key).trustMe();
 				if(f.length > 0) {
 					result += (varsExist ? "\n" : "");
-					result += f.join("\n\n").tab() + "\n";
+					result += f.join("\n").tab() + "\n";
 				}
 			}
 		}
