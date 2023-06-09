@@ -74,7 +74,7 @@ namespace haxe {
 		constexpr static bool can_deref = true;
 		static inline inner& get(std::shared_ptr<T> in) { return _unwrap_mm<T>::get(*in); }
 	};
-	
+
 	template<typename T>
 	struct _unwrap_mm<std::unique_ptr<T>> {
 		using inner = typename _unwrap_mm<T>::inner;
