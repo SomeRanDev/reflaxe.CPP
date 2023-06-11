@@ -1036,12 +1036,20 @@ class Classes extends SubCompiler {
 		Source file (.cpp)
 	**/
 	function generateSourceFile() {
-		if(!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0)) {
+		final cppFileCodeMeta = classType.hasMeta(Meta.CppFileCode);
+		if(cppFileCodeMeta || (!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0))) {
 			final srcFilename = Compiler.SourceFolder + "/" + filename + Compiler.SourceExt;
 			Main.setExtraFileIfEmpty(srcFilename, "#include \"" + filename + Compiler.HeaderExt + "\"");
 
 			IComp.appendIncludesToExtraFileWithoutRepeats(srcFilename, IComp.compileCppIncludes(), 1);
 			
+			if(cppFileCodeMeta) {
+				final code = classType.meta.extractStringFromFirstMeta(Meta.CppFileCode);
+				if(code != null) {
+					Main.appendToExtraFile(srcFilename, code + "\n", 2);
+				}
+			}
+
 			var result = "";
 
 			if(cppVariables.length > 0) {
@@ -1052,7 +1060,7 @@ class Classes extends SubCompiler {
 				result += (result.length > 0 ? "\n" : "") + cppFunctions.join("\n\n");
 			}
 
-			Main.appendToExtraFile(srcFilename, result + "\n", 2);
+			Main.appendToExtraFile(srcFilename, result + "\n", 3);
 		}
 	}
 
