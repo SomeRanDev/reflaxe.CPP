@@ -267,6 +267,19 @@ class CppTypeHelper {
 	}
 
 	/**
+		Returns `true` if the type is a primitive which
+		should always be treated as a value. 
+
+		This is used in determining whether a Value variable
+		should be converted to a reference. We want that
+		behavior when working with objects, but not numbers
+		and bools.
+	**/
+	public static function isAlwaysValue(t: Type): Bool {
+		return isCppNumberType(t) || t.isBool() || t.isString();
+	}
+
+	/**
 		Returns `true` if the type is `Int`, `Float`,
 		`UInt`, `Single` or in the `cxx.num` package.
 	**/
