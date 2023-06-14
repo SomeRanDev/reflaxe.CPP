@@ -268,7 +268,11 @@ class Types extends SubCompiler {
 						}
 						case _: {
 							final inner = Compiler.getAbstractInner(t);
-							final newType = #if macro haxe.macro.TypeTools.applyTypeParameters(inner, abs.params, params) #else inner #end;
+							final newType = #if macro
+								haxe.macro.TypeTools.applyTypeParameters(inner, abs.params, params)
+							#else 
+								inner
+							#end;
 
 							if(t.equals(newType)) {
 								compileModuleTypeName(abs, pos, params, true, asValue ? Value : null);
@@ -279,7 +283,7 @@ class Types extends SubCompiler {
 					}
 				}
 			}
-			case TType(defRef, [inner]) if(t.isConst()): {
+			case TType(_, [inner]) if(t.isConst()): {
 				"const " + compileType(inner, pos, asValue, dependent);
 			}
 			case TType(defRef, params) if(t.isAnonStructOrNamedStruct()): {
@@ -288,12 +292,19 @@ class Types extends SubCompiler {
 			case TType(_, _) if(t.isMultitype()): {
 				compileType(Context.follow(t), pos, asValue, dependent);
 			}
+			case TType(_, params) if(t.isRefOrConstRef()): {
+				(t.isConstRef() ? "const " : "") + compileType(params[0], pos) + "&";
+			}
+			case TType(_.get() => defType, params) if(defType.isExtern || defType.hasMeta(":extern")): {
+				final newType = #if macro
+					haxe.macro.TypeTools.applyTypeParameters(defType.type, defType.params, params)
+				#else
+					defType.type
+				#end;
+				compileType(newType, pos, asValue, dependent);
+			}
 			case TType(defRef, params): {
-				if(t.isRefOrConstRef()) {
-					(t.isConstRef() ? "const " : "") + compileType(params[0], pos) + "&";
-				} else {
-					compileDefName(defRef, pos, params, true, asValue);
-				}
+				compileDefName(defRef, pos, params, true, asValue);
 			}
 		}
 	}
@@ -500,10 +511,10 @@ class Types extends SubCompiler {
 					}
 				}
 			}
-			case TType(defRef, params) if(t.isRefOrConstRef()): {
+			case TType(_, params) if(t.isRefOrConstRef()): {
 				getMemoryManagementTypeFromType(params[0]);
 			}
-			case TType(defRef, params): {
+			case TType(_, _): {
 				getMemoryManagementTypeFromType(Compiler.getTypedefInner(t));
 			}
 			case TAnonymous(a): {

@@ -316,6 +316,7 @@ class Includes extends SubCompiler {
 			// Add our "main" include if @:noInclude is absent.
 			// First look for and use @:include, otherwise, use default header include.
 			final cd = mt.getCommonData();
+			final isExtern = cd.isExtern || cd.hasMeta(":extern");
 			final main = Main.getCurrentModule();
 			if(main != null && main.getUniqueId() == mt.getUniqueId()) return;
 			if(addIncludeFromMetaAccess(cd.meta, header)) {
@@ -326,11 +327,11 @@ class Includes extends SubCompiler {
 					}
 					case _:
 				}
-				if(!cd.isExtern) {
+				if(!isExtern) {
 					addInclude(Compiler.getFileNameFromModuleData(cd) + Compiler.HeaderExt, header, false);
 				}
 			}
-			if(cd.isExtern) {
+			if(isExtern) {
 				switch(mt) {
 					case TClassDecl(_.get() => cls) if(cls.hasMeta(Meta.DynamicCompatible)): {
 						final dynFilename = Classes.getReflectionFileName(cls);
