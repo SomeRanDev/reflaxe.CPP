@@ -1497,8 +1497,10 @@ class Expressions extends SubCompiler {
 	function compileSwitchAsSwitch(cpp: String, cases: Array<{ values:Array<TypedExpr>, expr:TypedExpr }>, edef: Null<TypedExpr>) {
 		var result = "switch(" + cpp + ") {";
 		for(c in cases) {
-			result += "\n";
-			result += "\tcase " + c.values.map(v -> Main.compileExpressionOrError(v)).join(", ") + ": {\n";
+			for(cpp in c.values.map(v -> Main.compileExpressionOrError(v))) {
+				result += "\n\tcase " + cpp + ":";
+			}
+			result += " {\n";
 			result += toIndentedScope(c.expr).tab();
 			result += "\n\t\tbreak;";
 			result += "\n\t}";
