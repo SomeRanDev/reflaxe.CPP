@@ -358,27 +358,6 @@ class Classes extends SubCompiler {
 	}
 
 	/**
-		Retutnrs `true` if the `ClassType` is expected to generate
-		a constructor without any arguments.
-	**/
-	public static function hasDefaultConstructor(classType: ClassType) {
-		return if(classType.constructor != null) {
-			switch(classType.constructor.get().type) {
-				case TFun(args, _): {
-					if(args.filter(a -> !a.opt).length == 0) {
-						!classType.hasMeta(Meta.DontGenerateDefaultConstructor);
-					} else {
-						false;
-					}
-				}
-				case _: throw "Impossible";
-			}
-		} else {
-			true;
-		}
-	}
-
-	/**
 		Initialize fields at the start of `compileClass`.
 	**/
 	function initFields(classType: ClassType, maybeClassRef: Null<Ref<ClassType>> = null) {
