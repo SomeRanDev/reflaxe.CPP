@@ -175,6 +175,21 @@ void Main::main() {
 
 	Main::assert(abs(float32 - 12.32) < 0.0001, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 159, "main"s));
 
+	int switchNum = 3;
+
+	switch(switchNum) {
+		case 1:
+		case 2:
+		case 3: {
+			Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 164, "main"s));
+			break;
+		}
+		default: {
+			Main::assert(false, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 165, "main"s));
+			break;
+		}
+	};
+
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
 	};

@@ -158,6 +158,13 @@ class Main {
 		final float32: cxx.num.Float32 = 12.32;
 		assert(Math.abs(float32 - 12.32) < 0.0001);
 
+		// Switch with multi-cases
+		final switchNum = 3;
+		switch(switchNum) {
+			case 1 | 2 | 3: assert(true);
+			case _: assert(false);
+		}
+
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
 		}
