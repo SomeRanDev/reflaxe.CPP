@@ -279,7 +279,10 @@ class Types extends SubCompiler {
 					}
 				}
 			}
-			case TType(defRef, [inner]) if(t.isConst()): {
+			case TType(_.get() => defType, _) if(defType.isExtern || defType.hasMeta(":extern")): {
+				compileType(defType.type, pos, asValue, dependent);
+			}
+			case TType(_, [inner]) if(t.isConst()): {
 				"const " + compileType(inner, pos, asValue, dependent);
 			}
 			case TType(defRef, params) if(t.isAnonStructOrNamedStruct()): {
@@ -500,10 +503,10 @@ class Types extends SubCompiler {
 					}
 				}
 			}
-			case TType(defRef, params) if(t.isRefOrConstRef()): {
+			case TType(_, params) if(t.isRefOrConstRef()): {
 				getMemoryManagementTypeFromType(params[0]);
 			}
-			case TType(defRef, params): {
+			case TType(_, _): {
 				getMemoryManagementTypeFromType(Compiler.getTypedefInner(t));
 			}
 			case TAnonymous(a): {
