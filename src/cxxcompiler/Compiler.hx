@@ -885,7 +885,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// ----------------------------
 	// Stores the super class's name so we can use
 	// it when calling "super" functions.
-	var superTypeName: String = "";
+	var superTypeName: Null<String> = null;
 
 	// ----------------------------
 	// Compiles a class into C++.

@@ -18,6 +18,7 @@ import reflaxe.data.ClassFuncData;
 import reflaxe.data.ClassVarData;
 import reflaxe.input.ClassHierarchyTracker;
 
+using reflaxe.helpers.ClassTypeHelper;
 using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
@@ -63,6 +64,9 @@ typedef FunctionCompileContext = {
 
 	// covariance
 	covariance: FunctionCovariantData,
+
+	// default constructor
+	defaultConstructorExpr: Null<TypedExpr>,
 
 	// pieces
 	section: String,
@@ -241,6 +245,8 @@ class Classes extends SubCompiler {
 			}
 			Main.superTypeName = TComp.compileClassName(superType, classType.pos, classType.superClass.params, true, true, true);
 			extendedFrom.push(Main.superTypeName);
+		} else {
+			Main.superTypeName = null;
 		}
 
 		for(i in classType.interfaces) {
@@ -481,6 +487,8 @@ class Classes extends SubCompiler {
 				ret: "",
 				retVal: ""
 			},
+
+			defaultConstructorExpr: null,
 
 			section: "",
 			meta: "",
@@ -820,8 +828,12 @@ class Classes extends SubCompiler {
 				body.push(frontOptionalAssigns.join("\n"));
 			}
 
+			// -----------------
+			// Get expression to compile
+			final bodyExpr = f.expr;
+
 			XComp.pushTrackLines(useCallStack);
-			body.push(Main.compileClassFuncExpr(f.expr));
+			body.push(Main.compileClassFuncExpr(bodyExpr));
 			XComp.popTrackLines();
 
 			// -----------------
@@ -951,16 +963,46 @@ class Classes extends SubCompiler {
 		}
 	}
 
+	/**
+		Returns `true` if the class currently being compiled is
+		expected to generate a second, zero-argument constructor.
+
+		In other words, it has the `@:defaultConstructor` meta.
+	**/
+	function hasExtraDefaultConstructor() {
+		return classType.hasMeta(":defaultConstructor");
+	}
+
+	/**
+		Generates the default (zero-argument) constructor.
+		
+		This is added using the `@:defaultConstructor` on a class.
+	**/
 	function generateDefaultConstructor(ctx: FunctionCompileContext, topLevel: Bool) {
-		final shouldGenDefaultConstructor = classType.hasMeta(":defaultConstructor");
-		if(shouldGenDefaultConstructor) {
+		if(hasExtraDefaultConstructor()) {
 			if(topLevel) throw "Impossible"; // Constructors should never be top level
+
+			final superCall = Main.superTypeName != null ? ': ${Main.superTypeName}()' : "";
 			final funcDeclaration = generateHeaderDecl(ctx, ctx.name, ctx.ret, "()", topLevel);
+
+			final data = classType.extractPreconstructorFieldAssignments();
+			final cpp = if(data != null) {
+				final e = data.modifiedConstructor;
+				final expr = {
+					expr: TBlock(data.expressions),
+					pos: e.pos,
+					t: e.t
+				}
+				"{\n" + Main.compileClassFuncExpr(expr).tab() + "\n}";
+			} else {
+				"{}";
+			}
+
 			if(ctx.addToCpp) {
 				addFunction(funcDeclaration + ";", ctx.section);
-				cppFunctions.push('$classNameNS${ctx.name}${ctx.covariance.name}() {}');
+				cppFunctions.push('$classNameNS${ctx.name}${ctx.covariance.name}()$superCall $cpp');
 			} else {
-				addFunction('$funcDeclaration {}', ctx.section);
+				addFunction('$funcDeclaration$superCall $cpp', ctx.section);
 			}
 		}
 	}
