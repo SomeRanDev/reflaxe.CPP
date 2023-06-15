@@ -790,7 +790,13 @@ class Expressions extends SubCompiler {
 					"this";
 				}
 			}
-			case TSuper: Main.superTypeName;
+			case TSuper: {
+				if(Main.superTypeName != null) {
+					Main.superTypeName;
+				} else {
+					originalExpr.pos.makeError(NoSuperWithoutSuperClass);
+				}
+			}
 			case _: "";
 		}
 	}

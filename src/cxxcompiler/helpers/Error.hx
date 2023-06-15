@@ -37,6 +37,7 @@ enum ErrorType {
 	InfiniteReference(stackDetails: String);
 	InitializedTypeRequiresValue;
 	CovarianceRequiresPtrLikeType;
+	NoSuperWithoutSuperClass;
 
 	// Disabled Features
 	DisallowedHaxeStd;
@@ -115,6 +116,9 @@ class Error {
 			}
 			case CovarianceRequiresPtrLikeType: {
 				"Covariance must use pointer-like type.";
+			}
+			case NoSuperWithoutSuperClass: {
+				"Cannot use `super` in class without super class.";
 			}
 
 			// Disabled Features
