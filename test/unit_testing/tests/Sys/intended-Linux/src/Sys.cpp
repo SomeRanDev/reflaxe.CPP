@@ -13,7 +13,7 @@ std::optional<std::string> Sys_GetEnv::getEnv(std::string s) {
 	char* result = std::getenv(s.c_str());
 	std::optional<std::string> tempResult;
 
-	if(result == nullptr) {
+	if((result == nullptr)) {
 		tempResult = std::nullopt;
 	} else {
 		tempResult = std::string(result);
