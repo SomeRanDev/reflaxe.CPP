@@ -10,13 +10,13 @@ extern abstract Ptr<T>(T) from T to T from Value<T> {
 	@:include("string", true)
 	public function toString(): String;
 
-	@:nativeFunctionCode("{this} == nullptr")
+	@:nativeFunctionCode("({this} == nullptr)")
 	public function isNull(): Bool;
 
-	@:nativeFunctionCode("{this} == {arg1}")
+	@:nativeFunctionCode("({this} == {arg1})")
 	public function equals<U>(other: cxx.Ptr<U>): Bool;
 
-	@:nativeFunctionCode("{this} != {arg1}")
+	@:nativeFunctionCode("({this} != {arg1})")
 	public function notEquals<U>(other: cxx.Ptr<U>): Bool;
 
 	@:nativeFunctionCode("({this}++)")
