@@ -268,6 +268,9 @@ class Expressions extends SubCompiler {
 			case TNew(classTypeRef, params, el): {
 				onModuleTypeEncountered(TClassDecl(classTypeRef), expr.pos);
 				result = compileNew(expr, TInst(classTypeRef, params), el);
+				if(topLevel && !Define.KeepUnusedLocals.defined()) {
+					result = unusedCpp(result);
+				}
 			}
 			case TUnop(op, postFix, e): {
 				result = unopToCpp(op, e, postFix);
