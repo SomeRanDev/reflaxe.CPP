@@ -49,6 +49,7 @@ enum ErrorType {
 
 	// Meta
 	UncompilableType(t: Null<haxe.macro.Type>);
+	UncompilableField;
 	CannotUseOnExternClass;
 	ConstExprMetaInvalidUse;
 	TopLevelInstanceFunction;
@@ -145,6 +146,9 @@ class Error {
 			// Meta
 			case UncompilableType(t): {
 				'Attempted to compile type $t with @:uncompilable metadata.';
+			}
+			case UncompilableField: {
+				"Attempting to compile expression using field marked with @:uncompilable metadata.";
 			}
 			case CannotUseOnExternClass: {
 				"Cannot use on extern class.";
