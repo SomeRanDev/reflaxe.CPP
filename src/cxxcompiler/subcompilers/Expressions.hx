@@ -1103,6 +1103,10 @@ class Expressions extends SubCompiler {
 			}
 		}
 
+		if(nameMeta.hasMeta(Meta.Uncompilable)) {
+			accessExpr.pos.makeError(UncompilableField);
+		}
+
 		IComp.addIncludeFromMetaAccess(nameMeta.meta, compilingInHeader);
 
 		return if(nameMeta.hasNativeMeta()) {

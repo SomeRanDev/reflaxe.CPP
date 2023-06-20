@@ -10,8 +10,8 @@ package cxxcompiler.config;
 enum abstract Meta(String) from String to String {
 	// @:uncompilable
 	//
-	// If the Reflaxe/C++ type compiler tries to compile this type,
-	// an error is thrown at the position its compiling for.
+	// If the Reflaxe/C++ type compiler tries to compile this type
+	// or field, an error is thrown at the position its compiling for.
 	var Uncompilable = ":uncompilable";
 
 	// @:headerOnly
