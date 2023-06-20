@@ -165,6 +165,10 @@ class Main {
 			case _: assert(false);
 		}
 
+		// NoAssign
+		var mValue: cxx.Value<Main> = cxx.Syntax.NoAssign(123);
+		assert(mValue.testField == 123);
+
 		if(returnCode != 0) {
 			Sys.exit(returnCode);
 		}
