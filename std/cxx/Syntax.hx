@@ -8,4 +8,7 @@ extern class Syntax {
 
 	@:nativeFunctionCode("&({arg0})")
 	public static function toPointer<T>(obj: T): cxx.Ptr<T>;
+
+	@:nativeFunctionCode("*({arg0})")
+	public static function deref(obj: cxx.Untyped): cxx.Untyped;
 }
