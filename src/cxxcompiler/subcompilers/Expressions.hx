@@ -279,7 +279,7 @@ class Expressions extends SubCompiler {
 				result = compileLocalFunction(null, expr, tfunc);
 			}
 			case TVar(tvar, maybeExpr) if(!Define.KeepUnusedLocals.defined() && tvar.meta.maybeHas("-reflaxe.unused")): {
-				if(maybeExpr != null && maybeExpr.isMutator()) {
+				if(maybeExpr != null && maybeExpr.isMutator() && maybeExpr.isStaticCall("cxx.Syntax", "NoAssign", true) == null) {
 					result = Main.compileExpression(maybeExpr);
 
 					// C++ will complain about an object being created but not assigned,
@@ -322,15 +322,23 @@ class Expressions extends SubCompiler {
 
 				result = typeCpp + " " + Main.compileVarName(tvar.name, expr);
 				if(maybeExpr != null) {
+					final isNoAssign = maybeExpr.isStaticCall("cxx.Syntax", "NoAssign", true);
 					final cpp = switch(maybeExpr.expr) {
+						case _ if(isNoAssign != null): {
+							if(isNoAssign.length == 0) {
+								"";
+							} else {
+								'(${isNoAssign.map(Main.compileExpressionOrError).join(", ")})';
+							}
+						}
 						case TFunction(tfunc): {
-							compileLocalFunction(tvar.name, expr, tfunc);
+							" = " + compileLocalFunction(tvar.name, expr, tfunc);
 						}
 						case _: {
-							compileExpressionForType(maybeExpr, t);
+							" = " + compileExpressionForType(maybeExpr, t);
 						}
 					}
-					result += " = " + cpp;
+					result += cpp;
 				} else if(t.isPtr()) {
 					result += " = nullptr";
 				}

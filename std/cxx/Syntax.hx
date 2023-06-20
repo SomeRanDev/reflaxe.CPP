@@ -5,6 +5,27 @@ package cxx;
 @:noReflaxeSanitize
 extern class Syntax {
 	/**
+		Assign this to a variable declaration to have the
+		variable be generated without a value.
+
+		A type MUST be provided.
+
+		For example:
+		```haxe
+		var a: cxx.Value<MyClass> = cxx.Syntax.NoAssign;
+		var a: cxx.Value<MyClass> = cxx.Syntax.NoAssign(123);
+		```
+
+		Converts to:
+		```cpp
+		MyClass a;
+		MyClass b(123);
+		```
+	**/
+	@:uncompilable
+	public static var NoAssign: cxx.Untyped.UntypedCallable;
+
+	/**
 		Allows for arbitrary use of `&` prefix operator in C++.
 	**/
 	@:nativeFunctionCode("&({arg0})")
