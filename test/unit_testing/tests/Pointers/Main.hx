@@ -38,8 +38,6 @@ function main() {
 	final d = cxx.Syntax.toPointer(b);
 	assert(!d.isNull());
 
-	trace(cxx.Syntax.deref(d));
-
 	if(exitCode != 0) {
 		Sys.exit(exitCode);
 	}
