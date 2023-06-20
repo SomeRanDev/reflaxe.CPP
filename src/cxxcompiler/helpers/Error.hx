@@ -48,6 +48,7 @@ enum ErrorType {
 	NoStringAddWOHaxeStd;
 
 	// Meta
+	UncompilableType(t: Null<haxe.macro.Type>);
 	CannotUseOnExternClass;
 	ConstExprMetaInvalidUse;
 	TopLevelInstanceFunction;
@@ -142,6 +143,9 @@ class Error {
 			}
 
 			// Meta
+			case UncompilableType(t): {
+				'Attempted to compile type $t with @:uncompilable metadata.';
+			}
 			case CannotUseOnExternClass: {
 				"Cannot use on extern class.";
 			}
