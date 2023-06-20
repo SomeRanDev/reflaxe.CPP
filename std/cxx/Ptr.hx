@@ -6,6 +6,11 @@ package cxx;
 @:unsafePtrType
 @:forward
 extern abstract Ptr<T>(T) from T to T from Value<T> {
+	public static var Null(get, never): Ptr<Dynamic>;
+
+	@:nativeFunctionCode("nullptr")
+	public static function get_Null(): Ptr<Dynamic>;
+
 	@:nativeFunctionCode("std::string({this})")
 	@:include("string", true)
 	public function toString(): String;
