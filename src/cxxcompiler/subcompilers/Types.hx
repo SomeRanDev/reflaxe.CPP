@@ -16,6 +16,7 @@ import haxe.macro.Type;
 
 import cxxcompiler.config.Meta;
 
+using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.NullHelper;
@@ -148,6 +149,15 @@ class Types extends SubCompiler {
 		final clsParamMt = t.getClassParameter();
 		if(clsParamMt != null) {
 			return "haxe::_class<" + compileType(TypeHelper.fromModuleType(clsParamMt), pos, true) + ">";
+		}
+
+		{
+			final mt = t.toModuleType();
+			if(mt != null) {
+				if(mt.getCommonData().hasMeta(Meta.Uncompilable)) {
+					pos.makeError(UncompilableType(t));
+				}
+			}
 		}
 
 		return switch(t) {
