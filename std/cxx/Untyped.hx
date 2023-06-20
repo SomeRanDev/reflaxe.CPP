@@ -15,3 +15,8 @@ package cxx;
 @:uncompilable
 extern abstract Untyped(Dynamic) from Dynamic to Dynamic {
 }
+
+@:uncompilable
+@:callable
+extern abstract UntypedCallable(Dynamic) from Dynamic to Dynamic {
+}
