@@ -166,7 +166,7 @@ class Main {
 		}
 
 		// NoAssign
-		var mValue: cxx.Value<Main> = cxx.Syntax.NoAssign(123);
+		var mValue: cxx.Value<Main> = cxx.Syntax.NoAssign;
 		assert(mValue.testField == 123);
 
 		if(returnCode != 0) {

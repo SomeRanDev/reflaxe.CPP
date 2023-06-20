@@ -190,7 +190,7 @@ void Main::main() {
 		}
 	};
 
-	Main mValue(123);
+	Main mValue;
 
 	Main::assert(mValue.testField == 123, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 170, "main"s));
 
