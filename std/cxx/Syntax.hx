@@ -26,5 +26,6 @@ extern class Syntax {
 		}
 		```
 	**/
+	@:noUsing
 	public static function classicFor(start: Dynamic, cond: Dynamic, inc: Dynamic, block: Dynamic): Void;
 }
