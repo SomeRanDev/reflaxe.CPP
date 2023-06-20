@@ -19,10 +19,10 @@ extern abstract Ptr<T>(T) from T to T from Value<T> {
 	public function isNull(): Bool;
 
 	@:nativeFunctionCode("({this} == {arg1})")
-	public function equals<U>(other: cxx.Ptr<U>): Bool;
+	public function addrEquals<U>(other: cxx.Ptr<U>): Bool;
 
 	@:nativeFunctionCode("({this} != {arg1})")
-	public function notEquals<U>(other: cxx.Ptr<U>): Bool;
+	public function addrNotEquals<U>(other: cxx.Ptr<U>): Bool;
 
 	@:nativeFunctionCode("({this}++)")
 	public function increment(): Void;
