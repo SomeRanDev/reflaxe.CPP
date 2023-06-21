@@ -71,5 +71,5 @@ extern class Syntax {
 		```
 	**/
 	@:noUsing
-	public static function classicFor(start: Dynamic, cond: Dynamic, inc: Dynamic, block: Dynamic): Void;
+	public static function classicFor(start: cxx.Untyped, cond: cxx.Untyped, inc: cxx.Untyped, block: cxx.Untyped): Void;
 }
