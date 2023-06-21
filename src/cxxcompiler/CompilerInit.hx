@@ -28,6 +28,7 @@ class CompilerInit {
 		#end
 
 		ReflectCompiler.AddCompiler(new Compiler(), {
+			enforceNullTyping: true,
 			fileOutputExtension: ".hpp",
 			outputDirDefineName: "cpp-output",
 			fileOutputType: FilePerClass,
