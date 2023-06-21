@@ -26,6 +26,29 @@ extern class Syntax {
 	public static var NoAssign: cxx.Untyped.UntypedCallable;
 
 	/**
+		Allows assignment to any expression.
+
+		For example, this is invalid Haxe:
+		```haxe
+		someDataStruct.get(value) = 123;
+		```
+
+		But there may be some C++ methods that return mutable
+		references that can be assigned to. So this function
+		generates C++ in the form of `EXPR = ARG` to allow this:
+		```haxe
+		using cxx.Syntax;
+
+		// ---
+
+		// Generates someDataStruct.get(value) = 123;
+		someDataStruct.get(value).assign(123);
+		```
+	**/
+	@:nativeFunctionCode("{arg0} = {arg1}")
+	public static function assign<T, U>(self: T, value: U): Void;
+
+	/**
 		Allows for arbitrary use of `&` prefix operator in C++.
 	**/
 	@:nativeFunctionCode("&({arg0})")
