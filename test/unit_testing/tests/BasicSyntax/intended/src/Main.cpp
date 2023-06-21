@@ -193,6 +193,8 @@ void Main::main() {
 	Main mValue;
 
 	Main::assert(mValue.testField == 123, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 170, "main"s));
+	mValue.testField = 321;
+	Main::assert(mValue.testField == 321, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 174, "main"s));
 
 	if(Main::returnCode != 0) {
 		exit(Main::returnCode);
