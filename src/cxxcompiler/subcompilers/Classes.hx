@@ -1105,11 +1105,12 @@ class Classes extends SubCompiler {
 		}
 
 		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilename, IComp.compileHeaderIncludes(), 1);
+		Main.appendToExtraFile(headerFilename, IComp.compileForwardDeclares(), 2);
 
 		if(classType.hasMeta(Meta.HeaderCode)) {
 			final code = classType.meta.extractStringFromFirstMeta(Meta.HeaderCode);
 			if(code != null) {
-				Main.appendToExtraFile(headerFilename, code + "\n", 2);
+				Main.appendToExtraFile(headerFilename, code + "\n", 3);
 			}
 		}
 
