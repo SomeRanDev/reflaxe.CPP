@@ -238,6 +238,7 @@ class Enums extends SubCompiler {
 
 		// Compile headers
 		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilePath, IComp.compileHeaderIncludes(), 1);
+		Main.appendToExtraFile(headerFilePath, IComp.compileForwardDeclares(), 2);
 
 		// Output class
 		var content = "";
@@ -245,7 +246,7 @@ class Enums extends SubCompiler {
 		content += declaration;
 		content += Main.compileNamespaceEnd(enumType);
 
-		Main.appendToExtraFile(headerFilePath, content + "\n", 2);
+		Main.appendToExtraFile(headerFilePath, content + "\n", 3);
 
 		// Let the reflection compiler know this enum was compiled.
 		RComp.addCompiledModuleType(Main.getCurrentModule().trustMe());

@@ -400,9 +400,13 @@ class Includes extends SubCompiler {
 	}
 
 	public function compileHeaderIncludes(): String {
-		var result = compileIncludes(headerIncludes);
+		return compileIncludes(headerIncludes);
+	}
+
+	public function compileForwardDeclares(): String {
+		var result = "";
 		if(forwardDeclares.length > 0) {
-			if(forwardDeclares.length > 0) result += "\n\n";
+			result += "\n\n";
 			result += forwardDeclares.join("\n");
 		}
 		return result;

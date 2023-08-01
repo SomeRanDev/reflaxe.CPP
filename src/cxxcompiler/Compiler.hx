@@ -1001,6 +1001,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 		// Compile headers
 		IComp.appendIncludesToExtraFileWithoutRepeats(headerFilePath, IComp.compileHeaderIncludes(), 1);
+		appendToExtraFile(headerFilePath, IComp.compileForwardDeclares(), 2);
 
 		// Output typedef
 		final name = defType.name;
@@ -1063,6 +1064,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				
 				setExtraFileIfEmpty(headerFilePath, "#pragma once");
 				IComp.appendIncludesToExtraFileWithoutRepeats(headerFilePath, IComp.compileHeaderIncludes(), 1);
+				appendToExtraFile(headerFilePath, IComp.compileForwardDeclares(), 2);
 				appendToExtraFile(headerFilePath, headerCode + "\n", 2);
 			}
 
