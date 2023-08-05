@@ -182,13 +182,17 @@ class Enums extends SubCompiler {
 			{
 				XComp.compilingInHeader = true;
 				final lines = ['case ${index}: {'];
+				#if !cxx_disable_haxe_std
 				if(hasArgs) {
 					lines.push('\tauto temp = get${o.name}();');
 					final a = args.map(a -> '${getDynToStringCpp()}(temp.${a[1]})').join(" + \", \" + ");
 					lines.push('\treturn ${XComp.stringToCpp(o.name)} + "(" + ${a} + ")";');
 				} else {
+				#end
 					lines.push('\treturn ${XComp.stringToCpp(o.name)};');
+				#if !cxx_disable_haxe_std
 				}
+				#end
 				lines.push("}");
 				XComp.compilingInHeader = false;
 
@@ -223,8 +227,15 @@ class Enums extends SubCompiler {
 		}
 
 		// toString
+		toStringCases.push("default: return \"\";".tab());
 		final toStringContent = "switch(index) {\n" + toStringCases.join("\n") + "\n}\nreturn \"\";";
-		final cppStringType = NameMetaHelper.getNativeNameOverride("String") ?? "std::string";
+		final cppStringType = NameMetaHelper.getNativeNameOverride("String") ?? (
+			#if cxx_disable_haxe_std
+			"const char*"
+			#else
+			"std::string"
+			#end
+		);
 		declaration += "\n\n" + (cppStringType + " toString() {\n" + toStringContent.tab() + "\n}").tab();
 
 		// Finish C++ class
