@@ -47,7 +47,12 @@ public:
 				auto temp = getThing();
 				return std::string("Thing") + "(" + haxe::DynamicToString(temp.obj) + ")";
 			}
+			default: return "";
 		}
 		return "";
+	}
+
+	operator bool() const {
+		return true;
 	}
 };

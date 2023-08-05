@@ -74,8 +74,13 @@ public:
 				auto temp = getCustom();
 				return std::string("Custom") + "(" + haxe::DynamicToString(temp.e) + ")";
 			}
+			default: return "";
 		}
 		return "";
+	}
+
+	operator bool() const {
+		return true;
 	}
 };
 }

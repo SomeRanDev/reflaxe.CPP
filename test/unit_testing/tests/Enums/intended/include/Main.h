@@ -67,8 +67,13 @@ public:
 				auto temp = getEntry3();
 				return std::string("Entry3") + "(" + haxe::DynamicToString(temp.s) + ")";
 			}
+			default: return "";
 		}
 		return "";
+	}
+
+	operator bool() const {
+		return true;
 	}
 };
 

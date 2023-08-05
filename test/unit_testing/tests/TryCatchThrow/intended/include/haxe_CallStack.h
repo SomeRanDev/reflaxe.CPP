@@ -112,8 +112,13 @@ public:
 				auto temp = getLocalFunction();
 				return std::string("LocalFunction") + "(" + haxe::DynamicToString(temp.v) + ")";
 			}
+			default: return "";
 		}
 		return "";
+	}
+
+	operator bool() const {
+		return true;
 	}
 };
 }
