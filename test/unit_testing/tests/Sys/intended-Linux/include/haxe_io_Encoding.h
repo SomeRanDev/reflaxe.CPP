@@ -32,8 +32,13 @@ public:
 			case 1: {
 				return std::string("RawNative");
 			}
+			default: return "";
 		}
 		return "";
+	}
+
+	operator bool() const {
+		return true;
 	}
 };
 }
