@@ -88,11 +88,14 @@ class Enums extends SubCompiler {
 		// Iterate through options
 
 		// Accumulate different declarations while iterating.
-		var constructors = [];
-		var enumArgGetters = [];
-		var unionStructs = [];
-		var structs = [];
-		var toStringCases = [];
+		final constructors = [];
+		final enumArgGetters = [];
+		final unionStructs = [];
+		final structs = [];
+		final toStringCases = [];
+		#if cxx_disable_haxe_std
+		final destructorCases = [];
+		#end
 
 		// Counts arguments added to the variant.
 		var variantIndex = 0;
@@ -130,7 +133,7 @@ class Enums extends SubCompiler {
 
 			final structName = "d" + o.name + "Impl";
 			if(hasArgs) {
-				structs.push(structName);
+				structs.push({ name: structName, index: index });
 			}
 
 			// Generate static function "constructors"
@@ -149,7 +152,13 @@ class Enums extends SubCompiler {
 				construct += "\t" + enumName + " result;\n";
 				construct += "\tresult.index = " + index + ";\n";
 				if(hasArgs) {
-					construct += "\tresult.data = " + structName + "{ " + args.map((tn) -> "_" + tn[1]).join(", ") + " };\n";
+					construct += "\tresult.data" + (
+						#if cxx_disable_haxe_std
+						"._" + index
+						#else
+						""
+						#end
+					) + " = " + structName + "{ " + args.map((tn) -> "_" + tn[1]).join(", ") + " };\n";
 				}
 
 				final tmmt = Types.getMemoryManagementTypeFromType(enumType);
@@ -164,7 +173,11 @@ class Enums extends SubCompiler {
 			if(hasArgs) {
 				var enumArgGet = "";
 				enumArgGet += structName + " get" + o.name + "() {\n";
+				#if cxx_disable_haxe_std
+				enumArgGet += "\treturn data._" + index + ";\n";
+				#else
 				enumArgGet += "\treturn std::get<" + variantIndex + ">(data);\n";
+				#end
 				enumArgGet += "}";
 				enumArgGetters.push(enumArgGet);
 			}
@@ -178,17 +191,31 @@ class Enums extends SubCompiler {
 				unionStructs.push(content.tab());
 			}
 
+			#if cxx_disable_haxe_std
+			// Generate cases for destructor
+			if(hasArgs) {
+				final lines = ['case ${index}: {'];
+				lines.push('\tdata._$index.~${structName}();');
+				lines.push("}");
+				destructorCases.push(lines.join("\n").tab());
+			}
+			#end
+
 			// Generate cases used in `toString(): String` method
 			{
 				XComp.compilingInHeader = true;
 				final lines = ['case ${index}: {'];
+				#if !cxx_disable_haxe_std
 				if(hasArgs) {
 					lines.push('\tauto temp = get${o.name}();');
 					final a = args.map(a -> '${getDynToStringCpp()}(temp.${a[1]})').join(" + \", \" + ");
 					lines.push('\treturn ${XComp.stringToCpp(o.name)} + "(" + ${a} + ")";');
 				} else {
+				#end
 					lines.push('\treturn ${XComp.stringToCpp(o.name)};');
+				#if !cxx_disable_haxe_std
 				}
+				#end
 				lines.push("}");
 				XComp.compilingInHeader = false;
 
@@ -208,11 +235,21 @@ class Enums extends SubCompiler {
 		if(requiresUnion) {
 			IComp.addInclude("variant", true, true);
 			declaration += unionStructs.join("\n\n") + "\n\n";
-			declaration += "\tstd::variant<" + structs.join(", ") + "> data;\n\n";
+			#if cxx_disable_haxe_std
+			declaration += "\tunion all_data {\n" + ('\t\tall_data() {}\n') + [for(i in 0...structs.length) '\t\t${structs[i].name} _${structs[i].index};'].join("\n") + "\n\t} data;\n\n";
+			#else
+			declaration += "\tstd::variant<" + structs.map(s -> s.name).join(", ") + "> data;\n\n";
+			#end
 		}
 		
 		// Create default constructor
 		declaration += (enumName + "() {\n\tindex = -1;\n}").tab() + "\n\n";
+
+		#if cxx_disable_haxe_std
+		// Create destructor
+		destructorCases.push("default: {}".tab());
+		declaration += ('~$enumName() {\n\tswitch(index) {\n${destructorCases.join("\n").tab()}\n\t}\n}').tab() + "\n\n";
+		#end
 
 		// Static function "constructors"
 		declaration += constructors.join("\n\n").tab();
@@ -223,9 +260,19 @@ class Enums extends SubCompiler {
 		}
 
 		// toString
+		toStringCases.push("default: return \"\";".tab());
 		final toStringContent = "switch(index) {\n" + toStringCases.join("\n") + "\n}\nreturn \"\";";
-		final cppStringType = NameMetaHelper.getNativeNameOverride("String") ?? "std::string";
+		final cppStringType = NameMetaHelper.getNativeNameOverride("String") ?? (
+			#if cxx_disable_haxe_std
+			"const char*"
+			#else
+			"std::string"
+			#end
+		);
 		declaration += "\n\n" + (cppStringType + " toString() {\n" + toStringContent.tab() + "\n}").tab();
+
+		// operator bool
+		declaration += "\n\n" + "operator bool() const {\n\treturn true;\n}".tab();
 
 		// Finish C++ class
 		declaration += "\n};";
