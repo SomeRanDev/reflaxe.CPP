@@ -1118,6 +1118,14 @@ class Expressions extends SubCompiler {
 		IComp.addIncludeFromMetaAccess(nameMeta.meta, compilingInHeader);
 
 		return if(nameMeta.hasNativeMeta()) {
+			// If this field is of a non-extern module type, let's encounter it.
+			switch(fa) {
+				case FInstance(clsRef, _, _) | FStatic(clsRef, _) if(!clsRef.get().isExtern): {
+					onModuleTypeEncountered(TClassDecl(clsRef), accessExpr.pos);
+				}
+				case _:
+			}
+
 			// @:native
 			nameMeta.getNameOrNative();
 		} else {
