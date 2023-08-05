@@ -238,6 +238,9 @@ class Enums extends SubCompiler {
 		);
 		declaration += "\n\n" + (cppStringType + " toString() {\n" + toStringContent.tab() + "\n}").tab();
 
+		// operator bool
+		declaration += "\n\n" + "operator bool() const {\n\treturn true;\n}".tab();
+
 		// Finish C++ class
 		declaration += "\n};";
 

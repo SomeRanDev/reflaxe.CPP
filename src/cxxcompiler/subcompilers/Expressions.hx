@@ -170,21 +170,32 @@ class Expressions extends SubCompiler {
 			case TArray(e1, e2): {
 				result = compileExpressionNotNullAsValue(e1) + "[" + compileExpressionNotNull(e2) + "]";
 			}
-			// TODO
-			// TODO
-			// TODO: make sure this cannot occur on types that are not nullable
 			case TBinop(op, { expr: TConst(TNull) }, nullCompExpr) |
 			     TBinop(op, nullCompExpr, { expr: TConst(TNull) })
-				 if(op == OpEq || op == OpNotEq): {
+				 if(op == OpEq || op == OpNotEq):
+			{
 				result = Main.compileExpression(nullCompExpr);
-				switch(op) {
-					case OpNotEq: {
-						result += ".has_value()";
+
+				if(!Main.getExprType(nullCompExpr).isNull()) {
+					// The type is non-nullable, so we'll just use the bool operator instead.
+					switch(op) {
+						case OpNotEq: {}
+						case OpEq: {
+							result = "!" + result;
+						}
+						case _: {}
 					}
-					case OpEq: {
-						result = "!" + result + ".has_value()";
+				} else {
+					// The type is nullable, so we can use std::optional methods.
+					switch(op) {
+						case OpNotEq: {
+							result += ".has_value()";
+						}
+						case OpEq: {
+							result = "!" + result + ".has_value()";
+						}
+						case _: {}
 					}
-					case _: {}
 				}
 			}
 			case TBinop(op, e1, e2): {
