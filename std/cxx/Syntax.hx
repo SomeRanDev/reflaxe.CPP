@@ -67,6 +67,13 @@ extern class Syntax {
 	public static function delete(obj: cxx.Untyped): cxx.Untyped;
 
 	/**
+		Bypass Haxe's typer and treat the object as a `bool` to use
+		its C++ `operator bool()` function.
+	**/
+	@:nativeFunctionCode("({arg0})")
+	public static function boolOp(obj: cxx.Untyped): Bool;
+
+	/**
 		Generates a C for loop.
 
 		The arguments are filled in like this:
