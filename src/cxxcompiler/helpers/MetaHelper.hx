@@ -9,10 +9,16 @@ package cxxcompiler.helpers;
 
 #if (macro || cxx_runtime)
 
+import haxe.macro.Expr;
+import haxe.macro.Type;
+
 import cxxcompiler.config.Meta;
 
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
+using reflaxe.helpers.TypeHelper;
+
+using cxxcompiler.helpers.Error;
 
 // An enum for memory management types.
 enum MemoryManagementType {
@@ -66,6 +72,37 @@ class MetaHelper {
 
 	public static function hasMemoryManagementType(meta: NameAndMeta): Bool {
 		return meta.hasMeta(Meta.ValueType) || meta.hasMeta(Meta.UnsafePtrType) || meta.hasMeta(ValueType.UniquePtrType) || meta.hasMeta(ValueType.SharedPtrType);
+	}
+
+	public static function applyPassConstTypeParam(type: Type, meta: Array<MetadataEntry>, pos: Position) {
+		final params = type.getParams();
+		final exprReplaceMap: Map<Int, haxe.macro.Expr> = [];
+		for(entry in meta) {
+			if(entry.params.length < 2) {
+				entry.pos.makeError(ErrorType.InvalidPassConstTypeParam);
+			}
+			final index = switch(entry.params[1].expr) {
+				case EConst(CInt(v, _)): Std.parseInt(v);
+				case _: entry.pos.makeError(ErrorType.InvalidPassConstTypeParamIndex);
+			}
+			if(index < 0 || index >= params.length) {
+				entry.pos.makeError(ErrorType.PassConstTypeParamIndexOutsideRange);
+			}
+			if(exprReplaceMap.exists(index)) {
+				entry.pos.makeError(ErrorType.DuplicatePassConstTypeParam);
+			}
+			exprReplaceMap.set(index, entry.params[0]);
+		}
+
+		for(i in exprReplaceMap.keys()) {
+			if(i < 0 || i >= params.length) throw "Impossible";
+			switch(params[i]) {
+				case TInst(_.get() => { kind: KExpr(_), meta: meta }, _) : {
+					meta.add(Meta.OverwriteKExpr, [exprReplaceMap.get(i)], pos);
+				}
+				case _:
+			}
+		};
 	}
 }
 

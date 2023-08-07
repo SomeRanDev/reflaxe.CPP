@@ -57,7 +57,12 @@ enum ErrorType {
 	MainPrependOnNonStatic;
 	MainPrependWrongArguments;
 	InvalidCStr;
+	InvalidAlloc;
 	UnsupportedRequireMMT;
+	InvalidPassConstTypeParam;
+	InvalidPassConstTypeParamIndex;
+	PassConstTypeParamIndexOutsideRange;
+	DuplicatePassConstTypeParam;
 
 	// Memory Management Conversion
 	UnsafeToShared;
@@ -171,8 +176,23 @@ class Error {
 			case InvalidCStr: {
 				"Invalid use of @:cstr. Must be used on a constant String expresszion.";
 			}
+			case InvalidAlloc: {
+				"Invalid use of @:alloc. Must be used on a \"new Type(...)\" expression.";
+			}
 			case UnsupportedRequireMMT: {
 				"UnsafePtr and SharedPtr are the only arguments supported at the moment.";
+			}
+			case InvalidPassConstTypeParam: {
+				"@:passConstTypeParam must be used on variable declaration and contain two arguments: ([expression], [the index of the type parameter it will replace]).";
+			}
+			case InvalidPassConstTypeParamIndex: {
+				"The second argument of @:passConstTypeParam must be an Int.";
+			}
+			case PassConstTypeParamIndexOutsideRange: {
+				"@:passConstTypeParam provided index outside the range of type parameters.";
+			}
+			case DuplicatePassConstTypeParam: {
+				"A @:passConstTypeParam replacing this index already exists.";
 			}
 
 			// Memory Management Conversion

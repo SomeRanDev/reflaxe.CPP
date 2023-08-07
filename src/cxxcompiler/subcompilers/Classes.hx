@@ -229,8 +229,31 @@ class Classes extends SubCompiler {
 
 		// Template generics
 		if(classType.params.length > 0) {
+			// Generic classes must be header-only in C++
 			headerOnly = true;
-			headerContent[0] += "template<" + classType.params.map(p -> "typename " + p.name).join(", ") + ">\n";
+
+			// Compile the parameters ["TYPE NAME", ...]
+			final templateParams = [];
+			for(param in classType.params) {
+				final paramType = switch(param.t) {
+					// Check if this is a @:const type param.
+					// If so, let's translate it into a C++ constant type param.
+					case TInst(_.get() => { kind: KTypeParameter(constraints), meta: meta, pos: pos }, _) if(meta.has(":const")): {
+						if(constraints.length != 1) {
+							// If there are no constraits OR multiple constraits, let C++ infer the type.
+							"auto";
+						} else {
+							// Use the constrait as the template type.
+							TComp.compileType(constraints[0], pos, true, true);
+						}
+					}
+					case _: "typename";
+				}
+				templateParams.push('$paramType ${param.name}');
+			}
+			
+			// Generate the template layout
+			headerContent[0] += "template<" + templateParams.join(", ") + ">\n";
 		}
 
 		// Class declaration
@@ -436,6 +459,10 @@ class Classes extends SubCompiler {
 		}
 
 		Main.onTypeEncountered(field.type, true, field.pos);
+
+		if(field.hasMeta(Meta.PassConstTypeParam)) {
+			MetaHelper.applyPassConstTypeParam(field.type, field.meta.maybeExtract(Meta.PassConstTypeParam), field.pos);
+		}
 
 		final type = TComp.compileType(field.type, field.pos, false, true);
 

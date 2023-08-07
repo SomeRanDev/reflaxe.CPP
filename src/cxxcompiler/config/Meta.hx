@@ -410,4 +410,18 @@ enum abstract Meta(String) from String to String {
 	// This is to bypass issues with Haxe's DCE not generating iterators
 	// if they could not have possibly been used.
 	var RequireReturnTypeHasConstructor = ":requireReturnTypeHasConstructor";
+
+	// @:passConstTypeParam(expression: Dynamic, index: Int)
+	//
+	// Used on a class field or variable expression to replace a @:const
+	// type parameter on the field's type with a new expression.
+	//
+	// Can be used to transfer the value from the containing class's @:const
+	// parameter to the field's or variable's type.
+	var PassConstTypeParam = ":passConstTypeParam";
+
+	// Internal metadata. Cannot be used directly
+	//
+	// Used with @:passConstTypeParam to mark KExpr classes to be overwritten.
+	var OverwriteKExpr = "-overwriteKExpr";
 }
