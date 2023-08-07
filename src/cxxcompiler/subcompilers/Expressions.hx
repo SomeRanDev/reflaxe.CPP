@@ -1713,6 +1713,15 @@ class Expressions extends SubCompiler {
 					case _: metaEntry.pos.makeError(InvalidAlloc);
 				}
 			}
+			case ":passConstTypeParam" /* Meta.PassConstTypeParam */: {
+				switch(internalExpr.expr) {
+					case TVar(tvar, _): {
+						MetaHelper.applyPassConstTypeParam(Main.getTVarType(tvar), [metaEntry], metaEntry.pos);
+						null;
+					}
+					case _: metaEntry.pos.makeError(InvalidPassConstTypeParam);
+				}
+			}
 			case _: null;
 		}
 	}

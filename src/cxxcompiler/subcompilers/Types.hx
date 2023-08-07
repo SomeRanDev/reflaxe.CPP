@@ -171,7 +171,7 @@ class Types extends SubCompiler {
 			case TEnum(enumRef, params): {
 				compileEnumName(enumRef, pos, params, true, asValue, dependent);
 			}
-			#if (cxx_disable_haxe_std || display)
+			#if cxx_disable_haxe_std
 			case TInst(_.get() => { name: "String", module: "String" }, []): {
 				return "const char*";
 			}
@@ -179,6 +179,19 @@ class Types extends SubCompiler {
 			case TInst(clsRef, params): {
 				switch(clsRef.get().kind) {
 					case KExpr(e): {
+						// Check for overwrite
+						final meta = clsRef.get().meta;
+						if(meta.maybeHas(Meta.OverwriteKExpr)) {
+							final overwrites = meta.maybeExtract(Meta.OverwriteKExpr);
+							if(overwrites.length > 0) {
+								final params = overwrites[0].params;
+								if(params != null && params.length > 0) {
+									e = params[0] ?? e;
+								}
+							}
+						}
+
+						// Compile and return untyped expression
 						return haxe.macro.ExprTools.toString(e);
 					}
 					case _:
