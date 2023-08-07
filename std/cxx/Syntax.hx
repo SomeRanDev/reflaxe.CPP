@@ -61,6 +61,12 @@ extern class Syntax {
 	public static function deref(obj: cxx.Untyped): cxx.Untyped;
 
 	/**
+		Uses `delete` operator on the argument.
+	**/
+	@:nativeFunctionCode("delete ({arg0})")
+	public static function delete(obj: cxx.Untyped): cxx.Untyped;
+
+	/**
 		Generates a C for loop.
 
 		The arguments are filled in like this:
