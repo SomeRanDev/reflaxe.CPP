@@ -64,7 +64,7 @@ extern class Syntax {
 		Uses `delete` operator on the argument.
 	**/
 	@:nativeFunctionCode("delete ({arg0})")
-	public static function delete(obj: cxx.Untyped): cxx.Untyped;
+	public static function delete(obj: cxx.Untyped): Void;
 
 	/**
 		Bypass Haxe's typer and treat the object as a `bool` to use
