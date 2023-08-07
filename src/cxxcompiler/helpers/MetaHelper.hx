@@ -75,15 +75,20 @@ class MetaHelper {
 	}
 
 	public static function applyPassConstTypeParam(type: Type, meta: Array<MetadataEntry>, pos: Position) {
-		final params = type.getParams();
+		final params = type.getParams() ?? [];
 		final exprReplaceMap: Map<Int, haxe.macro.Expr> = [];
 		for(entry in meta) {
-			if(entry.params.length < 2) {
+			final metaArgs = entry.params;
+			if(metaArgs == null || metaArgs.length < 2) {
 				entry.pos.makeError(ErrorType.InvalidPassConstTypeParam);
+				return;
 			}
-			final index = switch(entry.params[1].expr) {
-				case EConst(CInt(v, _)): Std.parseInt(v);
-				case _: entry.pos.makeError(ErrorType.InvalidPassConstTypeParamIndex);
+			final index: Int = switch(metaArgs[1].expr) {
+				case EConst(CInt(v, _)): Std.parseInt(v) ?? -1;
+				case _: {
+					entry.pos.makeError(ErrorType.InvalidPassConstTypeParamIndex);
+					return;
+				}
 			}
 			if(index < 0 || index >= params.length) {
 				entry.pos.makeError(ErrorType.PassConstTypeParamIndexOutsideRange);
@@ -91,14 +96,17 @@ class MetaHelper {
 			if(exprReplaceMap.exists(index)) {
 				entry.pos.makeError(ErrorType.DuplicatePassConstTypeParam);
 			}
-			exprReplaceMap.set(index, entry.params[0]);
+			exprReplaceMap.set(index, metaArgs[0]);
 		}
 
 		for(i in exprReplaceMap.keys()) {
 			if(i < 0 || i >= params.length) throw "Impossible";
 			switch(params[i]) {
 				case TInst(_.get() => { kind: KExpr(_), meta: meta }, _) : {
-					meta.add(Meta.OverwriteKExpr, [exprReplaceMap.get(i)], pos);
+					final expr = exprReplaceMap.get(i);
+					if(expr != null) {
+						meta.add(Meta.OverwriteKExpr, [expr], pos);
+					}
 				}
 				case _:
 			}
