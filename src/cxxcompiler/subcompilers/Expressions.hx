@@ -1707,6 +1707,12 @@ class Expressions extends SubCompiler {
 					case _: metaEntry.pos.makeError(InvalidCStr);
 				}
 			}
+			case ":alloc": {
+				switch(internalExpr.expr) {
+					case TNew(classTypeRef, params, el): compileNew(internalExpr, TInst(classTypeRef, params), el, UnsafePtr);
+					case _: metaEntry.pos.makeError(InvalidAlloc);
+				}
+			}
 			case _: null;
 		}
 	}

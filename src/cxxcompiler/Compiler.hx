@@ -455,6 +455,13 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				}
 			}
 
+			case TMeta({ name: ":alloc" }, e): {
+				switch(e.expr) {
+					case TNew(_, _, _): TAbstract(getPtrType(), [e.t]);
+					case _: e.t;
+				}
+			}
+
 			// Return the typed expression's type otherwise.
 			case _: e.t;
 		}
