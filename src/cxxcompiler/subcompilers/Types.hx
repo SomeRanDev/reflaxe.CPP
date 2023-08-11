@@ -177,8 +177,9 @@ class Types extends SubCompiler {
 			}
 			#end
 			case TInst(clsRef, params): {
-				switch(clsRef.get().kind) {
-					case KExpr(e): {
+				switch(clsRef.get()) {
+					// Compile @:const parameter
+					case { kind: KExpr(e) }: {
 						// Check for overwrite
 						final meta = clsRef.get().meta;
 						if(meta.maybeHas(Meta.OverwriteKExpr)) {
@@ -194,8 +195,18 @@ class Types extends SubCompiler {
 						// Compile and return untyped expression
 						return haxe.macro.ExprTools.toString(e);
 					}
+					// Compile `cxx.CppType`
+					case { name: "CppType", pack: ["cxx"] } if(params.length == 1): {
+						switch(params[0]) {
+							case TInst(_.get() => { kind: KExpr({ expr: EConst(CString(s, _)) }) }, _): {
+								return s;
+							}
+							case _:
+						}
+					}
 					case _:
 				}
+
 				compileClassName(clsRef, pos, params, true, asValue, dependent);
 			}
 			case TFun(args, ret): {
