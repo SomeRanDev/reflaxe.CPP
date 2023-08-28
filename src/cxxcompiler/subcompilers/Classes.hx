@@ -450,7 +450,8 @@ class Classes extends SubCompiler {
 	function compileVar(v: ClassVarData) {
 		final field = v.field;
 		final isStatic = v.isStatic;
-		final addToCpp = !headerOnly && isStatic;
+		final isConstexpr = field.hasMeta(Meta.ConstExpr);
+		final addToCpp = !headerOnly && !isConstexpr && isStatic;
 		final varName = Main.compileVarName(field.name, null, field);
 		final e = field.expr();
 		final cppVal = if(e != null) {
@@ -480,9 +481,27 @@ class Classes extends SubCompiler {
 		if(!isExtern) {
 			if(dep != null) dep.assertCanUseInHeader(field.type, field.pos);
 
-			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
+			// Do I need this? Might be more organized to just compile here.
+			// final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
+
+			// Find all attributes
+			final attributes = [];
+			if(field.hasMeta(Meta.Const)) {
+				if(isConstexpr) field.pos.makeError(ConstExprIncompatibleWithConst);
+				attributes.push("const");
+			} else if(isConstexpr) {
+				attributes.push("constexpr");
+			}
+			if(isStatic) {
+				attributes.push("static");
+			}
+
+			// Join attributes together if they exist
+			final prefix = attributes.length > 0 ? (attributes.join(" ") + " ") : "";
+
+			// Generate variable C++
 			final assign = (cppVal.length == 0 ? "" : (" = " + cppVal));
-			var decl = (meta ?? "") + (isStatic ? "static " : "") + type + " " + varName;
+			var decl = prefix + type + " " + varName;
 			if(!addToCpp) {
 				decl += assign;
 			}
