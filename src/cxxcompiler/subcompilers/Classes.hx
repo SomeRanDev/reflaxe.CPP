@@ -260,18 +260,30 @@ class Classes extends SubCompiler {
 		final classNamePrefix = classType.meta.extractStringFromFirstMeta(Meta.ClassNamePrefix);
 		headerContent[0] += "class " + (classNamePrefix != null ? (classNamePrefix + " ") : "") + className;
 
+		// Super class
 		if(classType.superClass != null) {
 			final superType = classType.superClass.t;
+
+			// @:passConstTypeParam for super class
+			if(classType.hasMeta(Meta.PassConstTypeParam)) {
+				final superTypeType = TInst(superType, classType.superClass.params);
+				MetaHelper.applyPassConstTypeParam(superTypeType, classType.meta.maybeExtract(Meta.PassConstTypeParam), classType.pos);
+			}
+
+			// Encounter super type and its params
 			Main.onModuleTypeEncountered(TClassDecl(superType), true, classType.pos);
 			for(p in classType.superClass.params) {
 				Main.onTypeEncountered(p, true, classType.pos);
 			}
+
+			// Compile super type
 			Main.superTypeName = TComp.compileClassName(superType, classType.pos, classType.superClass.params, true, true, true);
 			extendedFrom.push(Main.superTypeName);
 		} else {
 			Main.superTypeName = null;
 		}
 
+		// Interfaces
 		for(i in classType.interfaces) {
 			final interfaceType = i.t;
 			Main.onModuleTypeEncountered(TClassDecl(interfaceType), true, classType.pos);
@@ -280,7 +292,6 @@ class Classes extends SubCompiler {
 			}
 			extendedFrom.push(TComp.compileClassName(interfaceType, classType.pos, i.params, true, true, true));
 		}
-
 
 		// Normally, "extendedFrom" would be used here to setup all the extended classes.
 		// However, some additional extendedFrom classes may be required based on the compiled expressions.
@@ -439,7 +450,8 @@ class Classes extends SubCompiler {
 	function compileVar(v: ClassVarData) {
 		final field = v.field;
 		final isStatic = v.isStatic;
-		final addToCpp = !headerOnly && isStatic;
+		final isConstexpr = field.hasMeta(Meta.ConstExpr);
+		final addToCpp = !headerOnly && !isConstexpr && isStatic;
 		final varName = Main.compileVarName(field.name, null, field);
 		final e = field.expr();
 		final cppVal = if(e != null) {
@@ -469,9 +481,27 @@ class Classes extends SubCompiler {
 		if(!isExtern) {
 			if(dep != null) dep.assertCanUseInHeader(field.type, field.pos);
 
-			final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
+			// Do I need this? Might be more organized to just compile here.
+			// final meta = Main.compileMetadata(field.meta, MetadataTarget.ClassField);
+
+			// Find all attributes
+			final attributes = [];
+			if(field.hasMeta(Meta.Const)) {
+				if(isConstexpr) field.pos.makeError(ConstExprIncompatibleWithConst);
+				attributes.push("const");
+			} else if(isConstexpr) {
+				attributes.push("constexpr");
+			}
+			if(isStatic) {
+				attributes.push("static");
+			}
+
+			// Join attributes together if they exist
+			final prefix = attributes.length > 0 ? (attributes.join(" ") + " ") : "";
+
+			// Generate variable C++
 			final assign = (cppVal.length == 0 ? "" : (" = " + cppVal));
-			var decl = (meta ?? "") + (isStatic ? "static " : "") + type + " " + varName;
+			var decl = prefix + type + " " + varName;
 			if(!addToCpp) {
 				decl += assign;
 			}

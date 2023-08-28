@@ -186,10 +186,10 @@ enum abstract Meta(String) from String to String {
 	// Adds the const specifier to the field or expression.
 	var Const = ":const";
 
-	// @:constExpr
+	// @:constexpr
 	//
 	// Adds the constexpr specifier to the field or expression.
-	var ConstExpr = ":constExpr";
+	var ConstExpr = ":constexpr";
 
 	// @:cppInline
 	//

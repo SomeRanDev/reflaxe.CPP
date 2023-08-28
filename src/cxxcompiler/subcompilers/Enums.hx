@@ -196,6 +196,7 @@ class Enums extends SubCompiler {
 			if(hasArgs) {
 				final lines = ['case ${index}: {'];
 				lines.push('\tdata._$index.~${structName}();');
+				lines.push('\tbreak;');
 				lines.push("}");
 				destructorCases.push(lines.join("\n").tab());
 			}
@@ -236,7 +237,7 @@ class Enums extends SubCompiler {
 			IComp.addInclude("variant", true, true);
 			declaration += unionStructs.join("\n\n") + "\n\n";
 			#if cxx_disable_haxe_std
-			declaration += "\tunion all_data {\n" + ('\t\tall_data() {}\n') + [for(i in 0...structs.length) '\t\t${structs[i].name} _${structs[i].index};'].join("\n") + "\n\t} data;\n\n";
+			declaration += "\tunion all_data {\n" + ('\t\tall_data() {}\n\t\t~all_data() {}\n') + [for(i in 0...structs.length) '\t\t${structs[i].name} _${structs[i].index};'].join("\n") + "\n\t} data;\n\n";
 			#else
 			declaration += "\tstd::variant<" + structs.map(s -> s.name).join(", ") + "> data;\n\n";
 			#end

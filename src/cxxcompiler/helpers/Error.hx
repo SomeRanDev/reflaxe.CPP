@@ -52,6 +52,7 @@ enum ErrorType {
 	UncompilableField;
 	CannotUseOnExternClass;
 	ConstExprMetaInvalidUse;
+	ConstExprIncompatibleWithConst;
 	TopLevelInstanceFunction;
 	TopLevelConstructor;
 	MainPrependOnNonStatic;
@@ -159,7 +160,10 @@ class Error {
 				"Cannot use on extern class.";
 			}
 			case ConstExprMetaInvalidUse: {
-				"Invalid use of @:constexpr. Must be used with if statement.";
+				"Invalid use of @:constexpr on expression. Must be used with if statement or variable declaration.";
+			}
+			case ConstExprIncompatibleWithConst: {
+				"Cannot use both @:constexpr and @:const.";
 			}
 			case TopLevelInstanceFunction: {
 				"Invalid use of @:topLevel. Can only be used on static fields.";

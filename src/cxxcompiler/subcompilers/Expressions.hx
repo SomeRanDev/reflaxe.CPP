@@ -310,49 +310,7 @@ class Expressions extends SubCompiler {
 				}
 			}
 			case TVar(tvar, maybeExpr): {
-				Main.determineTVarType(tvar, maybeExpr);
-				final t = Main.getTVarType(tvar);
-				Main.onTypeEncountered(t, compilingInHeader, expr.pos);
-
-				if(t.requiresValue() && maybeExpr == null) {
-					expr.pos.makeError(InitializedTypeRequiresValue);
-				}
-
-				final typeCpp = if(t.isUnresolvedMonomorph()) {
-					// TODO: Why use std::any instead of auto?
-					// I must have originally made this resolve to Any for a reason?
-					// But Haxe's Any will only apply if explicitly typed as Any.
-					//
-					//IComp.addInclude("any", compilingInHeader, true);
-					//"std::any";
-
-					"auto";
-				} else {
-					TComp.compileType(t, expr.pos);
-				}
-
-				result = typeCpp + " " + Main.compileVarName(tvar.name, expr);
-				if(maybeExpr != null) {
-					final isNoAssign = maybeExpr.isStaticCall("cxx.Syntax", "NoAssign", true);
-					final cpp = switch(maybeExpr.expr) {
-						case _ if(isNoAssign != null): {
-							if(isNoAssign.length == 0) {
-								"";
-							} else {
-								'(${isNoAssign.map(Main.compileExpressionOrError).join(", ")})';
-							}
-						}
-						case TFunction(tfunc): {
-							" = " + compileLocalFunction(tvar.name, expr, tfunc);
-						}
-						case _: {
-							" = " + compileExpressionForType(maybeExpr, t);
-						}
-					}
-					result += cpp;
-				} else if(t.isPtr()) {
-					result += " = nullptr";
-				}
+				result = compileLocalVariable(tvar, maybeExpr, expr, false);
 			}
 			case TBlock(_): {
 				result = "{\n";
@@ -1058,7 +1016,15 @@ class Expressions extends SubCompiler {
 		return isPostfix ? (cppExpr + operatorStr) : (operatorStr + cppExpr);
 	}
 
+	/**
+		Used exclusively in `compileLocalFunction` to track the
+		local function stack.
+	**/
 	var localFunctionStack: Array<String> = [];
+
+	/**
+		Compiles a `TFunction` `TypedExprDef`.
+	**/
 	function compileLocalFunction(name: Null<String>, expr: TypedExpr, tfunc: TFunc): String {
 		IComp.addInclude("functional", compilingInHeader, true);
 		final captureType = compilingForTopLevel ? "" : "&";
@@ -1085,6 +1051,70 @@ class Expressions extends SubCompiler {
 		return result;
 	}
 
+	/**
+		Compiles a `TVar` `TypedExprDef`.
+	**/
+	function compileLocalVariable(tvar: TVar, maybeExpr: Null<TypedExpr>, originalExpr: TypedExpr, constexpr: Bool) {
+		Main.determineTVarType(tvar, maybeExpr);
+		final t = Main.getTVarType(tvar);
+		Main.onTypeEncountered(t, compilingInHeader, originalExpr.pos);
+
+		if(t.requiresValue() && maybeExpr == null) {
+			originalExpr.pos.makeError(InitializedTypeRequiresValue);
+		}
+
+		final typeCpp = if(t.isUnresolvedMonomorph()) {
+			// TODO: Why use std::any instead of auto?
+			// I must have originally made this resolve to Any for a reason?
+			// But Haxe's Any will only apply if explicitly typed as Any.
+			//
+			//IComp.addInclude("any", compilingInHeader, true);
+			//"std::any";
+
+			"auto";
+		} else {
+			TComp.compileType(t, originalExpr.pos);
+		}
+
+		// Generate attributes for the local variable
+		final attributes = [];
+		if(constexpr) {
+			attributes.push("constexpr");
+		}
+		final prefix = attributes.length > 0 ? (attributes.join(" ") + " ") : "";
+
+		// Generate variable declaration
+		var result = prefix + typeCpp + " " + Main.compileVarName(tvar.name, originalExpr);
+
+		// Generate expression assignment if it exists
+		if(maybeExpr != null) {
+			final isNoAssign = maybeExpr.isStaticCall("cxx.Syntax", "NoAssign", true);
+			final cpp = switch(maybeExpr.expr) {
+				case _ if(isNoAssign != null): {
+					if(isNoAssign.length == 0) {
+						"";
+					} else {
+						'(${isNoAssign.map(Main.compileExpressionOrError).join(", ")})';
+					}
+				}
+				case TFunction(tfunc): {
+					" = " + compileLocalFunction(tvar.name, originalExpr, tfunc);
+				}
+				case _: {
+					" = " + compileExpressionForType(maybeExpr, t);
+				}
+			}
+			result += cpp;
+		} else if(t.isPtr()) {
+			result += " = nullptr";
+		}
+
+		return result;
+	}
+
+	/**
+		Checks if the `TypedExpr` is a representation of `this`.
+	**/
 	function isThisExpr(te: TypedExpr): Bool {
 		return switch(te.expr) {
 			case TConst(TThis) if(thisOverride == null): {
@@ -1099,6 +1129,10 @@ class Expressions extends SubCompiler {
 		}
 	}
 
+	/**
+		Checks if the `haxe.macro.Type` should use the arrow operator
+		for dot-access by default.
+	**/
 	function isArrowAccessType(t: Type): Bool {
 		final ut = t.unwrapNullTypeOrSelf();
 		final mmt = Types.getMemoryManagementTypeFromType(ut);
@@ -1698,6 +1732,7 @@ class Expressions extends SubCompiler {
 			case ":constexpr": {
 				switch(internalExpr.expr) {
 					case TIf(econd, eif, eelse): compileIf(econd, eif, eelse, true);
+					case TVar(tvar, maybeExpr): compileLocalVariable(tvar, maybeExpr, internalExpr, true);
 					case _: metaEntry.pos.makeError(ConstExprMetaInvalidUse);
 				}
 			}
