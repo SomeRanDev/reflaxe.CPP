@@ -83,10 +83,13 @@ void Main::oneTwoThree(std::shared_ptr<haxe::_Rest::NativeRest<int>> numbers) {
 
 	while(_g_current < (int)(_g_args->size())) {
 		int tempNumber;
-		std::shared_ptr<haxe::_Rest::NativeRest<int>> this1 = _g_args;
-		int index = _g_current++;
 
-		tempNumber = (*this1)[index];
+		{
+			std::shared_ptr<haxe::_Rest::NativeRest<int>> this1 = _g_args;
+			int index = _g_current++;
+
+			tempNumber = (*this1)[index];
+		};
 
 		int a = tempNumber;
 

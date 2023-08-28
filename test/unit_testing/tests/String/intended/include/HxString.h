@@ -33,9 +33,12 @@ public:
 
 			while(_g < _g1) {
 				_g++;
-				std::string x = s.substr(pos++, 1);
 
-				result->push_back(x);
+				{
+					std::string x = s.substr(pos++, 1);
+
+					result->push_back(x);
+				};
 			};
 
 			return result;
