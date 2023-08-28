@@ -260,18 +260,30 @@ class Classes extends SubCompiler {
 		final classNamePrefix = classType.meta.extractStringFromFirstMeta(Meta.ClassNamePrefix);
 		headerContent[0] += "class " + (classNamePrefix != null ? (classNamePrefix + " ") : "") + className;
 
+		// Super class
 		if(classType.superClass != null) {
 			final superType = classType.superClass.t;
+
+			// @:passConstTypeParam for super class
+			if(classType.hasMeta(Meta.PassConstTypeParam)) {
+				final superTypeType = TInst(superType, classType.superClass.params);
+				MetaHelper.applyPassConstTypeParam(superTypeType, classType.meta.maybeExtract(Meta.PassConstTypeParam), classType.pos);
+			}
+
+			// Encounter super type and its params
 			Main.onModuleTypeEncountered(TClassDecl(superType), true, classType.pos);
 			for(p in classType.superClass.params) {
 				Main.onTypeEncountered(p, true, classType.pos);
 			}
+
+			// Compile super type
 			Main.superTypeName = TComp.compileClassName(superType, classType.pos, classType.superClass.params, true, true, true);
 			extendedFrom.push(Main.superTypeName);
 		} else {
 			Main.superTypeName = null;
 		}
 
+		// Interfaces
 		for(i in classType.interfaces) {
 			final interfaceType = i.t;
 			Main.onModuleTypeEncountered(TClassDecl(interfaceType), true, classType.pos);
@@ -280,7 +292,6 @@ class Classes extends SubCompiler {
 			}
 			extendedFrom.push(TComp.compileClassName(interfaceType, classType.pos, i.params, true, true, true));
 		}
-
 
 		// Normally, "extendedFrom" would be used here to setup all the extended classes.
 		// However, some additional extendedFrom classes may be required based on the compiled expressions.
