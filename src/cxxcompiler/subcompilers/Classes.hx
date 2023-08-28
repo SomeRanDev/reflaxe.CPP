@@ -486,9 +486,12 @@ class Classes extends SubCompiler {
 
 			// Find all attributes
 			final attributes = [];
-			if(field.hasMeta(Meta.Const)) {
+			final cppAttributes = [];
+			final isConst = field.hasMeta(Meta.Const);
+			if(isConst) {
 				if(isConstexpr) field.pos.makeError(ConstExprIncompatibleWithConst);
 				attributes.push("const");
+				cppAttributes.push("const");
 			} else if(isConstexpr) {
 				attributes.push("constexpr");
 			}
@@ -509,7 +512,8 @@ class Classes extends SubCompiler {
 			addVariable(decl + ";", section ?? "public");
 
 			if(addToCpp) {
-				cppVariables.push(type + " " + classNameNS + varName + assign + ";");
+				final cppPrefix = cppAttributes.length > 0 ? (cppAttributes.join(" ") + " ") : "";
+				cppVariables.push(cppPrefix + type + " " + classNameNS + varName + assign + ";");
 			}
 		}
 
