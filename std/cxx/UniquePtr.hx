@@ -16,4 +16,8 @@ extern abstract UniquePtr<T>(T) from T to T {
 
 	@:nativeFunctionCode("({this}.reset({arg1}))")
 	public overload function reset(other: cxx.Ptr<T>): Void;
+
+	@:from
+    @:nativeFunctionCode("{arg0}")
+	static function fromSubType<T, U: T>(other: UniquePtr<U>) : UniquePtr<T>;
 }

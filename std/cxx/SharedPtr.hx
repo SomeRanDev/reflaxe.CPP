@@ -11,4 +11,8 @@ extern abstract SharedPtr<T>(T) from T to T {
 	@:typeArgNotNullable
 	@:nativeFunctionCode("std::make_shared<{type0}>({arg0})")
 	public static extern function make<T>(obj: T): SharedPtr<T>;
+
+	@:from
+    @:nativeFunctionCode("{arg0}")
+	static function fromSubType<T, U: T>(other: SharedPtr<U>) : SharedPtr<T>;
 }
