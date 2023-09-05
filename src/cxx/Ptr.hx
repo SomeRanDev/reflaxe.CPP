@@ -32,4 +32,8 @@ extern abstract Ptr<T>(T) from T to T from Value<T> {
 
 	@:nativeFunctionCode("(*{this})")
 	public function toValue(): cxx.Value<T>;
+
+	@:from
+    @:nativeFunctionCode("{arg0}")
+	static function fromSubType<T, U: T>(other: Ptr<U>) : Ptr<T>;
 }
