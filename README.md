@@ -30,6 +30,16 @@ void _Main::Main_Fields_::main() {
 
 &nbsp;
 
+# This Project is in Development
+
+**Please note this project is incomplete!** It is not compatible with 100% of Haxe's syntax. Features that rely upon `Dynamic` or are dynamic-based (like mixed-arrays or anonymous structures) are not fully implemented.
+
+I often see my project hastily linked the second anyone mentions Haxe/C++ GC, but it may not be for you! If you're just looking to occastionally create value-type objects or classes in Haxe/C++, I would highly recommend studying the source code for [raylib-haxe](https://github.com/haxeui/raylib-haxe/blob/main/RayLib.hx). 
+
+On the otherhand, if you're okay with sacrificing a few Haxe features for faster performance and better memory control, this may be the project for you...
+
+&nbsp;
+
 # Table of Contents
 
 | Topic                                                                                      | Description                                        |
