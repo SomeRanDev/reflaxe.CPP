@@ -1,9 +1,9 @@
 package;
 
-var exitCode = 0;
+var returnCode = 0;
 function assert(v: Bool) {
 	if(!v) {
-		exitCode = 1;
+		returnCode = 1;
 	}
 }
 
@@ -35,4 +35,8 @@ function main() {
 
 	// Invalid, C is not child A (uncomment to test)
 	// a = c;
+
+	if(returnCode != 0) {
+		Sys.exit(returnCode);
+	}
 }
