@@ -36,6 +36,8 @@ function main() {
 	// Invalid, C is not child A (uncomment to test)
 	// a = c;
 
+	assert(a.addrEquals(b));
+
 	if(returnCode != 0) {
 		Sys.exit(returnCode);
 	}
