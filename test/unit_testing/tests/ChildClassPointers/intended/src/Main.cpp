@@ -19,6 +19,8 @@ void _Main::Main_Fields_::main() {
 
 	static_cast<void>(std::make_shared<C>());
 
+	_Main::Main_Fields_::assert((a == b));
+
 	if(_Main::Main_Fields_::returnCode != 0) {
 		exit(_Main::Main_Fields_::returnCode);
 	};
