@@ -1107,6 +1107,13 @@ class Expressions extends SubCompiler {
 			result += cpp;
 		} else if(t.isPtr()) {
 			result += " = nullptr";
+		} else {
+			#if !cxx_dont_default_assign_numbers
+			final valString = t.getDefaultValue();
+			if(valString != null) {
+				result += " = " + valString;
+			}
+			#end
 		}
 
 		return result;
