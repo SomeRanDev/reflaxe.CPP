@@ -7,6 +7,13 @@ function assert(b: Bool) {
 	}
 }
 
+enum Test {
+	One;
+	Two;
+	Three;
+	Four;
+}
+
 function main() {
 	final a = 123;
 	switch(a) {
@@ -22,12 +29,39 @@ function main() {
 		default: assert(true);
 	}
 
+	// ---
+
 	final str = "Hello";
 	switch(str) {
 		case "Hello": assert(true);
 		case "Goodbye": assert(false);
 		case "Blablabla": assert(false);
 	}
+
+	// ---
+
+	final result = switch(a) {
+		case 111: 222;
+		case 222: 444;
+		case _: 0;
+	}
+
+	assert(result == 0);
+
+	// ---
+
+	final myEnum = Two;
+	final result = switch(myEnum) {
+		case One: 1;
+		case Two: 0;
+		case Three: 3;
+		case Four: 4;
+		case _: -1;
+	}
+
+	assert(result == 0);
+
+	// ---
 
 	if(returnCode != 0) {
 		Sys.exit(returnCode);
