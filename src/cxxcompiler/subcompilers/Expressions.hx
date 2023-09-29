@@ -228,7 +228,7 @@ class Expressions extends SubCompiler {
 			}
 			case TArrayDecl(el): {
 				Main.onTypeEncountered(expr.t, compilingInHeader, expr.pos);
-				IComp.addInclude("memory", compilingInHeader, true);
+				IComp.addInclude(Compiler.SharedPtrInclude[0], compilingInHeader, true);
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
 				final t = TComp.compileType(arrayType, expr.pos);
 				final d = "std::deque<" + t + ">";
@@ -1107,6 +1107,13 @@ class Expressions extends SubCompiler {
 			result += cpp;
 		} else if(t.isPtr()) {
 			result += " = nullptr";
+		} else {
+			#if !cxx_dont_default_assign_numbers
+			final valString = t.getDefaultValue();
+			if(valString != null) {
+				result += " = " + valString;
+			}
+			#end
 		}
 
 		return result;
@@ -1564,7 +1571,7 @@ class Expressions extends SubCompiler {
 			result += "\n\t}";
 			return result;
 		} else {
-			return "\ndefault: {}";
+			return "\n\tdefault: {}";
 		}
 	}
 

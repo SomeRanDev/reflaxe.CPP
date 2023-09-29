@@ -280,6 +280,16 @@ class CppTypeHelper {
 	}
 
 	/**
+		If this type should have a default value when not default assigned,
+		this will return the default value content here.
+	**/
+	public static function getDefaultValue(t: Type): Null<String> {
+		if(isCppNumberType(t)) return "0";
+		else if(t.isBool()) return "false";
+		return null;
+	}
+
+	/**
 		Returns `true` if the type is `Int`, `Float`,
 		`UInt`, `Single` or in the `cxx.num` package.
 	**/
