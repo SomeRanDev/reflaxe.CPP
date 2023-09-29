@@ -2,6 +2,7 @@
 
 #include "_AnonUtils.h"
 #include "cxx_DynamicToString.h"
+#include "memory"
 #include "StringBuf.h"
 #include <deque>
 #include <memory>

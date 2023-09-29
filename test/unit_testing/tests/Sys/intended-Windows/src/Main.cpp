@@ -42,7 +42,7 @@ void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) 
 
 void Main::main() {
 	std::string key = "Haxe2UC++ Test Value"s;
-	int tempRight;
+	int tempRight = 0;
 
 	if(10 <= 1) {
 		tempRight = 0;

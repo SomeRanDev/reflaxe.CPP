@@ -68,7 +68,7 @@ void Main::main() {
 	Main::assert((int)(toolsStr.find("world"s)) != -1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 48, "main"s));
 	Main::assert(StringTools::endsWith(toolsStr, "world!"s), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 49, "main"s));
 
-	int tempLeft1;
+	int tempLeft1 = 0;
 
 	if((0 < 0) || (0 >= (int)(toolsStr.size()))) {
 		tempLeft1 = -1;
@@ -78,7 +78,7 @@ void Main::main() {
 
 	Main::assert(tempLeft1 == 72, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/String/Main.hx"s, 51, "main"s));
 
-	int tempLeft2;
+	int tempLeft2 = 0;
 
 	if((99 < 0) || (99 >= (int)(toolsStr.size()))) {
 		tempLeft2 = -1;
@@ -114,7 +114,7 @@ void Main::main() {
 		std::string result = ""s;
 
 		while(it_offset < (int)(it_s.size())) {
-			int tempRight;
+			int tempRight = 0;
 
 			{
 				std::string s = it_s;
@@ -139,12 +139,12 @@ void Main::main() {
 		std::string result = ""s;
 
 		while(it_offset < (int)(it_s.size())) {
-			int n_value;
-			int n_key;
+			int n_value = 0;
+			int n_key = 0;
 
 			n_key = it_offset;
 
-			int tempRight1;
+			int tempRight1 = 0;
 
 			{
 				std::string s = it_s;

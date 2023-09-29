@@ -13,6 +13,7 @@
 #include "cxx_DynamicToString.h"
 #include "haxe_iterators_ArrayIterator.h"
 #include "haxe_iterators_ArrayKeyValueIterator.h"
+#include "memory"
 
 namespace haxe::io {
 

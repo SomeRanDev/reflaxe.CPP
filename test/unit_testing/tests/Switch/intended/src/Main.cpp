@@ -1,6 +1,7 @@
 #include "Main.h"
 
 #include <cstdlib>
+#include <memory>
 #include <string>
 
 using namespace std::string_literals;
@@ -29,7 +30,7 @@ void _Main::Main_Fields_::main() {
 			_Main::Main_Fields_::assert(true);
 			break;
 		}
-	default: {}
+		default: {}
 	};
 	switch(a) {
 		case 1: {
@@ -72,8 +73,56 @@ void _Main::Main_Fields_::main() {
 			}
 			break;
 		}
-	default: {}
+		default: {}
 	};
+
+	int tempNumber = 0;
+
+	switch(a) {
+		case 111: {
+			tempNumber = 222;
+			break;
+		}
+		case 222: {
+			tempNumber = 444;
+			break;
+		}
+		default: {
+			tempNumber = 0;
+			break;
+		}
+	};
+
+	int result = tempNumber;
+
+	_Main::Main_Fields_::assert(result == 0);
+
+	std::shared_ptr<Test> myEnum = Test::Two();
+	int tempNumber1 = 0;
+
+	switch(myEnum->index) {
+		case 0: {
+			tempNumber1 = 1;
+			break;
+		}
+		case 1: {
+			tempNumber1 = 0;
+			break;
+		}
+		case 2: {
+			tempNumber1 = 3;
+			break;
+		}
+		case 3: {
+			tempNumber1 = 4;
+			break;
+		}
+		default: {}
+	};
+
+	int result2 = tempNumber1;
+
+	_Main::Main_Fields_::assert(result2 == 0);
 
 	if(_Main::Main_Fields_::returnCode != 0) {
 		exit(_Main::Main_Fields_::returnCode);

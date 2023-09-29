@@ -92,6 +92,6 @@ void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> 
 			b->b += Std::string(n);
 			break;
 		}
-	default: {}
+		default: {}
 	};
 }

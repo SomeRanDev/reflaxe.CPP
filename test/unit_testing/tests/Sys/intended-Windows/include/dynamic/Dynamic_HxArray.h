@@ -90,7 +90,7 @@ public:
 				auto result = [o, args] {
 					auto x = args[0].asType<T>();
 					{
-						int tempNumber;
+						int tempNumber = 0;
 
 						{
 							int fromIndex = 0;

@@ -75,8 +75,8 @@ void Main::main() {
 		std::shared_ptr<Iterator<int>> test_keys = map->keys();
 
 		while(test_keys->hasNext()) {
-			int test_value;
-			int test_key;
+			int test_value = 0;
+			int test_key = 0;
 			int key = test_keys->next();
 
 			test_value = map->get(key).value();

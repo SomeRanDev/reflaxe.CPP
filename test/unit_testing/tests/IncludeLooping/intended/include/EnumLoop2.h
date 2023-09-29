@@ -5,6 +5,7 @@
 #include <variant>
 #include "_AnonUtils.h"
 #include "cxx_DynamicToString.h"
+#include "memory"
 
 
 

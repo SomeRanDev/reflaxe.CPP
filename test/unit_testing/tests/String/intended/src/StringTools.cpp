@@ -15,15 +15,15 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 	std::string _g_s = s;
 
 	while(_g_offset < (int)(_g_s.size())) {
-		int tempNumber;
+		int tempNumber = 0;
 
 		{
-			int tempNumber1;
+			int tempNumber1 = 0;
 
 			{
 				std::string s2 = _g_s;
 				int index = _g_offset++;
-				int tempNumber2;
+				int tempNumber2 = 0;
 
 				if((index < 0) || (index >= (int)(s2.size()))) {
 					tempNumber2 = -1;
@@ -34,7 +34,7 @@ std::string StringTools::htmlEscape(std::string s, std::optional<bool> quotes) {
 				int c = tempNumber2;
 
 				if((c >= 55296) && (c <= 56319)) {
-					int tempLeft;
+					int tempLeft = 0;
 
 					{
 						int index2 = index + 1;

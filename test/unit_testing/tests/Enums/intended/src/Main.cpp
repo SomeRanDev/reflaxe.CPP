@@ -47,7 +47,7 @@ void Main::main() {
 			};
 			break;
 		}
-	default: {}
+		default: {}
 	};
 	switch(c->index) {
 		case 0: {
@@ -72,7 +72,7 @@ void Main::main() {
 			};
 			break;
 		}
-	default: {}
+		default: {}
 	};
 
 	if(Main::returnCode != 0) {

@@ -97,7 +97,7 @@ public:
 
 		while(_g_keys->hasNext()) {
 			T _g_value;
-			int _g_key;
+			int _g_key = 0;
 			int key = _g_keys->next();
 
 			_g_value = _g_map->get(key).value();

@@ -34,7 +34,7 @@ void Main::main() {
 	Main::assert((int)(arr->size()) == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 24, "main"s));
 	Main::assert((int)(HxArray::concat<int>(arr.get(), std::make_shared<std::deque<int>>(std::deque<int>{ 4, 5, 6 }).get())->size()) == 6, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 27, "main"s));
 
-	bool tempBool;
+	bool tempBool = false;
 
 	{
 		tempBool = (std::find(arr->begin(), arr->end(), 3) != arr->end());
@@ -42,7 +42,7 @@ void Main::main() {
 
 	Main::assert(tempBool, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 30, "main"s));
 
-	bool tempBool1;
+	bool tempBool1 = false;
 
 	{
 		tempBool1 = (std::find(arr->begin(), arr->end(), 5) != arr->end());
@@ -79,7 +79,7 @@ void Main::main() {
 	})->size()) == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 39, "main"s));
 
 	std::shared_ptr<std::deque<int>> arr3 = std::make_shared<std::deque<int>>(std::deque<int>{ 1, 2, 3, 4, 5 });
-	int tempLeft;
+	int tempLeft = 0;
 
 	{
 		int fromIndex = 0;
@@ -115,8 +115,8 @@ void Main::main() {
 	int kvit_current = 0;
 
 	while(kvit_current < (int)(doubleArr->size())) {
-		int o_value;
-		int o_key;
+		int o_value = 0;
+		int o_key = 0;
 
 		o_value = (*doubleArr)[kvit_current];
 		o_key = kvit_current++;
@@ -164,10 +164,10 @@ void Main::main() {
 	Main::assert(tempLeft4 == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 89, "main"s));
 	Main::assert((*stack)[2] == 333, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 90, "main"s));
 
-	bool tempCond;
+	bool tempCond = false;
 
 	{
-		int tempNumber;
+		int tempNumber = 0;
 
 		{
 			int fromIndex = 0;
@@ -290,8 +290,8 @@ void Main::main() {
 	int _g_current = 0;
 
 	while(_g_current < (int)(doubleArr2->size())) {
-		int _g_value;
-		int _g_key;
+		int _g_value = 0;
+		int _g_key = 0;
 
 		_g_value = (*doubleArr2)[_g_current];
 		_g_key = _g_current++;
@@ -305,8 +305,8 @@ void Main::main() {
 	int doubleArrIt_current = 0;
 
 	while(doubleArrIt_current < (int)(doubleArr2->size())) {
-		int temp_value;
-		int temp_key;
+		int temp_value = 0;
+		int temp_key = 0;
 
 		temp_value = (*doubleArr2)[doubleArrIt_current];
 		temp_key = doubleArrIt_current++;

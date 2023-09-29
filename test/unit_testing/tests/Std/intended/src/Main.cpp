@@ -86,7 +86,7 @@ void Main::main() {
 
 	while(_g < 1000) {
 		_g++;
-		int tempNumber;
+		int tempNumber = 0;
 
 		if(10 <= 1) {
 			tempNumber = 0;

@@ -146,7 +146,7 @@ void Main::main() {
 	int j = 0;
 
 	while(true) {
-		int tempRight;
+		int tempRight = 0;
 
 		Main::assert(true, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/BasicSyntax/Main.hx"s, 138, "main"s));
 		tempRight = 6;
