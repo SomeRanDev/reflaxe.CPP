@@ -1571,7 +1571,7 @@ class Expressions extends SubCompiler {
 			result += "\n\t}";
 			return result;
 		} else {
-			return "\ndefault: {}";
+			return "\n\tdefault: {}";
 		}
 	}
 
