@@ -228,7 +228,7 @@ class Expressions extends SubCompiler {
 			}
 			case TArrayDecl(el): {
 				Main.onTypeEncountered(expr.t, compilingInHeader, expr.pos);
-				IComp.addInclude("memory", compilingInHeader, true);
+				IComp.addInclude(Compiler.SharedPtrInclude[0], compilingInHeader, true);
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
 				final t = TComp.compileType(arrayType, expr.pos);
 				final d = "std::deque<" + t + ">";
