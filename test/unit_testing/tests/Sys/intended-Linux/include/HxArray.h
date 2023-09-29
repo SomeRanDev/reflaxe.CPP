@@ -145,7 +145,7 @@ public:
 	template<typename T>
 	static int indexOf(std::deque<T>* a, T x, int fromIndex = 0) {
 		auto it = std::find(a->begin(), a->end(), x);
-		int tempResult;
+		int tempResult = 0;
 
 		if(it != a->end()) {
 			tempResult = ((int)(it - a->begin()));
@@ -157,7 +157,7 @@ public:
 	}
 	template<typename T>
 	static int lastIndexOf(std::deque<T>* a, T x, int fromIndex = -1) {
-		int tempNumber;
+		int tempNumber = 0;
 
 		if(fromIndex < 0) {
 			tempNumber = 0;
@@ -167,7 +167,7 @@ public:
 
 		int offset = tempNumber;
 		auto it = std::find(a->rbegin() + offset, a->rend(), x);
-		int tempResult;
+		int tempResult = 0;
 
 		if(it != a->rend()) {
 			tempResult = ((int)(it - a->rbegin()));

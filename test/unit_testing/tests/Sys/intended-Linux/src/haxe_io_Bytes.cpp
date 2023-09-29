@@ -15,7 +15,7 @@ std::shared_ptr<haxe::io::Bytes> haxe::io::Bytes::ofString(std::string s, std::o
 	int i = 0;
 
 	while(i < (int)(s.size())) {
-		int tempNumber;
+		int tempNumber = 0;
 
 		{
 			int index = i++;
@@ -30,7 +30,7 @@ std::shared_ptr<haxe::io::Bytes> haxe::io::Bytes::ofString(std::string s, std::o
 		int c = tempNumber;
 
 		if((55296 <= c) && (c <= 56319)) {
-			int tempLeft;
+			int tempLeft = 0;
 
 			{
 				int index = i++;
