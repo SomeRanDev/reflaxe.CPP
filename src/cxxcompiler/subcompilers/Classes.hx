@@ -881,8 +881,17 @@ class Classes extends SubCompiler {
 
 			final useCallStack = Define.Callstack.defined() && !field.hasMeta(Meta.NoCallstack);
 			if(useCallStack) {
+				#if cxx_custom_callstack
+				if(Compiler.CallStackCustomFunction != null) {
+					final result = Compiler.CallStackCustomFunction(classType, ctx.name, field, Main);
+					if(result != null) {
+						body.push(result);
+					}
+				}
+				#else
 				IComp.addNativeStackTrace(field.pos);
 				body.push(XComp.generateStackTrackCode(classType, ctx.name, field.pos) + ";");
+				#end
 			}
 
 			if(frontOptionalAssigns.length > 0) {
@@ -1054,7 +1063,13 @@ class Classes extends SubCompiler {
 					pos: e.pos,
 					t: e.t
 				}
-				"{\n" + Main.compileClassFuncExpr(expr).tab() + "\n}";
+
+				// Do not use callstack for default constructor
+				XComp.pushTrackLines(false);
+				final content = Main.compileClassFuncExpr(expr).tab();
+				XComp.popTrackLines();
+
+				"{\n" + content + "\n}";
 			} else {
 				"{}";
 			}
