@@ -879,19 +879,19 @@ class Classes extends SubCompiler {
 			// Store every section of the function body C++ to be added to the function
 			final body = [];
 
-			#if cxx_custom_callstack
-			if(Compiler.CallStackCustomFunction != null) {
-				final result = Compiler.CallStackCustomFunction(classType, ctx.name, field, Main);
-				if(result != null) {
-					body.push(result);
-				}
-			}
-			#end
-
 			final useCallStack = Define.Callstack.defined() && !field.hasMeta(Meta.NoCallstack);
 			if(useCallStack) {
+				#if cxx_custom_callstack
+				if(Compiler.CallStackCustomFunction != null) {
+					final result = Compiler.CallStackCustomFunction(classType, ctx.name, field, Main);
+					if(result != null) {
+						body.push(result);
+					}
+				}
+				#else
 				IComp.addNativeStackTrace(field.pos);
 				body.push(XComp.generateStackTrackCode(classType, ctx.name, field.pos) + ";");
+				#end
 			}
 
 			if(frontOptionalAssigns.length > 0) {

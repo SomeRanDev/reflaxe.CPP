@@ -125,23 +125,24 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// ----------------------------
 	// Required for adding call stack information on each expression.
 	override function prefixExpressionContent(expr: TypedExpr, output: String): Null<Array<String>> {
-		#if cxx_custom_callstack
-		if(CallStackCustomLineFunction != null) {
-			final lineContent = CallStackCustomLineFunction(expr, expr.pos.line(), expr.pos.column());
-			if(lineContent != null) {
-				final result = super.prefixExpressionContent(expr, output) ?? [];
-				result.push(lineContent);
-				return result;
+		if(Define.Callstack.defined() && XComp.trackLinesCallStack) {
+			#if cxx_custom_callstack
+			if(CallStackCustomLineFunction != null) {
+				final lineContent = CallStackCustomLineFunction(expr, expr.pos.line(), expr.pos.column());
+				if(lineContent != null) {
+					final result = super.prefixExpressionContent(expr, output) ?? [];
+					result.push(lineContent);
+					return result;
+				}
 			}
-		}
-		#end
-		return if(Define.Callstack.defined() && XComp.trackLinesCallStack) {
+			#else
 			final result = super.prefixExpressionContent(expr, output) ?? [];
 			result.push('HCXX_LINE(${expr.pos.line()})');
 			return result;
-		} else {
-			super.prefixExpressionContent(expr, output);
+			#end
 		}
+		
+		return super.prefixExpressionContent(expr, output);
 	}
 
 	// ============================
