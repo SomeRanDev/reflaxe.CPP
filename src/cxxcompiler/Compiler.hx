@@ -95,6 +95,27 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	public static var AnonUtilsHeaderFile: String = "_AnonUtils";
 	public static var TypeUtilsHeaderFile: String = "_TypeUtils";
 
+	#if cxx_custom_callstack
+	/**
+		A custom definable function for adding code to the top of all functions.
+
+		The returned `String` should be C++ code that will be injected at the
+		top of the function.
+
+		If `null` is returned, nothing is added to the function.
+	**/
+	public static var CallStackCustomFunction: Null<(classType: ClassType, name: String, field: ClassField, compiler: Compiler) -> Null<String>> = null;
+
+	/**
+		A custom definable function for adding code to the top of expressions
+		in a function.
+
+		Like with `CallStackCustomFunction`, returning a non-`null` `String`
+		will inject it as C++ code above the expression.
+	**/
+	public static var CallStackCustomLineFunction: Null<(expr: TypedExpr, line: Int, column: Int) -> Null<String>> = null;
+	#end
+
 	// ----------------------------
 	// Required for adding semicolons at the end of each line.
 	override function formatExpressionLine(expr: String): String {
@@ -104,6 +125,16 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// ----------------------------
 	// Required for adding call stack information on each expression.
 	override function prefixExpressionContent(expr: TypedExpr, output: String): Null<Array<String>> {
+		#if cxx_custom_callstack
+		if(CallStackCustomLineFunction != null) {
+			final lineContent = CallStackCustomLineFunction(expr, expr.pos.line(), expr.pos.column());
+			if(lineContent != null) {
+				final result = super.prefixExpressionContent(expr, output) ?? [];
+				result.push(lineContent);
+				return result;
+			}
+		}
+		#end
 		return if(Define.Callstack.defined() && XComp.trackLinesCallStack) {
 			final result = super.prefixExpressionContent(expr, output) ?? [];
 			result.push('HCXX_LINE(${expr.pos.line()})');
