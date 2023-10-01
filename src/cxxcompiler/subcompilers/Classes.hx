@@ -1063,7 +1063,13 @@ class Classes extends SubCompiler {
 					pos: e.pos,
 					t: e.t
 				}
-				"{\n" + Main.compileClassFuncExpr(expr).tab() + "\n}";
+
+				// Do not use callstack for default constructor
+				XComp.pushTrackLines(false);
+				final content = Main.compileClassFuncExpr(expr).tab();
+				XComp.popTrackLines();
+
+				"{\n" + content + "\n}";
 			} else {
 				"{}";
 			}
