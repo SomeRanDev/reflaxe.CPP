@@ -1280,7 +1280,8 @@ class Expressions extends SubCompiler {
 		final inlineTrace = checkForInlinableTrace(callExpr, el);
 		if(inlineTrace != null) return inlineTrace;
 
-		final nfc = checkNativeCodeMeta(callExpr, el, callExpr.getFunctionTypeParams(Main.getExprType(originalExpr)));
+		final originalExprType = Main.getExprType(originalExpr);
+		final nfc = checkNativeCodeMeta(callExpr, el, callExpr.getFunctionTypeParams(originalExprType));
 		return if(nfc != null) {
 			// Ensure we use potential #include
 			final declaration = callExpr.getDeclarationMeta();
@@ -1340,6 +1341,18 @@ class Expressions extends SubCompiler {
 			// If this is an overloaded call, ensure `null` is explicit for argument expressions.
 			final old = setExplicitNull(true, isOverload);
 
+			// Get `ClassField`
+			final cf = callExpr.getClassField();
+
+			// Create array to store template arguments
+			final templateArgs: Array<{ cpp: String, index: Int }> = [];
+
+			// Extract tfunc to check the metadata for arguments
+			final tfunc = if(cf != null) switch(cf.expr()?.expr) {
+				case TFunction(tfunc): tfunc;
+				case _: null;
+			} else null;
+
 			// Compile the arguments
 			var cppArgs = [];
 			for(i in 0...el.length) {
@@ -1349,6 +1362,26 @@ class Expressions extends SubCompiler {
 				} else {
 					Main.compileExpressionOrError(paramExpr);
 				}
+
+				if(cpp == null) {
+					paramExpr.pos.makeError(CouldNotCompileExpression(paramExpr));
+					continue;
+				}
+
+				// Check if the argument has @:templateArg
+				// If so, add to `templateArgs` instead of `cppArgs`.
+				if(
+					tfunc != null &&
+					i < tfunc.args.length &&
+					tfunc.args[i].v.meta.maybeHas(Meta.TemplateArg)
+				) {
+					templateArgs.push({
+						cpp: cpp,
+						index: -1
+					});
+					continue;
+				}
+
 				cppArgs.push(cpp);
 			}
 
@@ -1356,8 +1389,8 @@ class Expressions extends SubCompiler {
 			setExplicitNull(old);
 
 			// Handle type parameters if necessary
-			var typeParamCpp = "";
-			final cf = callExpr.getClassField();
+			//var typeParamCpp = "";
+			final cppTemplateArgs = [];
 			if(cf != null && cf.params.length > 0) {
 				final resolvedParams = Main.getExprType(callExpr).findResolvedTypeParams(cf);
 				if(resolvedParams != null) {
@@ -1370,10 +1403,22 @@ class Expressions extends SubCompiler {
 						result;
 					});
 					if(compileSuccess) {
-						typeParamCpp = "<" + compiledParams.join(", ") + ">";
+						for(p in compiledParams) cppTemplateArgs.push(p);
 					}
 				}
 			}
+
+			// Add normal arguments with @:templateArg to compiled template arguments
+			for(a in templateArgs) {
+				if(a.index != -1 && a.index < cppTemplateArgs.length) {
+					cppTemplateArgs[a.index] = a.cpp;
+				} else {
+					cppTemplateArgs.push(a.cpp);
+				}
+			}
+
+			// Generate template arguments for call
+			final typeParamCpp = cppTemplateArgs.length > 0 ? '<${cppTemplateArgs.join(", ")}>' : "";
 
 			// Compile final expression
 			Main.compileExpressionOrError(callExpr) + typeParamCpp + "(" + cppArgs.join(", ") + ")";

@@ -14,6 +14,7 @@ import haxe.macro.Type;
 
 import haxe.display.Display.MetadataTarget;
 
+import reflaxe.data.ClassFuncArg;
 import reflaxe.data.ClassFuncData;
 import reflaxe.data.ClassVarData;
 import reflaxe.input.ClassHierarchyTracker;
@@ -54,6 +55,7 @@ typedef FunctionCompileContext = {
 	// data
 	f: ClassFuncData,
 	field: ClassField,
+	args: Null<Array<ClassFuncArg>>,
 
 	// flags
 	isConstructor: Bool,
@@ -535,6 +537,7 @@ class Classes extends SubCompiler {
 		final ctx: FunctionCompileContext = {
 			f: f,
 			field: field,
+			args: null,
 
 			isStatic: false,
 			isAbstract: false,
@@ -722,10 +725,37 @@ class Classes extends SubCompiler {
 	}
 
 	/**
+		Processes the function argument list by doing the following:
+
+		* Filters out all arguments with `@:templateArg` metadata.
+	**/
+	function processArguments(input: Array<ClassFuncArg>, allowTemplateArgs: Bool): Array<ClassFuncArg> {
+		final result = [];
+		for(arg in input) {
+			if(arg.tvar != null && arg.tvar.hasMeta(Meta.TemplateArg)) {
+				if(!allowTemplateArgs) {
+					arg.tvar.meta.maybeExtract(Meta.TemplateArg)[0].pos.makeError(CannotPassTemplateArgumentHere);
+				}
+				continue;
+			}
+			result.push(arg);
+		}
+		return result;
+	}
+
+	/**
+		Returns the function arguments from the `FunctionCompileContext`
+		context object.
+	**/
+	function getArguments(ctx: FunctionCompileContext, allowTemplateArgs: Bool = true): Array<ClassFuncArg> {
+		if(ctx.args == null) ctx.args = processArguments(ctx.f.args, allowTemplateArgs);
+		return ctx.args;
+	}
+
+	/**
 		Compile dynamic function as a variable containing a function.
 	**/
 	function compileDynamicFunction(ctx: FunctionCompileContext) {
-		final f = ctx.f;
 		final field = ctx.field;
 
 		// -----------------
@@ -740,7 +770,7 @@ class Classes extends SubCompiler {
 		final callable = Main.compileClassVarExpr(field.expr().trustMe());
 		XComp.compilingForTopLevel = false;
 
-		final cppArgs = f.args.map(a -> {
+		final cppArgs = getArguments(ctx, false).map(a -> {
 			return TComp.compileType(a.type, field.pos, false, true);
 		});
 
@@ -810,7 +840,8 @@ class Classes extends SubCompiler {
 	function compileArguments(ctx: FunctionCompileContext): Array<String> {
 		final argTypes = [];
 		final argCpp = [];
-		for(arg in ctx.f.args) {
+
+		for(arg in getArguments(ctx)) {
 			var type = arg.type;
 
 			// If the argument is a front optional, and has conflicing
@@ -846,7 +877,7 @@ class Classes extends SubCompiler {
 		Generate content for covariant function wrapper.
 	**/
 	function covariantContent(ctx: FunctionCompileContext) {
-		final argNames = ctx.f.args.map(a -> a.name);
+		final argNames = getArguments(ctx).map(a -> a.name);
 		return ctx.suffixSpecifiers.join(" ") + " {\n\treturn std::static_pointer_cast<" + ctx.covariance.retVal + ">(" + ctx.name + "(" + argNames.join(", ") + "));\n}";
 	}
 
@@ -868,7 +899,7 @@ class Classes extends SubCompiler {
 			// Optional arguments in front need to be given
 			// their default value if they are passed `null`.
 			final frontOptionalAssigns = [];
-			for(arg in f.args) {
+			for(arg in getArguments(ctx)) {
 				if(arg.expr != null && arg.isFrontOptional() && arg.hasConflicingDefaultValue()) {
 					final t = arg.tvar != null ? Main.getTVarType(arg.tvar) : arg.type;
 					frontOptionalAssigns.push('if(!${arg.name}) ${arg.name} = ${XComp.compileExpressionForType(arg.expr, t)};');
@@ -946,10 +977,26 @@ class Classes extends SubCompiler {
 		Compile the type parameters.
 	**/
 	function generateTemplateDecl(ctx: FunctionCompileContext): String {
-		final templateTypes = ctx.field.params.map(f -> f.name).concat(TComp.disableDynamicToTemplate());
+		final templateTypes = ctx.field.params.map(function(t) {
+			final typeCpp = {
+				// If the type param uses `@:const`, use the constraint as the type.
+				final constType = t.t.extractTypeParameterConstType();
+				if(constType != null) {
+					final pos = switch(t.t) {
+						case TInst(_.get() => { pos: pos }, _): pos;
+						case _: throw "Impossible since `constType` will be `null` if not TInst.";
+					}
+					TComp.compileType(constType, pos);
+				} else {
+					"typename";
+				}
+			};
+			return typeCpp + " " + t.name;
+		}).concat(TComp.disableDynamicToTemplate().map(n -> "typename " + n));
+
 		return if(templateTypes.length > 0) {
 			ctx.addToCpp = false;
-			"template<" + templateTypes.map(t -> "typename " + t).join(", ") + ">\n";
+			"template<" + templateTypes.map(t -> t).join(", ") + ">\n";
 		} else {
 			"";
 		};
@@ -986,7 +1033,7 @@ class Classes extends SubCompiler {
 			}
 		}
 
-		final argCpp = ctx.f.args.map(a -> {
+		final argCpp = getArguments(ctx).map(a -> {
 			// If the type was changed (ex: made to Null<T> if front optional),
 			// we need to get the modified version from tvar if possible.
 			final type = a.tvar != null ? Main.getTVarType(a.tvar) : a.type;
