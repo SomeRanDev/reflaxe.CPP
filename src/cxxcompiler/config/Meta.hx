@@ -420,6 +420,14 @@ enum abstract Meta(String) from String to String {
 	// parameter to the field's or variable's type.
 	var PassConstTypeParam = ":passConstTypeParam";
 
+	// @:templateArg(index: Int = -1)
+	//
+	// Used on a function argument to have it be passed as a template argument.
+	//
+	// Use with normal functions to create/use template arguments.
+	// Use with extern function to pass template arguments.
+	var TemplateArg = ":templateArg";
+
 	// Internal metadata. Cannot be used directly
 	//
 	// Used with @:passConstTypeParam to mark KExpr classes to be overwritten.

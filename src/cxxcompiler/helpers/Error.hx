@@ -10,6 +10,7 @@ package cxxcompiler.helpers;
 #if (macro || cxx_runtime)
 
 import haxe.macro.Expr;
+import haxe.macro.Type;
 import reflaxe.helpers.Context;
 import cxxcompiler.config.Define;
 
@@ -28,7 +29,8 @@ enum WarningType {
 **/
 enum ErrorType {
 	// General
-	CouldNotCompileType(t: Null<haxe.macro.Type>);
+	CouldNotCompileType(t: Null<Type>);
+	CouldNotCompileExpression(e: Null<TypedExpr>);
 	CannotCompileNullType;
 	DynamicUnsupported;
 	OMMIncorrectParamCount;
@@ -64,6 +66,7 @@ enum ErrorType {
 	InvalidPassConstTypeParamIndex;
 	PassConstTypeParamIndexOutsideRange;
 	DuplicatePassConstTypeParam;
+	CannotPassTemplateArgumentHere;
 
 	// Memory Management Conversion
 	UnsafeToShared;
@@ -100,6 +103,9 @@ class Error {
 			// General
 			case CouldNotCompileType(t): {
 				"Could not compile type: " + t;
+			}
+			case CouldNotCompileExpression(e): {
+				"Could not compile expression: " + e;
 			}
 			case CannotCompileNullType: {
 				"Compiler.compileTypeSafe was passed 'null'. Unknown type detected?";
@@ -197,6 +203,9 @@ class Error {
 			}
 			case DuplicatePassConstTypeParam: {
 				"A @:passConstTypeParam replacing this index already exists.";
+			}
+			case CannotPassTemplateArgumentHere: {
+				"@:templateArg cannot be used here.";
 			}
 
 			// Memory Management Conversion
