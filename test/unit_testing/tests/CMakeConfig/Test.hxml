@@ -1,0 +1,12 @@
+# The following are added automatically:
+# -lib reflaxe.cpp
+# -D cpp-output=out
+
+-D mainClass=Main
+-main Main
+-D cmake
+
+--macro cxx.CMake.removeComments()
+--macro cxx.CMake.setProjectName("CMakeConfig")
+--macro cxx.CMake.setProjectVersion("4.56")
+--macro cxx.CMake.setExecutableName("CMakeExecutable")

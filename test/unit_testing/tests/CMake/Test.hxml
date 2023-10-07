@@ -1,0 +1,7 @@
+# The following are added automatically:
+# -lib reflaxe.cpp
+# -D cpp-output=out
+
+-D mainClass=Main
+-main Main
+-D cmake
