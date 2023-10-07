@@ -1184,6 +1184,7 @@ class Classes extends SubCompiler {
 		if(cppFileCodeMeta || (!headerOnly && (cppVariables.length > 0 || cppFunctions.length > 0))) {
 			final srcFilename = Compiler.SourceFolder + "/" + filename + Compiler.SourceExt;
 			Main.setExtraFileIfEmpty(srcFilename, "#include \"" + filename + Compiler.HeaderExt + "\"");
+			Main.registerSourceFile(srcFilename);
 
 			IComp.appendIncludesToExtraFileWithoutRepeats(srcFilename, IComp.compileCppIncludes(), 1);
 			

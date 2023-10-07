@@ -47,4 +47,12 @@ enum abstract Define(String) from String to String {
 		about non-nullable types being assigned `null`.
 	**/
 	var NoNullAssignWarnings = "cxx-no-null-warnings";
+
+	/**
+		-D cmake
+
+		If defined, a `CMakeLists.txt` file will be
+		generated in the output folder.
+	**/
+	var CMake = "cmake";
 }
