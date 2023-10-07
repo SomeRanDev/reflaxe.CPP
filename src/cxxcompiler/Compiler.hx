@@ -214,6 +214,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 		generateHaxeUtilsHeader();
 		generateDynamic();
 		copyAdditionalFiles();
+		generateCMake();
 	}
 
 	// ----------------------------
@@ -768,7 +769,10 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 			var cppContent = "// Implementation for haxe::makeError from dynamic/Dynamic.h\n";
 			cppContent += IComp.compileCppIncludes() + "\n\n";
 			cppContent += "void haxe::makeError(const char* msg) {\n\tthrow haxe::Exception(msg);\n}";
-			appendToExtraFile(SourceFolder + "/_main_" + SourceExt, cppContent, 10);
+
+			final path = SourceFolder + "/_main_" + SourceExt;
+			appendToExtraFile(path, cppContent, 10);
+			registerSourceFile(path);
 		}
 	}
 
@@ -784,9 +788,40 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 				final outPath = (file.includeFolder ? HeaderFolder : SourceFolder) + "/" + path.file + "." + path.ext;
 				final content = sys.io.File.getContent(fp);
 				setExtraFile(outPath, content);
+
+				if(!file.includeFolder) {
+					registerSourceFile(outPath);
+				}
 			}
 		}
 		#end
+	}
+
+	/**
+		If enabled, this will generate the `CMakeLists.txt`
+		file in the output folder.
+	**/
+	function generateCMake() {
+		#if (macro || display)
+		if(cxx.CMake.isEnabled()) {
+			setExtraFile(cxx.CMake.getOutputPath(), cxx.CMake.generateCMakeLists(registeredSourceFiles));
+		}
+		#end
+	}
+
+	/**
+		Stores list of source files (.cpp) generated.
+	**/
+	static var registeredSourceFiles: Array<String> = [];
+
+	/**
+		Registers a source file that was generated.
+		Used for CMake project generation.
+	**/
+	function registerSourceFile(sourceFilePath: String) {
+		if(!registeredSourceFiles.contains(sourceFilePath)) {
+			registeredSourceFiles.push(sourceFilePath);
+		}
 	}
 
 	// ----------------------------
@@ -817,7 +852,9 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 			content += "\treturn 0;\n";
 			content += "}\n";
 
-			setExtraFile(SourceFolder + "/_main_" + SourceExt, content);
+			final path = SourceFolder + "/_main_" + SourceExt;
+			setExtraFile(path, content);
+			registerSourceFile(path);
 		}
 	}
 
@@ -1114,6 +1151,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 				IComp.appendIncludesToExtraFileWithoutRepeats(srcFilename, IComp.compileCppIncludes(), 1);
 				appendToExtraFile(srcFilename, cppCode + "\n", 2);
+				registerSourceFile(srcFilename);
 			}
 		}
 
