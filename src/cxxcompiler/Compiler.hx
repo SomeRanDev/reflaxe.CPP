@@ -768,7 +768,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 			var cppContent = "// Implementation for haxe::makeError from dynamic/Dynamic.h\n";
 			cppContent += IComp.compileCppIncludes() + "\n\n";
 			cppContent += "void haxe::makeError(const char* msg) {\n\tthrow haxe::Exception(msg);\n}";
-			appendToExtraFile(SourceFolder + "/_main_.cpp", cppContent, 10);
+			appendToExtraFile(SourceFolder + "/_main_" + SourceExt, cppContent, 10);
 		}
 	}
 
@@ -817,7 +817,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 			content += "\treturn 0;\n";
 			content += "}\n";
 
-			setExtraFile(SourceFolder + "/_main_.cpp", content);
+			setExtraFile(SourceFolder + "/_main_" + SourceExt, content);
 		}
 	}
 
