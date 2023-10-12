@@ -1390,7 +1390,6 @@ class Expressions extends SubCompiler {
 			setExplicitNull(old);
 
 			// Handle type parameters if necessary
-			//var typeParamCpp = "";
 			final cppTemplateArgs = [];
 			if(cf != null && cf.params.length > 0) {
 				final resolvedParams = Main.getExprType(callExpr).findResolvedTypeParams(cf);
