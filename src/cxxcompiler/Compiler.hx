@@ -638,7 +638,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 					// If the variable is value, and the rvalue can be referenced,
 					// let's use a reference.
 					final newType = switch(maybeExpr.expr) {
-						case TField(_): {
+						case TField(_) if(!tvarType.isRefOrConstRef()): {
 							TType(getRefType(), [wrapWithMMType(tvarType, Value)]);
 						}
 						case _: null;
