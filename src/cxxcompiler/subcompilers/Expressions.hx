@@ -210,6 +210,7 @@ class Expressions extends SubCompiler {
 			}
 			case TTypeExpr(m): {
 				IComp.addTypeUtilHeader(compilingInHeader);
+				Main.onModuleTypeEncountered(m, compilingInHeader, expr.pos);
 				result = "haxe::_class<" + moduleNameToCpp(m, expr.pos) + ">()";
 			}
 			case TParenthesis(e): {
@@ -1389,7 +1390,6 @@ class Expressions extends SubCompiler {
 			setExplicitNull(old);
 
 			// Handle type parameters if necessary
-			//var typeParamCpp = "";
 			final cppTemplateArgs = [];
 			if(cf != null && cf.params.length > 0) {
 				final resolvedParams = Main.getExprType(callExpr).findResolvedTypeParams(cf);
