@@ -210,6 +210,7 @@ class Expressions extends SubCompiler {
 			}
 			case TTypeExpr(m): {
 				IComp.addTypeUtilHeader(compilingInHeader);
+				Main.onModuleTypeEncountered(m, compilingInHeader, expr.pos);
 				result = "haxe::_class<" + moduleNameToCpp(m, expr.pos) + ">()";
 			}
 			case TParenthesis(e): {
