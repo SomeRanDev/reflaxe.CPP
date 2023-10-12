@@ -2,7 +2,7 @@
   "name": "reflaxe.cpp",
   "version": "0.1.0",
   "description": "An alternative C++ target for Haxe that generates dependent-less, GC-less C++17 code.",
-  "url": "https://github.com/RobertBorghese/reflaxe.CPP",
+  "url": "https://github.com/SomeRanDev/reflaxe.CPP",
   "license": "MIT",
   "tags": [
     "custom-target",
@@ -18,11 +18,11 @@
     "externs"
   ],
   "dependencies": {
-    "reflaxe": "git:https://github.com/RobertBorghese/reflaxe"
+    "reflaxe": "git:https://github.com/SomeRanDev/reflaxe"
   },
   "classPath": "src/",
   "releasenote": "Initial release.",
-  "contributors": ["RobertBorghese"],
+  "contributors": ["RobertBorghese", "SomeRanDev"],
   "reflaxe": {
     "name": "C++",
     "abbv": "cxx",

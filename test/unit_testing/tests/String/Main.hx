@@ -120,9 +120,9 @@ class Main {
 		// C++ target.
 		//
 		// This can be fixed later using @:build macros, but for the time
-		// being, these are unsupported by Reflaxe/MCPP.
-		assert(StringTools.urlEncode("https://github.com/RobertBorghese") == null);
-		assert(StringTools.urlDecode("https://github.com/RobertBorghese") == null);
+		// being, these are unsupported by Reflaxe/C++.
+		assert(StringTools.urlEncode("https://github.com/SomeRanDev") == null);
+		assert(StringTools.urlDecode("https://github.com/SomeRanDev") == null);
 
 		if(returnCode != 0) {
 			Sys.exit(returnCode);

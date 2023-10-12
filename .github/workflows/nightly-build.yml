@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Reflaxe
-        run: haxelib git reflaxe https://github.com/RobertBorghese/reflaxe.git
+        run: haxelib git reflaxe https://github.com/SomeRanDev/reflaxe.git
 
       - name: Construct Haxelib Folder
         run: haxelib run reflaxe build

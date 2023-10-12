@@ -1,10 +1,10 @@
-<img src="https://raw.githubusercontent.com/RobertBorghese/reflaxe.CPP/main/.github/Logo.png" alt="I made a *checks notes* reflaxe/cpp logo thingy look at it LOOK AT IT" width="900"/>
+<img src="https://raw.githubusercontent.com/SomeRanDev/reflaxe.CPP/main/.github/Logo.png" alt="I made a *checks notes* reflaxe/cpp logo thingy look at it LOOK AT IT" width="900"/>
 
-[![Test Workflow](https://github.com/RobertBorghese/reflaxe.CPP/actions/workflows/main.yml/badge.svg)](https://github.com/RobertBorghese/reflaxe.CPP/actions)
+[![Test Workflow](https://github.com/SomeRanDev/reflaxe.CPP/actions/workflows/main.yml/badge.svg)](https://github.com/SomeRanDev/reflaxe.CPP/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <a href="https://discord.com/channels/162395145352904705/1052688097592225904"><img src="https://discordapp.com/api/guilds/162395145352904705/widget.png?style=shield" alt="Reflaxe Thread"/></a>
 
-_An alternative C++ target for Haxe that generates dependent-less, GC-less C++17 code. Made with [Reflaxe](https://github.com/RobertBorghese/reflaxe)._
+_An alternative C++ target for Haxe that generates dependent-less, GC-less C++17 code. Made with [Reflaxe](https://github.com/SomeRanDev/reflaxe)._
 
 The goal of this project is simple: create a compilation target for Haxe that generates minimal, human-readable C++ that can be compiled without linking additional libraries and does not rely on any garbage collection system.
 
@@ -44,15 +44,15 @@ On the otherhand, if you're okay with sacrificing a few Haxe features for faster
 
 | Topic                                                                                      | Description                                        |
 | ------------------------------------------------------------------------------------------ | -------------------------------------------------- |
-| [Installation](https://github.com/RobertBorghese/reflaxe.CPP#installation)                 | How to install and use this project.               |
-| [Nightly Installation](https://github.com/RobertBorghese/reflaxe.CPP#nightly-installation) | How to install the development/nightly version.    |
-| [Explanation](https://github.com/RobertBorghese/reflaxe.CPP#explanation)                   | A long winded explanation of this project's goals. |
-| [Compiler Examples](https://github.com/RobertBorghese/reflaxe.CPP#compiler-examples)       | Where to find examples.                            |
-| [Memory Management](https://github.com/RobertBorghese/reflaxe.CPP#memory-management)       | How the memory management system works.            |
-| [Includes](https://github.com/RobertBorghese/reflaxe.CPP#includes)                         | Features for configuring `#include`s.              |
-| [Destructors](https://github.com/RobertBorghese/reflaxe.CPP#destructors)                   | How to use destructors.                            |
-| [Top Level Meta](https://github.com/RobertBorghese/reflaxe.CPP#top-level-meta)             | Add top-level functions in C++.                    |
-| [Plugin System](https://github.com/RobertBorghese/reflaxe.CPP#compilation-hooks-plugins)   | How to write plugins for the compiler.             |
+| [Installation](https://github.com/SomeRanDev/reflaxe.CPP#installation)                 | How to install and use this project.               |
+| [Nightly Installation](https://github.com/SomeRanDev/reflaxe.CPP#nightly-installation) | How to install the development/nightly version.    |
+| [Explanation](https://github.com/SomeRanDev/reflaxe.CPP#explanation)                   | A long winded explanation of this project's goals. |
+| [Compiler Examples](https://github.com/SomeRanDev/reflaxe.CPP#compiler-examples)       | Where to find examples.                            |
+| [Memory Management](https://github.com/SomeRanDev/reflaxe.CPP#memory-management)       | How the memory management system works.            |
+| [Includes](https://github.com/SomeRanDev/reflaxe.CPP#includes)                         | Features for configuring `#include`s.              |
+| [Destructors](https://github.com/SomeRanDev/reflaxe.CPP#destructors)                   | How to use destructors.                            |
+| [Top Level Meta](https://github.com/SomeRanDev/reflaxe.CPP#top-level-meta)             | Add top-level functions in C++.                    |
+| [Plugin System](https://github.com/SomeRanDev/reflaxe.CPP#compilation-hooks-plugins)   | How to write plugins for the compiler.             |
 
 &nbsp;
 
@@ -75,7 +75,7 @@ Now your `.hxml` should be ready to go! Simply run with Haxe and the output will
 If this project isn't on haxelib yet, or you'd like to use the development version, use `haxelib git` on the nightly branch.
 
 ```sh
-haxelib git reflaxe.cpp https://github.com/RobertBorghese/reflaxe.CPP nightly
+haxelib git reflaxe.cpp https://github.com/SomeRanDev/reflaxe.CPP nightly
 ```
 
 Here's a simple `.hxml` template to get you started!
@@ -108,13 +108,13 @@ For starters, garbage collection is no longer a major issue. While GC works wond
 
 This leads into another important aspect of this project: the different forms of memory management. While the original Haxe/C++ target allows classes to be treated like value-types, it requires a lot of boilerplate and forces the class to always use value management.
 
-On the other hand, Reflaxe/C++ gives memory types first-class treatment. A single metadata is used to default a class to using value, pointer, or smart pointer management, and `Value<T>`, `Ptr<T>`, and `SharedPtr<T>` can be used to override this default at any time. But the best part is conversions between these types are accounted for during typing, preventing invalid or unsafe assignments from being generated. Visit the [Memory Management](https://github.com/RobertBorghese/reflaxe.CPP#memory-management) section for more info.
+On the other hand, Reflaxe/C++ gives memory types first-class treatment. A single metadata is used to default a class to using value, pointer, or smart pointer management, and `Value<T>`, `Ptr<T>`, and `SharedPtr<T>` can be used to override this default at any time. But the best part is conversions between these types are accounted for during typing, preventing invalid or unsafe assignments from being generated. Visit the [Memory Management](https://github.com/SomeRanDev/reflaxe.CPP#memory-management) section for more info.
 
 &nbsp;
 
 # Examples
 
-Visit the [test/unit_testing/tests directory](https://github.com/RobertBorghese/reflaxe.CPP/tree/main/test/unit_testing/tests) for a bunch of samples and tests. Note the "intended" folder contains the expected C++ output that would be generated from the Haxe project in that folder. To run one of the examples, run the following command at the top level of the repository (replace "HelloWorld" with the test name).
+Visit the [test/unit_testing/tests directory](https://github.com/SomeRanDev/reflaxe.CPP/tree/main/test/unit_testing/tests) for a bunch of samples and tests. Note the "intended" folder contains the expected C++ output that would be generated from the Haxe project in that folder. To run one of the examples, run the following command at the top level of the repository (replace "HelloWorld" with the test name).
 
 ```
 haxe Test.hxml test=HelloWorld
@@ -127,7 +127,7 @@ cd test/unit_testing/fast_test
 cargo run --release
 ```
 
-Visit the [Unit Test README](https://github.com/RobertBorghese/reflaxe.CPP/blob/main/test/unit_testing/README.md) for more info!
+Visit the [Unit Test README](https://github.com/SomeRanDev/reflaxe.CPP/blob/main/test/unit_testing/README.md) for more info!
 
 &nbsp;
 
