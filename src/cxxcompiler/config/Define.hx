@@ -18,6 +18,14 @@ enum abstract Define(String) from String to String {
 	var Callstack = "cxx_callstack";
 
 	/**
+		-D cxx_imprecise_number_types
+
+		If defined, the `cxx.num` will use relative approximation
+		number types that do not require an #include.
+	**/
+	var ImpreciseNumberTypes = "cxx_imprecise_number_types";
+
+	/**
 		-D dont-cast-numeric-comparisons
 
 		If defined, number comparisons will not be casted to 

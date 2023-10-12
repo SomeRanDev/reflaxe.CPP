@@ -2,7 +2,12 @@ package cxx.num;
 
 @:cxxStd
 @:numberType(32, false, false)
+#if cxx_imprecise_number_types
 @:native("unsigned int")
+#else
+@:native("uint32_t")
+@:include("cstdint", true)
+#end
 @:coreType
 @:notNull
 @:runtimeValue
