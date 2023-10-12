@@ -58,6 +58,7 @@ enum ErrorType {
 	TopLevelInstanceFunction;
 	TopLevelConstructor;
 	MainPrependOnNonStatic;
+	CannotUseConstOnStatic;
 	MainPrependWrongArguments;
 	InvalidCStr;
 	InvalidAlloc;
@@ -179,6 +180,9 @@ class Error {
 			}
 			case MainPrependOnNonStatic: {
 				"@:prependToMain must be used on static function.";
+			}
+			case CannotUseConstOnStatic: {
+				"Cannot use @:const on static function.";
 			}
 			case MainPrependWrongArguments: {
 				"Functions with @:prependToMain must either have no required arguments or the first two must match (Int, cxx.CArray<cxx.ConstCharPtr>).";

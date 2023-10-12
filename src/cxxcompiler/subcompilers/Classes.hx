@@ -667,6 +667,9 @@ class Classes extends SubCompiler {
 		ctx.suffixSpecifiers = [];
 
 		if(field.hasMeta(Meta.Const)) {
+			if(ctx.isStatic) {
+				field.pos.makeError(CannotUseConstOnStatic);
+			}
 			ctx.suffixSpecifiers.push("const");
 		}
 
