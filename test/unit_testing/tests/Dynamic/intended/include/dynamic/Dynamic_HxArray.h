@@ -2,6 +2,7 @@
 
 #include "Dynamic.h"
 #include <algorithm>
+#include <cstdint>
 #include <dynamic/Dynamic.h>
 #include <functional>
 #include <memory>

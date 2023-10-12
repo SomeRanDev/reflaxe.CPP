@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cstdint>
 #include <deque>
 #include <dynamic/Dynamic.h>
 #include <functional>

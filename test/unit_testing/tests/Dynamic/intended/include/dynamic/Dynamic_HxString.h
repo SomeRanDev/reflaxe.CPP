@@ -2,6 +2,7 @@
 
 #include "Dynamic.h"
 #include <cstddef>
+#include <cstdint>
 #include <deque>
 #include <memory>
 #include <optional>
