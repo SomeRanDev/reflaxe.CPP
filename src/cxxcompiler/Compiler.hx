@@ -49,7 +49,7 @@ using cxxcompiler.helpers.Error;
 using cxxcompiler.helpers.MetaHelper;
 using cxxcompiler.helpers.CppTypeHelper;
 
-class Compiler extends reflaxe.PluginCompiler<Compiler> {
+class Compiler extends reflaxe.DirectToStringCompiler {
 	// ----------------------------
 	// The extension for the generated header files.
 	public static final HeaderExt: String = ".h";
@@ -978,14 +978,14 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 	// ----------------------------
 	// Stores typedef to be compiled later.
-	var typedefs: Array<{ defType: DefType, mt: ModuleType, filename: String, dep: DependencyTracker }> = [];
-	public override function compileTypedef(defType: DefType): Null<String> {
+	var storedTypedefs: Array<{ defType: DefType, mt: ModuleType, filename: String, dep: DependencyTracker }> = [];
+	public override function compileTypedefImpl(defType: DefType): Null<String> {
 		final filename = getFileNameFromModuleData(defType);
 		final mt = getCurrentModule();
 
 		if(mt == null) throw "No current module";
 
-		typedefs.push({
+		storedTypedefs.push({
 			defType: defType,
 			mt: mt,
 			filename: filename,
@@ -998,12 +998,12 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 	// ----------------------------
 	// Compiles an typedef into C++.
 	public function compileAllTypedefs() {
-		for(t in typedefs) {
-			compileTypedefImpl(t.defType, t.mt, t.filename, t.dep);
+		for(t in storedTypedefs) {
+			compileOneTypedef(t.defType, t.mt, t.filename, t.dep);
 		}
 	}
 
-	public function compileTypedefImpl(defType: DefType, mt: ModuleType, filename: String, dep: DependencyTracker): Null<String> {
+	public function compileOneTypedef(defType: DefType, mt: ModuleType, filename: String, dep: DependencyTracker): Null<String> {
 		if(defType.hasMeta(Meta.Extern)) {
 			return null;
 		}
@@ -1096,7 +1096,7 @@ class Compiler extends reflaxe.PluginCompiler<Compiler> {
 
 	// ----------------------------
 	// Ensures an abstract's internal type is compiled.
-	public override function compileAbstract(absType: AbstractType): Null<String> {
+	public override function compileAbstractImpl(absType: AbstractType): Null<String> {
 		// Check & compile code from @:headerCode and @:cppFileCode.
 		// Even if the abstract itself isn't compiled, it can still
 		// add code to an output file using these meta.
