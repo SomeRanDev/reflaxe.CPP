@@ -13,8 +13,7 @@ import reflaxe.helpers.Context; // Use like haxe.macro.Context
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
-import reflaxe.BaseCompiler;
-import reflaxe.PluginCompiler;
+import reflaxe.DirectToStringCompiler;
 import reflaxe.ReflectCompiler;
 import reflaxe.data.ClassFuncData;
 import reflaxe.data.ClassVarData;
