@@ -34,6 +34,14 @@ enum abstract Define(String) from String to String {
 	var ExceptionsDisabled = "cxx_exceptions_disabled";
 
 	/**
+		-D cxx_inline_trace_disabled
+
+		If defined, `trace` with constant arguments will not be optimized
+		into direct `std::cout` statements.
+	**/
+	var InlineTraceDisabled = "cxx_inline_trace_disabled";
+
+	/**
 		-D dont-cast-numeric-comparisons
 
 		If defined, number comparisons will not be casted to 
