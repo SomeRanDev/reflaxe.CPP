@@ -49,21 +49,45 @@ using cxxcompiler.helpers.MetaHelper;
 using cxxcompiler.helpers.CppTypeHelper;
 
 class Compiler extends reflaxe.DirectToStringCompiler {
-	// ----------------------------
-	// The extension for the generated header files.
-	public static final HeaderExt: String = ".h";
+	/**
+		The extension for the generated header files.
+		Feel free to modify before the generation phase.
+	**/
+	public static var HeaderExt: String = ".h";
 
-	// ----------------------------
-	// The extension for the generated source files.
-	public static final SourceExt: String = ".cpp";
+	/**
+		The extension for the generated source files.
+		Feel free to modify before the generation phase.
+	**/
+	public static var SourceExt: String = ".cpp";
 
-	// ----------------------------
-	// The folder all the header files are placed into.
-	public static final HeaderFolder: String = "include";
+	/**
+		Convenience function to use with `--macro` to set the output file extensions.
+	**/
+	public static function setExtensions(headerExt: String, sourceExt: String) {
+		HeaderExt = headerExt;
+		SourceExt = sourceExt;
+	}
 
-	// ----------------------------
-	// The folder all the source files are placed into.
-	public static final SourceFolder: String = "src";
+	/**
+		The folder all the header files are placed into.
+		Feel free to modify before the generation phase.
+	**/
+	public static var HeaderFolder: String = "include";
+
+	/**
+		The folder all the source files are placed into.
+		Feel free to modify before the generation phase.
+	**/
+	public static var SourceFolder: String = "src";
+
+	/**
+		Convenience function to use with `--macro` to set the output folders.
+	**/
+	public static function setOutputSubfolders(headerFolder: String, sourceFolder: String) {
+		HeaderFolder = headerFolder;
+		SourceFolder = sourceFolder;
+	}
 
 	// ----------------------------
 	// The C++ classes used for nullability and memory management.
