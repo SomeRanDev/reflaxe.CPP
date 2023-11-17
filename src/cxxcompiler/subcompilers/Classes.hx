@@ -219,7 +219,7 @@ class Classes extends SubCompiler {
 			}
 		}
 
-		headerContent = ["", "", "", ""];
+		headerContent = ["", "", "", "", ""];
 
 		// @:prependContent
 		final prependContent = classType.getCombinedStringContentOfMeta(Meta.PrependContent);
@@ -301,12 +301,15 @@ class Classes extends SubCompiler {
 
 		headerContent[2] += " {\n";
 
+		// @:internalContent
+		headerContent[3] += classType.getCombinedStringContentOfMeta(Meta.InternalContent);
+
 		// @:headerClassCode
 		if(classType.hasMeta(Meta.HeaderClassCode)) {
 			if(!isExtern) {
 				final code = classType.meta.extractStringFromFirstMeta(Meta.HeaderClassCode);
 				if(code != null) {
-					headerContent[3] += code + "\n";
+					headerContent[4] += code + "\n";
 				}
 			} else {
 				classType.meta.getFirstPosition(Meta.HeaderClassCode)?.makeError(CannotUseOnExternClass);

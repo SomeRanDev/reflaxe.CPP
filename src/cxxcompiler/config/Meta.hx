@@ -295,6 +295,12 @@ enum abstract Meta(String) from String to String {
 	// module type or field.
 	var PrependContent = ":prependContent";
 
+	// @:internalContent(code: String)
+	//
+	// Prepends arbitrary C++ code within the class this metadata
+	// is used on.
+	var InternalContent = ":internalContent";
+
 	// @:classNamePrefix(code: String)
 	//
 	// Prepends arbitrary C++ code between the "class" keyword

@@ -345,23 +345,28 @@ class Expressions extends SubCompiler {
 			case TTry(e, catches): {
 				final tryContent = toIndentedScope(e);
 				if(tryContent != null) {
-					result = "try {\n" + tryContent;
-					for(c in catches) {
-						// Get catch type
-						final errType = Main.getTVarType(c.v);
-						Main.onTypeEncountered(errType, compilingInHeader, c.expr.pos);
+					if(Define.ExceptionsDisabled.defined()) {
+						e.pos.makeWarning(UsedTryWhenExceptionsDisabled);
+						result = "{\n" + tryContent + "\n}";
+					} else {
+						result = "try {\n" + tryContent;
+						for(c in catches) {
+							// Get catch type
+							final errType = Main.getTVarType(c.v);
+							Main.onTypeEncountered(errType, compilingInHeader, c.expr.pos);
 
-						// Compile as reference
-						final refType = TType(Main.getRefType(), [errType]);
-						result += "\n} catch(" + TComp.compileType(refType, expr.pos) + " " + c.v.name + ") {\n";
+							// Compile as reference
+							final refType = TType(Main.getRefType(), [errType]);
+							result += "\n} catch(" + TComp.compileType(refType, expr.pos) + " " + c.v.name + ") {\n";
 
-						// Compile catch expression content
-						if(c.expr != null) {
-							final cpp = toIndentedScope(c.expr);
-							if(cpp != null) result += cpp;
+							// Compile catch expression content
+							if(c.expr != null) {
+								final cpp = toIndentedScope(c.expr);
+								if(cpp != null) result += cpp;
+							}
 						}
+						result += "\n}";
 					}
-					result += "\n}";
 				}
 			}
 			case TReturn(maybeExpr): {
@@ -400,9 +405,13 @@ class Expressions extends SubCompiler {
 				result = "continue";
 			}
 			case TThrow(thrownExpr): {
-				#if macro
-				if(cxx.Compiler.exceptionHandlingEnabled) {
-				#end
+				var generateThrow = #if macro cxx.Compiler.exceptionHandlingEnabled #else true #end;
+				if(Define.ExceptionsDisabled.defined()) {
+					expr.pos.makeWarning(UsedTryWhenExceptionsDisabled);
+					generateThrow = false;
+				}
+				
+				if(generateThrow) {
 					final e = Main.compileExpressionOrError(thrownExpr);
 					result = if(Main.getExprType(thrownExpr).isString()) {
 						Main.onTypeEncountered(Context.getType("haxe.Exception"), compilingInHeader, expr.pos);
@@ -410,11 +419,9 @@ class Expressions extends SubCompiler {
 					} else {
 						"throw " + e;
 					}
-				#if macro
 				} else {
 					result = "exit(1)";
 				}
-				#end
 			}
 			case TCast(e, maybeModuleType): {
 				result = compileCast(e, expr, maybeModuleType);

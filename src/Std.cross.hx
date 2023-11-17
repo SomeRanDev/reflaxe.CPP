@@ -51,12 +51,20 @@ class Std {
 	}
 
 	public static function parseInt(x: String): Null<Int> {
+		#if cxx_exceptions_disabled
+		untyped __cpp__("return std::stoi({0});", x);
+		#else
 		untyped __cpp__("try { return std::stoi({0}); } catch(...) {}", x);
+		#end
 		return null;
 	}
 
 	public static function parseFloat(x: String): Float {
+		#if cxx_exceptions_disabled
+		untyped __cpp__("return std::stof({0});", x);
+		#else
 		untyped __cpp__("try { return std::stof({0}); } catch(...) {}", x);
+		#end
 		return Math.NaN;
 	}
 
