@@ -118,6 +118,11 @@ class Compiler extends reflaxe.DirectToStringCompiler {
 	public static var AnonUtilsHeaderFile: String = "_AnonUtils";
 	public static var TypeUtilsHeaderFile: String = "_TypeUtils";
 
+	// ----------------------------
+	// The C++ functions used for various niche cases.
+	public static var ToStringFromPrim: String = "std::to_string";
+	public static var ToStringFromPrimInclude: Null<Dynamic> = null;
+
 	#if cxx_custom_callstack
 	/**
 		A custom definable function for adding code to the top of all functions.

@@ -924,8 +924,11 @@ class Expressions extends SubCompiler {
 				opPos.makeError(NoStringAddWOHaxeStd);
 			}
 			#end
-			if(checkForPrimitiveStringAddition(e1, e2)) cppExpr2 = "std::to_string(" + cppExpr2 + ")";
-			if(checkForPrimitiveStringAddition(e2, e1)) cppExpr1 = "std::to_string(" + cppExpr1 + ")";
+			if(Compiler.ToStringFromPrimInclude != null) {
+				IComp.addInclude(Compiler.ToStringFromPrimInclude[0], compilingInHeader, Compiler.ToStringFromPrimInclude[1]);
+			}
+			if(checkForPrimitiveStringAddition(e1, e2)) cppExpr2 = Compiler.ToStringFromPrim + "(" + cppExpr2 + ")";
+			if(checkForPrimitiveStringAddition(e2, e1)) cppExpr1 = "(" + cppExpr1 + ")";
 		}
 
 		// Check if we need parenthesis. Used to fix some C++ warnings.
@@ -1285,8 +1288,10 @@ class Expressions extends SubCompiler {
 	}
 
 	function compileCall(callExpr: TypedExpr, el: Array<TypedExpr>, originalExpr: TypedExpr) {
+		#if !cxx_inline_trace_disabled
 		final inlineTrace = checkForInlinableTrace(callExpr, el);
 		if(inlineTrace != null) return inlineTrace;
+		#end
 
 		final originalExprType = Main.getExprType(originalExpr);
 		final nfc = checkNativeCodeMeta(callExpr, el, callExpr.getFunctionTypeParams(originalExprType));
