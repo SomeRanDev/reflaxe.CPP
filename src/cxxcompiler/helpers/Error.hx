@@ -21,6 +21,8 @@ import cxxcompiler.config.Define;
 enum WarningType {
 	// General
 	UsedNullOnNonNullable;
+	UsedTryWhenExceptionsDisabled;
+	UsedThrowWhenExceptionsDisabled;
 }
 
 /**
@@ -86,6 +88,13 @@ class Error {
 		final msg = switch(warn) {
 			case UsedNullOnNonNullable: {
 				"`null` assigned to a type not wrapped with `Null<T>`. This will generate unsafe C++. Disable this warning with `-D " + Define.NoNullAssignWarnings + "`.";
+			}
+
+			case UsedTryWhenExceptionsDisabled: {
+				"`try`/`catch` will be ignored since exceptions are disabled with `-D cxx_exceptions_disabled` define.";
+			}
+			case UsedThrowWhenExceptionsDisabled: {
+				"`throw` will be ignored since exceptions are disabled with `-D cxx_exceptions_disabled` define.";
 			}
 
 			case _: {

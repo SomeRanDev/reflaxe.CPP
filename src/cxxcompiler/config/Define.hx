@@ -26,6 +26,14 @@ enum abstract Define(String) from String to String {
 	var ImpreciseNumberTypes = "cxx_imprecise_number_types";
 
 	/**
+		-D cxx_exceptions_disabled
+
+		If defined, Reflaxe/C++ will avoid generating exceptions.
+		This includes `try`/`catch` statements and `throw` statements.
+	**/
+	var ExceptionsDisabled = "cxx_exceptions_disabled";
+
+	/**
 		-D dont-cast-numeric-comparisons
 
 		If defined, number comparisons will not be casted to 
