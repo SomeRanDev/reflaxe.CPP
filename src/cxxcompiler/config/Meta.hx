@@ -391,6 +391,13 @@ enum abstract Meta(String) from String to String {
 	// accessors when generating the Dynamic wrapper.
 	var DynamicAccessors = ":dynamicAccessors";
 
+	// @:constructor
+	//
+	// Use on a static function to have it be treated like a constructor.
+	// This is mainly to support extern classes with mutliple constructors;
+	// however, it SHOULD also work with user-made classes.
+	var Constructor = ":constructor";
+
 	// @:dontGenerateDefaultConstructor
 	//
 	// Normally, a default constructor (constructor with no arguments) is

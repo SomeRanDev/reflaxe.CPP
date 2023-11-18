@@ -1304,6 +1304,15 @@ class Expressions extends SubCompiler {
 
 			nfc;
 		} else {
+			// If this is a `@:constructor` call, compile as a "TNew".
+			switch(callExpr.getFieldAccess(true)) {
+				case FStatic(classTypeRef, cfRef) if(cfRef.get().hasMeta(Meta.Constructor)): {
+					onModuleTypeEncountered(TClassDecl(classTypeRef), originalExpr.pos);
+					return compileNew(originalExpr, TInst(classTypeRef, []), el);
+				}
+				case _:
+			}
+
 			var isOverload = false;
 			
 			switch(callExpr.expr) {
@@ -1437,6 +1446,10 @@ class Expressions extends SubCompiler {
 		}
 	}
 
+	/**
+		Note: `expr` is NOT guarenteed to be a `TNew`.
+		It could be a static call to a function with a `@:constructor` metadata.
+	**/
 	function compileNew(expr: TypedExpr, type: Type, el: Array<TypedExpr>, overrideMMT: Null<MemoryManagementType> = null): String {
 		Main.onTypeEncountered(type, compilingInHeader, expr.pos);
 		final nfc = checkNativeCodeMeta(expr, el, type.getParams());
