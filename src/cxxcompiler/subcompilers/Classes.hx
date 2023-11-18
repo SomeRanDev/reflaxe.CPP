@@ -572,7 +572,7 @@ class Classes extends SubCompiler {
 		ctx.isAbstract = ctx.field.isAbstract || classType.isInterface;
 		final isInstanceFunc = !ctx.isStatic && !isDynamic;
 
-		ctx.isConstructor = isInstanceFunc && field.name == "new";
+		ctx.isConstructor = (isInstanceFunc && field.name == "new") || (ctx.isStatic && field.hasMeta(Meta.Constructor));
 		final isDestructor = isInstanceFunc && field.name == "destructor";
 
 		// If destructor is found for first time, save for later.
