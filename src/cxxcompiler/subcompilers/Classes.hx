@@ -307,9 +307,9 @@ class Classes extends SubCompiler {
 		// @:headerClassCode
 		if(classType.hasMeta(Meta.HeaderClassCode)) {
 			if(!isExtern) {
-				final code = classType.meta.extractStringFromFirstMeta(Meta.HeaderClassCode);
-				if(code != null) {
-					headerContent[4] += code + "\n";
+				final code = classType.meta.extractStringFromAllMeta(Meta.HeaderClassCode);
+				if(code.length > 0) {
+					headerContent[4] += code.join("\n") + "\n";
 				}
 			} else {
 				classType.meta.getFirstPosition(Meta.HeaderClassCode)?.makeError(CannotUseOnExternClass);
@@ -1195,9 +1195,9 @@ class Classes extends SubCompiler {
 			IComp.appendIncludesToExtraFileWithoutRepeats(srcFilename, IComp.compileCppIncludes(), 1);
 			
 			if(cppFileCodeMeta) {
-				final code = classType.meta.extractStringFromFirstMeta(Meta.CppFileCode);
-				if(code != null) {
-					Main.appendToExtraFile(srcFilename, code + "\n", 2);
+				final code = classType.meta.extractStringFromAllMeta(Meta.CppFileCode);
+				if(code.length > 0) {
+					Main.appendToExtraFile(srcFilename, code.join("\n") + "\n", 2);
 				}
 			}
 
@@ -1238,9 +1238,9 @@ class Classes extends SubCompiler {
 		Main.appendToExtraFile(headerFilename, IComp.compileForwardDeclares(), 2);
 
 		if(classType.hasMeta(Meta.HeaderCode)) {
-			final code = classType.meta.extractStringFromFirstMeta(Meta.HeaderCode);
-			if(code != null) {
-				Main.appendToExtraFile(headerFilename, code + "\n", 3);
+			final code = classType.meta.extractStringFromAllMeta(Meta.HeaderCode);
+			if(code.length > 0) {
+				Main.appendToExtraFile(headerFilename, code.join("\n") + "\n", 3);
 			}
 		}
 
