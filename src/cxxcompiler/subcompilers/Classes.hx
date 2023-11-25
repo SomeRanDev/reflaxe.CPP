@@ -301,9 +301,6 @@ class Classes extends SubCompiler {
 
 		headerContent[2] += " {\n";
 
-		// @:internalContent
-		headerContent[3] += classType.getCombinedStringContentOfMeta(Meta.InternalContent);
-
 		// @:headerClassCode
 		if(classType.hasMeta(Meta.HeaderClassCode)) {
 			if(!isExtern) {
