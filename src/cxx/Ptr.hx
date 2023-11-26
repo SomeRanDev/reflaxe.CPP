@@ -11,9 +11,11 @@ extern abstract Ptr<T>(T) from T to T from Value<T> {
 	@:nativeFunctionCode("nullptr")
 	public static function get_Null(): Ptr<Dynamic>;
 
+	#if !cxx_disable_ptr_to_string
 	@:nativeFunctionCode("std::string({this})")
 	@:include("string", true)
 	public function toString(): String;
+	#end
 
 	@:nativeFunctionCode("({this} == nullptr)")
 	public function isNull(): Bool;
