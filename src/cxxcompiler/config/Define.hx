@@ -42,6 +42,15 @@ enum abstract Define(String) from String to String {
 	var InlineTraceDisabled = "cxx_inline_trace_disabled";
 
 	/**
+		-D cxx_disable_ptr_to_string
+
+		If defined, removes the `cxx.Ptr` `toString`
+		method. This prevents auto conversion of `cxx.Ptr`
+		to `String` if such behavior is undesired.
+	**/
+	var DisablePtrToString = "cxx_disable_ptr_to_string";
+
+	/**
 		-D dont-cast-numeric-comparisons
 
 		If defined, number comparisons will not be casted to 
