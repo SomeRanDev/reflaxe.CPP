@@ -1,5 +1,3 @@
-version // 1
-0//0
 src/haxe_Log.cpp
 src/SomeClass.cpp
 include/haxe_iterators_ArrayKeyValueIterator.h
