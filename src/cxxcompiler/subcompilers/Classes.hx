@@ -618,7 +618,7 @@ class Classes extends SubCompiler {
 			"void";
 		} else if(f.ret.isDynamic()) {
 			"auto";
-		} else {
+		} else if(!ctx.isStatic) {
 			final covariant = ClassHierarchyTracker.funcGetCovariantBaseType(classType, field, ctx.isStatic);
 			if(covariant != null) {
 				final covariantMMT = Types.getMemoryManagementTypeFromType(covariant);
@@ -632,6 +632,8 @@ class Classes extends SubCompiler {
 					ctx.covariance.retVal = TComp.compileType(covariant, field.pos, true, true);
 				}
 			}
+			TComp.compileType(f.ret, field.pos, false, true);
+		} else {
 			TComp.compileType(f.ret, field.pos, false, true);
 		}
 
@@ -648,7 +650,13 @@ class Classes extends SubCompiler {
 		if(field.hasMeta(Meta.CppInline)) {
 			specifiers.push("inline");
 		}
-		if(ctx.isAbstract || (isDestructor && hadVirtual) || field.hasMeta(Meta.Virtual) || ClassHierarchyTracker.funcHasChildOverride(classType, field, ctx.isStatic)) {
+		if(!ctx.isStatic && (
+				ctx.isAbstract ||
+				(isDestructor && hadVirtual) ||
+				field.hasMeta(Meta.Virtual) ||
+				ClassHierarchyTracker.funcHasChildOverride(classType, field, ctx.isStatic)
+			)
+		) {
 			specifiers.push("virtual");
 			hadVirtual = true;
 		}
