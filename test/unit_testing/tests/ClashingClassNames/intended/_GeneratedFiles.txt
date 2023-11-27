@@ -1,3 +1,5 @@
+version // 1
+0//0
 src/foo_Baz.cpp
 src/baz_Baz.cpp
 src/_main_.cpp

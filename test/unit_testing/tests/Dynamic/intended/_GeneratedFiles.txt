@@ -1,3 +1,5 @@
+version // 1
+0//0
 src/haxe_Exception.cpp
 src/haxe_CallStack.cpp
 src/_main_.cpp

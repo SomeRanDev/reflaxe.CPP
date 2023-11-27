@@ -1,3 +1,5 @@
+version // 1
+0//0
 src/haxe_io_Output.cpp
 src/haxe_io_Bytes.cpp
 src/haxe_exceptions_PosException.cpp

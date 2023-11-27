@@ -1,3 +1,5 @@
+version // 1
+0//0
 src/_main_.cpp
 src/Main.cpp
 include/haxe_PosInfos.h
