@@ -17,8 +17,10 @@ import haxe.display.Display.MetadataTarget;
 import reflaxe.data.ClassFuncArg;
 import reflaxe.data.ClassFuncData;
 import reflaxe.data.ClassVarData;
+import reflaxe.debug.MeasurePerformance;
 import reflaxe.input.ClassHierarchyTracker;
 
+using reflaxe.helpers.ArrayHelper;
 using reflaxe.helpers.ClassTypeHelper;
 using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.NameMetaHelper;
@@ -187,6 +189,10 @@ class Classes extends SubCompiler {
 		Called by `cxxcompiler.Compiler` to generate C++ for class.
 	**/
 	public function compileClass(classType: ClassType, varFields: Array<ClassVarData>, funcFields: Array<ClassFuncData>, maybeClassRef: Null<Ref<ClassType>> = null): Null<String> {
+		#if cxx_measure
+		final perf = new reflaxe.debug.MeasurePerformance();
+		#end
+		
 		// Handle extern classes
 		if(classType.isExtern && maybeClassRef == null) {
 			if(classType.hasMeta(Meta.DynamicCompatible)) {
@@ -329,7 +335,15 @@ class Classes extends SubCompiler {
 
 		// Class functions
 		for(f in funcFields) {
+			#if cxx_measure
+			final funcPerf = new MeasurePerformance();
+			#end
+
 			compileFunction(f);
+
+			#if cxx_measure
+			Sys.println(StringTools.lpad(perf.millisecondsString(), " ", 16 + 4) + " Function : " + f.field.name);
+			#end
 		}
 
 		// Destructor
@@ -348,6 +362,10 @@ class Classes extends SubCompiler {
 
 		// Clear the dependency tracker.
 		Main.clearDep();
+
+		#if cxx_measure
+		Sys.println(StringTools.lpad(perf.millisecondsString(), " ", 16) + " Type : " + (classType.pack.joinAppend(".") + classType.name));
+		#end
 
 		// We generated the files ourselves with "appendToExtraFile",
 		// so we return null so Reflaxe doesn't generate anything itself.
@@ -618,7 +636,7 @@ class Classes extends SubCompiler {
 			"void";
 		} else if(f.ret.isDynamic()) {
 			"auto";
-		} else {
+		} else if(!ctx.isStatic) {
 			final covariant = ClassHierarchyTracker.funcGetCovariantBaseType(classType, field, ctx.isStatic);
 			if(covariant != null) {
 				final covariantMMT = Types.getMemoryManagementTypeFromType(covariant);
@@ -632,6 +650,8 @@ class Classes extends SubCompiler {
 					ctx.covariance.retVal = TComp.compileType(covariant, field.pos, true, true);
 				}
 			}
+			TComp.compileType(f.ret, field.pos, false, true);
+		} else {
 			TComp.compileType(f.ret, field.pos, false, true);
 		}
 
@@ -648,7 +668,13 @@ class Classes extends SubCompiler {
 		if(field.hasMeta(Meta.CppInline)) {
 			specifiers.push("inline");
 		}
-		if(ctx.isAbstract || (isDestructor && hadVirtual) || field.hasMeta(Meta.Virtual) || ClassHierarchyTracker.funcHasChildOverride(classType, field, ctx.isStatic)) {
+		if(!ctx.isStatic && (
+				ctx.isAbstract ||
+				(isDestructor && hadVirtual) ||
+				field.hasMeta(Meta.Virtual) ||
+				ClassHierarchyTracker.funcHasChildOverride(classType, field, ctx.isStatic)
+			)
+		) {
 			specifiers.push("virtual");
 			hadVirtual = true;
 		}

@@ -9,6 +9,17 @@ package cxxcompiler.config;
 
 enum abstract Define(String) from String to String {
 	/**
+		-D cxx_measure
+
+		If defined, the time it takes to compile various
+		parts of the Haxe AST will be printed.
+
+		One may also use `-D reflaxe_measure` to get
+		the full compilation time.
+	**/
+	var Measure = "cxx_measure";
+
+	/**
 		-D cxx_callstack
 
 		If defined, Reflaxe/C++ will generate content to track
