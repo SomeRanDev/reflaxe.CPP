@@ -184,6 +184,13 @@ enum abstract Meta(String) from String to String {
 	var Extern = ":extern";
 
 	/**
+		@:cppEnum
+
+		If used on an extern enum, it will be treated like a C++ enum.
+	**/
+	var CppEnum = ":cppEnum";
+
+	/**
 		@:headerCode(code: String)
 
 		Generates additional C++ code to be used in the header file

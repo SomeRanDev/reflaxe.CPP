@@ -1239,7 +1239,14 @@ class Expressions extends SubCompiler {
 					// Therefore, if there are no arguments, lets go ahead and
 					// add a call operator to the end so the C++ function version
 					// is properly called.
-					final end = potentialArgs != null && potentialArgs.length > 0 ? "" : "()";
+					//
+					// HOWEVER, if the enum is a `@:cppEnum`, it should not have
+					// a call operator.
+					final end = if(enumRef.get().hasMeta(Meta.CppEnum)) {
+						"";
+					} else {
+						potentialArgs != null && potentialArgs.length > 0 ? "" : "()";
+					}
 					enumName + "::" + name + end;
 				}
 				case _: {

@@ -21,6 +21,7 @@ import reflaxe.debug.MeasurePerformance;
 import reflaxe.input.ClassHierarchyTracker;
 
 using reflaxe.helpers.ArrayHelper;
+using reflaxe.helpers.BaseTypeHelper;
 using reflaxe.helpers.ClassTypeHelper;
 using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.NameMetaHelper;
@@ -430,7 +431,7 @@ class Classes extends SubCompiler {
 
 		extendedFrom = [];
 
-		isExtern = classType.isExtern;
+		isExtern = classType.isReflaxeExtern();
 		destructorField = null;
 		hadVirtual = false;
 

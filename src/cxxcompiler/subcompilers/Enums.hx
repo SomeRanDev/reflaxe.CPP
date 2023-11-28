@@ -16,6 +16,7 @@ import reflaxe.BaseCompiler;
 import reflaxe.data.EnumOptionData;
 import reflaxe.helpers.NameMetaHelper;
 
+using reflaxe.helpers.BaseTypeHelper;
 using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.PositionHelper;
 using reflaxe.helpers.SyntaxHelper;
@@ -47,6 +48,10 @@ class Enums extends SubCompiler {
 	var dep: Null<DependencyTracker> = null;
 
 	public function compileEnum(enumType: EnumType, options: Array<EnumOptionData>): Null<String> {
+		if(enumType.isReflaxeExtern()) {
+			return null;
+		}
+
 		final filename = Compiler.getFileNameFromModuleData(enumType);
 		final headerFilename = filename + Compiler.HeaderExt;
 
