@@ -156,12 +156,12 @@ final class Sys_CpuTime {
 @:require(sys)
 extern class Sys {
 	public static extern inline function print(v: cxx.DynamicToString): Void {
-		untyped __include__("iostream", true);
+		@:include("iostream", true)
 		untyped __cpp__("std::cout << {0}", Std.string(v));
 	}
 
 	public static extern inline function println(v: cxx.DynamicToString): Void {
-		untyped __include__("iostream", true);
+		@:include("iostream", true)
 		untyped __cpp__("std::cout << {0} << std::endl", Std.string(v));
 	}
 
@@ -233,7 +233,7 @@ extern class Sys {
 	#if reflaxe_cpp_windows
 
 	public static extern inline function programPath(): String {
-		untyped __include__("windows.h", true);
+		@:include("windows.h", true)
 		final path: cxx.Value<cxx.std.Array<cxx.Char, 256>> = new cxx.std.Array<cxx.Char, 256>();
 		untyped GetModuleFileNameA(__cpp__("nullptr"), path.data(), __cpp__("(DWORD){0}", path.size()));
 		return cast(path.data(), cxx.ConstCharPtr).toString();
@@ -242,8 +242,8 @@ extern class Sys {
 	#elseif reflaxe_cpp_linux
 
 	public static extern inline function programPath(): String {
-		untyped __include__("unistd.h", true);
-		untyped __include__("libgen.h", true);
+		@:include("unistd.h", true)
+		@:include("libgen.h", true)
 		final path: cxx.Value<cxx.std.Array<cxx.Char, 256>> = new cxx.std.Array<cxx.Char, 256>();
 		final count: cxx.num.SizeT = untyped readlink(@:cstr "/proc/self/exe", path.data(), path.size());
 		return if(count != -1) {
