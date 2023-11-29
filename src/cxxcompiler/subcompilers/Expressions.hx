@@ -150,7 +150,9 @@ class Expressions extends SubCompiler {
 				result = null;
 			}
 			case TConst(constant): {
-				result = constantToCpp(constant, expr);
+				if(!topLevel) {
+					result = constantToCpp(constant, expr);
+				}
 			}
 			case TCall(callExpr, el) if(switch(callExpr.expr) { case TConst(TSuper): true; case _: false; }): {
 				if(CComp.superConstructorCall == null) {
@@ -161,8 +163,10 @@ class Expressions extends SubCompiler {
 				result = null;
 			}
 			case TLocal(v): {
-				IComp.addIncludeFromMetaAccess(v.meta, compilingInHeader);
-				result = Main.compileVarName(v.name, expr);
+				if(!topLevel) {
+					IComp.addIncludeFromMetaAccess(v.meta, compilingInHeader);
+					result = Main.compileVarName(v.name, expr);
+				}
 			}
 			case TIdent(s): {
 				result = Main.compileVarName(s, expr);
