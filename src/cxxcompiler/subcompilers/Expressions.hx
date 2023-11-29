@@ -1841,6 +1841,18 @@ class Expressions extends SubCompiler {
 					case _: metaEntry.pos.makeError(InvalidPassConstTypeParam);
 				}
 			}
+			case ":include": {
+				switch(metaEntry.params) {
+					case [{ expr: EConst(CString(s)) }]: {
+						IComp.addInclude(s, compilingInHeader, false);
+					}
+					case [{ expr: EConst(CString(s)) }, { expr: EConst(CIdent(_ == "true" => b)) }]: {
+						IComp.addInclude(s, compilingInHeader, b);
+					}
+					case _:
+				}
+				null;
+			}
 			case _: null;
 		}
 	}
