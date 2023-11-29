@@ -33,22 +33,8 @@ void Main::main() {
 	arr->push_back(2 + 1);
 	Main::assert((int)(arr->size()) == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 24, "main"s));
 	Main::assert((int)(HxArray::concat<int>(arr.get(), std::make_shared<std::deque<int>>(std::deque<int>{ 4, 5, 6 }).get())->size()) == 6, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 27, "main"s));
-
-	bool tempBool = false;
-
-	{
-		tempBool = (std::find(arr->begin(), arr->end(), 3) != arr->end());
-	};
-
-	Main::assert(tempBool, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 30, "main"s));
-
-	bool tempBool1 = false;
-
-	{
-		tempBool1 = (std::find(arr->begin(), arr->end(), 5) != arr->end());
-	};
-
-	Main::assert(!tempBool1, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 31, "main"s));
+	Main::assert((std::find(arr->begin(), arr->end(), 3) != arr->end()), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 30, "main"s));
+	Main::assert(!(std::find(arr->begin(), arr->end(), 5) != arr->end()), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 31, "main"s));
 	Main::assert((*arr) == (*arr), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 35, "main"s));
 
 	std::shared_ptr<std::deque<int>> tempRight;
