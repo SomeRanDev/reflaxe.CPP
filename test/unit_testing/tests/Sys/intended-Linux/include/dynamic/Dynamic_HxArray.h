@@ -117,7 +117,6 @@ public:
 				auto result = [o, args] {
 					auto x = args[0].asType<T>();
 					{
-
 						return (std::find(o->begin(), o->end(), x) != o->end());
 					}
 				};

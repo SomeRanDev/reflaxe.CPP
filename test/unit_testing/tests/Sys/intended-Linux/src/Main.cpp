@@ -106,8 +106,6 @@ void Main::main() {
 	cxx::io::NativeOutput(&std::cerr).flush();
 
 	std::string tempString;
-
-
 	std::array<char, 256> path = std::array<char, 256>();
 	std::size_t count = readlink("/proc/self/exe", path.data(), path.size());
 
