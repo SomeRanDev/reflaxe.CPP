@@ -13,6 +13,7 @@ import haxe.macro.Type;
 
 import cxxcompiler.config.Meta;
 
+using reflaxe.helpers.BaseTypeHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
@@ -199,6 +200,7 @@ class CppTypeHelper {
 	public static function isPtr(t: Type): Bool {
 		return switch(unwrapConst(t)) {
 			case TAbstract(_.get() => { name: "Ptr", module: "cxx.Ptr" }, _): true;
+			case TType(_.get() => defType, _) if(defType.isReflaxeExtern()): isPtr(defType.type);
 			case _: false;
 		}
 	}
@@ -222,7 +224,8 @@ class CppTypeHelper {
 			case TType(defRef, params) if(params.length == 1): {
 				final defType = defRef.get();
 				(defType.name == "Ref" && defType.module == "cxx.Ref") ||
-				(defType.name == "ConstRef" && defType.module == "cxx.ConstRef");
+				(defType.name == "ConstRef" && defType.module == "cxx.ConstRef") ||
+				(defType.isReflaxeExtern() && isRefOrConstRef(defType.type));
 			}
 			case _: false;
 		}
@@ -234,7 +237,8 @@ class CppTypeHelper {
 		return switch(t) {
 			case TType(defRef, params) if(params.length == 1): {
 				final defType = defRef.get();
-				defType.name == "ConstRef" && defType.module == "cxx.ConstRef";
+				(defType.name == "ConstRef" && defType.module == "cxx.ConstRef") ||
+				(defType.isReflaxeExtern() && isConstRef(defType.type));
 			}
 			case _: false;
 		}
