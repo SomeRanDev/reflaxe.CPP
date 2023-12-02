@@ -512,6 +512,9 @@ class Types extends SubCompiler {
 		}
 
 		final mmt = switch(t) {
+			case TEnum(_.get() => enumType, _) if(enumType.hasMeta(Meta.CppEnum)): {
+				Value;
+			}
 			case TType(_, [inner]) if(t.isConst()): {
 				getMemoryManagementTypeFromType(inner);
 			}
