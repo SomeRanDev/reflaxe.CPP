@@ -458,7 +458,13 @@ class Compiler extends reflaxe.DirectToStringCompiler {
 				switch(calledExpr.expr) {
 					case TField(_, fa): {
 						// Let's always use field's return type on call to field.
-						getExprType(calledExpr).getTFunReturn() ?? e.t;
+						final result = getExprType(calledExpr).getTFunReturn() ?? e.t;
+
+						// If it's TMono(null), use `e.t` instead.
+						switch(result) {
+							case TMono(_.get() => null): e.t;
+							case _: result;
+						}
 
 						// TODO: Should this only be done with @:redirectType??
 						//
