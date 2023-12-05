@@ -1157,6 +1157,17 @@ class Expressions extends SubCompiler {
 	**/
 	function isArrowAccessType(t: Type): Bool {
 		final ut = t.unwrapNullTypeOrSelf();
+
+		// Unwrap cxx.Ref or cxx.ConstRef
+		final unwrappedConst = ut.unwrapRefOrConstRef();
+		if(unwrappedConst != null) {
+			return isArrowAccessType(unwrappedConst);
+		}
+
+		// Check for @:arrowAccess
+		final meta = ut.getMeta();
+		if(meta.maybeHas(Meta.ArrowAccess)) return true;
+
 		final mmt = Types.getMemoryManagementTypeFromType(ut);
 		return mmt != Value;
 	}
