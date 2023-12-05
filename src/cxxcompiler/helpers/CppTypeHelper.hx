@@ -125,6 +125,9 @@ class CppTypeHelper {
 			case TType(defRef, [inner]) if(isConst(t)): {
 				return getInternalType(inner);
 			}
+			case TType(_.get() => defType, [inner]) if(defType.isReflaxeExtern()): {
+				getInternalType(inner);
+			}
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
 				if(abs.name == "Null" && params.length == 1) {
@@ -144,6 +147,9 @@ class CppTypeHelper {
 		switch(t) {
 			case TType(defRef, [inner]) if(isConst(t)): {
 				return TType(defRef, [replaceInternalType(inner, replacement)]);
+			}
+			case TType(_.get() => defType, [inner]) if(defType.isReflaxeExtern()): {
+				isOverrideMemoryManagement(inner);
 			}
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
@@ -173,6 +179,7 @@ class CppTypeHelper {
 		return switch(t) {
 			case TAbstract(absRef, _) if(absRef.get().metaIsOverrideMemoryManagement()): true;
 			case TType(_, [inner]) if(isConst(t)): isOverrideMemoryManagement(inner);
+			case TType(_.get() => defType, [inner]) if(defType.isReflaxeExtern()): isOverrideMemoryManagement(inner);
 			case _: false;
 		}
 	}
