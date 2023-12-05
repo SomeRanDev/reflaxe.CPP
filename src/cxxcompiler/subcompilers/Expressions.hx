@@ -1265,14 +1265,18 @@ class Expressions extends SubCompiler {
 					enumName + "::" + name + end;
 				}
 				case _: {
-					var useArrow = isThisExpr(e) || isArrowAccessType(Main.getExprType(e));
+					final eType = Main.getExprType(e);
+					var useArrow = isThisExpr(e) || isArrowAccessType(eType);
 
-					final nullType = Main.getExprType(e).unwrapNullType();
+					final nullType = eType.unwrapNullType();
 					final cppExpr = if(nullType != null) {
 						compileExpressionForType(e, nullType).trustMe();
 					} else {
 						Main.compileExpressionOrError(e);
 					}
+
+					// We need to include the "left type" to access its fields in C++.
+					IComp.addIncludeFromType(eType, compilingInHeader);
 
 					var accessOp = switch(e.expr) {
 						case TConst(TSuper): "::";
