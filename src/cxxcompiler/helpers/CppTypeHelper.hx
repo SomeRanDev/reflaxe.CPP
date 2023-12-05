@@ -125,6 +125,9 @@ class CppTypeHelper {
 			case TType(defRef, [inner]) if(isConst(t)): {
 				return getInternalType(inner);
 			}
+			case TType(_.get() => defType, [inner]) if(defType.isReflaxeExtern()): {
+				getInternalType(inner);
+			}
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
 				if(abs.name == "Null" && params.length == 1) {
@@ -144,6 +147,9 @@ class CppTypeHelper {
 		switch(t) {
 			case TType(defRef, [inner]) if(isConst(t)): {
 				return TType(defRef, [replaceInternalType(inner, replacement)]);
+			}
+			case TType(_.get() => defType, [inner]) if(defType.isReflaxeExtern()): {
+				isOverrideMemoryManagement(inner);
 			}
 			case TAbstract(absRef, params): {
 				final abs = absRef.get();
@@ -173,6 +179,7 @@ class CppTypeHelper {
 		return switch(t) {
 			case TAbstract(absRef, _) if(absRef.get().metaIsOverrideMemoryManagement()): true;
 			case TType(_, [inner]) if(isConst(t)): isOverrideMemoryManagement(inner);
+			case TType(_.get() => defType, [inner]) if(defType.isReflaxeExtern()): isOverrideMemoryManagement(inner);
 			case _: false;
 		}
 	}
@@ -247,7 +254,7 @@ class CppTypeHelper {
 	// ----------------------------
 	// If the type is cxx.Ref or cxx.ConstRef this returns the internal type.
 	// Otherwise it returns itself.
-	public static function unwrapRefOrConstRef(t: Type): Type {
+	public static function unwrapRefOrConstRef(t: Type): Null<Type> {
 		return switch(t) {
 			case TType(_, [unwrappedType]) if(isRefOrConstRef(t)): {
 				unwrapRefOrConstRef(unwrappedType) ?? unwrappedType;
