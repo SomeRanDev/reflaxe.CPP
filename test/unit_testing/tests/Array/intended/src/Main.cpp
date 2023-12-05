@@ -135,7 +135,7 @@ void Main::main() {
 	std::optional<int> tempMaybeNumber;
 
 	{
-		std::optional<int> result = stack->back();
+		std::optional<int> result = (*stack->back());
 
 		stack->pop_back();
 		tempMaybeNumber = result;
@@ -186,7 +186,7 @@ void Main::main() {
 	std::optional<int> tempMaybeNumber1;
 
 	{
-		std::optional<int> result = ordered->front();
+		std::optional<int> result = (*ordered->front());
 
 		ordered->pop_front();
 		tempMaybeNumber1 = result;

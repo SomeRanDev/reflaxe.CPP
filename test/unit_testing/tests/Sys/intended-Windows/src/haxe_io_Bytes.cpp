@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <memory>
+#include <string>
 
 haxe::io::Bytes::Bytes(int length, std::shared_ptr<haxe::io::BytesData> b):
 	_order_id(generate_order_id())
