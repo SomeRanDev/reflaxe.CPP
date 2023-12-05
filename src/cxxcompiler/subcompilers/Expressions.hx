@@ -1341,7 +1341,7 @@ class Expressions extends SubCompiler {
 						case FInstance(clsRef, _, cfRef) | FStatic(clsRef, cfRef): {
 							final funcData = cfRef.get().findFuncData(clsRef.get());
 							if(funcData != null) {
-								el = funcData.replacePadNullsWithDefaults(el);
+								el = funcData.replacePadNullsWithDefaults(el, ":noNullPad", Main.generateInjectionExpression);
 							}
 						}
 						case _:
