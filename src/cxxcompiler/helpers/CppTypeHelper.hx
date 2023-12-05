@@ -245,6 +245,18 @@ class CppTypeHelper {
 	}
 
 	// ----------------------------
+	// If the type is cxx.Ref or cxx.ConstRef this returns the internal type.
+	// Otherwise it returns itself.
+	public static function unwrapRefOrConstRef(t: Type): Type {
+		return switch(t) {
+			case TType(_, [unwrappedType]) if(isRefOrConstRef(t)): {
+				unwrapRefOrConstRef(unwrappedType) ?? unwrappedType;
+			}
+			case _: null;
+		}
+	}
+
+	// ----------------------------
 	// Returns true variables of this type MUST contain
 	// a value upon being declared.
 	public static function requiresValue(t: Type): Bool {

@@ -247,12 +247,34 @@ class Includes extends SubCompiler {
 			case TAnonymous(_): {
 				addAnonTypeInclude(header);
 			}
-			case _: {
+			case ut: {
 				final mt = t.toModuleType();
 				if(mt != null) {
 					addIncludeFromModuleType(mt, header);
+
+					// Include `T` for `abstract Something<T>(T)`
+					// TODO: is there better place to put this?
+					if(!isNoIncludeType(mt)) {
+						addIncludeFromAbstractTypeParam(ut, header);
+					}
 				}
 			}
+		}
+	}
+
+	function addIncludeFromAbstractTypeParam(t: Type, header: Bool) {
+		switch(t) {
+			case TAbstract(absRef, params): {
+				final a = absRef.get();
+				if(a.type.isTypeParameter()) {
+					#if macro
+					final t = haxe.macro.TypeTools.applyTypeParameters(a.type, a.params, params);
+					addIncludeFromType(t, header);
+					return;
+					#end
+				}
+			}
+			case _:
 		}
 	}
 

@@ -457,12 +457,17 @@ class Compiler extends reflaxe.DirectToStringCompiler {
 			case TCall(calledExpr, _): {
 				switch(calledExpr.expr) {
 					case TField(_, fa): {
-						switch(fa) {
-							case FInstance(_, _, cfRef) if(cfRef.get().hasMeta(Meta.RedirectType)): {
-								getExprType(calledExpr).getTFunReturn() ?? e.t;
-							}
-							case _: e.t;
-						}
+						// Let's always use field's return type on call to field.
+						getExprType(calledExpr).getTFunReturn() ?? e.t;
+
+						// TODO: Should this only be done with @:redirectType??
+						//
+						// switch(fa) {
+						// 	case FInstance(_, _, cfRef) if(cfRef.get().hasMeta(Meta.RedirectType)): {
+						// 		getExprType(calledExpr).getTFunReturn() ?? e.t;
+						// 	}
+						// 	case _: e.t;
+						// }
 					}
 					case TLocal(tvar): {
 						switch(getTVarType(tvar)) {

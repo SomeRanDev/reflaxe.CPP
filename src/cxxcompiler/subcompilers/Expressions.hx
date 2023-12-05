@@ -1157,6 +1157,17 @@ class Expressions extends SubCompiler {
 	**/
 	function isArrowAccessType(t: Type): Bool {
 		final ut = t.unwrapNullTypeOrSelf();
+
+		// Unwrap cxx.Ref or cxx.ConstRef
+		final unwrappedConst = ut.unwrapRefOrConstRef();
+		if(unwrappedConst != null) {
+			return isArrowAccessType(unwrappedConst);
+		}
+
+		// Check for @:arrowAccess
+		final meta = ut.getMeta();
+		if(meta.maybeHas(Meta.ArrowAccess)) return true;
+
 		final mmt = Types.getMemoryManagementTypeFromType(ut);
 		return mmt != Value;
 	}
@@ -1254,14 +1265,18 @@ class Expressions extends SubCompiler {
 					enumName + "::" + name + end;
 				}
 				case _: {
-					var useArrow = isThisExpr(e) || isArrowAccessType(Main.getExprType(e));
+					final eType = Main.getExprType(e);
+					var useArrow = isThisExpr(e) || isArrowAccessType(eType);
 
-					final nullType = Main.getExprType(e).unwrapNullType();
+					final nullType = eType.unwrapNullType();
 					final cppExpr = if(nullType != null) {
 						compileExpressionForType(e, nullType).trustMe();
 					} else {
 						Main.compileExpressionOrError(e);
 					}
+
+					// We need to include the "left type" to access its fields in C++.
+					IComp.addIncludeFromType(eType, compilingInHeader);
 
 					var accessOp = switch(e.expr) {
 						case TConst(TSuper): "::";
@@ -1341,7 +1356,7 @@ class Expressions extends SubCompiler {
 						case FInstance(clsRef, _, cfRef) | FStatic(clsRef, cfRef): {
 							final funcData = cfRef.get().findFuncData(clsRef.get());
 							if(funcData != null) {
-								el = funcData.replacePadNullsWithDefaults(el);
+								el = funcData.replacePadNullsWithDefaults(el, ":noNullPad", Main.generateInjectionExpression);
 							}
 						}
 						case _:
