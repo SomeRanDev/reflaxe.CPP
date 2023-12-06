@@ -847,6 +847,8 @@ class Expressions extends SubCompiler {
 
 		var cppExpr1 = if(op.isAssignDirect()) {
 			Main.compileExpressionOrError(e1);
+		} else if(useEnumIndexEquality(e1)) {
+			Main.compileExpressionOrError(e1) + "->index";
 		} else if(op.isEqualityCheck()) {
 			compileForEqualityBinop(e1);
 		} else {
@@ -855,6 +857,8 @@ class Expressions extends SubCompiler {
 
 		var cppExpr2 = if(op.isAssign()) {
 			compileExpressionForType(e2, Main.getExprType(e1));
+		} else if(useEnumIndexEquality(e2)) {
+			Main.compileExpressionOrError(e2) + "->index";
 		} else if(op.isEqualityCheck()) {
 			compileForEqualityBinop(e2);
 		} else {
@@ -963,6 +967,20 @@ class Expressions extends SubCompiler {
 
 		// Generate final C++ code!
 		return cppExpr1 + " " + operatorStr + " " + cppExpr2;
+	}
+
+	/**
+		The only time enum comparisons are allowed is for direct, no-argument enums.
+		In these cases, all we need to do is compare the "index".
+
+		The only exception is for `@:cppEnum` enums.
+	**/
+	function useEnumIndexEquality(expr: TypedExpr): Bool {
+		final t = Main.getExprType(expr);
+		return switch(t) {
+			case TEnum(enmRef, _): !enmRef.get().hasMeta(Meta.CppEnum);
+			case _: false;
+		}
 	}
 
 	/**
