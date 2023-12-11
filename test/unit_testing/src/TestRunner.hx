@@ -10,6 +10,7 @@ var UpdateIntended = false;
 var UpdateIntendedSys = false;
 var OSExclusive = false;
 var NoDetails = false;
+var SimulatePlatform = null;
 
 function printlnErr(msg: String) {
 	Sys.stderr().writeString(msg + "\n", haxe.io.Encoding.UTF8);
@@ -52,6 +53,9 @@ The list of C++ output lines that do not match the tests are ommitted from the o
 * dev-mode
 Enables `always-compile`, `show-output`, and `no-details`.
 
+* simulate=SystemName
+Simulates a test on a different operating system (so I can update Linux tests on Windows).
+
 * test=TestName
 Makes it so only this test is ran. This option can be added multiple times to perform multiple tests.");
 
@@ -70,6 +74,19 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 		alwaysCompile = true;
 		ShowAllOutput = true;
 		NoDetails = true;
+	}
+
+	// ------------------------------------
+	// Simulate platform
+	// ------------------------------------
+	for(a in args) {
+		if(StringTools.startsWith(a, "simulate=")) {
+			final r = ~/^simulate=(\w+)$/;
+			if(r.match(a)) {
+				SimulatePlatform = r.matched(1);
+				break;
+			}
+		}
 	}
 
 	// ------------------------------------
@@ -98,7 +115,7 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 
 	if(OSExclusive) {
 		tests = tests.filter(function(t) {
-			final sysDir = INTENDED_DIR + "-" + Sys.systemName();
+			final sysDir = INTENDED_DIR + "-" + systemName();
 			return sys.FileSystem.exists(haxe.io.Path.join([TEST_DIR, t, sysDir]));
 		});
 	}
@@ -132,7 +149,7 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 	}
 
 	failures = 0;
-	final systemName = Sys.systemName();
+	final systemName = systemName();
 	final originalCwd = Sys.getCwd();
 
 	Sys.println("\n===========\nTesting C++ Compilation\n===========\n");
@@ -160,6 +177,10 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 	if(failures > 0) {
 		Sys.exit(1);
 	}
+}
+
+function systemName() {
+	return SimulatePlatform ?? Sys.systemName();
 }
 
 function checkAndReadDir(path: String): Array<String> {
@@ -210,6 +231,10 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"\"" + absPath + "\""
 		];
 
+		if(SimulatePlatform != null) {
+			args.push("-D reflaxe_cpp_system_override=" + SimulatePlatform);
+		}
+
 		Sys.println("haxe " + args.join(" "));
 		Sys.println("");
 
@@ -246,7 +271,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 }
 
 function getOutputDirectory(testDir: String): String {
-	final sysDir = INTENDED_DIR + "-" + Sys.systemName();
+	final sysDir = INTENDED_DIR + "-" + systemName();
 	return if(UpdateIntendedSys) {
 		sysDir;
 	} else if(UpdateIntended) {
@@ -282,7 +307,7 @@ function onProcessFail(process: sys.io.Process, hxml: String, ec: Int, stdoutCon
 
 function compareOutputFolders(testDir: String): Bool {
 	final outFolder = haxe.io.Path.join([testDir, OUT_DIR]);
-	final intendedFolderSys = haxe.io.Path.join([testDir, INTENDED_DIR + "-" + Sys.systemName()]);
+	final intendedFolderSys = haxe.io.Path.join([testDir, INTENDED_DIR + "-" + systemName()]);
 	final intendedFolder = if(sys.FileSystem.exists(intendedFolderSys)) {
 		intendedFolderSys;
 	} else {

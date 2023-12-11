@@ -23,8 +23,10 @@ class CompilerInit {
 		#end
 
 		// Define platform for API usage
+		// Can simulate platforms using `-D reflaxe_cpp_system_override=PLATFORM_NAME` (usually for testing)
 		#if macro
-		HaxeCompiler.define("reflaxe_cpp_" + Sys.systemName().toLowerCase());
+		final system = Context.definedValue("reflaxe_cpp_system_override") ?? Sys.systemName();
+		HaxeCompiler.define("reflaxe_cpp_" + system.toLowerCase());
 		#end
 
 		ReflectCompiler.AddCompiler(new Compiler(), {
