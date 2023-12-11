@@ -1,3 +1,5 @@
 # Tests to make:
 * Multiple constructors
-* C++ enums (extern and not?)
+* C++ enums (extern and not?) - test switch statements, converting to int, etc.
+* Test optimizations in Dynamic functions
+* Test #include because field access? (With #including static access?)
