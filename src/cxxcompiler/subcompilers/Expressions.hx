@@ -460,8 +460,16 @@ class Expressions extends SubCompiler {
 				}
 			}
 			case TEnumIndex(expr): {
-				final access = isArrowAccessType(Main.getExprType(expr)) ? "->" : ".";
-				result = compileExpressionNotNull(expr) + access + "index";
+				final cpp = compileExpressionNotNull(expr);
+				result = switch(expr.t) {
+					case TEnum(_.get() => e, _) if(e.hasMeta(Meta.CppEnum)): {
+						"static_cast<int>(" + cpp + ")";
+					}
+					case _: {
+						final access = isArrowAccessType(Main.getExprType(expr)) ? "->" : ".";
+						cpp + access + "index";
+					}
+				}
 			}
 		}
 
@@ -1648,8 +1656,25 @@ class Expressions extends SubCompiler {
 		final eType = Main.getExprType(e);
 		final cpp = Main.compileExpressionOrError(e.unwrapParenthesis());
 
+		// If switching on `@:cppEnum` enum, obtain relevant data.
+		final cppEnumData = switch(e.unwrapParenthesis().expr) {
+			case TEnumIndex(enumIndexExpr): {
+				switch(Main.getExprType(enumIndexExpr)) {
+					case TEnum(enumRef, _) if(enumRef.get().hasMeta(Meta.CppEnum)): {
+						IComp.addIncludeFromModuleType(TEnumDecl(enumRef), compilingInHeader);
+						{
+							e: enumRef,
+							prefix: TComp.compileType(TEnum(enumRef, []), e.pos, true) + "::"
+						};
+					}
+					case _: null;
+				}
+			}
+			case _: null;
+		}
+
 		if(eType.isCppNumberType()) {
-			result = compileSwitchAsSwitch(cpp, cases, edef);
+			result = compileSwitchAsSwitch(cpp, cases, edef, cppEnumData);
 		} else if(isStringLiteralSwitch(eType, cases)) {
 			result = compileSwitchOptimizedForStrings(cpp, eType, cases, edef);
 		} else {
@@ -1689,10 +1714,29 @@ class Expressions extends SubCompiler {
 		}
 	}
 
-	function compileSwitchAsSwitch(cpp: String, cases: Array<{ values:Array<TypedExpr>, expr:TypedExpr }>, edef: Null<TypedExpr>) {
+	/**
+		Compiles a switch statement as a C++ switch statement.
+		All the cases should be numerical values.
+
+		If `cppEnum` is defined, the cases will try and be compiled
+		using the enum value identifiers.
+	**/
+	function compileSwitchAsSwitch(cpp: String, cases: Array<{ values:Array<TypedExpr>, expr:TypedExpr }>, edef: Null<TypedExpr>, cppEnum: Null<{ e: Ref<EnumType>, prefix: String }>) {
 		var result = "switch(" + cpp + ") {";
 		for(c in cases) {
-			for(cpp in c.values.map(v -> Main.compileExpressionOrError(v))) {
+			final compiledValues = c.values.map(function(v) {
+				if(cppEnum != null) {
+					final names = cppEnum.e.get().names;
+					final index = switch(v.expr) {
+						case TConst(TInt(v)) if(v < names.length): {
+							return cppEnum.prefix + names[v];
+						}
+						case _: null;
+					}
+				}
+				return Main.compileExpressionOrError(v);
+			});
+			for(cpp in compiledValues) {
 				result += "\n\tcase " + cpp + ":";
 			}
 			result += " {\n";
