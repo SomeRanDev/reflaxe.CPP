@@ -268,9 +268,12 @@ class Includes extends SubCompiler {
 				}
 
 				// This SHOULD(?) also handle cxx.Ptr<TYPE> and other mmts.
-				final params = t.getParams();
-				if(params != null) {
-					for(p in params) addIncludeFromType(p, header);
+				// If this is done outside of a header, it causes include looping??
+				if(!header) {
+					final params = t.getParams();
+					if(params != null) {
+						for(p in params) addIncludeFromType(p, header);
+					}
 				}
 			}
 		}
