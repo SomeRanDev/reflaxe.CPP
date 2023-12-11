@@ -23,6 +23,8 @@ import haxe.macro.Type;
 
 import cxxcompiler.config.Meta;
 
+using StringTools;
+
 using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
@@ -263,6 +265,12 @@ class Includes extends SubCompiler {
 					if(!isNoIncludeType(mt)) {
 						addIncludeFromAbstractTypeParam(ut, header);
 					}
+				}
+
+				// This SHOULD(?) also handle cxx.Ptr<TYPE> and other mmts.
+				final params = t.getParams();
+				if(params != null) {
+					for(p in params) addIncludeFromType(p, header);
 				}
 			}
 		}
