@@ -798,14 +798,15 @@ class Classes extends SubCompiler {
 		final dynAddToCpp = !headerOnly && ctx.isStatic;
 		XComp.compilingInHeader = !dynAddToCpp;
 		XComp.compilingForTopLevel = true;
-		final callable = if(f.expr != null) {
+
+		final fieldExpr = field.expr();
+		final callable = if(f.expr != null && fieldExpr != null) {
 			// Wrap the internal function expression in "TFunction" before compiling...
-			final fieldExpr = field.expr();
 			final expr = switch(fieldExpr.expr) {
 				case TFunction(tfunc): {
 					{
 						expr: TFunction({
-							expr: f.expr,
+							expr: f.expr.trustMe(),
 							args: tfunc.args,
 							t: tfunc.t
 						}),
@@ -819,6 +820,7 @@ class Classes extends SubCompiler {
 		} else {
 			"nullptr";
 		}
+
 		XComp.compilingForTopLevel = false;
 
 		final cppArgs = getArguments(ctx, false).map(a -> {
