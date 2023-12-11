@@ -1233,6 +1233,10 @@ class Expressions extends SubCompiler {
 			// @:native
 			nameMeta.getNameOrNative();
 		} else {
+			// C++ field access requires the type to be #included.
+			IComp.addIncludeFromType(Main.getExprType(e), compilingInHeader);
+
+			// Get name
 			var name = Main.compileVarName(nameMeta.getNameOrNativeName());
 
 			// If the field is covariant, but returning the child variant type,
