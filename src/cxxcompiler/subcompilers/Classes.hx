@@ -786,6 +786,7 @@ class Classes extends SubCompiler {
 		Compile dynamic function as a variable containing a function.
 	**/
 	function compileDynamicFunction(ctx: FunctionCompileContext) {
+		final f = ctx.f;
 		final field = ctx.field;
 
 		// -----------------
@@ -797,7 +798,27 @@ class Classes extends SubCompiler {
 		final dynAddToCpp = !headerOnly && ctx.isStatic;
 		XComp.compilingInHeader = !dynAddToCpp;
 		XComp.compilingForTopLevel = true;
-		final callable = Main.compileClassVarExpr(field.expr().trustMe());
+		final callable = if(f.expr != null) {
+			// Wrap the internal function expression in "TFunction" before compiling...
+			final fieldExpr = field.expr();
+			final expr = switch(fieldExpr.expr) {
+				case TFunction(tfunc): {
+					{
+						expr: TFunction({
+							expr: f.expr,
+							args: tfunc.args,
+							t: tfunc.t
+						}),
+						pos: fieldExpr.pos,
+						t: fieldExpr.t
+					}
+				}
+				case _: fieldExpr;
+			}
+			Main.compileClassVarExpr(expr);
+		} else {
+			"nullptr";
+		}
 		XComp.compilingForTopLevel = false;
 
 		final cppArgs = getArguments(ctx, false).map(a -> {
