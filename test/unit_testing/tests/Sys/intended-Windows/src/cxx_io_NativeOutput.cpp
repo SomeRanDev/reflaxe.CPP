@@ -1,5 +1,8 @@
 #include "cxx_io_NativeOutput.h"
 
+#include <memory>
+#include <ostream>
+
 cxx::io::NativeOutput::NativeOutput(std::ostream* stream):
 	_order_id(generate_order_id())
 {

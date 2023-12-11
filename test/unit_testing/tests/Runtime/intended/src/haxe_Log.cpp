@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include "cxx_DynamicToString.h"
+#include "haxe_PosInfos.h"
 #include "Std.h"
 
 using namespace std::string_literals;

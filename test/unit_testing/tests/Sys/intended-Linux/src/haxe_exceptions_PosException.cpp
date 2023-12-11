@@ -1,7 +1,10 @@
 #include "haxe_exceptions_PosException.h"
 
+#include <memory>
 #include <string>
 #include "_AnonStructs.h"
+#include "haxe_Exception.h"
+#include "haxe_PosInfos.h"
 #include "HxString.h"
 
 using namespace std::string_literals;

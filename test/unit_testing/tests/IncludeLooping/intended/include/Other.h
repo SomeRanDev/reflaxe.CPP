@@ -3,6 +3,7 @@
 #include <memory>
 #include <optional>
 #include "_HaxeUtils.h"
+#include "Other2.h"
 
 
 
