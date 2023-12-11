@@ -247,6 +247,12 @@ class Includes extends SubCompiler {
 			case TAnonymous(_): {
 				addAnonTypeInclude(header);
 			}
+			case TType(_.get() => defType, [inner]) if((defType.name == "Class" || defType.name == "Enum") && defType.pack.length == 0): {
+				addIncludeFromType(inner, header);
+			}
+			case TType(_.get() => defType, []) if((defType.name.startsWith("Class<") || defType.name.startsWith("Enum<")) && defType.pack.length == 0): {
+				return; // Ignore weird "Class<T>" and "Enum<T>" typedefs?
+			}
 			case ut: {
 				final mt = t.toModuleType();
 				if(mt != null) {
