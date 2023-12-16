@@ -33,6 +33,14 @@ enum abstract Meta(String) from String to String {
 	var ArrowAccess = ":arrowAccess";
 
 	/**
+		@:copyType
+
+		Makes it so when used as a value type, variables will be
+		generated as values instead of references.
+	**/
+	var CopyType = ":copyType";
+
+	/**
 		@:overrideMemoryManagement
 
 		If used on an abstract, its memory management type will be

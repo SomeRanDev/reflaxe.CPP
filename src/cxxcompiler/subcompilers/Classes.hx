@@ -473,7 +473,7 @@ class Classes extends SubCompiler {
 		final isStatic = v.isStatic;
 		final isConstexpr = field.hasMeta(Meta.ConstExpr);
 		final addToCpp = !headerOnly && !isConstexpr && isStatic;
-		final varName = Main.compileVarName(field.name, null, field);
+		final varName = Main.compileVarName(field.getNameOrNativeName(), null, field);
 		final e = field.expr();
 		final cppVal = if(e != null) {
 			XComp.compilingInHeader = headerOnly;
@@ -605,7 +605,7 @@ class Classes extends SubCompiler {
 		} else if(isDestructor) {
 			"~" + className;
 		} else {
-			Main.compileVarName(field.name);
+			Main.compileVarName(field.getNameOrNativeName());
 		}
 
 		ctx.section = field.meta.extractStringFromFirstMeta(Meta.ClassSection) ?? "public";
