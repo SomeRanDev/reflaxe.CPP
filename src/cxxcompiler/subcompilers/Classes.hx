@@ -478,6 +478,12 @@ class Classes extends SubCompiler {
 		final isConstexpr = field.hasMeta(Meta.ConstExpr);
 		final addToCpp = !headerOnly && !isConstexpr && isStatic;
 		final varName = Main.compileVarName(field.getNameOrNativeName(), null, field);
+
+		// Runtime metadata unsupported at the moment.
+		if(varName == "__meta__") {
+			return;
+		}
+
 		final e = field.expr();
 		final cppVal = if(e != null) {
 			XComp.compilingInHeader = headerOnly;
