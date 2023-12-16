@@ -4,3 +4,4 @@
 * Test optimizations in Dynamic functions
 * Test #include because field access? (With #including static access?)
 * @:copyType
+* @:nativeName vs @:native EVERYWHERE
