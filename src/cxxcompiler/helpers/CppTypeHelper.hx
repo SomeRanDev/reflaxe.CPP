@@ -291,7 +291,8 @@ class CppTypeHelper {
 
 	/**
 		Returns `true` if the type is a primitive which
-		should always be treated as a value. 
+		should always be treated as a value OR has the
+		`@:copyType` metadata.
 
 		This is used in determining whether a Value variable
 		should be converted to a reference. We want that
@@ -299,6 +300,11 @@ class CppTypeHelper {
 		and bools.
 	**/
 	public static function isAlwaysValue(t: Type): Bool {
+		final mt = t.toModuleType();
+		if(mt != null && mt.getCommonData().hasMeta(Meta.CopyType)) {
+			return true;
+		}
+
 		return isCppNumberType(t) || t.isBool() || t.isString();
 	}
 
