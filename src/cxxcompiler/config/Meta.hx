@@ -576,6 +576,14 @@ enum abstract Meta(String) from String to String {
 	var TemplateArg = ":templateArg";
 
 	/**
+		@:ignoreIfExtended
+
+		If a class or interface that is extended or implemented has this metadata,
+		the "extension" will not be generated on the child class.
+	**/
+	var IgnoreIfExtended = ":ignoreIfExtended";
+
+	/**
 		Internal metadata. Cannot be used directly
 		
 		Used with @:passConstTypeParam to mark KExpr classes to be overwritten.

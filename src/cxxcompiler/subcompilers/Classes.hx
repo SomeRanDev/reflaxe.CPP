@@ -287,7 +287,9 @@ class Classes extends SubCompiler {
 
 			// Compile super type
 			Main.superTypeName = TComp.compileClassName(superType, classType.pos, classType.superClass.params, true, true, true);
-			extendedFrom.push(Main.superTypeName);
+			if(!superType.get().hasMeta(Meta.IgnoreIfExtended)) {
+				extendedFrom.push(Main.superTypeName);
+			}
 		} else {
 			Main.superTypeName = null;
 		}
@@ -299,7 +301,9 @@ class Classes extends SubCompiler {
 			for(p in i.params) {
 				Main.onTypeEncountered(p, true, classType.pos);
 			}
-			extendedFrom.push(TComp.compileClassName(interfaceType, classType.pos, i.params, true, true, true));
+			if(!interfaceType.get().hasMeta(Meta.IgnoreIfExtended)) {
+				extendedFrom.push(TComp.compileClassName(interfaceType, classType.pos, i.params, true, true, true));
+			}
 		}
 
 		// Normally, "extendedFrom" would be used here to setup all the extended classes.

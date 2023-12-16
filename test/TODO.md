@@ -5,3 +5,4 @@
 * Test #include because field access? (With #including static access?)
 * @:copyType
 * @:nativeName vs @:native EVERYWHERE
+* @:ignoreIfExtended
