@@ -100,7 +100,7 @@ public:
 	}
 
 	static Dynamic getProp(Dynamic const& d, std::string name) {
-		if(name == "size()") {
+		if(name == "length") {
 			return Dynamic::unwrap<std::string>(d, [](std::string* o) {
 				return makeDynamic(o->size());
 			});

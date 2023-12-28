@@ -262,7 +262,7 @@ public:
 	}
 
 	static Dynamic getProp(Dynamic const& d, std::string name) {
-		if(name == "size()") {
+		if(name == "length") {
 			return Dynamic::unwrap<std::deque<T>>(d, [](std::deque<T>* o) {
 				return makeDynamic(o->size());
 			});

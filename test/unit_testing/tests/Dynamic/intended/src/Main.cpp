@@ -50,7 +50,8 @@ void _Main::Main_Fields_::main() {
 	_Main::Main_Fields_::assert(arr.getProp("length") == 5, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 55, "main"s));
 	_Main::Main_Fields_::assert(Std::string(arr) == "[1, 2, 3, Test, [1, 2]]"s, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 56, "main"s));
 	_Main::Main_Fields_::assert(arr[2] == 3, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 57, "main"s));
-	_Main::Main_Fields_::assert((arr[4].setProp("[]", 1)(333)) == 333, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 58, "main"s));
+	arr[4].setProp("[]", 1)(333);
+	_Main::Main_Fields_::assert((arr[4][1]) == 333, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 58, "main"s));
 	_Main::Main_Fields_::assert(arr[4][0] == 1, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 59, "main"s));
 	_Main::Main_Fields_::assert(arr[4] == (*std::make_shared<std::deque<int>>(std::deque<int>{ 1, 333 })), haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 60, "main"s));
 	_Main::Main_Fields_::assert(Std::string(arr[4]) == "[1, 333]"s, haxe::shared_anon<haxe::PosInfos>("_Main.Main_Fields_"s, "test/unit_testing/tests/Dynamic/Main.hx"s, 61, "main"s));

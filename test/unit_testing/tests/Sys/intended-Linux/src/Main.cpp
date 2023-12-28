@@ -44,15 +44,15 @@ void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) 
 
 void Main::main() {
 	std::string key = "Haxe2UC++ Test Value"s;
-	int tempRight = 0;
+	int tempNumber = 0;
 
 	if(10 <= 1) {
-		tempRight = 0;
+		tempNumber = 0;
 	} else {
-		tempRight = static_cast<int>(floor((((float)rand()) / RAND_MAX) * 10));
+		tempNumber = static_cast<int>(floor((((float)rand()) / RAND_MAX) * 10));
 	};
 
-	std::string val = "test-value="s + std::to_string(tempRight);
+	std::string val = "test-value="s + std::to_string((tempNumber));
 
 	Main::assert(!Sys_GetEnv::getEnv(key).has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 22, "main"s));
 
@@ -111,14 +111,10 @@ void Main::main() {
 
 	if((int)(count) != -1) {
 		const char* tempConstCharPtr;
+		char* p = path.data();
 
-		{
-			char* p = path.data();
-
-			tempConstCharPtr = p;
-		};
-
-		tempString = std::string(tempConstCharPtr);
+		tempConstCharPtr = p;
+		tempString = std::string((tempConstCharPtr));
 	} else {
 		tempString = ""s;
 	};
