@@ -24,6 +24,7 @@ using reflaxe.helpers.ArrayHelper;
 using reflaxe.helpers.BaseTypeHelper;
 using reflaxe.helpers.ClassTypeHelper;
 using reflaxe.helpers.DynamicHelper;
+using reflaxe.helpers.ClassFieldHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.NullHelper;
@@ -549,7 +550,7 @@ class Classes extends SubCompiler {
 		}
 
 		if(!classType.hasMeta(Meta.DontGenerateDynamic) && !field.hasMeta(Meta.DontGenerateDynamic)) {
-			DComp.addVar(v, type, varName);
+			DComp.addVar(v, type, field.getHaxeName());
 		}
 
 		fieldsCompiled++;
