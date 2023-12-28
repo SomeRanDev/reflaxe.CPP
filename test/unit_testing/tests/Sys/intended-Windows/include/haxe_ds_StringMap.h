@@ -105,15 +105,15 @@ public:
 
 			std::string key2 = _g_key;
 			T value = _g_value;
-			std::string tempLeft;
+			std::string tempString;
 
 			if(first) {
-				tempLeft = std::string("");
+				tempString = std::string("");
 			} else {
-				tempLeft = std::string(", ");
+				tempString = std::string(", ");
 			};
 
-			result += tempLeft + (Std::string(key2) + std::string(" => ") + Std::string(value));
+			result += (tempString) + (Std::string(key2) + std::string(" => ") + Std::string(value));
 
 			if(first) {
 				first = false;

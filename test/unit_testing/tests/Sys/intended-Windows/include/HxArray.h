@@ -216,15 +216,15 @@ public:
 
 		while(_g < _g1) {
 			int i = _g++;
-			std::string tempLeft;
+			std::string tempString;
 
 			if(i != 0) {
-				tempLeft = std::string(", ");
+				tempString = std::string(", ");
 			} else {
-				tempLeft = std::string("");
+				tempString = std::string("");
 			};
 
-			result += tempLeft + Std::string((*a)[i]);
+			result += (tempString) + Std::string((*a)[i]);
 		};
 
 		return result + std::string("]");

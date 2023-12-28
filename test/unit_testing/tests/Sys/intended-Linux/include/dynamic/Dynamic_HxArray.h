@@ -21,7 +21,7 @@ template<typename T>
 class Dynamic_std_deque<std::deque<T>> {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
-		if(name == "unshift") {
+		if(name == "push_front") {
 			return Dynamic::makeFunc<std::deque<T>>(d, [](std::deque<T>* o, std::deque<Dynamic> args) {
 				o->push_front(args[0].asType<T>());
 				return Dynamic();

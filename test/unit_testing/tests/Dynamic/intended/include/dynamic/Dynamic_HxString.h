@@ -12,7 +12,7 @@ namespace haxe {
 class Dynamic_std_string {
 public:
 	static Dynamic getProp(Dynamic& d, std::string name) {
-		if(name == "indexOf") {
+		if(name == "find") {
 			return Dynamic::makeFunc<std::string>(d, [](std::string* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->find(args[0].asType<std::string>(), (std::size_t)(args[1].asType<int>())));
 			});
@@ -20,7 +20,7 @@ public:
 			return Dynamic::makeFunc<std::string>(d, [](std::string* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->substr(args[0].asType<int>(), args[1].asType<int>()));
 			});
-		} else if(name == "lastIndexOf") {
+		} else if(name == "rfind") {
 			return Dynamic::makeFunc<std::string>(d, [](std::string* o, std::deque<Dynamic> args) {
 				return makeDynamic(o->rfind(args[0].asType<std::string>(), (std::size_t)(args[1].asType<int>())));
 			});

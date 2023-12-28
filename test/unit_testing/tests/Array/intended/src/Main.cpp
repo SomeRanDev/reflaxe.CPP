@@ -150,7 +150,7 @@ void Main::main() {
 	Main::assert(tempLeft4 == 3, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 89, "main"s));
 	Main::assert((*stack)[2] == 333, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 90, "main"s));
 
-	bool tempCond = false;
+	bool tempBool = false;
 
 	{
 		int tempNumber = 0;
@@ -164,14 +164,14 @@ void Main::main() {
 		int index = tempNumber;
 
 		if(index < 0) {
-			tempCond = false;
+			tempBool = false;
 		} else {
 			stack->erase(stack->begin() + index);
-			tempCond = true;
+			tempBool = true;
 		};
 	};
 
-	if(tempCond) {
+	if(tempBool) {
 		Main::assert((int)(stack->size()) == 2, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 94, "main"s));
 		Main::assert((*stack)[0] == 29, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Array/Main.hx"s, 95, "main"s));
 	} else {
