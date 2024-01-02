@@ -1753,6 +1753,40 @@ class Expressions extends SubCompiler {
 		return result;
 	}
 
+	/**
+		Generates the code to find the length of a `String`.
+
+		This can change depending on whether `String` is supposed to be
+		`const char*`, `std::string`, or some user-shadowed type.
+
+		By default, if the `String` type is shadowed, this function
+		will assume its `length` field has a `@:nativeName` with the
+		correct C++ code.
+	**/
+	function generateCppForStringLength(lexprCpp: String): String {
+		#if cxx_disable_haxe_std
+		IComp.addInclude("cstring", compilingInHeader, true);
+		return 'strlen($lexprCpp)';
+		#else
+		var fieldCpp = "size()";
+		switch(TComp.getStringTypeOverride()) {
+			case TInst(clsRef, _): {
+				final c = clsRef.get();
+				for(f in c.fields.get()) {
+					if(f.name == "length") {
+						if(f.hasMeta(":nativeName")) {
+							final content = f.meta.extractStringFromFirstMeta(":nativeName");
+							fieldCpp = content;
+						}
+					}
+				}
+			}
+			case _:
+		}
+		return '$lexprCpp.$fieldCpp';
+		#end
+	}
+
 	function compileSwitchOptimizedForStrings(cpp: String, eType: Type, cases: Array<{ values:Array<TypedExpr>, expr:TypedExpr }>, edef: Null<TypedExpr>) {
 		final lengths: Map<Int, Array<{ values:Array<TypedExpr>, expr:TypedExpr }>> = [];
 		for(c in cases) {
@@ -1768,14 +1802,7 @@ class Expressions extends SubCompiler {
 		}
 
 		var result = "auto __temp = " + cpp + ";\n";
-		result += "switch(" + ({
-			#if cxx_disable_haxe_std
-			IComp.addInclude("cstring", compilingInHeader, true);
-			"strlen(__temp)";
-			#else
-			"__temp.size()";
-			#end
-		}) + ") {";
+		result += "switch(" + generateCppForStringLength("__temp") + ") {";
 		for(length => lengthCases in lengths) {
 			result += "\n\tcase " + length + ": {\n";
 			result += compileSwitchAsIfs("__temp", eType, lengthCases, null, false).tab(2);

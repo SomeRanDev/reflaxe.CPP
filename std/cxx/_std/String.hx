@@ -1,5 +1,6 @@
 package;
 
+@:originalReflaxeCppStringType // do not copy this meta when shadowing this class
 @:cxxStd
 @:haxeStd
 @:pseudoCoreApi
