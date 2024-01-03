@@ -1371,8 +1371,6 @@ class Expressions extends SubCompiler {
 
 			var isOverload = false;
 
-			var noPadNulls = null;
-
 			switch(callExpr.expr) {
 				case TField(_, fa): {
 					// isOverload
@@ -1389,9 +1387,6 @@ class Expressions extends SubCompiler {
 							final funcData = cfRef.get().findFuncData(clsRef.get());
 							if(funcData != null) {
 								el = funcData.replacePadNullsWithDefaults(el, ":noNullPad", Main.generateInjectionExpression);
-
-								noPadNulls = [];
-								for(a in funcData.args) noPadNulls.push(a.hasMetadata(":noNullPad"));
 							}
 						}
 						case _:
@@ -1414,8 +1409,6 @@ class Expressions extends SubCompiler {
 								if(e.hasMeta("-conflicting-default-value")) {
 									t = t.wrapWithNull();
 								}
-							} else if(t.isNull() && noPadNulls != null && noPadNulls.length > i && noPadNulls[i]) {
-								//t = t.unwrapNullTypeOrSelf();
 							}
 						}
 
