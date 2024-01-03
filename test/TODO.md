@@ -6,3 +6,4 @@
 * @:copyType
 * @:nativeName vs @:native EVERYWHERE
 * @:ignoreIfExtended
+* override
