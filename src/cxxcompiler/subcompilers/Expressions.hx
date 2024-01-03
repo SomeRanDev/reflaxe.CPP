@@ -1370,7 +1370,9 @@ class Expressions extends SubCompiler {
 			}
 
 			var isOverload = false;
-			
+
+			var noPadNulls = null;
+
 			switch(callExpr.expr) {
 				case TField(_, fa): {
 					// isOverload
@@ -1387,6 +1389,9 @@ class Expressions extends SubCompiler {
 							final funcData = cfRef.get().findFuncData(clsRef.get());
 							if(funcData != null) {
 								el = funcData.replacePadNullsWithDefaults(el, ":noNullPad", Main.generateInjectionExpression);
+
+								noPadNulls = [];
+								for(a in funcData.args) noPadNulls.push(a.hasMetadata(":noNullPad"));
 							}
 						}
 						case _:
@@ -1396,17 +1401,21 @@ class Expressions extends SubCompiler {
 			}
 
 			// Get list of function argument types
-			var funcArgs = switch(Main.getExprType(callExpr)) {
+			var funcArgTypes = switch(Main.getExprType(callExpr)) {
 				case TFun(args, _): {
 					[for(i in 0...args.length) {
 						var t = args[i].t;
 
 						// If an expression is `null` for a conflicting default value,
 						// we need to make sure its argument is typed as nullable.
-						if(i < el.length && !t.isNull()) {
-							final e = el[i];
-							if(e.hasMeta("-conflicting-default-value")) {
-								t = t.wrapWithNull();
+						if(i < el.length) {
+							if(!t.isNull()) {
+								final e = el[i];
+								if(e.hasMeta("-conflicting-default-value")) {
+									t = t.wrapWithNull();
+								}
+							} else if(t.isNull() && noPadNulls != null && noPadNulls.length > i && noPadNulls[i]) {
+								//t = t.unwrapNullTypeOrSelf();
 							}
 						}
 
@@ -1435,8 +1444,8 @@ class Expressions extends SubCompiler {
 			var cppArgs = [];
 			for(i in 0...el.length) {
 				final paramExpr = el[i];
-				final cpp = if(funcArgs != null && i < funcArgs.length && funcArgs[i] != null) {
-					compileExpressionForType(paramExpr, funcArgs[i]);
+				final cpp = if(funcArgTypes != null && i < funcArgTypes.length && funcArgTypes[i] != null) {
+					compileExpressionForType(paramExpr, funcArgTypes[i]);
 				} else {
 					Main.compileExpressionOrError(paramExpr);
 				}
