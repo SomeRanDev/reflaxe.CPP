@@ -645,12 +645,12 @@ class Types extends SubCompiler {
 	function getStringTypeOverride() {
 		if(getStringTypeOverride_stringTypeOverrided == null) {
 			getStringTypeOverride_stringType = Context.getType("String");
-			switch(getStringTypeOverride_stringType) {
+			getStringTypeOverride_stringTypeOverrided = switch(getStringTypeOverride_stringType) {
 				case TInst(clsRef, _): {
 					final c = clsRef.get();
-					getStringTypeOverride_stringTypeOverrided = !c.hasMeta(":originalReflaxeCppStringType");
+					!c.hasMeta(":originalReflaxeCppStringType");
 				}
-				case _:
+				case _: false;
 			}
 		}
 		return getStringTypeOverride_stringTypeOverrided ? getStringTypeOverride_stringType : null;

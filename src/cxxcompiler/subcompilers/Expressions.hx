@@ -1776,8 +1776,8 @@ class Expressions extends SubCompiler {
 				final c = clsRef.get();
 				for(f in c.fields.get()) {
 					if(f.name == "length") {
-						if(f.hasMeta(":nativeName")) {
-							final content = f.meta.extractStringFromFirstMeta(":nativeName");
+						final content = f.meta.extractStringFromFirstMeta(":nativeName");
+						if(content != null) {
 							fieldCpp = content;
 						}
 					}
