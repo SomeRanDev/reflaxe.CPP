@@ -916,10 +916,10 @@ class Classes extends SubCompiler {
 		for(arg in getArguments(ctx)) {
 			var type = arg.type;
 
-			// If the argument is a front optional, and has conflicing
+			// If the argument is a front optional, and has conflicting
 			// default value, make sure `null` can be passed to it.
 			// (Wrap type in Null<T>).
-			if(arg.isFrontOptional() && arg.hasConflicingDefaultValue() && arg.tvar != null && !arg.tvar.t.isNull()) {
+			if(arg.isFrontOptional() && arg.hasConflictingDefaultValue() && arg.tvar != null && !arg.tvar.t.isNull()) {
 				type = arg.tvar.t.wrapWithNull();
 				Main.setTVarType(arg.tvar, type);
 			}
@@ -972,7 +972,7 @@ class Classes extends SubCompiler {
 			// their default value if they are passed `null`.
 			final frontOptionalAssigns = [];
 			for(arg in getArguments(ctx)) {
-				if(arg.expr != null && arg.isFrontOptional() && arg.hasConflicingDefaultValue()) {
+				if(arg.expr != null && arg.isFrontOptional() && arg.hasConflictingDefaultValue()) {
 					final t = arg.tvar != null ? Main.getTVarType(arg.tvar) : arg.type;
 					frontOptionalAssigns.push('if(!${arg.name}) ${arg.name} = ${XComp.compileExpressionForType(arg.expr, t)};');
 				}
