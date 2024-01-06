@@ -629,6 +629,32 @@ class Types extends SubCompiler {
 			"DynNone";
 		}
 	}
+
+	/**
+		Used internally in `getStringTypeOverride`.
+	**/
+	static var getStringTypeOverride_stringType: Null<Type> = null;
+	static var getStringTypeOverride_stringTypeOverrided: Null<Bool> = null;
+
+	/**
+		Returns a non-null `Type` of the type that shadows the original
+		Reflaxe/C++ `String` class.
+
+		If it is not shadowed, `null` is returned.
+	**/
+	function getStringTypeOverride() {
+		if(getStringTypeOverride_stringTypeOverrided == null) {
+			getStringTypeOverride_stringType = Context.getType("String");
+			switch(getStringTypeOverride_stringType) {
+				case TInst(clsRef, _): {
+					final c = clsRef.get();
+					getStringTypeOverride_stringTypeOverrided = !c.hasMeta(":originalReflaxeCppStringType");
+				}
+				case _:
+			}
+		}
+		return getStringTypeOverride_stringTypeOverrided ? getStringTypeOverride_stringType : null;
+	}
 }
 
 #end

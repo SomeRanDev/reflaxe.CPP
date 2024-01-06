@@ -1370,7 +1370,7 @@ class Expressions extends SubCompiler {
 			}
 
 			var isOverload = false;
-			
+
 			switch(callExpr.expr) {
 				case TField(_, fa): {
 					// isOverload
@@ -1396,17 +1396,19 @@ class Expressions extends SubCompiler {
 			}
 
 			// Get list of function argument types
-			var funcArgs = switch(Main.getExprType(callExpr)) {
+			var funcArgTypes = switch(Main.getExprType(callExpr)) {
 				case TFun(args, _): {
 					[for(i in 0...args.length) {
 						var t = args[i].t;
 
 						// If an expression is `null` for a conflicting default value,
 						// we need to make sure its argument is typed as nullable.
-						if(i < el.length && !t.isNull()) {
-							final e = el[i];
-							if(e.hasMeta("-conflicting-default-value")) {
-								t = t.wrapWithNull();
+						if(i < el.length) {
+							if(!t.isNull()) {
+								final e = el[i];
+								if(e.hasMeta("-conflicting-default-value")) {
+									t = t.wrapWithNull();
+								}
 							}
 						}
 
@@ -1435,8 +1437,8 @@ class Expressions extends SubCompiler {
 			var cppArgs = [];
 			for(i in 0...el.length) {
 				final paramExpr = el[i];
-				final cpp = if(funcArgs != null && i < funcArgs.length && funcArgs[i] != null) {
-					compileExpressionForType(paramExpr, funcArgs[i]);
+				final cpp = if(funcArgTypes != null && i < funcArgTypes.length && funcArgTypes[i] != null) {
+					compileExpressionForType(paramExpr, funcArgTypes[i]);
 				} else {
 					Main.compileExpressionOrError(paramExpr);
 				}
@@ -1753,6 +1755,40 @@ class Expressions extends SubCompiler {
 		return result;
 	}
 
+	/**
+		Generates the code to find the length of a `String`.
+
+		This can change depending on whether `String` is supposed to be
+		`const char*`, `std::string`, or some user-shadowed type.
+
+		By default, if the `String` type is shadowed, this function
+		will assume its `length` field has a `@:nativeName` with the
+		correct C++ code.
+	**/
+	function generateCppForStringLength(lexprCpp: String): String {
+		#if cxx_disable_haxe_std
+		IComp.addInclude("cstring", compilingInHeader, true);
+		return 'strlen($lexprCpp)';
+		#else
+		var fieldCpp = "size()";
+		switch(TComp.getStringTypeOverride()) {
+			case TInst(clsRef, _): {
+				final c = clsRef.get();
+				for(f in c.fields.get()) {
+					if(f.name == "length") {
+						if(f.hasMeta(":nativeName")) {
+							final content = f.meta.extractStringFromFirstMeta(":nativeName");
+							fieldCpp = content;
+						}
+					}
+				}
+			}
+			case _:
+		}
+		return '$lexprCpp.$fieldCpp';
+		#end
+	}
+
 	function compileSwitchOptimizedForStrings(cpp: String, eType: Type, cases: Array<{ values:Array<TypedExpr>, expr:TypedExpr }>, edef: Null<TypedExpr>) {
 		final lengths: Map<Int, Array<{ values:Array<TypedExpr>, expr:TypedExpr }>> = [];
 		for(c in cases) {
@@ -1768,14 +1804,7 @@ class Expressions extends SubCompiler {
 		}
 
 		var result = "auto __temp = " + cpp + ";\n";
-		result += "switch(" + ({
-			#if cxx_disable_haxe_std
-			IComp.addInclude("cstring", compilingInHeader, true);
-			"strlen(__temp)";
-			#else
-			"__temp.size()";
-			#end
-		}) + ") {";
+		result += "switch(" + generateCppForStringLength("__temp") + ") {";
 		for(length => lengthCases in lengths) {
 			result += "\n\tcase " + length + ": {\n";
 			result += compileSwitchAsIfs("__temp", eType, lengthCases, null, false).tab(2);

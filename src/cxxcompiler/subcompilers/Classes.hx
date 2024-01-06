@@ -80,6 +80,7 @@ typedef FunctionCompileContext = {
 	ret: String,
 	prefix: String,
 	name: String,
+	headerSuffixSpecifiers: Array<String>,
 	suffixSpecifiers: Array<String>,
 	prependFieldContent: String,
 	appendFieldContent: String,
@@ -589,6 +590,7 @@ class Classes extends SubCompiler {
 			ret: "",
 			prefix: "",
 			name: "",
+			headerSuffixSpecifiers: [],
 			suffixSpecifiers: [],
 			prependFieldContent: "",
 			appendFieldContent: ""
@@ -702,17 +704,23 @@ class Classes extends SubCompiler {
 
 		// -----------------
 		// Function SUFFIX attributes
-		ctx.suffixSpecifiers = [];
-
 		if(field.hasMeta(Meta.Const)) {
 			if(ctx.isStatic) {
 				field.pos.makeError(CannotUseConstOnStatic);
 			}
 			ctx.suffixSpecifiers.push("const");
+			ctx.headerSuffixSpecifiers.push("const");
 		}
 
 		if(field.hasMeta(Meta.NoExcept)) {
 			ctx.suffixSpecifiers.push("noexcept");
+			ctx.headerSuffixSpecifiers.push("noexcept");
+		}
+
+		// -----------------
+		// Function Header SUFFIX attributes
+		if((classType.superClass != null || classType.interfaces.length > 0) && ClassHierarchyTracker.funcIsOverride(f)) {
+			ctx.headerSuffixSpecifiers.push("override");
 		}
 
 		// -----------------
@@ -1033,6 +1041,10 @@ class Classes extends SubCompiler {
 		};
 	}
 
+	function getHeaderSuffixSpecifiers(ctx: FunctionCompileContext, endSpace: Bool = false) {
+		return ctx.headerSuffixSpecifiers.length > 0 ? (" " + ctx.headerSuffixSpecifiers.join(" ") + (endSpace ? " " : "")) : "";
+	}
+
 	function getSuffixSpecifiers(ctx: FunctionCompileContext, endSpace: Bool = false) {
 		return ctx.suffixSpecifiers.length > 0 ? (" " + ctx.suffixSpecifiers.join(" ") + (endSpace ? " " : "")) : "";
 	}
@@ -1085,15 +1097,14 @@ class Classes extends SubCompiler {
 			generateDefaultConstructor(ctx, topLevel);
 		}
 
-		final suffixSpecifiersStr = getSuffixSpecifiers(ctx);
-		final headerContent = ctx.prependFieldContent + funcDeclaration + suffixSpecifiersStr + ";" + ctx.appendFieldContent;
+		final headerContent = ctx.prependFieldContent + funcDeclaration + getHeaderSuffixSpecifiers(ctx) + ";" + ctx.appendFieldContent;
 		if(topLevel) {
 			topLevelFunctions.push(headerContent);
 		} else {
 			addFunction(headerContent, ctx.section);
 			if(ctx.covariance.isCovariant) {
 				final decl = generateHeaderDecl(ctx, ctx.covariance.name, ctx.covariance.ret, argDecl, topLevel);
-				addFunction(ctx.prependFieldContent + decl + suffixSpecifiersStr + ";" + ctx.appendFieldContent, ctx.section);
+				addFunction(ctx.prependFieldContent + decl + getSuffixSpecifiers(ctx) + ";" + ctx.appendFieldContent, ctx.section);
 			}
 		}
 
@@ -1120,7 +1131,7 @@ class Classes extends SubCompiler {
 			ctx.prependFieldContent +
 			templateDecl +
 			funcDeclaration +
-			getSuffixSpecifiers(ctx) +
+			getHeaderSuffixSpecifiers(ctx) +
 			(ctx.isAbstract ? " = 0;" : content) +
 			ctx.appendFieldContent
 		);
@@ -1132,7 +1143,7 @@ class Classes extends SubCompiler {
 				ctx.prependFieldContent +
 				templateDecl +
 				decl +
-				getSuffixSpecifiers(ctx) +
+				getHeaderSuffixSpecifiers(ctx) +
 				(ctx.isAbstract ? " = 0;" : covariantContent(ctx)) +
 				ctx.appendFieldContent
 			);
