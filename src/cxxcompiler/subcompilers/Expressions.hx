@@ -1242,11 +1242,10 @@ class Expressions extends SubCompiler {
 			// If the field is covariant, but returning the child variant type,
 			// call the class-specific implementation.
 			switch(fa) {
-				case FInstance(clsRef, _, cfRef): {
-					final cf = cfRef.get();
-					final fdata = cf.findFuncData(clsRef.get());
+				case FInstance(_.get() => cls, _, _.get() => cf) if(cf.isMethodKind()): { // Make sure is FMethod before calling "findFuncData".
+					final fdata = cf.findFuncData(cls);
 					if(fdata != null) {
-						final baseCovariant = ClassHierarchyTracker.funcGetCovariantBaseType(clsRef.get(), cfRef.get(), false);
+						final baseCovariant = ClassHierarchyTracker.funcGetCovariantBaseType(cls, cf, false);
 						if(baseCovariant != null) {
 							if(targetType == null || fdata.ret.equals(targetType)) {
 								name += "OG";
@@ -1384,8 +1383,8 @@ class Expressions extends SubCompiler {
 
 					// replace null pads with defaults
 					switch(fa) {
-						case FInstance(clsRef, _, cfRef) | FStatic(clsRef, cfRef): {
-							final funcData = cfRef.get().findFuncData(clsRef.get());
+						case FInstance(clsRef, _, _.get() => cf) | FStatic(clsRef, _.get() => cf) if(cf.isMethodKind()): {
+							final funcData = cf.findFuncData(clsRef.get());
 							if(funcData != null) {
 								el = funcData.replacePadNullsWithDefaults(el, ":noNullPad", Main.generateInjectionExpression);
 							}
