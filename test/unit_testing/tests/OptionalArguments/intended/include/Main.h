@@ -22,8 +22,8 @@ public:
 class Child: public Base {
 public:
 	Child();
-	void doThing(int num, std::string other);
-	void doThing2(std::optional<int> num, std::string other);
+	void doThing(int num, std::string other) override;
+	void doThing2(std::optional<int> num, std::string other) override;
 
 	HX_COMPARISON_OPERATORS(Child)
 };

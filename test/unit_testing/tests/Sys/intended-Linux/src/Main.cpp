@@ -49,7 +49,7 @@ void Main::main() {
 	if(10 <= 1) {
 		tempNumber = 0;
 	} else {
-		tempNumber = static_cast<int>(floor((((float)rand()) / RAND_MAX) * 10));
+		tempNumber = static_cast<int>(floor((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 10));
 	};
 
 	std::string val = "test-value="s + std::to_string((tempNumber));

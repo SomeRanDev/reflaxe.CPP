@@ -29,7 +29,7 @@ public:
 class Child: public Base {
 public:
 	Child();
-	int getVal();
+	int getVal() override;
 
 	HX_COMPARISON_OPERATORS(Child)
 };

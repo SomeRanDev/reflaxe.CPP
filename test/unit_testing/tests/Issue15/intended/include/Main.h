@@ -31,7 +31,7 @@ public:
 class Child: public Base {
 public:
 	Child();
-	void overridden(std::string a);
+	void overridden(std::string a) override;
 
 	HX_COMPARISON_OPERATORS(Child)
 };
