@@ -6,7 +6,6 @@
 #include "_AnonUtils.h"
 #include "cxx_DynamicToString.h"
 #include "EnumLoop2.h"
-#include "memory"
 
 class EnumLoop1 {
 public:

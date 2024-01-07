@@ -1,7 +1,7 @@
 #pragma once
 
+#include <memory>
 #include <string>
-#include "memory"
 
 namespace haxe::io {
 
