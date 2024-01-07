@@ -169,12 +169,8 @@ class Enums extends SubCompiler {
 				final tmmt = Types.getMemoryManagementTypeFromType(enumType);
 				final retCpp = XComp.applyMMConversion("result", o.field.pos, enumType, Value, tmmt);
 
-				// Add include if smart pointer used since not guarenteed otherwise.
-				switch(tmmt) {
-					case SharedPtr: IComp.addInclude(Compiler.SharedPtrInclude[0], true);
-					case UniquePtr: IComp.addInclude(Compiler.UniquePtrInclude[0], true);
-					case _:
-				}
+				// Add include if smart pointer used since not guaranteed otherwise.
+				IComp.includeMMType(tmmt, true);
 
 				construct += "\treturn " + retCpp + ";\n";
 				construct += "}";

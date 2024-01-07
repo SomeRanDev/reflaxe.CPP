@@ -233,7 +233,7 @@ class Expressions extends SubCompiler {
 			}
 			case TArrayDecl(el): {
 				Main.onTypeEncountered(expr.t, compilingInHeader, expr.pos);
-				IComp.addInclude(Compiler.SharedPtrInclude[0], compilingInHeader, true);
+				IComp.includeMMType(SharedPtr, compilingInHeader);
 				final arrayType = Main.getExprType(expr).unwrapArrayType();
 				final t = TComp.compileType(arrayType, expr.pos);
 				final d = "std::deque<" + t + ">";
@@ -1510,93 +1510,94 @@ class Expressions extends SubCompiler {
 	**/
 	function compileNew(expr: TypedExpr, type: Type, el: Array<TypedExpr>, overrideMMT: Null<MemoryManagementType> = null): String {
 		Main.onTypeEncountered(type, compilingInHeader, expr.pos);
+
 		final nfc = checkNativeCodeMeta(expr, el, type.getParams());
-		return if(nfc != null) {
-			nfc;
-		} else {
-			// Since we are constructing an object, it will never be null.
-			// Therefore, we must remove any Null<T> from the type.
-			type = type.unwrapNullTypeOrSelf();
-			final meta = switch(type) {
-				// Used for TObjectDecl of named anonymous struct.
-				// See "XComp.compileNew" in Anon.compileObjectDecl to understand.
-				case TType(typeDefRef, params): {
-					typeDefRef.get().meta;
-				}
-				case _: {
-					expr.getDeclarationMeta()?.meta;
-				}
+		if(nfc != null) {
+			return nfc;
+		}
+
+		// Since we are constructing an object, it will never be null.
+		// Therefore, we must remove any Null<T> from the type.
+		type = type.unwrapNullTypeOrSelf();
+		final meta = switch(type) {
+			// Used for TObjectDecl of named anonymous struct.
+			// See "XComp.compileNew" in Anon.compileObjectDecl to understand.
+			case TType(typeDefRef, params): {
+				typeDefRef.get().meta;
 			}
-			final native = { name: "", meta: meta }.getNameOrNative();
-			
-			// Replace `null`s with default values
-			switch(type) {
-				case TInst(clsRef, params): {
-					final cls = clsRef.get();
-					if(cls.constructor != null) {
-						final cf = cls.constructor.get();
-						final funcData = cf.findFuncData(cls);
-						if(funcData != null) {
-							el = funcData.replacePadNullsWithDefaults(el);
-						}
+			case _: {
+				expr.getDeclarationMeta()?.meta;
+			}
+		}
+		final native = { name: "", meta: meta }.getNameOrNative();
+		
+		// Replace `null`s with default values
+		switch(type) {
+			case TInst(clsRef, params): {
+				final cls = clsRef.get();
+				if(cls.constructor != null) {
+					final cf = cls.constructor.get();
+					final funcData = cf.findFuncData(cls);
+					if(funcData != null) {
+						el = funcData.replacePadNullsWithDefaults(el);
 					}
 				}
-				case _:
 			}
+			case _:
+		}
 
-			// Find argument types (if possible)
-			var funcArgs = switch(type) {
-				case TInst(clsRef, params): {
-					final cls = clsRef.get();
-					final c = cls.constructor;
-					if(c != null) {
-						final clsField = c.get();
-						switch(clsField.type) {
-							case TFun(args, ret): {
-								#if macro args.map(a -> haxe.macro.TypeTools.applyTypeParameters(a.t, cls.params, params)) #else null #end;
-							}
-							case _: null;
+		// Find argument types (if possible)
+		var funcArgs = switch(type) {
+			case TInst(clsRef, params): {
+				final cls = clsRef.get();
+				final c = cls.constructor;
+				if(c != null) {
+					final clsField = c.get();
+					switch(clsField.type) {
+						case TFun(args, ret): {
+							#if macro args.map(a -> haxe.macro.TypeTools.applyTypeParameters(a.t, cls.params, params)) #else null #end;
 						}
-					} else {
-						null;
+						case _: null;
 					}
-				}
-				case _: null;
-			}
-
-			// Compile the arguments
-			var cppArgs = [];
-			for(i in 0...el.length) {
-				final paramExpr = el[i];
-				final cpp = if(funcArgs != null && i < funcArgs.length && funcArgs[i] != null) {
-					compileExpressionForType(paramExpr, funcArgs[i]);
 				} else {
-					Main.compileExpressionOrError(paramExpr);
+					null;
 				}
-				cppArgs.push(cpp);
 			}
+			case _: null;
+		}
 
-			final args = cppArgs.join(", ");
-			if(native.length > 0) {
-				native + "(" + args + ")";
+		// Compile the arguments
+		var cppArgs = [];
+		for(i in 0...el.length) {
+			final paramExpr = el[i];
+			final cpp = if(funcArgs != null && i < funcArgs.length && funcArgs[i] != null) {
+				compileExpressionForType(paramExpr, funcArgs[i]);
 			} else {
-				final params = {
-					type.getParams() ?? [];
-				};
-				final typeParams = params.map(p -> TComp.compileType(p, expr.pos)).join(", ");
-				final cd = type.toModuleType().trustMe().getCommonData();
-
-				// If the expression's type is different, this may be the result of an unsafe cast.
-				// If so, let's use the memory management type from the cast.
-				if(overrideMMT == null) {
-					final exprMMT = Types.getMemoryManagementTypeFromType(Main.getExprType(expr));
-					if(exprMMT != cd.getMemoryManagementType()) {
-						overrideMMT = exprMMT;
-					}
-				}
-
-				compileClassConstruction(type, cd, params ?? [], expr.pos, overrideMMT) + "(" + args + ")";
+				Main.compileExpressionOrError(paramExpr);
 			}
+			cppArgs.push(cpp);
+		}
+
+		final args = cppArgs.join(", ");
+		return if(native.length > 0) {
+			native + "(" + args + ")";
+		} else {
+			final params = {
+				type.getParams() ?? [];
+			};
+			final typeParams = params.map(p -> TComp.compileType(p, expr.pos)).join(", ");
+			final cd = type.toModuleType().trustMe().getCommonData();
+
+			// If the expression's type is different, this may be the result of an unsafe cast.
+			// If so, let's use the memory management type from the cast.
+			if(overrideMMT == null) {
+				final exprMMT = Types.getMemoryManagementTypeFromType(Main.getExprType(expr));
+				if(exprMMT != cd.getMemoryManagementType()) {
+					overrideMMT = exprMMT;
+				}
+			}
+
+			compileClassConstruction(type, cd, params ?? [], expr.pos, overrideMMT) + "(" + args + ")";
 		}
 	}
 
@@ -1625,6 +1626,8 @@ class Expressions extends SubCompiler {
 				Main.getCurrentDep()?.cannotConstructValueTypeError(typeSource, pos);
 			}
 		}
+
+		IComp.includeMMType(mmt, compilingInHeader);
 
 		final typeOutput = TComp.compileType(typeSource, pos, true);
 		return switch(mmt) {
