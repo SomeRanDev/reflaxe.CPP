@@ -38,4 +38,9 @@ extern abstract Ptr<T>(T) from T to T from Value<T> {
 	@:from
     @:nativeFunctionCode("{arg0}")
 	static function fromSubType<T, U: T>(other: Ptr<U>) : Ptr<T>;
+
+	@:to
+	public extern inline function toBool(): Bool {
+		return !isNull();
+	}
 }
