@@ -1334,7 +1334,7 @@ class Expressions extends SubCompiler {
 	function checkNativeCodeMeta(callExpr: TypedExpr, el: Array<TypedExpr>, typeParams: Null<Array<Type>> = null): Null<String> {
 		final params = if(typeParams != null) {
 			typeParams.map(t -> function() {
-				IComp.addIncludeFromType(t, compilingInHeader);
+				Main.onTypeEncountered(t, compilingInHeader, callExpr.pos);
 				return TComp.compileType(t, callExpr.pos);
 			});
 		} else {
