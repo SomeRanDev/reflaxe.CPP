@@ -534,7 +534,7 @@ class Compiler extends reflaxe.DirectToStringCompiler {
 				}
 			}
 
-			case TMeta(_, e): getExprType(e);
+			// case TMeta(_, e): getExprType(e);
 
 			// Return the typed expression's type otherwise.
 			case _: e.t;
