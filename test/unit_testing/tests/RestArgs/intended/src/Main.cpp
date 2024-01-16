@@ -221,7 +221,7 @@ void Main::main() {
 
 		this1 = std::make_shared<std::deque<std::shared_ptr<haxe::AnonStruct0>>>(std::deque<std::shared_ptr<haxe::AnonStruct0>>{
 			haxe::shared_anon<haxe::AnonStruct0>(std::nullopt),
-			haxe::shared_anon<haxe::AnonStruct0>(std::make_shared<std::deque<int>>(std::deque<int>{ 0, 500, 1000 }))
+			haxe::shared_anon<haxe::AnonStruct0>((*std::make_shared<std::deque<int>>(std::deque<int>{ 0, 500, 1000 })))
 		});
 		tempRest2 = this1;
 	};
