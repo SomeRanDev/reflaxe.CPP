@@ -100,7 +100,7 @@ public:
 			std::string _g_key;
 			std::string key = _g_keys->next();
 
-			_g_value = _g_map->get(key).value().value();
+			_g_value = _g_map->get(key).value();
 			_g_key = key;
 
 			std::string key2 = _g_key;

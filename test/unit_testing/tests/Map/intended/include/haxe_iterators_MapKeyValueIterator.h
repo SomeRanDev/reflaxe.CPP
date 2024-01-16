@@ -26,7 +26,7 @@ public:
 	std::shared_ptr<haxe::AnonStruct0<K, V>> next() {
 		K key = this->keys->next();
 
-		return haxe::shared_anon<haxe::AnonStruct0<K, V>>(key, this->map->get(key).value().value());
+		return haxe::shared_anon<haxe::AnonStruct0<K, V>>(key, this->map->get(key).value());
 	}
 
 	HX_COMPARISON_OPERATORS(MapKeyValueIterator<K, V>)

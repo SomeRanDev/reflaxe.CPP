@@ -100,7 +100,7 @@ public:
 			int _g_key = 0;
 			int key = _g_keys->next();
 
-			_g_value = _g_map->get(key).value().value();
+			_g_value = _g_map->get(key).value();
 			_g_key = key;
 
 			int key2 = _g_key;

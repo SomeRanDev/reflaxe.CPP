@@ -79,7 +79,7 @@ void Main::main() {
 			int test_key = 0;
 			int key = test_keys->next();
 
-			test_value = map->get(key).value().value();
+			test_value = map->get(key).value();
 			test_key = key;
 
 			{
