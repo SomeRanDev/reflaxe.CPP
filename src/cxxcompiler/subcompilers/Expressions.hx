@@ -1332,15 +1332,20 @@ class Expressions extends SubCompiler {
 	}
 
 	function checkNativeCodeMeta(callExpr: TypedExpr, el: Array<TypedExpr>, typeParams: Null<Array<Type>> = null): Null<String> {
-		final params = if(typeParams != null) {
-			typeParams.map(t -> function() {
-				Main.onTypeEncountered(t, compilingInHeader, callExpr.pos);
-				return TComp.compileType(t, callExpr.pos);
-			});
+		final typeParamCallback = if(typeParams != null) {
+			function(index: Int) {
+				return if(index >= 0 && index < typeParams.length) {
+					final t = typeParams[index];
+					Main.onTypeEncountered(t, compilingInHeader, callExpr.pos);
+					TComp.compileType(t, callExpr.pos);
+				} else {
+					null;
+				}
+			}
 		} else {
 			null;
 		}
-		return Main.compileNativeFunctionCodeMeta(callExpr, el, params);
+		return Main.compileNativeFunctionCodeMeta(callExpr, el, typeParamCallback);
 	}
 
 	function compileCall(callExpr: TypedExpr, el: Array<TypedExpr>, originalExpr: TypedExpr) {
