@@ -940,11 +940,19 @@ class Expressions extends SubCompiler {
 				opPos.makeError(NoStringAddWOHaxeStd);
 			}
 			#end
-			if(Compiler.ToStringFromPrimInclude != null) {
+
+			var usedToString = false;
+			if(checkForPrimitiveStringAddition(e1, e2)) {
+				cppExpr2 = Compiler.ToStringFromPrim + "(" + cppExpr2 + ")";
+				usedToString = true;
+			}
+			if(checkForPrimitiveStringAddition(e2, e1)) {
+				cppExpr1 = Compiler.ToStringFromPrim + "(" + cppExpr1 + ")";
+				usedToString = true;
+			}
+			if(usedToString && Compiler.ToStringFromPrimInclude != null) {
 				IComp.addInclude(Compiler.ToStringFromPrimInclude[0], compilingInHeader, Compiler.ToStringFromPrimInclude[1]);
 			}
-			if(checkForPrimitiveStringAddition(e1, e2)) cppExpr2 = Compiler.ToStringFromPrim + "(" + cppExpr2 + ")";
-			if(checkForPrimitiveStringAddition(e2, e1)) cppExpr1 = "(" + cppExpr1 + ")";
 		}
 
 		// Check if we need parenthesis. Used to fix some C++ warnings.

@@ -7,3 +7,4 @@
 * @:nativeName vs @:native EVERYWHERE
 * @:ignoreIfExtended
 * override
+* "str" + number (but both ways: "0" + 0 and 0 + "0")
