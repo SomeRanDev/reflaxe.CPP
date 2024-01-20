@@ -8,7 +8,7 @@ package cxxcompiler.helpers;
 
 #if (macro || cxx_runtime)
 
-import haxe.macro.Context;
+import reflaxe.helpers.Context;
 import haxe.macro.Type;
 
 import cxxcompiler.config.Meta;
@@ -217,11 +217,14 @@ class CppTypeHelper {
 	// Returns false otherwise.
 	public static function isNullOfType(t: Type, target: Type): Bool {
 		final internal = t.unwrapNullType();
-		return if(internal != null) {
-			internal.equals(target);
-		} else {
-			false;
+		if(internal != null) {
+			return if(!internal.equals(target)) {
+				final t1 = Context.followWithAbstracts(internal) ?? internal;
+				final t2 = Context.followWithAbstracts(t) ?? t;
+				t1.equals(t2);
+			} else true;
 		}
+		return false;
 	}
 
 	// ----------------------------
