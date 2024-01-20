@@ -533,7 +533,7 @@ class Expressions extends SubCompiler {
 			}
 		}
 		if(cpp == null) {
-			cpp = internal_compileExpressionForType(expr, targetType, allowNullReturn);
+			cpp = internal_compileExpressionForType(expr, targetType, allowNullReturn, true);
 		}
 		return cpp;
 	}
@@ -541,8 +541,9 @@ class Expressions extends SubCompiler {
 	// ----------------------------
 	// Internally compiles the expression for a type.
 	// Used in multiple places where the special cases for the target type do not apply.
-	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool): Null<String> {
-		var result = switch(expr.unwrapMeta().expr) {
+	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool, allowNullValueUnwrap: Bool = false): Null<String> {
+		final unwrapped = expr.unwrapMeta();
+		var result = switch(unwrapped.expr) {
 			case TConst(TNull) if(targetType != null && !targetType.isNull() && !expr.hasMeta("-conflicting-default-value")): {
 				if(Types.getMemoryManagementTypeFromType(targetType) == Value) {
 					expr.pos.makeError(ValueAssignedNull);
@@ -557,14 +558,20 @@ class Expressions extends SubCompiler {
 			case TObjectDecl(fields) if(targetType != null): {
 				AComp.compileObjectDecl(targetType, fields, expr, compilingInHeader);
 			}
-			case TField(e, fa): {
-				fieldAccessToCpp(e, fa, expr, targetType);
-			}
-			case _: {
+			case exprDef: {
+				final unwrapNullValue = (allowNullValueUnwrap && targetType != null) ? Main.getExprType(unwrapped).isNullOfType(targetType) : false;
 				final old = setExplicitNull(true, targetType != null && targetType.isAmbiguousNullable());
-				final result = allowNullReturn ? Main.compileExpression(expr) : Main.compileExpressionOrError(expr);
+				final result = switch(exprDef) {
+					case TField(e, fa): fieldAccessToCpp(e, fa, expr, targetType);
+					case _ if(allowNullReturn): Main.compileExpression(expr);
+					case _: Main.compileExpressionOrError(expr);
+				}
 				setExplicitNull(old);
-				result;
+				if(result != null && unwrapNullValue) {
+					ensureSafeToAccess(result) + ".value()";
+				} else {
+					result;
+				}
 			}
 		}
 
@@ -1164,7 +1171,6 @@ class Expressions extends SubCompiler {
 			}
 			#end
 		}
-
 		return result;
 	}
 
@@ -1856,9 +1862,9 @@ class Expressions extends SubCompiler {
 		var result = null;
 
 		// If casting from Null<T> to <T>
-		if(maybeModuleType == null && Main.getExprType(castedExpr, false).isNullOfType(Main.getExprType(originalExpr, false))) {
+		/*if(maybeModuleType == null && Main.getExprType(castedExpr, false).isNullOfType(Main.getExprType(originalExpr, false))) {
 			result = compileExpressionNotNull(castedExpr);
-		} else {
+		} else*/ {
 			// Find cast type
 			var isAnyCast = false;
 			if(maybeModuleType != null) {
