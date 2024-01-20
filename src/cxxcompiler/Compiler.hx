@@ -150,6 +150,13 @@ class Compiler extends reflaxe.DirectToStringCompiler {
 		return expr + ";";
 	}
 
+	/**
+		Unwrap the null-typing for injected expressions.
+	**/
+	public override function compileExpressionForCodeInject(expr: TypedExpr): Null<String> {
+		return compileExpression(expr);
+	}
+
 	// ----------------------------
 	// Required for adding call stack information on each expression.
 	override function prefixExpressionContent(expr: TypedExpr, output: String): Null<Array<String>> {
