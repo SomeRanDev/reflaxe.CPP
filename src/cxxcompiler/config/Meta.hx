@@ -49,6 +49,14 @@ enum abstract Meta(String) from String to String {
 	var OverrideMemoryManagement = ":overrideMemoryManagement";
 
 	/**
+		@:forwardMemoryManagement
+
+		If used on an abstract or typedef, memory management type
+		is based on the inner type.
+	**/
+	var ForwardMemoryManagement = ":forwardMemoryManagement";
+
+	/**
 		@:valueType
 
 		If defined on a class, instances of that class will default

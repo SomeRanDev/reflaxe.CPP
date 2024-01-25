@@ -7,7 +7,6 @@
 
 package cxxcompiler.subcompilers;
 
-import cxxcompiler.other.DependencyTracker;
 #if (macro || cxx_runtime)
 
 import haxe.ds.Either;
@@ -22,6 +21,7 @@ import reflaxe.compiler.EverythingIsExprSanitizer;
 import cxxcompiler.subcompilers.Includes.ExtraFlag;
 import cxxcompiler.config.Define;
 import cxxcompiler.config.Meta;
+import cxxcompiler.other.DependencyTracker;
 
 using reflaxe.helpers.BaseTypeHelper;
 using reflaxe.helpers.ClassFieldHelper;
