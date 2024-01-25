@@ -13,6 +13,7 @@ package cxxcompiler.subcompilers;
 import reflaxe.helpers.Context; // Use like haxe.macro.Context
 import haxe.macro.Expr;
 import haxe.macro.Type;
+import haxe.macro.TypeTools;
 
 import cxxcompiler.config.Meta;
 
@@ -291,6 +292,17 @@ class Types extends SubCompiler {
 						return compileModuleTypeName(abs, pos, params, true, asValue ? Value : getMemoryManagementTypeFromType(inner));
 					}
 
+					if(!asValue && abs.hasMeta(Meta.ForwardMemoryManagement)) {
+						switch(abs.type) {
+							case TAbstract(_, _): {
+								#if macro
+								return maybeCompileTypeImpl(TypeTools.applyTypeParameters(abs.type, abs.params, params), pos);
+								#end
+							}
+							case _:
+						}
+					}
+
 					if(!asValue && abs.metaIsOverrideMemoryManagement() && params.length == 1) {
 						return applyMemoryManagementWrapper(compileType(params[0], pos, true, dependent), abs.getMemoryManagementType());
 					}
@@ -512,6 +524,16 @@ class Types extends SubCompiler {
 		}
 
 		final mmt = switch(t) {
+			#if macro
+			case TType(defRef, params) if(defRef.get().hasMeta(Meta.ForwardMemoryManagement)): {
+				final d = defRef.get();
+				getMemoryManagementTypeFromType(TypeTools.applyTypeParameters(d.type, d.params, params));
+			}
+			case TAbstract(absRef, params) if(absRef.get().hasMeta(Meta.ForwardMemoryManagement)): {
+				final a = absRef.get();
+				getMemoryManagementTypeFromType(TypeTools.applyTypeParameters(a.type, a.params, params));
+			}
+			#end
 			case TEnum(_.get() => enumType, _) if(enumType.hasMeta(Meta.CppEnum)): {
 				Value;
 			}

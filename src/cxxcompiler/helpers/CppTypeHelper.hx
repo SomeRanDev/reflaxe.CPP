@@ -10,6 +10,7 @@ package cxxcompiler.helpers;
 
 import reflaxe.helpers.Context;
 import haxe.macro.Type;
+import haxe.macro.TypeTools;
 
 import cxxcompiler.config.Meta;
 
@@ -132,6 +133,11 @@ class CppTypeHelper {
 				final abs = absRef.get();
 				if(abs.name == "Null" && params.length == 1) {
 					return getInternalType(params[0]);
+				}
+				if(abs.hasMeta(Meta.ForwardMemoryManagement)) {
+					#if macro
+					return getInternalType(TypeTools.applyTypeParameters(abs.type, abs.params, params));
+					#end
 				}
 				if(abs.metaIsOverrideMemoryManagement() && params.length == 1) {
 					return params[0];
