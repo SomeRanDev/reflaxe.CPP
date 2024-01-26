@@ -544,7 +544,7 @@ class Compiler extends reflaxe.DirectToStringCompiler {
 			// Ignore @:implicitCast from Null<T> to T
 			case TMeta({ name: ":implicitCast" }, e2): {
 				final e2Result = getExprType(e2);
-				if(e2Result.isNullOfAssignable(e.t) /*|| e.t.isNullOfAssignable(e2Result)*/) {
+				if(e2Result.isNullOfAssignable(e.t)) {
 					e2Result;
 				} else {
 					e.t;
