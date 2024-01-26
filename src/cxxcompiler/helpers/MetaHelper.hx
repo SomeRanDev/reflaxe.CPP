@@ -20,7 +20,9 @@ using reflaxe.helpers.TypeHelper;
 
 using cxxcompiler.helpers.Error;
 
-// An enum for memory management types.
+/**
+	An enum for memory management types.
+**/
 enum MemoryManagementType {
 	Value;
 	UnsafePtr;
@@ -28,6 +30,10 @@ enum MemoryManagementType {
 	UniquePtr;
 }
 
+/**
+	Adds static extensions for objects that match:
+	`{ name: String, meta: Null<MetaAccess> }`
+**/
 class MetaHelper {
 	public static function hasNativeMeta(meta: NameAndMeta): Bool {
 		return meta.hasMeta(":native");
@@ -49,9 +55,9 @@ class MetaHelper {
 		return meta.meta.extractPrimtiveFromAllMeta(metaName, 0).join("");
 	}
 
-	// ----------------------------
-	// Returns the memory manage type
-	// based on the meta.
+	/**
+		Returns the memory manage type based on the meta.
+	**/
 	public static function getMemoryManagementType(meta: NameAndMeta): MemoryManagementType {
 		return if(meta.hasMeta(Meta.ValueType)) {
 			Value;
