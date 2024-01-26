@@ -229,7 +229,7 @@ std::string EReg::replace(std::string s, std::string by) {
 					b_b += Std::string("$"s);
 					b_b += Std::string(k);
 				} else {
-					b_b += Std::string(matchReplace);
+					b_b += Std::string(matchReplace.value());
 
 					std::optional<int> len2 = (int)(k.size() - 1);
 					std::string tempRight1;

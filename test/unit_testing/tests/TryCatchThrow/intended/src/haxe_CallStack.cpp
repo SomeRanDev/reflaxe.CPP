@@ -79,7 +79,7 @@ void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> 
 				tempMaybeString = cname;
 			};
 
-			b->b += Std::string(tempMaybeString);
+			b->b += Std::string(tempMaybeString.value());
 			b->b += Std::string("."s);
 			b->b += Std::string(meth);
 			break;
