@@ -1,7 +1,7 @@
 // =======================================================
 // * DependencyTracker
 //
-// Tracks depenencies for types by assigning each 
+// Tracks dependencies for types by assigning each 
 // a number. If a type relies on another type, it is
 // assigned a larger number. These numbers can be
 // used to determine the order of types compiled in the
@@ -27,6 +27,15 @@ import cxxcompiler.subcompilers.Types;
 using cxxcompiler.helpers.CppTypeHelper;
 using cxxcompiler.helpers.MetaHelper;
 
+/**
+	Tracks dependencies for types by assigning each a number.
+
+	This is important to avoid recursive `#include` chains.
+	
+	If a type relies on another type, it is assigned a larger number than the one it
+	relies upon. These numbers can be used to determine the order of types compiled in
+	the same file or find infinitely recursive dependencies.
+**/
 class DependencyTracker {
 	public static final bottom: Int = 99999999;
 
