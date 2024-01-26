@@ -542,8 +542,7 @@ class Expressions extends SubCompiler {
 	// Internally compiles the expression for a type.
 	// Used in multiple places where the special cases for the target type do not apply.
 	function internal_compileExpressionForType(expr: TypedExpr, targetType: Null<Type>, allowNullReturn: Bool, allowNullValueUnwrap: Bool = false): Null<String> {
-		final unwrapped = expr.unwrapMeta();
-		var result = switch(unwrapped.expr) {
+		var result = switch(expr.unwrapMeta().expr) {
 			case TConst(TNull) if(targetType != null && !targetType.isNull() && !expr.hasMeta("-conflicting-default-value")): {
 				if(Types.getMemoryManagementTypeFromType(targetType) == Value) {
 					expr.pos.makeError(ValueAssignedNull);
@@ -570,7 +569,7 @@ class Expressions extends SubCompiler {
 			// }
 
 			case exprDef: {
-				final unwrapNullValue = (allowNullValueUnwrap && targetType != null) ? Main.getExprType(unwrapped).isNullOfAssignable(targetType) : false;
+				final unwrapNullValue = (allowNullValueUnwrap && targetType != null) ? Main.getExprType(expr).isNullOfAssignable(targetType) : false;
 				final old = setExplicitNull(true, targetType != null && targetType.isAmbiguousNullable());
 				final result = switch(exprDef) {
 					case TField(e, fa): fieldAccessToCpp(e, fa, expr, targetType);

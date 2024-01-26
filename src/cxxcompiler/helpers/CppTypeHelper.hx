@@ -142,8 +142,8 @@ class CppTypeHelper {
 					return getInternalType(params[0]);
 				}
 				if(abs.hasMeta(Meta.ForwardMemoryManagement)) {
-					final result = t.getUnderlyingType();
-					if(result != null) return result;
+					final ut = t.getUnderlyingType();
+					if(ut != null) return getInternalType(ut);
 				}
 				if(abs.metaIsOverrideMemoryManagement() && params.length == 1) {
 					return params[0];
@@ -168,6 +168,10 @@ class CppTypeHelper {
 				if(abs.name == "Null" && params.length == 1) {
 					return TAbstract(absRef, [replaceInternalType(params[0], replacement)]);
 				}
+				if(abs.hasMeta(ForwardMemoryManagement)) {
+					final ut = t.getUnderlyingType();
+					if(ut != null) return replaceInternalType(ut, replacement);
+				}
 				if(abs.metaIsOverrideMemoryManagement() && params.length == 1) {
 					return TAbstract(absRef, [replaceInternalType(params[0], replacement)]);
 				}
@@ -190,6 +194,8 @@ class CppTypeHelper {
 	public static function isOverrideMemoryManagement(t: Type): Bool {
 		return switch(t) {
 			case TAbstract(absRef, _) if(absRef.get().metaIsOverrideMemoryManagement()): true;
+			case TType(_.get() => baseType, _) | TAbstract(_.get() => baseType, _) if(baseType.hasMeta(Meta.ForwardMemoryManagement)):
+				isOverrideMemoryManagement(t.getUnderlyingType());
 			case TType(_, [inner]) if(isConst(t)): isOverrideMemoryManagement(inner);
 			case TType(_.get() => defType, [inner]) if(defType.isReflaxeExtern()): isOverrideMemoryManagement(inner);
 			case _: false;
@@ -238,7 +244,7 @@ class CppTypeHelper {
 	public static function isNullOfType(t: Type, target: Type): Bool {
 		final internal = t.unwrapNullType();
 		if(internal != null) {
-			return internal.equals(target) || internal.isDescendantOf(target);// || target.isDescendantOf(internal);
+			return internal.equals(target) || internal.isDescendantOf(target) || target.isDescendantOf(internal);
 		}
 		return false;
 
@@ -272,7 +278,7 @@ class CppTypeHelper {
 
 			// Find core of input `t`
 			final t1 = Context.followWithAbstracts(internal) ?? internal;
-			t1.equals(t2) || t1.isDescendantOf(t2);
+			return t1.equals(t2) || t1.isDescendantOf(t2) || t2.isDescendantOf(t1);
 		}
 		return false;
 	}
