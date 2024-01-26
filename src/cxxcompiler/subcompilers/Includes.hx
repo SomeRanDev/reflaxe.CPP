@@ -9,7 +9,7 @@
 // - Next call "addInclude" while compiling to accumulate
 //   desired includes.
 //
-// - Finally call "compileIncludes" to received the
+// - Finally call "compileIncludes" to receive the
 //   compiled list of #include statements.
 // =======================================================
 
