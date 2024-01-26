@@ -80,6 +80,10 @@ enum ErrorType {
 	ThisToUnique;
 }
 
+/**
+	All error messages are documented and reported here.
+	Call `makeError` or `makeWarning` on any Position.
+**/
 class Error {
 	/**
 		Print one of the preset warnings for Reflaxe/C++.

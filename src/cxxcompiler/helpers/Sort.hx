@@ -8,6 +8,9 @@ package cxxcompiler.helpers;
 
 #if (macro || cxx_runtime)
 
+/**
+	Adds static extensions for Array involving sorting.
+**/
 class Sort {
 	public static function sorted<T>(arr: Array<T>, func: (T, T) -> Int) {
 		final result = arr.copy();

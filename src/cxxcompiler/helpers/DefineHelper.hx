@@ -1,11 +1,7 @@
 // =======================================================
 // * DefineHelper
 //
-// List all the custom metadata used in this project and
-// provides access using a String enum abstract.
-//
-// Furthermore, it adds static extensions for objects that
-// match: { name: String, meta: Null<MetaAccess> }
+// Adds static extensions for `cxxcompiler.config.Define`.
 // =======================================================
 
 package cxxcompiler.helpers;
@@ -16,6 +12,9 @@ import reflaxe.helpers.Context;
 
 import cxxcompiler.config.Define;
 
+/**
+	Adds static extensions for `cxxcompiler.config.Define`.
+**/
 class DefineHelper {
 	public static function defined(d: Define) {
 		return Context.defined(d);
