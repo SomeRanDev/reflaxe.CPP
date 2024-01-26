@@ -281,15 +281,8 @@ class Includes extends SubCompiler {
 
 	function addIncludeFromAbstractTypeParam(t: Type, header: Bool) {
 		switch(t) {
-			case TAbstract(absRef, params): {
-				final a = absRef.get();
-				if(a.type.isTypeParameter()) {
-					#if macro
-					final t = haxe.macro.TypeTools.applyTypeParameters(a.type, a.params, params);
-					addIncludeFromType(t, header);
-					return;
-					#end
-				}
+			case TAbstract(_.get() => absType, _) if(absType.type.isTypeParameter()): {
+				addIncludeFromType(t.getUnderlyingType(), header);
 			}
 			case _:
 		}

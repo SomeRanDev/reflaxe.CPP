@@ -135,9 +135,7 @@ class CppTypeHelper {
 					return getInternalType(params[0]);
 				}
 				if(abs.hasMeta(Meta.ForwardMemoryManagement)) {
-					#if macro
-					return getInternalType(TypeTools.applyTypeParameters(abs.type, abs.params, params));
-					#end
+					return t.getUnderlyingType();
 				}
 				if(abs.metaIsOverrideMemoryManagement() && params.length == 1) {
 					return params[0];
@@ -213,6 +211,7 @@ class CppTypeHelper {
 	public static function isPtr(t: Type): Bool {
 		return switch(unwrapConst(t)) {
 			case TAbstract(_.get() => { name: "Ptr", module: "cxx.Ptr" }, _): true;
+			case TAbstract(_.get() => abs, _) if(abs.hasMeta(Meta.ForwardMemoryManagement)): isPtr(t.getUnderlyingType());
 			case TType(_.get() => defType, _) if(defType.isReflaxeExtern()): isPtr(defType.type);
 			case _: false;
 		}
@@ -288,6 +287,19 @@ class CppTypeHelper {
 				(defType.isReflaxeExtern() && isConstRef(defType.type));
 			}
 			case _: false;
+		}
+	}
+
+	/**
+		If `t` is an `@:extern` typedef, returns the underlying type.
+		Otherwise, returns itself unmodified.
+	**/
+	public static function unwrapExternTypedefsOrSelf(t: Type): Type {
+		return switch(t) {
+			case TType(_.get() => defType, params) if(defType.hasMeta(":extern")): {
+				unwrapExternTypedefsOrSelf(t.getUnderlyingType());
+			}
+			case _: t;
 		}
 	}
 
