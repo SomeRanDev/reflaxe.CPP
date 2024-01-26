@@ -16,7 +16,18 @@ package cxx;
 extern abstract Untyped(Dynamic) from Dynamic to Dynamic {
 }
 
+/**
+	Allows calling.
+**/
 @:uncompilable
 @:callable
 extern abstract UntypedCallable(Dynamic) from Dynamic to Dynamic {
+}
+
+/**
+	Takes anything, but forces it to be not-null first.
+**/
+@:uncompilable
+@:notNull
+extern abstract UntypedNotNull(Dynamic) from Dynamic to Dynamic {
 }
