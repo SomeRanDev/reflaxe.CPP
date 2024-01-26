@@ -295,9 +295,7 @@ class Types extends SubCompiler {
 					if(!asValue && abs.hasMeta(Meta.ForwardMemoryManagement)) {
 						switch(abs.type) {
 							case TAbstract(_, _): {
-								#if macro
-								return maybeCompileTypeImpl(TypeTools.applyTypeParameters(abs.type, abs.params, params), pos);
-								#end
+								return maybeCompileTypeImpl(t.getUnderlyingType(), pos);
 							}
 							case _:
 						}
@@ -342,12 +340,7 @@ class Types extends SubCompiler {
 				(t.isConstRef() ? "const " : "") + compileType(params[0], pos) + "&";
 			}
 			case TType(_.get() => defType, params) if(defType.isExtern || defType.hasMeta(":extern")): {
-				final newType = #if macro
-					haxe.macro.TypeTools.applyTypeParameters(defType.type, defType.params, params)
-				#else
-					defType.type
-				#end;
-				compileType(newType, pos, asValue, dependent);
+				compileType(t.getUnderlyingType(), pos, asValue, dependent);
 			}
 			case TType(defRef, params): {
 				compileDefName(defRef, pos, params, true, asValue);
@@ -515,25 +508,18 @@ class Types extends SubCompiler {
 		}
 	}
 
-	// ----------------------------
-	// Returns the memory manage type
-	// based on the meta of the Type.
+	/**
+		Returns the memory manage type based on the meta of the `Type`.
+	**/
 	public static function getMemoryManagementTypeFromType(t: Type): MemoryManagementType {
 		if(t.isClass()) {
 			return Value;
 		}
 
 		final mmt = switch(t) {
-			#if macro
-			case TType(defRef, params) if(defRef.get().hasMeta(Meta.ForwardMemoryManagement)): {
-				final d = defRef.get();
-				getMemoryManagementTypeFromType(TypeTools.applyTypeParameters(d.type, d.params, params));
+			case TType(_.get() => baseType, _) | TAbstract(_.get() => baseType, _) if(baseType.hasMeta(Meta.ForwardMemoryManagement)): {
+				getMemoryManagementTypeFromType(t.getUnderlyingType().trustMe(/* Cannot be `null` since guaranteed to be `TType` or `TAbstract` */));
 			}
-			case TAbstract(absRef, params) if(absRef.get().hasMeta(Meta.ForwardMemoryManagement)): {
-				final a = absRef.get();
-				getMemoryManagementTypeFromType(TypeTools.applyTypeParameters(a.type, a.params, params));
-			}
-			#end
 			case TEnum(_.get() => enumType, _) if(enumType.hasMeta(Meta.CppEnum)): {
 				Value;
 			}

@@ -498,7 +498,7 @@ class Classes extends SubCompiler {
 
 			result ?? "";
 		} else if(field.type.isPtr()) {
-			"nullptr";
+			Compiler.PointerNullCpp;
 		} else {
 			"";
 		}
@@ -837,7 +837,7 @@ class Classes extends SubCompiler {
 			}
 			Main.compileClassVarExpr(expr);
 		} else {
-			"nullptr";
+			Compiler.PointerNullCpp;
 		}
 
 		XComp.compilingForTopLevel = false;

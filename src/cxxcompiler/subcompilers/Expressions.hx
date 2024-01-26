@@ -1173,7 +1173,7 @@ class Expressions extends SubCompiler {
 			}
 			result += cpp;
 		} else if(t.isPtr()) {
-			result += " = nullptr";
+			result += " = " + Compiler.PointerNullCpp;
 		} else {
 			#if !cxx_dont_default_assign_numbers
 			final valString = t.getDefaultValue();

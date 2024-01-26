@@ -29,6 +29,7 @@ using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
+using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.TypeHelper;
 
 using cxxcompiler.helpers.Error;
@@ -281,15 +282,9 @@ class Includes extends SubCompiler {
 
 	function addIncludeFromAbstractTypeParam(t: Type, header: Bool) {
 		switch(t) {
-			case TAbstract(absRef, params): {
-				final a = absRef.get();
-				if(a.type.isTypeParameter()) {
-					#if macro
-					final t = haxe.macro.TypeTools.applyTypeParameters(a.type, a.params, params);
-					addIncludeFromType(t, header);
-					return;
-					#end
-				}
+			case TAbstract(_.get() => absType, _) if(absType.type.isTypeParameter()): {
+				final ut = t.getUnderlyingType().trustMe(/* Cannot be `null` since guaranteed to be `TAbstract` */);
+				addIncludeFromType(ut, header);
 			}
 			case _:
 		}
