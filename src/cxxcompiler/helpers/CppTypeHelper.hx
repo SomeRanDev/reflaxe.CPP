@@ -194,10 +194,12 @@ class CppTypeHelper {
 	public static function isOverrideMemoryManagement(t: Type): Bool {
 		return switch(t) {
 			case TAbstract(absRef, _) if(absRef.get().metaIsOverrideMemoryManagement()): true;
-			case TType(_.get() => baseType, _) | TAbstract(_.get() => baseType, _) if(baseType.hasMeta(Meta.ForwardMemoryManagement)):
-				isOverrideMemoryManagement(t.getUnderlyingType());
 			case TType(_, [inner]) if(isConst(t)): isOverrideMemoryManagement(inner);
 			case TType(_.get() => defType, [inner]) if(defType.isReflaxeExtern()): isOverrideMemoryManagement(inner);
+			case TType(_.get() => baseType, _) | TAbstract(_.get() => baseType, _) if(baseType.hasMeta(Meta.ForwardMemoryManagement)): {
+				final ut = t.getUnderlyingType();
+				ut != null ? isOverrideMemoryManagement(ut) : false;
+			}
 			case _: false;
 		}
 	}
