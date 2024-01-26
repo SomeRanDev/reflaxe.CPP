@@ -22,11 +22,15 @@ using reflaxe.helpers.TypeHelper;
 
 using cxxcompiler.helpers.MetaHelper;
 
+/**
+	A collection of `Type`-related static extensions exclusive to Reflaxe/C++.
+**/
 class CppTypeHelper {
-	// ----------------------------
-	// Get priority of a type in a class declaration.
-	//
-	// Higher values appear higher in the class declaration.
+	/**
+		Get priority of a type in a class declaration.
+
+		Higher values appear higher in the class declaration.
+	**/
 	public static function typePriority(t: Type): Float {
 		t = t.unwrapNullTypeOrSelf();
 
@@ -49,9 +53,10 @@ class CppTypeHelper {
 		return 999;
 	}
 
-	// ----------------------------
-	// Returns true if the two types are the same even if
-	// they have different memory management overrides.
+	/**
+		Returns true if the two types are the same even if
+		they have different memory management overrides.
+	**/
 	public static function valueTypesEqual(t: Type, other: Type, followTypes: Bool = false) {
 		if(followTypes) {
 			#if macro
@@ -62,13 +67,14 @@ class CppTypeHelper {
 		return getInternalType(t).equals(getInternalType(other));
 	}
 
-	// ----------------------------
-	// When compiling an expression of type "t" for type "other",
-	// this function is used to test whether memory management conversion should occur.
-	//
-	// For example, a pointer should be converted to value if both of the types are the same.
-	// However, memory management conversion should not occur when converting to anonymous
-	// structures or dynamic types since they are already made to handle any C++ object.
+	/**
+		When compiling an expression of type "t" for type "other",
+		this function is used to test whether memory management conversion should occur.
+		
+		For example, a pointer should be converted to value if both of the types are the same.
+		However, memory management conversion should not occur when converting to anonymous
+		structures or dynamic types since they are already made to handle any C++ object.
+	**/
 	public static function shouldConvertMM(t: Type, other: Type): Bool {
 		if(valueTypesEqual(t, other)) {
 			return true;
@@ -117,10 +123,11 @@ class CppTypeHelper {
 		}
 	}
 
-	// ----------------------------
-	// If this type is a memory management overrider,
-	// this returns the internal type. Returns the provided type otherwise.
-	// Bypasses all Null<T> outside the overrider class.
+	/**
+		If this type is a memory management overrider,
+		this returns the internal type. Returns the provided type otherwise.
+		Bypasses all Null<T> outside the overrider class.
+	**/
 	public static function getInternalType(t: Type): Type {
 		switch(t) {
 			case TType(defRef, [inner]) if(isConst(t)): {
@@ -189,8 +196,9 @@ class CppTypeHelper {
 		}
 	}
 
-	// ----------------------------
-	// `true` if cxx.Const
+	/**
+		`true` if `t` is `cxx.Const`.
+	**/
 	public static function isConst(t: Type): Bool {
 		return switch(t) {
 			case TType(_.get() => { name: "Const", module: "cxx.Const" }, _): true;
@@ -198,8 +206,9 @@ class CppTypeHelper {
 		}
 	}
 
-	// ----------------------------
-	// Unwraps all cxx.Const<...> from Type
+	/**
+		Unwraps all `cxx.Const<...>` from `Type`.
+	**/
 	public static function unwrapConst(t: Type): Type {
 		return switch(t) {
 			case TType(_, [inner]) if(isConst(t)): unwrapConst(inner);
@@ -207,8 +216,9 @@ class CppTypeHelper {
 		}
 	}
 
-	// ----------------------------
-	// `true` if cxx.Ptr
+	/**
+		`true` if `t` is `cxx.Ptr`.
+	**/
 	public static function isPtr(t: Type): Bool {
 		return switch(unwrapConst(t)) {
 			case TAbstract(_.get() => { name: "Ptr", module: "cxx.Ptr" }, _): true;
@@ -222,8 +232,8 @@ class CppTypeHelper {
 	}
 
 	/**
-		If "t" is Null<T> and "target" is T, returns true.
-		Returns false otherwise.
+		If "t" is `Null<T>` and "target" is `T`, returns `true`.
+		Returns `false` otherwise.
 	**/
 	public static function isNullOfType(t: Type, target: Type): Bool {
 		final internal = t.unwrapNullType();
@@ -267,8 +277,9 @@ class CppTypeHelper {
 		return false;
 	}
 
-	// ----------------------------
-	// Returns true is this is the cxx.Ref or cxx.ConstRef typedef
+	/**
+		Returns true is this is the `cxx.Ref` or `cxx.ConstRef` typedef.
+	**/
 	public static function isRefOrConstRef(t: Type): Bool {
 		return switch(t) {
 			case TType(defRef, params) if(params.length == 1): {
@@ -281,8 +292,9 @@ class CppTypeHelper {
 		}
 	}
 
-	// ----------------------------
-	// Returns true is this is specifically cxx.ConstRef
+	/**
+		Returns true is this is specifically `cxx.ConstRef`.
+	**/
 	public static function isConstRef(t: Type): Bool {
 		return switch(t) {
 			case TType(defRef, params) if(params.length == 1): {
@@ -308,9 +320,10 @@ class CppTypeHelper {
 		}
 	}
 
-	// ----------------------------
-	// If the type is cxx.Ref or cxx.ConstRef this returns the internal type.
-	// Otherwise it returns itself.
+	/**
+		If the type is `cxx.Ref` or `cxx.ConstRef` this returns the internal type.
+		Otherwise it returns itself.
+	**/
 	public static function unwrapRefOrConstRef(t: Type): Null<Type> {
 		return switch(t) {
 			case TType(_, [unwrappedType]) if(isRefOrConstRef(t)): {
@@ -320,18 +333,20 @@ class CppTypeHelper {
 		}
 	}
 
-	// ----------------------------
-	// Returns true variables of this type MUST contain
-	// a value upon being declared.
+	/**
+		Returns true variables of this type MUST contain
+		a value upon being declared.
+	**/
 	public static function requiresValue(t: Type): Bool {
 		return isRefOrConstRef(t);
 	}
 
-	// ----------------------------
-	// Sometimes the type of the `null` being passed is
-	// ambiguous in C++ (like being passed to std::any 
-	// function when there is template alternative).
-	// This checks for these "ambiguous" types. 
+	/**
+		Sometimes the type of the `null` being passed is
+		ambiguous in C++ (like being passed to std::any 
+		function when there is template alternative).
+		This checks for these "ambiguous" types. 
+	**/
 	public static function isAmbiguousNullable(t: Type): Bool {
 		return switch(t) {
 			case TInst(clsRef, _): {
