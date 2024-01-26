@@ -8,3 +8,4 @@
 * @:ignoreIfExtended
 * override
 * "str" + number (but both ways: "0" + 0 and 0 + "0")
+* Make a function that takes ConstRef or Ref and pass Nullable var (optional)
