@@ -541,7 +541,15 @@ class Compiler extends reflaxe.DirectToStringCompiler {
 				}
 			}
 
-			// case TMeta(_, e): getExprType(e);
+			// Ignore @:implicitCast from Null<T> to T
+			case TMeta({ name: ":implicitCast" }, e2): {
+				final e2Result = getExprType(e2);
+				if(e2Result.isNullOfAssignable(e.t) /*|| e.t.isNullOfAssignable(e2Result)*/) {
+					e2Result;
+				} else {
+					e.t;
+				}
+			}
 
 			// Return the typed expression's type otherwise.
 			case _: e.t;

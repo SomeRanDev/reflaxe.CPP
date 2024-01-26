@@ -361,7 +361,7 @@ class Expressions extends SubCompiler {
 
 							// Compile as reference
 							final refType = TType(Main.getRefType(), [errType]);
-							result += "\n} catch(" + TComp.compileType(refType, expr.pos) + " " + c.v.name + ") {\n";
+							result += "\n} catch(" + TComp.compileType(refType, expr.pos, true) + " " + c.v.name + ") {\n";
 
 							// Compile catch expression content
 							if(c.expr != null) {
@@ -558,8 +558,19 @@ class Expressions extends SubCompiler {
 			case TObjectDecl(fields) if(targetType != null): {
 				AComp.compileObjectDecl(targetType, fields, expr, compilingInHeader);
 			}
+
+			// case TField(e, fa): {
+			// 	fieldAccessToCpp(e, fa, expr, targetType);
+			// }
+			// case _: {
+			// 	final old = setExplicitNull(true, targetType != null && targetType.isAmbiguousNullable());
+			// 	final result = allowNullReturn ? Main.compileExpression(expr) : Main.compileExpressionOrError(expr);
+			// 	setExplicitNull(old);
+			// 	result;
+			// }
+
 			case exprDef: {
-				final unwrapNullValue = (allowNullValueUnwrap && targetType != null) ? Main.getExprType(unwrapped).isNullOfType(targetType) : false;
+				final unwrapNullValue = (allowNullValueUnwrap && targetType != null) ? Main.getExprType(unwrapped).isNullOfAssignable(targetType) : false;
 				final old = setExplicitNull(true, targetType != null && targetType.isAmbiguousNullable());
 				final result = switch(exprDef) {
 					case TField(e, fa): fieldAccessToCpp(e, fa, expr, targetType);
@@ -646,7 +657,7 @@ class Expressions extends SubCompiler {
 				}
 			}
 		}
-		
+
 		// Convert between two different memory management types (or nullable -> not nullable)
 		if((cmmt != tmmt || nullToValue) && result == null) {
 			switch(expr.expr) {
@@ -1862,9 +1873,9 @@ class Expressions extends SubCompiler {
 		var result = null;
 
 		// If casting from Null<T> to <T>
-		/*if(maybeModuleType == null && Main.getExprType(castedExpr, false).isNullOfType(Main.getExprType(originalExpr, false))) {
+		if(maybeModuleType == null && Main.getExprType(castedExpr, false).isNullOfType(Main.getExprType(originalExpr, false))) {
 			result = compileExpressionNotNull(castedExpr);
-		} else*/ {
+		} else {
 			// Find cast type
 			var isAnyCast = false;
 			if(maybeModuleType != null) {
