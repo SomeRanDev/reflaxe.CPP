@@ -252,7 +252,7 @@ class CppTypeHelper {
 			final t2 = Context.followWithAbstracts(target) ?? target;
 			if(t2.isDynamic()) {
 				final mt = target.unwrapNullTypeOrSelf().toModuleType();
-				if(mt.getCommonData().hasMeta(":notNull")) {
+				if(mt != null && mt.getCommonData().hasMeta(":notNull")) {
 					return true;
 				}
 			}
