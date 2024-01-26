@@ -218,17 +218,48 @@ class CppTypeHelper {
 		}
 	}
 
-	// ----------------------------
-	// If "t" is Null<T> and "target" is T, returns true.
-	// Returns false otherwise.
+	/**
+		If "t" is Null<T> and "target" is T, returns true.
+		Returns false otherwise.
+	**/
 	public static function isNullOfType(t: Type, target: Type): Bool {
 		final internal = t.unwrapNullType();
 		if(internal != null) {
-			return if(!internal.equals(target)) {
-				final t1 = Context.followWithAbstracts(internal) ?? internal;
-				final t2 = Context.followWithAbstracts(t) ?? t;
-				t1.equals(t2);
-			} else true;
+			return internal.equals(target) || internal.isDescendantOf(target);// || target.isDescendantOf(internal);
+		}
+		return false;
+
+		// Old method...
+		// return if(internal != null) {
+		// 	internal.equals(target);
+		// } else {
+		// 	false;
+		// }
+	}
+
+	/**
+		Works like `isNullOfType` but follows the types to
+		check if they are internally equivalent or related.
+	**/
+	public static function isNullOfAssignable(t: Type, target: Type): Bool {
+		final internal = t.unwrapNullType();
+		if(internal != null) {
+			if(internal.equals(target)) {
+				return true;
+			}
+
+			// Check if assigning to `Dynamic` wrapper marked with @:notNull
+			final t2 = Context.followWithAbstracts(target) ?? target;
+			if(t2.isDynamic()) {
+				final mt = target.unwrapNullTypeOrSelf().toModuleType();
+				if(mt.getCommonData().hasMeta(":notNull")) {
+					return true;
+				}
+			}
+
+			// Find core of input `t`
+			final t1 = Context.followWithAbstracts(internal) ?? internal;
+			t1.equals(t2) || t1.isDescendantOf(t2);
 		}
 		return false;
 	}
