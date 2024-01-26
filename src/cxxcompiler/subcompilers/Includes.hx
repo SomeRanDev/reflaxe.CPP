@@ -29,6 +29,7 @@ using reflaxe.helpers.DynamicHelper;
 using reflaxe.helpers.ModuleTypeHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
+using reflaxe.helpers.NullHelper;
 using reflaxe.helpers.TypeHelper;
 
 using cxxcompiler.helpers.Error;
@@ -282,7 +283,8 @@ class Includes extends SubCompiler {
 	function addIncludeFromAbstractTypeParam(t: Type, header: Bool) {
 		switch(t) {
 			case TAbstract(_.get() => absType, _) if(absType.type.isTypeParameter()): {
-				addIncludeFromType(t.getUnderlyingType(), header);
+				final ut = t.getUnderlyingType().trustMe(/* Cannot be `null` since guaranteed to be `TAbstract` */);
+				addIncludeFromType(ut, header);
 			}
 			case _:
 		}

@@ -518,7 +518,7 @@ class Types extends SubCompiler {
 
 		final mmt = switch(t) {
 			case TType(_.get() => baseType, _) | TAbstract(_.get() => baseType, _) if(baseType.hasMeta(Meta.ForwardMemoryManagement)): {
-				getMemoryManagementTypeFromType(t.getUnderlyingType());
+				getMemoryManagementTypeFromType(t.getUnderlyingType().trustMe(/* Cannot be `null` since guaranteed to be `TType` or `TAbstract` */));
 			}
 			case TEnum(_.get() => enumType, _) if(enumType.hasMeta(Meta.CppEnum)): {
 				Value;
