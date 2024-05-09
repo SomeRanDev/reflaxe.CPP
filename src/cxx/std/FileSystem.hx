@@ -17,6 +17,14 @@ extern class FileSystem {
 	@:native("std::filesystem::current_path")
 	@:include("filesystem", true)
 	public static overload extern function currentPath(newPath: String): Path;
+
+	@:native("std::filesystem::exists")
+	@:include("filesystem", true)
+	public static overload extern function exists(newPath: Path): Bool;
+
+	@:native("std::filesystem::exists")
+	@:include("filesystem", true)
+	public static overload extern function exists(newPath: String): Bool;
 }
 
 @:native("std::filesystem::path")
