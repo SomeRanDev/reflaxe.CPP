@@ -154,7 +154,7 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 
 	Sys.println("\n===========\nTesting C++ Compilation\n===========\n");
 
-	if(systemName != "Windows" && systemName != "Linux") {
+	if(systemName != "Windows" && systemName != "Linux" && systemName != "Mac") {
 		Sys.println("C++ compilation test not supported for `" + systemName + "`");
 		return;
 	}
@@ -443,7 +443,7 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 	final compileCommand = if(systemName == "Windows") {
 		// /W3 /WX /EHsc
 		"cl ../" + OUT_DIR + "/src/*.cpp /I ../" + OUT_DIR + "/include /std:c++17 /Fe:test_out.exe /W3 /WX /EHsc";
-	} else if(systemName == "Linux") {
+	} else if(systemName == "Linux" || systemName == "Mac") {
 		// -W3 -Werror
 		"g++ -std=c++17 ../" + OUT_DIR + "/src/*.cpp -I ../" + OUT_DIR + "/include -o test_out -Wall -Werror -Wnon-virtual-dtor";
 	} else {
