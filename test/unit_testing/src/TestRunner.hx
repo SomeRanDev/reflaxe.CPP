@@ -159,11 +159,6 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 		return;
 	}
 
-	if(systemName == "Mac" && !Sys.args().contains("test=")) {
-		Sys.println("C++ all test compilation not supported on Mac yet.");
-		return;
-	}
-
 	final failedTests = [];
 	for(t in tests) {
 		if(!processCppCompile(t, systemName, originalCwd)) {
