@@ -322,7 +322,6 @@ function compareOutputFolders(testDir: String): Bool {
 	final outFolder = haxe.io.Path.join([testDir, OUT_DIR]);
 	final intendedFolderSys = haxe.io.Path.join([testDir, INTENDED_DIR + "-" + systemName()]);
 
-	trace("Intended folder: " + intendedFolderSys);
 	final intendedFolder = if(sys.FileSystem.exists(intendedFolderSys)) {
 		intendedFolderSys;
 	} else {
@@ -455,7 +454,6 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 	Sys.println("cd " + testDir);
 	Sys.setCwd(testDir);
 
-	var backup_command;
 	final compileCommand = if(systemName == "Windows") {
 		// /W3 /WX /EHsc
 		"cl ../" + OUT_DIR + "/src/*.cpp /I ../" + OUT_DIR + "/include /std:c++17 /Fe:test_out.exe /W3 /WX /EHsc";
