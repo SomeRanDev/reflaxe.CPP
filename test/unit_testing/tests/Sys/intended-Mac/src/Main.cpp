@@ -32,11 +32,7 @@ Main::Main():
 void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) {
 	if(!b) {
 		{
-<<<<<<< Updated upstream
-			auto temp = infos.value_or(haxe::shared_anon<haxe::PosInfos>("", "Main.hx"s, 11, ""));
-=======
 			auto temp = infos.value_or(haxe::shared_anon<haxe::PosInfos>("", "test/unit_testing/tests/Sys/Main.hx"s, 11, ""));
->>>>>>> Stashed changes
 			std::cout << temp->fileName << ":" << temp->lineNumber << ": " << "Assert failed"s << std::endl;
 		};
 		Main::returnCode = 1;
@@ -45,11 +41,6 @@ void Main::assert(bool b, std::optional<std::shared_ptr<haxe::PosInfos>> infos) 
 
 void Main::main() {
 	std::string key = "Haxe2UC++ Test Value"s;
-<<<<<<< Updated upstream
-	std::string val = "test-value="s + std::to_string(static_cast<int>(floor((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 10)));
-
-	Main::assert(!Sys_GetEnv::getEnv(key).has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "Main.hx"s, 22, "main"s));
-=======
 	int tempNumber = 0;
 
 	if(10 <= 1) {
@@ -61,7 +52,6 @@ void Main::main() {
 	std::string val = "test-value="s + std::to_string((tempNumber));
 
 	Main::assert(!Sys_GetEnv::getEnv(key).has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 22, "main"s));
->>>>>>> Stashed changes
 
 	if(false || ((int)(val.size()) == 0)) {
 		unsetenv(key.c_str());
@@ -69,33 +59,19 @@ void Main::main() {
 		setenv(key.c_str(), val.c_str(), 1);
 	};
 
-<<<<<<< Updated upstream
-	Main::assert(Sys_GetEnv::getEnv("Haxe2UC++ Test Value"s) == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "Main.hx"s, 24, "main"s));
-
-	if((int)(""s.size()) == 0) {
-=======
 	Main::assert(Sys_GetEnv::getEnv("Haxe2UC++ Test Value"s) == val, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 24, "main"s));
 
 	if(false || ((int)(""s.size()) == 0)) {
->>>>>>> Stashed changes
 		unsetenv(key.c_str());
 	} else {
 		setenv(key.c_str(), ""s.c_str(), 1);
 	};
 
-<<<<<<< Updated upstream
-	Main::assert(!Sys_GetEnv::getEnv(key).has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "Main.hx"s, 26, "main"s));
-
-	std::string s = key + "env_map"s;
-
-	if((int)("123"s.size()) == 0) {
-=======
 	Main::assert(!Sys_GetEnv::getEnv(key).has_value(), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 26, "main"s));
 
 	std::string s = key + "env_map"s;
 
 	if(false || ((int)("123"s.size()) == 0)) {
->>>>>>> Stashed changes
 		unsetenv(s.c_str());
 	} else {
 		setenv(s.c_str(), "123"s.c_str(), 1);
@@ -104,25 +80,6 @@ void Main::main() {
 	std::shared_ptr<haxe::IMap<std::string, std::string>> this1 = Sys_Environment::environment();
 	std::optional<std::string> tempLeft = this1->get(key + "env_map"s);
 
-<<<<<<< Updated upstream
-	Main::assert(tempLeft == "123"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "Main.hx"s, 30, "main"s));
-
-	std::shared_ptr<std::deque<std::string>> args = Sys_Args::args();
-
-	Main::assert((int)(args->size()) == 1, haxe::shared_anon<haxe::PosInfos>("Main"s, "Main.hx"s, 33, "main"s));
-	Main::assert((int)((*args)[0].find("test_out"s)) >= 0, haxe::shared_anon<haxe::PosInfos>("Main"s, "Main.hx"s, 34, "main"s));
-	haxe::Log::trace(std::filesystem::current_path().string(), haxe::shared_anon<haxe::PosInfos>("Main"s, "Main.hx"s, 38, "main"s));
-	haxe::Log::trace(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() / 1000.0, haxe::shared_anon<haxe::PosInfos>("Main"s, "Main.hx"s, 46, "main"s));
-
-	double beforeSleep = Sys_CpuTime::cpuTime();
-
-	std::this_thread::sleep_for(std::chrono::milliseconds(((int)(1300.))));
-
-	double sleepTime = Sys_CpuTime::cpuTime() - beforeSleep;
-
-	Main::assert((sleepTime > 1.1) && (sleepTime < 1.4), haxe::shared_anon<haxe::PosInfos>("Main"s, "Main.hx"s, 61, "main"s));
-	haxe::Log::trace("sleepTime = "s + std::to_string(sleepTime), haxe::shared_anon<haxe::PosInfos>("Main"s, "Main.hx"s, 62, "main"s));
-=======
 	Main::assert(tempLeft == "123"s, haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 30, "main"s));
 
 	std::shared_ptr<std::deque<std::string>> args = Sys_Args::args();
@@ -140,7 +97,6 @@ void Main::main() {
 
 	Main::assert((sleepTime > 1.1) && (sleepTime < 1.4), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 61, "main"s));
 	haxe::Log::trace("sleepTime = "s + std::to_string(sleepTime), haxe::shared_anon<haxe::PosInfos>("Main"s, "test/unit_testing/tests/Sys/Main.hx"s, 62, "main"s));
->>>>>>> Stashed changes
 	cxx::io::NativeOutput(&std::cout).writeString("Written to stdout.\n"s, std::nullopt);
 	cxx::io::NativeOutput(&std::cout).flush();
 	cxx::io::NativeOutput(&std::cerr).writeString("Error output.\n"s, std::nullopt);

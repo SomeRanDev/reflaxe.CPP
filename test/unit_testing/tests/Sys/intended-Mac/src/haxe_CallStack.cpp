@@ -17,11 +17,7 @@ std::string haxe::_CallStack::CallStack_Impl_::toString(std::shared_ptr<std::deq
 		std::shared_ptr<haxe::StackItem> s = (*_g1)[_g];
 
 		++_g;
-<<<<<<< Updated upstream
-		b->b += "\nCalled from "s;
-=======
 		b->b += Std::string("\nCalled from "s);
->>>>>>> Stashed changes
 		haxe::_CallStack::CallStack_Impl_::itemToString(b, s);
 	};
 
@@ -31,22 +27,14 @@ std::string haxe::_CallStack::CallStack_Impl_::toString(std::shared_ptr<std::deq
 void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> b, std::shared_ptr<haxe::StackItem> s) {
 	switch(s->index) {
 		case 0: {
-<<<<<<< Updated upstream
-			b->b += "a C function"s;
-=======
 			b->b += Std::string("a C function"s);
->>>>>>> Stashed changes
 			break;
 		}
 		case 1: {
 			std::string _g = s->getModule().m;
 			std::string m = _g;
 
-<<<<<<< Updated upstream
-			b->b += "module "s;
-=======
 			b->b += Std::string("module "s);
->>>>>>> Stashed changes
 			b->b += Std::string(m);
 			break;
 		}
@@ -62,21 +50,6 @@ void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> 
 
 			if(s2.has_value()) {
 				haxe::_CallStack::CallStack_Impl_::itemToString(b, s2.value_or(nullptr));
-<<<<<<< Updated upstream
-				b->b += " ("s;
-			};
-
-			b->b += Std::string(file);
-			b->b += " line "s;
-			b->b += Std::string(line);
-
-			if(col.has_value()) {
-				b->b += " column "s;
-				b->b += Std::string(col);
-			};
-			if(s2.has_value()) {
-				b->b += ")"s;
-=======
 				b->b += Std::string(" ("s);
 			};
 
@@ -90,7 +63,6 @@ void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> 
 			};
 			if(s2.has_value()) {
 				b->b += Std::string(")"s);
->>>>>>> Stashed changes
 			};
 			break;
 		}
@@ -108,11 +80,7 @@ void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> 
 			};
 
 			b->b += Std::string(tempMaybeString.value());
-<<<<<<< Updated upstream
-			b->b += "."s;
-=======
 			b->b += Std::string("."s);
->>>>>>> Stashed changes
 			b->b += Std::string(meth);
 			break;
 		}
@@ -120,11 +88,7 @@ void haxe::_CallStack::CallStack_Impl_::itemToString(std::shared_ptr<StringBuf> 
 			std::optional<int> _g = s->getLocalFunction().v;
 			std::optional<int> n = _g;
 
-<<<<<<< Updated upstream
-			b->b += "local function #"s;
-=======
 			b->b += Std::string("local function #"s);
->>>>>>> Stashed changes
 			b->b += Std::string(n);
 			break;
 		}

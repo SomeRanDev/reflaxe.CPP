@@ -30,11 +30,7 @@ std::string haxe::Exception::get_message() {
 }
 
 std::shared_ptr<std::deque<std::shared_ptr<haxe::StackItem>>> haxe::Exception::get_stack() {
-<<<<<<< Updated upstream
-	std::cout << "Call stack features must be enabled using -D cxx_callstack."s << std::endl;
-=======
 	std::cout << Std::string("Call stack features must be enabled using -D cxx_callstack."s) << std::endl;
->>>>>>> Stashed changes
 
 	return std::make_shared<std::deque<std::shared_ptr<haxe::StackItem>>>(std::deque<std::shared_ptr<haxe::StackItem>>{});
 }
