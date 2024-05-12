@@ -1,5 +1,8 @@
+<<<<<<< Updated upstream
 version // 1
 0//1
+=======
+>>>>>>> Stashed changes
 src/haxe_io_Output.cpp
 src/haxe_io_Bytes.cpp
 src/haxe_exceptions_PosException.cpp

@@ -159,6 +159,11 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 		return;
 	}
 
+	if(systemName == "Mac" && !Sys.args().contains("test=")) {
+		Sys.println("C++ all test compilation not supported on Mac yet.");
+		return;
+	}
+
 	final failedTests = [];
 	for(t in tests) {
 		if(!processCppCompile(t, systemName, originalCwd)) {
@@ -308,6 +313,8 @@ function onProcessFail(process: sys.io.Process, hxml: String, ec: Int, stdoutCon
 function compareOutputFolders(testDir: String): Bool {
 	final outFolder = haxe.io.Path.join([testDir, OUT_DIR]);
 	final intendedFolderSys = haxe.io.Path.join([testDir, INTENDED_DIR + "-" + systemName()]);
+
+	trace("Intended folder: " + intendedFolderSys);
 	final intendedFolder = if(sys.FileSystem.exists(intendedFolderSys)) {
 		intendedFolderSys;
 	} else {
@@ -315,7 +322,7 @@ function compareOutputFolders(testDir: String): Bool {
 	}
 
 	if(!sys.FileSystem.exists(intendedFolder)) {
-		printFailed("Intended folder does not exist?");
+		printFailed("Intended folder does not exist? Looking for: " + intendedFolder);
 		return false;
 	}
 
@@ -440,13 +447,16 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 	Sys.println("cd " + testDir);
 	Sys.setCwd(testDir);
 
+	var backup_command;
 	final compileCommand = if(systemName == "Windows") {
 		// /W3 /WX /EHsc
 		"cl ../" + OUT_DIR + "/src/*.cpp /I ../" + OUT_DIR + "/include /std:c++17 /Fe:test_out.exe /W3 /WX /EHsc";
 	} else if(systemName == "Linux" || systemName == "Mac") {
 		// -W3 -Werror
 		"g++ -std=c++17 ../" + OUT_DIR + "/src/*.cpp -I ../" + OUT_DIR + "/include -o test_out -Wall -Werror -Wnon-virtual-dtor";
-	} else {
+	}else if(systemName == "Mac") {
+		"clang++ -std=c++17 ../" + OUT_DIR + "/src/*.cpp -I ../" + OUT_DIR + "/include -o test_out -Wall -Werror -Wnon-virtual-dtor -isysroot $(xcrun --show-sdk-path) -Wno-parentheses-equality";
+	}else {
 		throw "Unsupported system";
 	}
 
@@ -454,9 +464,11 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 	Sys.println("");
 
 	final compileProcess = new sys.io.Process(compileCommand);
+
 	final stdoutContent = compileProcess.stdout.readAll().toString();
 	final stderrContent = compileProcess.stderr.readAll().toString();
 	final ec = compileProcess.exitCode();
+	compileProcess.close();
 
 	if(ec != 0) {
 		Sys.println("C++ compilation failed...");
