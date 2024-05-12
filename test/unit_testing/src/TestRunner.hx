@@ -108,7 +108,7 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 	if(allowedTests.length > 0) {
 		tests = tests.filter(t -> allowedTests.contains(t));
 		if(tests.length <= 0) {
-			printlnErr("The provided tests do not exist: " + tests);
+			printlnErr("The provided tests do not exist: " + allowedTests);
 			Sys.exit(1);
 		}
 	}
