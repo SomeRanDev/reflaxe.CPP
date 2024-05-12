@@ -159,16 +159,8 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 		return;
 	}
 
-	var shoudNotCompileMac = true;
-	for(arg in Sys.args()) {
-		if(arg.split("=")[0] == "test") {
-			shoudNotCompileMac = false;
-			break;
-		}
-	}
-
-	if(systemName == "Mac" && shoudNotCompileMac) {
-		Sys.println("C++ all test compilation not supported on Mac yet.");
+	if(systemName == "Mac" && tests.length > 1) {
+		Sys.println("Compiling multiple C++ tests is not supported on MacOS currently.");
 		return;
 	}
 
