@@ -159,6 +159,19 @@ Makes it so only this test is ran. This option can be added multiple times to pe
 		return;
 	}
 
+	var shoudNotCompileMac = true;
+	for(arg in Sys.args()) {
+		if(arg.split("=")[0] == "test") {
+			shoudNotCompileMac = false;
+			break;
+		}
+	}
+
+	if(systemName == "Mac" && shoudNotCompileMac) {
+		Sys.println("C++ all test compilation not supported on Mac yet.");
+		return;
+	}
+
 	final failedTests = [];
 	for(t in tests) {
 		if(!processCppCompile(t, systemName, originalCwd)) {
@@ -446,7 +459,7 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 	final compileCommand = if(systemName == "Windows") {
 		// /W3 /WX /EHsc
 		"cl ../" + OUT_DIR + "/src/*.cpp /I ../" + OUT_DIR + "/include /std:c++17 /Fe:test_out.exe /W3 /WX /EHsc";
-	} else if(systemName == "Linux" || systemName == "Mac") {
+	} else if(systemName == "Linux") {
 		// -W3 -Werror
 		"g++ -std=c++17 ../" + OUT_DIR + "/src/*.cpp -I ../" + OUT_DIR + "/include -o test_out -Wall -Werror -Wnon-virtual-dtor";
 	}else if(systemName == "Mac") {
@@ -454,7 +467,6 @@ function processCppCompile(t: String, systemName: String, originalCwd: String): 
 	}else {
 		throw "Unsupported system";
 	}
-
 	Sys.println(compileCommand);
 	Sys.println("");
 
