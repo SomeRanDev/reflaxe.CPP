@@ -1,3 +1,4 @@
+
 on:
   push:
     branches:
@@ -56,5 +57,25 @@ jobs:
       - name: Install Reflaxe
         run: haxelib git reflaxe https://github.com/SomeRanDev/reflaxe.git
 
+      - name: Run Tests
+        run: haxe Test.hxml
+  
+  build_macos:
+    runs-on: macos-12
+    name: Test on macOS (Clang)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.3.0
+  
+      - name: Install & Check Haxe
+        run: haxe -version
+  
+      - name: Install Reflaxe
+        run: haxelib git reflaxe https://github.com/SomeRanDev/reflaxe.git
+  
       - name: Run Tests
         run: haxe Test.hxml
