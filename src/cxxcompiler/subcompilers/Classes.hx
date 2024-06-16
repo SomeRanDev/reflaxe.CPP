@@ -1014,6 +1014,7 @@ class Classes extends SubCompiler {
 			final constructorInitFields = [];
 			
 			if(ctx.isConstructor && !noAutogen) {
+				trace(field);
 				constructorInitFields.push("_order_id(generate_order_id())");
 			}
 
