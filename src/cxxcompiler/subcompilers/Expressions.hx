@@ -46,11 +46,6 @@ using cxxcompiler.helpers.CppTypeHelper;
 @:access(cxxcompiler.subcompilers.Includes)
 @:access(cxxcompiler.subcompilers.Types)
 class Expressions extends SubCompiler {
-
-    // ----------------------------
-    // A map of all the names of the fields in the current class.
-    public var fieldNames(default, null): Array<String> = [];
-
 	// ----------------------------
 	// A public variable modified based on whether the
 	// current expression is being compiled for a header file.
@@ -108,6 +103,22 @@ class Expressions extends SubCompiler {
 		} else {
 			false;
 		}
+	}
+
+	// ----------------------------
+	// Stores field-access expressions that access from `this`.
+	// Used in the Class compiler to find fields assigned in the constructor.
+	// See TODO in Classes.hx
+	var thisFieldsAssigned: Null<Array<String>> = null;
+
+	public function startTrackingThisFields() {
+		thisFieldsAssigned = [];
+	}
+
+	public function extractThisFields() {
+		final result = thisFieldsAssigned;
+		thisFieldsAssigned = null;
+		return result;
 	}
 
 	// ----------------------------
@@ -1353,8 +1364,8 @@ class Expressions extends SubCompiler {
 				result;
 			}
 
-			if(!fieldNames.contains(name) && StringTools.startsWith(result, "this->")) {
-		        fieldNames.push(name);
+			if(thisFieldsAssigned != null && isThisExpr(e) && !thisFieldsAssigned.contains(name)) {
+				thisFieldsAssigned.push(name);
 			}
 
 			return output;
