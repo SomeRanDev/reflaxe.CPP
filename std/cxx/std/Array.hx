@@ -17,4 +17,15 @@ extern class Array<T, @:const Count: Int>  {
 	public function maxSize(): cxx.num.SizeT;
 
 	public function fill(value: T): Void;
+
+
+	// Warning: These functions are not safe, they do not check the bounds
+
+	@:arrayAccess
+        @:nativeFunctionCode("((*{this})[{arg0}])")
+	public function get(index: Int): T;
+
+	@:arrayAccess
+        @:nativeFunctionCode("(*{this})[{arg0}] = {arg1}")
+	public function set(index: Int, val: T): Void;
 }

@@ -46,6 +46,11 @@ using cxxcompiler.helpers.CppTypeHelper;
 @:access(cxxcompiler.subcompilers.Includes)
 @:access(cxxcompiler.subcompilers.Types)
 class Expressions extends SubCompiler {
+
+    // ----------------------------
+    // A map of all the names of the fields in the current class.
+    public var fieldNames(default, null): Array<String> = [];
+
 	// ----------------------------
 	// A public variable modified based on whether the
 	// current expression is being compiled for a header file.
@@ -1342,11 +1347,17 @@ class Expressions extends SubCompiler {
 
 			// @:nativeVariableCode
 			final nvc = Main.compileNativeVariableCodeMeta(accessExpr, result);
-			return if(nvc != null) {
+			final output = if(nvc != null) {
 				nvc;
 			} else {
 				result;
 			}
+
+			if(!fieldNames.contains(name) && StringTools.startsWith(result, "this->")) {
+		        fieldNames.push(name);
+			}
+
+			return output;
 		}
 	}
 

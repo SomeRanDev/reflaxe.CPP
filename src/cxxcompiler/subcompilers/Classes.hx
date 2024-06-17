@@ -977,7 +977,7 @@ class Classes extends SubCompiler {
 					frontOptionalAssigns.push('if(!${arg.name}) ${arg.name} = ${XComp.compileExpressionForType(arg.expr, t)};');
 				}
 			}
-			
+
 			// -----------------
 			// Store every section of the function body C++ to be added to the function
 			final body = [];
@@ -1010,11 +1010,26 @@ class Classes extends SubCompiler {
 			XComp.popTrackLines();
 
 			// -----------------
-			// Use initialization list to set _order_id in constructor.
+			// Use initialization list to set _order_id in constructor as well as have arguments be more C++ like.
 			final constructorInitFields = [];
-			
+
 			if(ctx.isConstructor && !noAutogen) {
 				constructorInitFields.push("_order_id(generate_order_id())");
+
+				while(XComp.fieldNames.length > 0) {
+				    final name = XComp.fieldNames.pop();
+				    var curBody = body[body.length - 1];
+
+				    for(line in curBody.split(";")) {
+							var lineSeg = StringTools.replace(line, "\n", "");
+							if(StringTools.startsWith(lineSeg, "this->" + name + " = ")) {
+								final value = lineSeg.substring(("this->" + name + " = ").length, curBody.length - 1);
+
+								constructorInitFields.push(name + "(" + value + ")");
+								body[body.length - 1] = StringTools.replace(curBody, line + ";", "");
+							}
+					}
+				}
 			}
 
 			if(superConstructorCall != null) {
