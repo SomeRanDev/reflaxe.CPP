@@ -1005,9 +1005,10 @@ class Classes extends SubCompiler {
 			// Get expression to compile
 			final bodyExpr = f.expr;
 
-			if(ctx.isConstructor) {
-				XComp.startTrackingThisFields();
-			}
+			// To be added back, see TODO below...
+			// if(ctx.isConstructor) {
+			// 	XComp.startTrackingThisFields();
+			// }
 
 			XComp.pushTrackLines(useCallStack);
 			body.push(Main.compileClassFuncExpr(bodyExpr));
@@ -1030,21 +1031,24 @@ class Classes extends SubCompiler {
 				// Anaylze the `bodyExpr` TypedExpr above to get the class assignments.
 				// Then mark with a metadata like `@:reflaxeDontGenerate` and implement a-
 				// feature to ignore expressions with said metadata.
-				final thisFields = XComp.extractThisFields();
-				while(thisFields.length > 0) {
-					final name = thisFields.pop();
-					var curBody = body[body.length - 1];
 
-					for(line in curBody.split(";")) {
-						var lineSeg = StringTools.replace(line, "\n", "");
-						if(StringTools.startsWith(lineSeg, "this->" + name + " = ")) {
-							final value = lineSeg.substring(("this->" + name + " = ").length, curBody.length - 1);
 
-							constructorInitFields.push(name + "(" + value + ")");
-							body[body.length - 1] = StringTools.replace(curBody, line + ";", "");
-						}
-					}
-				}
+				// Breaks too many tests, will add later...
+				// final thisFields = XComp.extractThisFields();
+				// while(thisFields.length > 0) {
+				// 	final name = thisFields.pop();
+				// 	var curBody = body[body.length - 1];
+
+				// 	for(line in curBody.split(";")) {
+				// 		var lineSeg = StringTools.replace(line, "\n", "");
+				// 		if(StringTools.startsWith(lineSeg, "this->" + name + " = ")) {
+				// 			final value = lineSeg.substring(("this->" + name + " = ").length, curBody.length - 1);
+
+				// 			constructorInitFields.push(name + "(" + value + ")");
+				// 			body[body.length - 1] = StringTools.replace(curBody, line + ";", "");
+				// 		}
+				// 	}
+				// }
 			}
 
 			if(superConstructorCall != null) {
