@@ -273,7 +273,19 @@ class Includes extends SubCompiler {
 				if(!header) {
 					final params = t.getParams();
 					if(params != null) {
-						for(p in params) addIncludeFromType(p, header);
+						for(p in params) {
+							final mt = p.toModuleType();
+							switch(mt) {
+								case TClassDecl(cRef): {
+									switch(cRef.get().kind) {
+										case KExpr(_): continue;
+										case _:
+									}
+								}
+								case _:
+							}
+							addIncludeFromType(p, header);
+						}
 					}
 				}
 			}
