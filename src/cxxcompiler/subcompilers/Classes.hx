@@ -964,7 +964,7 @@ class Classes extends SubCompiler {
 
 		var content = "";
 		final funcDeclaration = generateHeaderDecl(ctx, ctx.name, ctx.ret, argDecl, topLevel);
-		
+
 		if(f.expr != null) {
 			XComp.compilingInHeader = !ctx.addToCpp;
 
@@ -1020,9 +1020,9 @@ class Classes extends SubCompiler {
 					constructorInitFields.push("_order_id(generate_order_id())");
 				}
 
-				// -----------------
-				// Remove all assignments to `this->` fields in constructor body.
-				if(field.hasMeta(Meta.CppcList)) {
+                // -----------------
+                // Remove all assignments to `this->` fields in constructor body.
+                if(field.hasMeta(Meta.CppcList)) {
                     switch(bodyExpr.expr) {
                         case TBlock(exprs): {
                             var cleanExpressions:Array<haxe.macro.TypedExpr> = exprs.copy();
@@ -1074,8 +1074,8 @@ class Classes extends SubCompiler {
                         }
                         case _: {}
                     }
-				}
-			}
+                }
+            }
 
 			XComp.pushTrackLines(useCallStack);
 			body.push(Main.compileClassFuncExpr(bodyExpr));
