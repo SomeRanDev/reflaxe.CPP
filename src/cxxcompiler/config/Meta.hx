@@ -597,7 +597,7 @@ enum abstract Meta(String) from String to String {
 		If used on a constructor of a class, the constructor will be generate a
 		initializer list for the constructor.
 	**/
-        var CppcList = ":cppcList";
+    var CppcList = ":cppcList";
 
 	/**
 		Internal metadata. Cannot be used directly
