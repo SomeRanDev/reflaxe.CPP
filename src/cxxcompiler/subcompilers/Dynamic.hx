@@ -24,6 +24,7 @@ import reflaxe.helpers.PositionHelper;
 using reflaxe.helpers.NameMetaHelper;
 using reflaxe.helpers.NullableMetaAccessHelper;
 using reflaxe.helpers.SyntaxHelper;
+using reflaxe.helpers.TypedExprHelper;
 using reflaxe.helpers.TypeHelper;
 
 import cxxcompiler.config.Meta;
@@ -196,7 +197,7 @@ class Dynamic_ extends SubCompiler {
 
 			XComp.setThisOverride(genTypedExpr(TIdent("o"), thisType));
 			XComp.compilingInHeader = true;
-			final exprCpp = Main.compileExpression(f.expr);
+			final exprCpp = Main.compileExpression(f.expr.ensureBlock());
 			if(exprCpp != null) {
 				final body = el.length > 0 ? '{\n$argCpp${exprCpp.tab()}\n}' : exprCpp;
 				final cpp = ['auto result = [o, args] $body;', "result()"];

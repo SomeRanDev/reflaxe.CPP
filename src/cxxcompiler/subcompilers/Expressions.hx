@@ -16,7 +16,7 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 
 import reflaxe.input.ClassHierarchyTracker;
-import reflaxe.compiler.EverythingIsExprSanitizer;
+import reflaxe.preprocessors.implementations.everything_is_expr.EverythingIsExprSanitizer;
 
 import cxxcompiler.subcompilers.Includes.ExtraFlag;
 import cxxcompiler.config.Define;
