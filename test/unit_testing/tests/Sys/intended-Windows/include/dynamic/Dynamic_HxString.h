@@ -69,12 +69,10 @@ public:
 					{
 						std::string tempResult;
 
-						{
-							if(endIndex < 0) {
-								tempResult = o->substr(startIndex);
-							} else {
-								tempResult = o->substr(startIndex, endIndex - startIndex);
-							};
+						if(endIndex < 0) {
+							tempResult = o->substr(startIndex);
+						} else {
+							tempResult = o->substr(startIndex, endIndex - startIndex);
 						};
 
 						return tempResult;
