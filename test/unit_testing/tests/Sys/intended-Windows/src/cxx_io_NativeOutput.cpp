@@ -3,10 +3,10 @@
 #include <memory>
 #include <ostream>
 
-cxx::io::NativeOutput::NativeOutput(std::ostream* stream):
+cxx::io::NativeOutput::NativeOutput(std::ostream* stream2):
 	_order_id(generate_order_id())
 {
-	this->stream = stream;
+	this->stream = stream2;
 }
 
 void cxx::io::NativeOutput::writeByte(int c) {

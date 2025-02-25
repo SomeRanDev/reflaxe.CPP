@@ -17,7 +17,7 @@ public:
 	std::string _message;
 	virtual ~Exception() {}
 
-	Exception(std::string message, std::optional<haxe::Exception> previous = std::nullopt, std::optional<std::any> native = std::nullopt);
+	Exception(std::string message2, std::optional<haxe::Exception> previous2 = std::nullopt, std::optional<std::any> native2 = std::nullopt);
 	std::string get_message();
 	std::shared_ptr<std::deque<std::shared_ptr<haxe::StackItem>>> get_stack();
 	std::optional<haxe::Exception> get_previous();

@@ -14,11 +14,11 @@ public:
 	std::shared_ptr<haxe::IMap<K, V>> map;
 	std::shared_ptr<Iterator<K>> keys;
 
-	MapKeyValueIterator(std::shared_ptr<haxe::IMap<K, V>> map):
+	MapKeyValueIterator(std::shared_ptr<haxe::IMap<K, V>> map2):
 		_order_id(generate_order_id())
 	{
-		this->map = map;
-		this->keys = map->keys();
+		this->map = map2;
+		this->keys = map2->keys();
 	}
 	bool hasNext() {
 		return this->keys->hasNext();

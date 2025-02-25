@@ -41,10 +41,10 @@ class HasParam {
 public:
 	T t;
 
-	HasParam(T t):
+	HasParam(T t2):
 		_order_id(generate_order_id())
 	{
-		this->t = t;
+		this->t = t2;
 	}
 	void test() {
 		std::cout << std::string("test/unit_testing/tests/Dynamic/Main.hx:13: Hello!") << std::endl;

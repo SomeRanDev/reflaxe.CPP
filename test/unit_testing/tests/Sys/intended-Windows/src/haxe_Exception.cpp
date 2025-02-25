@@ -11,15 +11,15 @@
 
 using namespace std::string_literals;
 
-haxe::Exception::Exception(std::string message, std::optional<haxe::Exception> previous, std::optional<std::any> native):
+haxe::Exception::Exception(std::string message2, std::optional<haxe::Exception> previous2, std::optional<std::any> native2):
 	std::exception(), _order_id(generate_order_id())
 {
-	this->_message = message;
+	this->_message = message2;
 
 	std::optional<std::shared_ptr<haxe::Exception>> tempRight;
 
-	if(previous.has_value()) {
-		tempRight = std::make_shared<haxe::Exception>(previous.value());
+	if(previous2.has_value()) {
+		tempRight = std::make_shared<haxe::Exception>(previous2.value());
 	} else {
 		tempRight = std::nullopt;
 	};

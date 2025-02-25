@@ -12,7 +12,7 @@ class Other {
 public:
 	std::shared_ptr<Other2> main;
 
-	Other(std::optional<std::shared_ptr<Other2>> main = std::nullopt);
+	Other(std::optional<std::shared_ptr<Other2>> main2 = std::nullopt);
 
 	HX_COMPARISON_OPERATORS(Other)
 };
