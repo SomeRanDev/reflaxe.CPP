@@ -192,7 +192,7 @@ class Dynamic_ extends SubCompiler {
 			var argCpp = "";
 			for(i in 0...f.args.length) {
 				final e = switch(el[i].expr) { case TIdent(s): s; case _: throw "Impossible"; }
-				argCpp += '\tauto ${f.args[i].name} = $e;\n';
+				argCpp += '\tauto ${f.args[i].getName()} = $e;\n';
 			}
 
 			XComp.setThisOverride(genTypedExpr(TIdent("o"), thisType));

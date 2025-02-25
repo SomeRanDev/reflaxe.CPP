@@ -925,7 +925,7 @@ class Classes extends SubCompiler {
 			}
 
 			argTypes.push(type);
-			argCpp.push(Main.compileFunctionArgumentData(type, arg.name, arg.expr, ctx.field.pos, arg.isFrontOptional(), false, true));
+			argCpp.push(Main.compileFunctionArgumentData(type, arg.getName(), arg.expr, ctx.field.pos, arg.isFrontOptional(), false, true));
 		}
 
 		// -----------------
@@ -949,7 +949,7 @@ class Classes extends SubCompiler {
 		Generate content for covariant function wrapper.
 	**/
 	function covariantContent(ctx: FunctionCompileContext) {
-		final argNames = getArguments(ctx).map(a -> a.name);
+		final argNames = getArguments(ctx).map(a -> a.getName());
 		return ctx.suffixSpecifiers.join(" ") + " {\n\treturn std::static_pointer_cast<" + ctx.covariance.retVal + ">(" + ctx.name + "(" + argNames.join(", ") + "));\n}";
 	}
 
@@ -974,7 +974,7 @@ class Classes extends SubCompiler {
 			for(arg in getArguments(ctx)) {
 				if(arg.expr != null && arg.isFrontOptional() && arg.hasConflictingDefaultValue()) {
 					final t = arg.tvar != null ? Main.getTVarType(arg.tvar) : arg.type;
-					frontOptionalAssigns.push('if(!${arg.name}) ${arg.name} = ${XComp.compileExpressionForType(arg.expr, t)};');
+					frontOptionalAssigns.push('if(!${arg.getName()}) ${arg.getName()} = ${XComp.compileExpressionForType(arg.expr, t)};');
 				}
 			}
 
@@ -1146,7 +1146,7 @@ class Classes extends SubCompiler {
 			// If the type was changed (ex: made to Null<T> if front optional),
 			// we need to get the modified version from tvar if possible.
 			final type = a.tvar != null ? Main.getTVarType(a.tvar) : a.type;
-			return Main.compileFunctionArgumentData(type, a.name, a.expr, ctx.field.pos, true);
+			return Main.compileFunctionArgumentData(type, a.getName(), a.expr, ctx.field.pos, true);
 		});
 
 		final cppArgDecl = "(" + argCpp.join(", ") + ")";
