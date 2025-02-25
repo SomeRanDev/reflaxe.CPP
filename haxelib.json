@@ -1,31 +1,29 @@
 {
-  "name": "reflaxe.cpp",
-  "version": "0.1.0",
-  "description": "An alternative C++ target for Haxe that generates dependent-less, GC-less C++17 code.",
-  "url": "https://github.com/SomeRanDev/reflaxe.CPP",
-  "license": "MIT",
-  "tags": [
-    "custom-target",
-    "cpp",
-    "modern-cpp",
-    "reflaxe",
-    "macro",
-    "compiler",
-    "target",
-    "gc",
-    "native",
-    "metadata",
-    "externs"
-  ],
-  "dependencies": {
-    "reflaxe": "git:https://github.com/SomeRanDev/reflaxe"
-  },
-  "classPath": "src/",
-  "releasenote": "Initial release.",
-  "contributors": ["RobertBorghese", "SomeRanDev"],
-  "reflaxe": {
-    "name": "C++",
-    "abbv": "cxx",
-    "stdPaths": ["std", "std/cxx/_std"]
-  }
+	"name": "reflaxe.cpp",
+	"description": "An alternative C++ target for Haxe that generates dependent-less, GC-less C++17 code.",
+	"classPath": "src/",
+	"dependencies": {
+		"reflaxe": "git:https://github.com/SomeRanDev/reflaxe"
+	},
+	"url": "https://github.com/SomeRanDev/reflaxe.CPP",
+	"contributors": [
+		"RobertBorghese",
+		"SomeRanDev"
+	],
+	"version": "0.1.0",
+	"releasenote": "Initial release.",
+	"tags": [
+		"custom-target",
+		"cpp",
+		"modern-cpp",
+		"reflaxe",
+		"macro",
+		"compiler",
+		"target",
+		"gc",
+		"native",
+		"metadata",
+		"externs"
+	],
+	"license": "MIT"
 }
