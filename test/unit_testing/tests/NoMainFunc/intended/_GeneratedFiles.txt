@@ -1,14 +1,4 @@
-src/haxe_Log.cpp
+src/SomeClass3.cpp
 src/SomeClass.cpp
-include/haxe_iterators_ArrayKeyValueIterator.h
-include/haxe_iterators_ArrayIterator.h
-include/haxe_PosInfos.h
-include/haxe_Log.h
-include/cxx_DynamicToString.h
-include/_HaxeUtils.h
-include/_AnonUtils.h
-include/_AnonStructs.h
-include/Std.h
+include/SomeClass3.h
 include/SomeClass.h
-include/HxString.h
-include/HxArray.h

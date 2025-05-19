@@ -14,7 +14,7 @@ public:
 	std::shared_ptr<haxe::io::BytesData> b;
 	int length;
 
-	Bytes(int length, std::shared_ptr<haxe::io::BytesData> b);
+	Bytes(int length2, std::shared_ptr<haxe::io::BytesData> b2);
 	static std::shared_ptr<haxe::io::Bytes> ofString(std::string s, std::optional<std::shared_ptr<haxe::io::Encoding>> encoding = std::nullopt);
 
 	HX_COMPARISON_OPERATORS(Bytes)

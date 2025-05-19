@@ -4,11 +4,11 @@
 #include <memory>
 #include <string>
 
-haxe::io::Bytes::Bytes(int length, std::shared_ptr<haxe::io::BytesData> b):
+haxe::io::Bytes::Bytes(int length2, std::shared_ptr<haxe::io::BytesData> b2):
 	_order_id(generate_order_id())
 {
-	this->length = length;
-	this->b = b;
+	this->length = length2;
+	this->b = b2;
 }
 
 std::shared_ptr<haxe::io::Bytes> haxe::io::Bytes::ofString(std::string s, std::optional<std::shared_ptr<haxe::io::Encoding>> encoding) {

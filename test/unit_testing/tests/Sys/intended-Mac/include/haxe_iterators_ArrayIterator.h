@@ -12,11 +12,11 @@ public:
 	std::shared_ptr<std::deque<T>> array;
 	int current;
 
-	ArrayIterator(std::shared_ptr<std::deque<T>> array):
+	ArrayIterator(std::shared_ptr<std::deque<T>> array2):
 		_order_id(generate_order_id())
 	{
 		this->current = 0;
-		this->array = array;
+		this->array = array2;
 	}
 	bool hasNext() {
 		return this->current < (int)(this->array->size());

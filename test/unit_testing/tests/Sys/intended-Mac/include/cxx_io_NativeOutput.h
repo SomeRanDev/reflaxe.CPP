@@ -12,7 +12,7 @@ class NativeOutput: public haxe::io::Output {
 public:
 	std::optional<std::ostream*> stream;
 
-	NativeOutput(std::ostream* stream);
+	NativeOutput(std::ostream* stream2);
 	void writeByte(int c) override;
 	void close();
 	void flush() override;
