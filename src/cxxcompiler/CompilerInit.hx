@@ -36,7 +36,7 @@ class CompilerInit {
 			fileOutputType: FilePerClass,
 			reservedVarNames: reservedNames(),
 			targetCodeInjectionName: "__cpp__",
-			dynamicDCE: true,
+			manualDCE: true,
 			customStdMeta: [":cxxStd"],
 			trackUsedTypes: true,
 			ignoreExterns: false,
