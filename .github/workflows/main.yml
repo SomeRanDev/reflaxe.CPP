@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.3.0
+          haxe-version: 4.3.7
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.3.0
+          haxe-version: 4.3.7
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -60,7 +60,7 @@ jobs:
         run: haxe Test.hxml
   
   build_macos:
-    runs-on: macos-12
+    runs-on: macos-14
     name: Test on MacOS (Clang)
     steps:
       - name: Checkout
@@ -68,7 +68,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.3.0
+          haxe-version: 4.3.7
   
       - name: Install & Check Haxe
         run: haxe -version
