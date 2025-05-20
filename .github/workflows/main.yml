@@ -60,7 +60,7 @@ jobs:
         run: haxe Test.hxml
   
   build_macos:
-    runs-on: macos-12
+    runs-on: macos-14
     name: Test on MacOS (Clang)
     steps:
       - name: Checkout
