@@ -16,7 +16,7 @@ jobs:
           haxe-version: 4.3.7
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup GCC
         uses: egor-tensin/setup-gcc@v1
@@ -42,7 +42,7 @@ jobs:
           haxe-version: 4.3.7
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup VS
         uses: ilammy/msvc-dev-cmd@v1
@@ -60,11 +60,11 @@ jobs:
         run: haxe Test.hxml
   
   build_macos:
-    runs-on: macos-14
+    runs-on: macos-latest
     name: Test on MacOS (Clang)
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: krdlab/setup-haxe@v1
         with:
