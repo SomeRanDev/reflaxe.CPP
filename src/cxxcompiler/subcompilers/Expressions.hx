@@ -1551,7 +1551,7 @@ class Expressions extends SubCompiler {
 			final typeParamCpp = cppTemplateArgs.length > 0 ? '<${cppTemplateArgs.join(", ")}>' : "";
 
 			// Compile final expression
-			Main.compileExpressionOrError(callExpr) + typeParamCpp + "(" + cppArgs.join(", ") + ")";
+			compileExpressionNotNull(callExpr) + typeParamCpp + "(" + cppArgs.join(", ") + ")";
 		}
 	}
 
