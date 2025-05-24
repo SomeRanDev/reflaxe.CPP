@@ -19,6 +19,7 @@ import reflaxe.data.ClassFuncData;
 import reflaxe.data.ClassVarData;
 import reflaxe.debug.MeasurePerformance;
 import reflaxe.input.ClassHierarchyTracker;
+import reflaxe.helpers.ExprHelper;
 
 using reflaxe.helpers.ArrayHelper;
 using reflaxe.helpers.BaseTypeHelper;
@@ -963,7 +964,7 @@ class Classes extends SubCompiler {
 
 		var content = "";
 		final funcDeclaration = generateHeaderDecl(ctx, ctx.name, ctx.ret, argDecl, topLevel);
-		
+
 		if(f.expr != null) {
 			XComp.compilingInHeader = !ctx.addToCpp;
 
@@ -1003,53 +1004,82 @@ class Classes extends SubCompiler {
 
 			// -----------------
 			// Get expression to compile
-			final bodyExpr = f.expr;
+			var bodyExpr = f.expr;
 
 			// To be added back, see TODO below...
 			// if(ctx.isConstructor) {
 			// 	XComp.startTrackingThisFields();
 			// }
 
-			XComp.pushTrackLines(useCallStack);
-			body.push(Main.compileClassFuncExpr(bodyExpr));
-			XComp.popTrackLines();
-
 			// -----------------
 			// Use initialization list to set _order_id in constructor.
-			final constructorInitFields = [];
+			final constructorInitFields:Array<String> = [];
 
 			if(ctx.isConstructor) {
 				if(!noAutogen) {
 					constructorInitFields.push("_order_id(generate_order_id())");
 				}
 
-				// -----------------
-				// Generate field initializations in constructor
-				//
-				// TODO:
-				// Don't use text processing here.
-				// Anaylze the `bodyExpr` TypedExpr above to get the class assignments.
-				// Then mark with a metadata like `@:reflaxeDontGenerate` and implement a-
-				// feature to ignore expressions with said metadata.
+                // -----------------
+                // Remove all assignments to `this->` fields in constructor body.
+                if(field.hasMeta(Meta.CppcList)) {
+                    switch(bodyExpr.expr) {
+                        case TBlock(exprs): {
+                            var cleanExpressions:Array<haxe.macro.TypedExpr> = exprs.copy();
 
+                            for(ex in exprs) {
+                                // trace($type(ex));
+                                switch(ex.expr) {
+                                    case TBinop(OpAssign, {expr: TField({expr: TConst(TThis)}, name)}, e2): {
+                                        switch(e2.expr) {
+                                            case TConst(_) | TLocal(_): {
+                                                cleanExpressions.remove(ex);
 
-				// Breaks too many tests, will add later...
-				// final thisFields = XComp.extractThisFields();
-				// while(thisFields.length > 0) {
-				// 	final name = thisFields.pop();
-				// 	var curBody = body[body.length - 1];
+                                                final name_raw = switch(name) {
+                                                    case FInstance(_, _, s): s;
+                                                    case _: null;
+                                                }
 
-				// 	for(line in curBody.split(";")) {
-				// 		var lineSeg = StringTools.replace(line, "\n", "");
-				// 		if(StringTools.startsWith(lineSeg, "this->" + name + " = ")) {
-				// 			final value = lineSeg.substring(("this->" + name + " = ").length, curBody.length - 1);
+                                                final value_raw = switch(e2.expr) {
+                                                    case TConst(c): {
+                                                        switch(c) {
+                                                            case TInt(v): Std.string(v);
+                                                            case TFloat(v): v;
+                                                            case TString(v): '"' + v + '"';
+                                                            case TBool(v): v ? "1" : "0";
+                                                            case TNull: "nullptr";
+                                                            case _: "0";
+                                                        }
+                                                    }
+                                                    case TLocal(v): v.name;
+                                                    case _: { throw "Impossible"; }
+                                                }
 
-				// 			constructorInitFields.push(name + "(" + value + ")");
-				// 			body[body.length - 1] = StringTools.replace(curBody, line + ";", "");
-				// 		}
-				// 	}
-				// }
-			}
+                                                constructorInitFields.push(name_raw + "(" + value_raw + ")");
+                                            }
+                                            case _: {}
+                                        }
+                                    }
+                                    case _: {
+                                        // trace(ex);
+                                    }
+                                }
+                            }
+
+                            bodyExpr = {
+                                expr: TBlock(cleanExpressions),
+                                pos: bodyExpr.pos,
+                                t: bodyExpr.t
+                            };
+                        }
+                        case _: {}
+                    }
+                }
+            }
+
+			XComp.pushTrackLines(useCallStack);
+			body.push(Main.compileClassFuncExpr(bodyExpr));
+			XComp.popTrackLines();
 
 			if(superConstructorCall != null) {
 				constructorInitFields.unshift(superConstructorCall);

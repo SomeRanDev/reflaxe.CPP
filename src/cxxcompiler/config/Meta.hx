@@ -592,8 +592,16 @@ enum abstract Meta(String) from String to String {
 	var IgnoreIfExtended = ":ignoreIfExtended";
 
 	/**
+		@:cppcList
+
+		If used on a constructor of a class, the constructor will be generate a
+		initializer list for the constructor.
+	**/
+    var CppcList = ":cppcList";
+
+	/**
 		Internal metadata. Cannot be used directly
-		
+
 		Used with @:passConstTypeParam to mark KExpr classes to be overwritten.
 	**/
 	var OverwriteKExpr = "-overwriteKExpr";
