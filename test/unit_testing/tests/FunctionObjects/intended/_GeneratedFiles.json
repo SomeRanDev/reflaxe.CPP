@@ -1,0 +1,14 @@
+{
+	"filesGenerated": [
+		"src/_main_.cpp",
+		"src/Main.cpp",
+		"include/haxe_PosInfos.h",
+		"include/cxx_DynamicToString.h",
+		"include/_AnonUtils.h",
+		"include/_AnonStructs.h",
+		"include/Main.h"
+	],
+	"id": 1,
+	"wasCached": false,
+	"version": 1
+}

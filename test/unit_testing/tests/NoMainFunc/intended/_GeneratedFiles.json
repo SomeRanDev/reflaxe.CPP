@@ -1,0 +1,11 @@
+{
+	"filesGenerated": [
+		"src/SomeClass3.cpp",
+		"src/SomeClass.cpp",
+		"include/SomeClass3.h",
+		"include/SomeClass.h"
+	],
+	"id": 1,
+	"wasCached": false,
+	"version": 1
+}

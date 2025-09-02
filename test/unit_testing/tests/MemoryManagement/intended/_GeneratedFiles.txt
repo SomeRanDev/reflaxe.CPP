@@ -1,4 +1,0 @@
-src/_main_.cpp
-src/Main.cpp
-include/_HaxeUtils.h
-include/Main.h

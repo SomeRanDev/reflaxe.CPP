@@ -1,4 +1,0 @@
-src/SomeClass3.cpp
-src/SomeClass.cpp
-include/SomeClass3.h
-include/SomeClass.h

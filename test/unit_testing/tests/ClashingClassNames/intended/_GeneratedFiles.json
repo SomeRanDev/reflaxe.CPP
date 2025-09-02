@@ -1,0 +1,15 @@
+{
+	"filesGenerated": [
+		"src/foo_Baz.cpp",
+		"src/baz_Baz.cpp",
+		"src/_main_.cpp",
+		"src/Main.cpp",
+		"include/foo_Baz.h",
+		"include/baz_Baz.h",
+		"include/_HaxeUtils.h",
+		"include/Main.h"
+	],
+	"id": 1,
+	"wasCached": false,
+	"version": 1
+}

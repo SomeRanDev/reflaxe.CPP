@@ -1,4 +1,0 @@
-src/_main_.cpp
-src/Main.cpp
-include/SomeClass.h
-include/Main.h
