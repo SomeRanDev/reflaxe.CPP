@@ -77,4 +77,10 @@ class IntMap<T> implements haxe.Constraints.IMap<Int, T> {
 	public function clear(): Void {
 		m.clear();
 	}
+
+	#if haxe5
+	public function size(): Int {
+		m.size();
+	}
+	#end
 }
