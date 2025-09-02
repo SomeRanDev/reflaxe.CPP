@@ -37,7 +37,7 @@ jobs:
         run: haxe Test.hxml
 
   build_windows:
-    runs-on: windows-2019
+    runs-on: windows-latest
     name: Test on Windows (VS)
     steps:
       - uses: krdlab/setup-haxe@v1
@@ -51,7 +51,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
-          vsversion: "2019"
+          vsversion: "2022"
 
       - name: Install & Check Haxe
         run: haxe -version
