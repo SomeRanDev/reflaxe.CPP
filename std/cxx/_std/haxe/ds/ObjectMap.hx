@@ -80,7 +80,7 @@ class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
 
 	#if haxe5
 	public function size(): Int {
-		m.size();
+		return m.size();
 	}
 	#end
 }
