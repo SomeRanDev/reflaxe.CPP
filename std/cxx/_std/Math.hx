@@ -111,6 +111,14 @@ extern class Math {
 	@:native("round")
 	public extern static function fround(v:Float): Float;
 
+	#if haxe5
+
+	@:include("cmath", true)
+	@:nativeFunctionCode("std::isfinite((double){arg0})")
+	public extern overload static function isFinite(f: Float): Bool;
+
+	#else
+
 	@:include("cmath", true)
 	@:native("std::isfinite")
 	public extern overload static function isFinite(f: Float): Bool;
@@ -118,6 +126,8 @@ extern class Math {
 	@:include("cmath", true)
 	@:nativeFunctionCode("std::isfinite((double){arg0})")
 	public extern overload static function isFinite(f: Int): Bool;
+
+	#end
 
 	@:include("cmath", true)
 	@:native("std::isnan")
