@@ -231,7 +231,7 @@ function executeTests(testDir: String, hxmlFiles: Array<String>): Bool {
 			"extraParams.hxml",
 			"-cp " + testDir,
 			"-D message-reporting=pretty",
-			"-D reflaxe_no_generated_metadata",
+			"-D reflaxe.dont_output_metadata_id",
 			"-D cpp-output=" + haxe.io.Path.join([testDir, noIntended ? OUT_DIR : getOutputDirectory(testDir)]),
 			"\"" + absPath + "\""
 		];
