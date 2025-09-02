@@ -76,7 +76,7 @@ class StringMap<T> implements haxe.Constraints.IMap<String, T> {
 
 	#if haxe5
 	public function size(): Int {
-		m.size();
+		return m.size();
 	}
 	#end
 }

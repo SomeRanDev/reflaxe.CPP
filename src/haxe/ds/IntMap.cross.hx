@@ -80,7 +80,7 @@ class IntMap<T> implements haxe.Constraints.IMap<Int, T> {
 
 	#if haxe5
 	public function size(): Int {
-		m.size();
+		return m.size();
 	}
 	#end
 }
