@@ -10,10 +10,13 @@ jobs:
   build_ubuntu:
     runs-on: ubuntu-latest
     name: Test on Ubuntu (GCC)
+    strategy:
+      matrix:
+        HAXE_VERSION: [4.3.7, latest]
     steps:
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.3.7
+          haxe-version: ${{ matrix.HAXE_VERSION }}
 
       - name: Checkout
         uses: actions/checkout@v4
