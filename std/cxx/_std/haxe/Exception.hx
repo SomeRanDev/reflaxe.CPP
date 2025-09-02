@@ -10,7 +10,7 @@ class Exception extends cxx.std.Exception {
 		return _message;
 	}
 
-	public var stack(get, never): CallStack;
+	public var stack(get, #if haxe5 set #else never #end): CallStack;
 	private function get_stack(): CallStack {
 		#if cxx_callstack
 		return _stack;
@@ -19,6 +19,16 @@ class Exception extends cxx.std.Exception {
 		return [];
 		#end
 	}
+	#if haxe5
+	private function set_stack(stack: CallStack): CallStack {
+		#if cxx_callstack
+		return _stack = stack;
+		#else
+		NativeStackTrace.err();
+		return [];
+		#end
+	}
+	#end
 
 	public var previous(get, never): Null<Exception>;
 	private function get_previous(): Null<Exception> {
