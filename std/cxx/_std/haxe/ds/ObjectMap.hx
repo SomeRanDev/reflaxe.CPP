@@ -77,4 +77,10 @@ class ObjectMap<K:{}, V> implements haxe.Constraints.IMap<K, V> {
 	public function clear(): Void {
 		m.clear();
 	}
+
+	#if haxe5
+	public function size(): Int {
+		m.size();
+	}
+	#end
 }
