@@ -14,6 +14,54 @@ void _Main::Main_Fields_::assert(bool b) {
 	};
 }
 
+std::string _Main::Main_Fields_::stmtSwitch(std::string s) {
+	std::string matched = "?"s;
+
+	auto __temp = s;
+	switch(__temp.size()) {
+		case 1: {
+			if(__temp == "A"s) {
+				matched = "A"s;
+			} else if(__temp == "B"s) {
+				matched = "B"s;
+			} else {
+				matched = "default"s;
+			}
+			break;
+		}
+		default: {
+			matched = "default"s;
+			break;
+		}
+	};
+
+	return matched;
+}
+
+int _Main::Main_Fields_::valueSwitch(std::string s) {
+	int tempResult = 0;
+
+	auto __temp = s;
+	switch(__temp.size()) {
+		case 1: {
+			if(__temp == "A"s) {
+				tempResult = 1;
+			} else if(__temp == "B"s) {
+				tempResult = 2;
+			} else {
+				tempResult = 99;
+			}
+			break;
+		}
+		default: {
+			tempResult = 99;
+			break;
+		}
+	};
+
+	return tempResult;
+}
+
 void _Main::Main_Fields_::main() {
 	int a = 123;
 
@@ -75,6 +123,11 @@ void _Main::Main_Fields_::main() {
 		}
 		default: {}
 	};
+
+	_Main::Main_Fields_::assert(_Main::Main_Fields_::stmtSwitch("C"s) == "default"s);
+	_Main::Main_Fields_::assert(_Main::Main_Fields_::stmtSwitch("A"s) == "A"s);
+	_Main::Main_Fields_::assert(_Main::Main_Fields_::valueSwitch("C"s) == 99);
+	_Main::Main_Fields_::assert(_Main::Main_Fields_::valueSwitch("B"s) == 2);
 
 	int tempNumber = 0;
 
