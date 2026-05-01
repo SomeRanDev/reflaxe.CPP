@@ -1861,7 +1861,15 @@ class Expressions extends SubCompiler {
 		result += "switch(" + generateCppForStringLength("__temp") + ") {";
 		for(length => lengthCases in lengths) {
 			result += "\n\tcase " + length + ": {\n";
-			result += compileSwitchAsIfs("__temp", eType, lengthCases, null, false).tab(2);
+			// Pass `edef` so each length-bucket's if-cascade ends with
+			// the user's default branch. Without this an input whose
+			// length matches a bucket but whose value matches no case
+			// inside it falls through with no statement executed —
+			// silently breaking `switch (s) { case "A": …; default: … }`
+			// when `s` is, say, "B" (same length as the case but not
+			// in the bucket), and tripping `-Werror=return-type` when
+			// the switch is a value position.
+			result += compileSwitchAsIfs("__temp", eType, lengthCases, edef, false).tab(2);
 			result += "\n\t\tbreak;";
 			result += "\n\t}";
 		}

@@ -7,6 +7,29 @@ function assert(b: Bool) {
 	}
 }
 
+// Statement-position string switch with a default. The bucket for
+// length 1 contains both "A" and "B"; any other length-1 input
+// must hit the default.
+function stmtSwitch(s: String): String {
+	var matched = "?";
+	switch(s) {
+		case "A": matched = "A";
+		case "B": matched = "B";
+		default:  matched = "default";
+	}
+	return matched;
+}
+
+// Value-position string switch — every path must yield an `Int`,
+// otherwise the codegen trips `-Werror=return-type`.
+function valueSwitch(s: String): Int {
+	return switch(s) {
+		case "A": 1;
+		case "B": 2;
+		case _:   99;
+	}
+}
+
 enum Test {
 	One;
 	Two;
@@ -37,6 +60,18 @@ function main() {
 		case "Goodbye": assert(false);
 		case "Blablabla": assert(false);
 	}
+
+	// String switch with same-length cases + default: exercises the
+	// `compileSwitchOptimizedForStrings` length-bucketed path. Inputs
+	// matching a bucket's length but no case inside it must fall
+	// through to `default`. Wrapped in helper functions so each
+	// emits its own `__temp` (the codegen declares the temp at
+	// function scope; calling one switch then another from `main`
+	// would collide).
+	assert(stmtSwitch("C") == "default");
+	assert(stmtSwitch("A") == "A");
+	assert(valueSwitch("C") == 99);
+	assert(valueSwitch("B") == 2);
 
 	// ---
 

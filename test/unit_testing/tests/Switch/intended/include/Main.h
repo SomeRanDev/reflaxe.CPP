@@ -67,6 +67,8 @@ public:
 	static int returnCode;
 
 	static void assert(bool b);
+	static std::string stmtSwitch(std::string s);
+	static int valueSwitch(std::string s);
 	static void main();
 };
 
